@@ -32,7 +32,7 @@ public class WebDriverFactory {
             */
 
             System.out.println("Thread id: " + threadId);
-            System.setProperty("webdriver.chrome.driver", "c:\\Selenium\\chromedriver.exe");
+            //System.setProperty("webdriver.chrome.driver", "c:\\Selenium\\chromedriver.exe");
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--headless");
             options.addArguments("--disable-gpu");
