@@ -36,6 +36,7 @@ public class WebDriverFactory {
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--headless");
             options.addArguments("--disable-gpu");
+            options.addArguments("--disable-dev-shm-usage");
             WebDriver driver = new ChromeDriver(options);
             /*WebDriver driver;
             try {
