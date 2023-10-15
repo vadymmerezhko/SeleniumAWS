@@ -40,15 +40,15 @@ public class WebDriverFactory {
             options.addArguments("--no-sandbox"); // bypass OS security model
             options.addArguments("--disable-extensions"); // disabling extensions
             options.addArguments("disable-infobars"); // disabling infobars
-            WebDriver driver = new ChromeDriver(options);
-            /*WebDriver driver;
+            //WebDriver driver = new ChromeDriver(options);
+            WebDriver driver;
             try {
                 //driver = new RemoteWebDriver(new URL("http://" + ec2InstanceIp), options);
-                driver = new RemoteWebDriver(new URL("http://54.153.118.158:4444"), options);
+                driver = new RemoteWebDriver(new URL("http://54.215.222.112:4444"), options);
                 System.out.println("Session created");
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
-            }*/
+            }
             driver.manage().window().maximize();
             driverMap.put(threadId, driver);
             return driver;
