@@ -1,6 +1,7 @@
 package org.example;
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -35,15 +36,15 @@ public class WebDriverFactory {
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--headless");
             options.addArguments("--disable-gpu");
-            //WebDriver driver = new ChromeDriver(options);
-            WebDriver driver;
+            WebDriver driver = new ChromeDriver(options);
+            /*WebDriver driver;
             try {
                 //driver = new RemoteWebDriver(new URL("http://" + ec2InstanceIp), options);
                 driver = new RemoteWebDriver(new URL("http://54.153.118.158:4444"), options);
                 System.out.println("Session created");
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
-            }
+            }*/
             driver.manage().window().maximize();
             driverMap.put(threadId, driver);
             return driver;
