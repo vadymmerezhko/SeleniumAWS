@@ -32,7 +32,7 @@ public class WebDriverFactory {
         System.out.println("Serer Id: " + serverId);
 
         if (!driverMap.containsKey(threadId)) {
-/*            ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
+            ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
 
             try {
                 waitForSeleniumGrid(ec2InstanceIp);
@@ -41,10 +41,10 @@ public class WebDriverFactory {
                 System.out.println("Wait Selenium Grid timeout!");
                 loadBalancer.lockSever(serverId);
                 return getDriver();
-            }*/
+            }
 
-            //river = getRemoteWebDriver(ec2InstanceIp);
-            driver = getLocalWebDriver();
+            driver = getRemoteWebDriver(ec2InstanceIp);
+            //driver = getLocalWebDriver();
             driverMap.put(threadId, driver);
         }
         else {
