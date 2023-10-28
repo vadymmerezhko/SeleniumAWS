@@ -1,2 +1,4 @@
 org\example\WebDriverFactory.class
+org\example\LoadBalancer.class
 org\example\AwsManager.class
+org\example\TimeOutException.class

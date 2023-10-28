@@ -10,6 +10,7 @@
             <class name="org.example.SeleniumTest6"/>
             <class name="org.example.SeleniumTest7"/>
             <class name="org.example.SeleniumTest8"/>
+            <class name="org.example.CommonTest"/>
         </classes>
     </test> <!-- Test -->
 </suite> <!-- Suite -->

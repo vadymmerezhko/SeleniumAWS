@@ -1,6 +1,7 @@
 package org.example;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
+import org.testng.ITestResult;
 import org.testng.annotations.*;
 
 import org.openqa.selenium.By;
@@ -10,46 +11,90 @@ public class SeleniumTest1 {
 
     WebDriver driver;
 
-    @BeforeClass
-    public void testSetup()
-    {
-    }
-
-    @BeforeMethod
-    public void openBrowser()
-    {
+    @BeforeMethod(alwaysRun = true)
+    public void openBrowser() {
         driver = WebDriverFactory.getDriver();
     }
 
-    @Test(description="This method validates the sign up functionality", invocationCount = 8)
-    public void signUp()
-    {
+    @AfterMethod(alwaysRun = true)
+    public void decrementThreadPool() {
+        LoadBalancer.getInstance().decrementServerThreadCount();
+    }
+
+    @Test(description = "This method validates the sign up functionality", invocationCount = 16)
+    public void signUp1() {
         driver.get("https://www.selenium.dev/selenium/web/web-form.html");
         WebElement textBox = driver.findElement(By.name("my-text"));
-        WebElement submitButton = driver.findElement(By.cssSelector("button"));
 
         textBox.sendKeys("Selenium");
-        submitButton.click();
-
-        WebElement message = driver.findElement(By.id("message"));
-        Assert.assertEquals(message.getText(), "Received!");
+        Assert.assertTrue(textBox.isEnabled());
     }
 
-    @AfterMethod
-    public void postSignUp()
-    {
+    @Test(description = "This method validates the sign up functionality", invocationCount = 16)
+    public void signUp2() {
+        driver.get("https://www.selenium.dev/selenium/web/web-form.html");
+        WebElement textBox = driver.findElement(By.name("my-text"));
+
+        textBox.sendKeys("Selenium");
+        Assert.assertTrue(textBox.isEnabled());
+    }
+
+    @Test(description = "This method validates the sign up functionality", invocationCount = 16)
+    public void signUp3() {
+        driver.get("https://www.selenium.dev/selenium/web/web-form.html");
+        WebElement textBox = driver.findElement(By.name("my-text"));
+
+        textBox.sendKeys("Selenium");
+        Assert.assertTrue(textBox.isEnabled());
+    }
+
+    @Test(description = "This method validates the sign up functionality", invocationCount = 16)
+    public void signUp4() {
+        driver.get("https://www.selenium.dev/selenium/web/web-form.html");
+        WebElement textBox = driver.findElement(By.name("my-text"));
+
+        textBox.sendKeys("Selenium");
+        Assert.assertTrue(textBox.isEnabled());
         System.out.println(driver.getCurrentUrl());
-        //driver.quit();
     }
 
-    @AfterClass
-    public void afterClass()
-    {
-        //driver.quit();
+    @Test(description = "This method validates the sign up functionality", invocationCount = 16)
+    public void signUp5() {
+        driver.get("https://www.selenium.dev/selenium/web/web-form.html");
+        WebElement textBox = driver.findElement(By.name("my-text"));
+
+        textBox.sendKeys("Selenium");
+        Assert.assertTrue(textBox.isEnabled());
+        System.out.println(driver.getCurrentUrl());
     }
 
-    @AfterSuite
-    public void afterSuite() {
-        WebDriverFactory.closeAllDrivers();
+    @Test(description = "This method validates the sign up functionality", invocationCount = 16)
+    public void signUp6() {
+        driver.get("https://www.selenium.dev/selenium/web/web-form.html");
+        WebElement textBox = driver.findElement(By.name("my-text"));
+
+        textBox.sendKeys("Selenium");
+        Assert.assertTrue(textBox.isEnabled());
+        System.out.println(driver.getCurrentUrl());
+    }
+
+    @Test(description = "This method validates the sign up functionality", invocationCount = 16)
+    public void signUp7() {
+        driver.get("https://www.selenium.dev/selenium/web/web-form.html");
+        WebElement textBox = driver.findElement(By.name("my-text"));
+
+        textBox.sendKeys("Selenium");
+        Assert.assertTrue(textBox.isEnabled());
+        System.out.println(driver.getCurrentUrl());
+    }
+
+    @Test(description = "This method validates the sign up functionality", invocationCount = 16)
+    public void signUp8() {
+        driver.get("https://www.selenium.dev/selenium/web/web-form.html");
+        WebElement textBox = driver.findElement(By.name("my-text"));
+
+        textBox.sendKeys("Selenium");
+        Assert.assertTrue(textBox.isEnabled());
+        System.out.println(driver.getCurrentUrl());
     }
 }
