@@ -34,6 +34,7 @@ public class WebDriverFactory {
 */
 
         if (!driverMap.containsKey(threadId)) {
+            System.out.println("Thread: " + threadId);
   /*          ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
 
             try {

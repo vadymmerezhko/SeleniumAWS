@@ -1,7 +1,10 @@
 C:\Users\vadym\OneDrive\Documents\GitHub\SeleniumAWS\src\main\java\org\example\LoadBalancer.java
 C:\Users\vadym\OneDrive\Documents\GitHub\SeleniumAWS\src\main\java\org\example\TimeOut.java
 C:\Users\vadym\OneDrive\Documents\GitHub\SeleniumAWS\src\main\java\org\example\WebDriverFactory.java
+C:\Users\vadym\OneDrive\Documents\GitHub\SeleniumAWS\src\main\java\org\example\RobustWebElement.java
 C:\Users\vadym\OneDrive\Documents\GitHub\SeleniumAWS\src\main\java\org\example\SshManager.java
 C:\Users\vadym\OneDrive\Documents\GitHub\SeleniumAWS\src\main\java\org\example\AwsManager.java
 C:\Users\vadym\OneDrive\Documents\GitHub\SeleniumAWS\src\main\java\org\example\TimeOutException.java
 C:\Users\vadym\OneDrive\Documents\GitHub\SeleniumAWS\src\main\java\org\example\Waiter.java
+C:\Users\vadym\OneDrive\Documents\GitHub\SeleniumAWS\src\main\java\org\example\RobustWebDriverWaiter.java
+C:\Users\vadym\OneDrive\Documents\GitHub\SeleniumAWS\src\main\java\org\example\RobustWebDriver.java
