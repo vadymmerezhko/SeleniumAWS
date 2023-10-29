@@ -27,12 +27,14 @@ public class WebDriverFactory {
         long threadId = Thread.currentThread().getId();
         String ec2InstanceIp;
 
+/*
         loadBalancer.incrementServerThreadCount();
         long serverId = loadBalancer.getThreadServerId();
         System.out.println("Serer Id: " + serverId);
+*/
 
         if (!driverMap.containsKey(threadId)) {
-            ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
+  /*          ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
 
             try {
                 waitForSeleniumGrid(ec2InstanceIp);
@@ -44,6 +46,8 @@ public class WebDriverFactory {
             }
 
             driver = getRemoteWebDriver(ec2InstanceIp);
+*/
+            driver = new RobustWebDriver(getLocalWebDriver());
             //driver = getLocalWebDriver();
             driverMap.put(threadId, driver);
         }

@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class AwsManager {
     static private final int WAIT_EC2_ID_TIMEOUT = 30;
     static private final int WAIT_EC2_PUBLIC_IP_TIMEOUT = 30;
-    private static final String AWS_ACCESS_ID = "AKIAXZRTVXLO44AM55Y5";
+    private static final String AWS_ACCESS_ID = null;
     private static final String AWS_KEY = "OBe4tL6Sy40H+jQWFs/DhgEJsW4tetjtb9jCWqN1";
 
     public static AWSCredentialsProvider getAwsCredentialProvider() {

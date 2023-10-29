@@ -9,17 +9,17 @@ public class CommonTest {
 
     @BeforeSuite
     public  void beforeSuite() {
-        try {
+/*        try {
             WebDriverFactory.createServerInstances();
         } catch (Exception e) {
             System.out.println("Cannot create all servers:\n" + e.getMessage());
             Assert.fail(e.getMessage());
-        }
+        }*/
     }
 
     @AfterSuite()
     public void afterSuite() {
         WebDriverFactory.closeAllDrivers();
-        WebDriverFactory.terminateAllSeleniumServers();
+        //WebDriverFactory.terminateAllSeleniumServers();
     }
 }

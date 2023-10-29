@@ -17,7 +17,7 @@ public class SeleniumTest5 {
 
     @AfterMethod(alwaysRun = true)
     public void decrementThreadPool() {
-        LoadBalancer.getInstance().decrementServerThreadCount();
+        //LoadBalancer.getInstance().decrementServerThreadCount();
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 16)
