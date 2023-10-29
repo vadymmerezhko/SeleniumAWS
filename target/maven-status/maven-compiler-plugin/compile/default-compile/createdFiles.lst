@@ -1,4 +1,8 @@
+org\example\RobustWebDriverWaiter$1.class
+org\example\RobustWebDriverWaiter.class
+org\example\RobustWebDriver.class
+org\example\TimeOutException.class
 org\example\WebDriverFactory.class
+org\example\RobustWebElement.class
 org\example\LoadBalancer.class
 org\example\AwsManager.class
-org\example\TimeOutException.class
