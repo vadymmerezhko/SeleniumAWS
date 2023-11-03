@@ -1,17 +1,16 @@
-package org.example;
+package org.example.driver;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RobustWebDriver implements WebDriver {
     private static final int PAGE_LOAD_TIMEOUT_SEC = 15;
-    private static final int FIND_ELEMENT_TIMEOUT_SEC = 15;
+    private static final int FIND_ELEMENT_TIMEOUT_SEC = 5;
 
     private final WebDriver driver;
     private final RobustWebDriverWaiter waiter;
@@ -41,14 +40,14 @@ public class RobustWebDriver implements WebDriver {
     public List<WebElement> findElements(By by) {
         List<WebElement> elements = driver.findElements(by);
         return elements.stream().map(element ->
-                new RobustWebElement(element, by, driver))
+                new RobustWebElement(element, null, by, driver))
                 .collect(Collectors.toList());
     }
 
     @Override
     public WebElement findElement(By by) {
         return new RobustWebElement(
-                waiter.waitForElementPresenceBy(by, FIND_ELEMENT_TIMEOUT_SEC), by, driver);
+                waiter.waitForElementPresenceBy(by, FIND_ELEMENT_TIMEOUT_SEC), null, by, driver);
     }
 
     @Override

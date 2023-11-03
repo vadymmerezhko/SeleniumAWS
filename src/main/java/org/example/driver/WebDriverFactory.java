@@ -1,6 +1,9 @@
-package org.example;
+package org.example.driver;
 
-import com.amazonaws.services.ec2.AmazonEC2;
+import org.example.LoadBalancer;
+import org.example.TimeOut;
+import org.example.TimeOutException;
+import org.example.Waiter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -13,29 +16,20 @@ import java.util.concurrent.ConcurrentMap;
 
 public class WebDriverFactory {
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
-    static private final long SELENIUM_SERVERS_COUNT = 1;
     static private final int WAIT_SELENIUM_GRID_TIMEOUT = 30;
-    static private final String AWS_IMAGE_ID = "ami-0e26e576b4517b30d";
-    static private final String SECURITY_KEY_PAIR_NAME = "AWC_EC2_RSA_Key_Pair";
-    static private final String SECURITY_GROUP_NAME = "Selenium Test Security Group";
-     static private final String USER_DATA = "IyEvYmluL2Jhc2gKY2QgaG9tZS8KY2QgZWMyLXVzZXIKamF2YSAtam" +
-             "FyIHNlbGVuaXVtLXNlcnZlci00LjE0LjEuamFyIHN0YW5kYWxvbmUgLS1zZWxlbml1bS1tYW5hZ2VyIHRydWUgJgo=";
     private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
 
     public static WebDriver getDriver() {
         WebDriver driver;
         long threadId = Thread.currentThread().getId();
-        String ec2InstanceIp;
-
-/*
+/*        String ec2InstanceIp;
         loadBalancer.incrementServerThreadCount();
         long serverId = loadBalancer.getThreadServerId();
-        System.out.println("Serer Id: " + serverId);
-*/
+        System.out.println("Serer Id: " + serverId);*/
 
         if (!driverMap.containsKey(threadId)) {
             System.out.println("Thread: " + threadId);
-  /*          ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
+/*            ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
 
             try {
                 waitForSeleniumGrid(ec2InstanceIp);
@@ -44,12 +38,10 @@ public class WebDriverFactory {
                 System.out.println("Wait Selenium Grid timeout!");
                 loadBalancer.lockSever(serverId);
                 return getDriver();
-            }
+            }*/
 
-            driver = getRemoteWebDriver(ec2InstanceIp);
-*/
+            //driver = new RobustWebDriver(getRemoteWebDriver(ec2InstanceIp));
             driver = new RobustWebDriver(getLocalWebDriver());
-            //driver = getLocalWebDriver();
             driverMap.put(threadId, driver);
         }
         else {
@@ -57,23 +49,6 @@ public class WebDriverFactory {
             driver.manage().deleteAllCookies();
         }
         return driver;
-    }
-
-    public static void createServerInstances() {
-        LoadBalancer.getInstance().setMaxServersCount(SELENIUM_SERVERS_COUNT);
-
-        AmazonEC2 ec2 = AwsManager.getEC2Client();
-        long maxServerCount = LoadBalancer.getInstance().getMaxServersCount();
-
-        for (long i = 0; i < maxServerCount; i++) {
-            String instanceId = AwsManager.runEC2AndEWaitForId(
-                    ec2, AWS_IMAGE_ID, SECURITY_KEY_PAIR_NAME, SECURITY_GROUP_NAME, USER_DATA);
-            System.out.println(i + " : " + instanceId);
-            loadBalancer.setServerEC2Id(i, instanceId);
-            String instanceIp = AwsManager.waitForEC2Ip(ec2, instanceId);
-            System.out.println(i + " : " + instanceIp);
-            loadBalancer.setServerEC2PublicIp(i, instanceIp);
-        }
     }
 
     public static WebDriver getLocalWebDriver() {
@@ -90,7 +65,6 @@ public class WebDriverFactory {
 
     private static WebDriver getRemoteWebDriver(String ec2InstanceIp) {
         WebDriver driver = null;
-        //System.setProperty("webdriver.chrome.driver", "c:\\Selenium\\chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless"); // headless only
         options.addArguments("--disable-gpu"); // applicable to Windows os only
@@ -100,7 +74,7 @@ public class WebDriverFactory {
         options.addArguments("disable-infobars"); // disabling infobars
         //driver = new ChromeDriver(options);
 
-        int repeatCount = 10;
+        int repeatCount = 2;
         Exception exception = null;
 
         while (repeatCount > 0) {
@@ -166,14 +140,5 @@ public class WebDriverFactory {
     public static void closeAllDrivers() {
         driverMap.keySet().forEach(WebDriverFactory::closeDriver);
         System.out.println("All browsers are closed");
-    }
-
-    public static void terminateAllSeleniumServers() {
-        AmazonEC2 ec2Client = AwsManager.getEC2Client();
-
-         loadBalancer.getAllServersEC2Ids().forEach(ec2Id -> {
-            AwsManager.terminateEC2(ec2Client, ec2Id);
-        });
-        System.out.println("All Selenium servers are terminated");
     }
 }

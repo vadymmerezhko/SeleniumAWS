@@ -3,6 +3,7 @@ package org.example;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
@@ -20,13 +21,17 @@ import java.util.concurrent.TimeUnit;
 public class AwsManager {
     static private final int WAIT_EC2_ID_TIMEOUT = 30;
     static private final int WAIT_EC2_PUBLIC_IP_TIMEOUT = 30;
-    private static final String AWS_ACCESS_ID = null;
-    private static final String AWS_KEY = "OBe4tL6Sy40H+jQWFs/DhgEJsW4tetjtb9jCWqN1";
 
     public static AWSCredentialsProvider getAwsCredentialProvider() {
         return new AWSCredentialsProvider() {
+            final String awsAccessKeyId = System.getProperty("AWS_ACCESS_KEY_ID");
+            final String awsSecretAccessKey =  System.getProperty("AWS_SECRET_ACCESS_KEY");
+
+
             public AWSCredentials getCredentials() {
-                return new BasicAWSCredentials(AWS_ACCESS_ID, AWS_KEY);
+                return new BasicAWSCredentials(
+                        awsAccessKeyId,
+                        awsSecretAccessKey);
             }
             public void refresh() {
                 // NOP
@@ -35,7 +40,7 @@ public class AwsManager {
     }
 
     public static AmazonEC2 getEC2Client() {
-        AWSCredentialsProvider provider = getAwsCredentialProvider();
+        AWSCredentialsProvider provider = new EnvironmentVariableCredentialsProvider(); // getAwsCredentialProvider();
 
         return AmazonEC2ClientBuilder.standard()
                 .withCredentials(provider)

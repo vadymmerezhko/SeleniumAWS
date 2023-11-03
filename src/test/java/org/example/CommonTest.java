@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.driver.WebDriverFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
@@ -10,16 +11,21 @@ public class CommonTest {
     @BeforeSuite
     public  void beforeSuite() {
 /*        try {
-            WebDriverFactory.createServerInstances();
+            ServerManager.createServerInstances(
+                    Settings.SELENIUM_SERVERS_COUNT,
+                    Settings.AWS_IMAGE_ID,
+                    Settings.SECURITY_KEY_PAIR_NAME,
+                    Settings.SECURITY_GROUP_NAME,
+                    Settings.USER_DATA);
         } catch (Exception e) {
             System.out.println("Cannot create all servers:\n" + e.getMessage());
-            Assert.fail(e.getMessage());
+            System.exit(-1);
         }*/
     }
 
     @AfterSuite()
     public void afterSuite() {
         WebDriverFactory.closeAllDrivers();
-        //WebDriverFactory.terminateAllSeleniumServers();
+        //ServerManager.terminateAllSeleniumServers();
     }
 }

@@ -1,7 +1,7 @@
 package org.example;
+import org.example.driver.WebDriverFactory;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import org.testng.ITestResult;
 import org.testng.annotations.*;
 
 import org.openqa.selenium.By;

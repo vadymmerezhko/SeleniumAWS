@@ -1,4 +1,4 @@
-package org.example;
+package org.example.driver;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
