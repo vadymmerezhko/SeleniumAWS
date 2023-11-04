@@ -1,6 +1,7 @@
 package org.example.driver;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -40,14 +41,21 @@ public class RobustWebDriver implements WebDriver {
     public List<WebElement> findElements(By by) {
         List<WebElement> elements = driver.findElements(by);
         return elements.stream().map(element ->
-                new RobustWebElement(element, null, by, driver))
+                new RobustWebElement(element, null, by, driver, waiter))
                 .collect(Collectors.toList());
     }
 
     @Override
     public WebElement findElement(By by) {
-        return new RobustWebElement(
-                waiter.waitForElementPresenceBy(by, FIND_ELEMENT_TIMEOUT_SEC), null, by, driver);
+        try {
+            return new RobustWebElement(
+                    driver.findElement(by), null, by, driver, waiter);
+        }
+        catch (NoSuchElementException e) {
+            return new RobustWebElement(
+                    waiter.waitForElementPresenceBy(
+                            by, FIND_ELEMENT_TIMEOUT_SEC), null, by, driver, waiter);
+        }
     }
 
     @Override

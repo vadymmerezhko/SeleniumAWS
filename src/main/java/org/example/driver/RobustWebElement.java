@@ -2,57 +2,64 @@ package org.example.driver;
 
 import org.example.Waiter;
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class RobustWebElement implements WebElement {
     private static final int WAIT_FOR_ELEMENT_TIMEOUT_SEC = 15;
-    private static final int RETRY_WAIT_SECONDS = 1;
-    private static final int RETRY_COUNT = 10;
+    private static final int RETRY_WAIT_MILLI_SEC = 50;
+    private static final int RETRY_COUNT = 100;
     private WebElement element;
     private final RobustWebElement parent;
     private final By by;
     private final WebDriver driver;
     private final RobustWebDriverWaiter waiter;
 
-    public RobustWebElement(WebElement element, RobustWebElement parent, By by, WebDriver driver) {
+    public RobustWebElement(WebElement element,
+                            RobustWebElement parent,
+                            By by,
+                            WebDriver driver,
+                            RobustWebDriverWaiter waiter) {
         this.element = element;
         this.parent = parent;
         this.by = by;
         this.driver = driver;
-        waiter = new RobustWebDriverWaiter(driver);
-        fixWebElement();
+        this.waiter = waiter;
+        fixClickableWebElement();
     }
 
     @Override
     public void click() {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
-            waiter.waitForElementToBeClickableBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
             try {
                 element.click();
                 return;
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (StaleElementReferenceException |
+                     ElementNotInteractableException e) {
                 exception = e;
-                fixWebElement();
+                fixClickableWebElement();
             }
         }
-        throw new RuntimeException(exception);
+        try {
+            clickHiddenElement();
+        }
+        catch (Exception e) {
+            throw new RuntimeException(exception);
+        }
     }
 
     @Override
     public void submit() {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
-            waiter.waitForElementToBeClickableBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
             try {
                 element.submit();
                 return;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
-                fixWebElement();
+                fixClickableWebElement();
             }
         }
         throw new RuntimeException(exception);
@@ -60,15 +67,15 @@ public class RobustWebElement implements WebElement {
 
     @Override
     public void sendKeys(CharSequence... keysToSend) {
+        element.sendKeys(keysToSend);
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
-            waiter.waitForElementToBeClickableBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
             try {
                 element.sendKeys(keysToSend);
                 return;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
-                fixWebElement();
+                fixClickableWebElement();
             }
         }
         throw new RuntimeException(exception);
@@ -78,13 +85,12 @@ public class RobustWebElement implements WebElement {
     public void clear() {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
-            waiter.waitForElementToBeClickableBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
             try {
                 element.clear();
                 return;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
-                fixWebElement();
+                fixClickableWebElement();
             }
         }
         throw new RuntimeException(exception);
@@ -99,12 +105,11 @@ public class RobustWebElement implements WebElement {
     public String getAttribute(String name) {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
-            waiter.waitForElementVisibilityBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
             try {
                 return element.getAttribute(name);
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
-                fixWebElement();
+                fixVisibleWebElement();
             }
         }
         throw new RuntimeException(exception);
@@ -114,12 +119,11 @@ public class RobustWebElement implements WebElement {
     public boolean isSelected() {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
-            waiter.waitForElementVisibilityBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
             try {
                 return element.isSelected();
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
-                fixWebElement();
+                fixVisibleWebElement();
             }
         }
         throw new RuntimeException(exception);
@@ -133,7 +137,7 @@ public class RobustWebElement implements WebElement {
                 return element.isEnabled();
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
-                fixWebElement();
+                fixVisibleWebElement();
             }
         }
         throw new RuntimeException(exception);
@@ -143,12 +147,11 @@ public class RobustWebElement implements WebElement {
     public String getText() {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
-            waiter.waitForElementVisibilityBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
             try {
                 return element.getText();
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
-                fixWebElement();
+                fixVisibleWebElement();
             }
         }
         throw new RuntimeException(exception);
@@ -157,58 +160,19 @@ public class RobustWebElement implements WebElement {
     @Override
     public List<WebElement> findElements(By childBy) {
         return element.findElements(childBy).stream().map(childElement ->
-                        new RobustWebElement(childElement, this, childBy, driver))
+                        new RobustWebElement(childElement, this, childBy, driver, waiter))
                 .collect(Collectors.toList());
     }
 
     @Override
     public WebElement findElement(By childBy) {
         System.out.println("Fix element.");
-        return new RobustWebElement(waitForChildElementPresence(childBy), this, childBy, driver);
-    }
-
-    private WebElement waitForChildElementPresence(By childBy) {
-        try{
-            return element.findElement(childBy);
-        }
-        catch (NoSuchElementException e) {
-            for (int i = 0; i < RETRY_COUNT; i++) {
-                Waiter.waitSeconds(1);
-                List<WebElement> elements = element.findElements(childBy);
-                if (!elements.isEmpty()) {
-                    if (elements.size() > 1) {
-                        throw new RuntimeException(
-                                "More than one child element is found: " + childBy.toString());
-                    }
-                    return elements.get(0);
-                }
-            }
-            throw new RuntimeException(e);
-        }
+        return new RobustWebElement(waitForChildElementPresence(childBy), this, childBy, driver, waiter);
     }
 
     @Override
     public boolean isDisplayed() {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                return element.isDisplayed();
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
-                exception = e;
-                fixWebElement();
-            }
-        }
-        throw new RuntimeException(exception);
-    }
-
-    private void fixWebElement() {
-        Waiter.waitSeconds(RETRY_WAIT_SECONDS);
-        if (parent == null) {
-            element = driver.findElement(by);
-        } else {
-            parent.fixWebElement();
-            element = parent.findElement(by);
-        }
+        return element.isDisplayed();
     }
 
     @Override
@@ -234,5 +198,64 @@ public class RobustWebElement implements WebElement {
     @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
         return element.getScreenshotAs(target);
+    }
+
+    protected void scrollToElement() {
+        try {
+            ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", element);
+        }
+        catch (StaleElementReferenceException |
+               ElementNotInteractableException |
+               java.util.NoSuchElementException e) {
+            // Ignore exception;
+        }
+    }
+
+    protected void clickHiddenElement() {
+        ((JavascriptExecutor)driver).executeScript("arguments[0].click();", element);
+    }
+
+    private WebElement waitForChildElementPresence(By childBy) {
+        try{
+            return element.findElement(childBy);
+        }
+        catch (NoSuchElementException e) {
+            for (int i = 0; i < RETRY_COUNT; i++) {
+                Waiter.waitSeconds(RETRY_WAIT_MILLI_SEC);
+                List<WebElement> elements = element.findElements(childBy);
+                if (!elements.isEmpty()) {
+                    if (elements.size() > 1) {
+                        throw new RuntimeException(
+                                "More than one child element is found: " + childBy.toString());
+                    }
+                    return elements.get(0);
+                }
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void fixClickableWebElement() {
+        Waiter.waitMilliSeconds(RETRY_WAIT_MILLI_SEC);
+        if (parent == null) {
+            scrollToElement();
+            element = waiter.waitForElementToBeClickableBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
+        } else {
+            parent.fixClickableWebElement();
+            element = parent.findElement(by);
+        }
+        System.out.println("Element fixed: " + by.toString());
+    }
+
+    private void fixVisibleWebElement() {
+        Waiter.waitMilliSeconds(RETRY_WAIT_MILLI_SEC);
+        if (parent == null) {
+            scrollToElement();
+            element = waiter.waitForElementVisibilityBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
+        } else {
+            parent.fixClickableWebElement();
+            element = waitForChildElementPresence(by);
+        }
+        System.out.println("Element fixed: " + by.toString());
     }
 }

@@ -42,6 +42,7 @@ public class WebDriverFactory {
 
             //driver = new RobustWebDriver(getRemoteWebDriver(ec2InstanceIp));
             driver = new RobustWebDriver(getLocalWebDriver());
+            //driver = getLocalWebDriver();
             driverMap.put(threadId, driver);
         }
         else {

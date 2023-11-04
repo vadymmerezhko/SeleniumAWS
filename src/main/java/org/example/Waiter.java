@@ -10,4 +10,12 @@ public class Waiter {
             throw new RuntimeException(e);
         }
     }
+
+    public static void waitMilliSeconds(int milliSeconds) {
+        try {
+            TimeUnit.MICROSECONDS.sleep(milliSeconds);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
