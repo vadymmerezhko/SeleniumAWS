@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class RobustWebElement implements WebElement {
     private static final int WAIT_FOR_ELEMENT_TIMEOUT_SEC = 15;
-    private static final int RETRY_WAIT_MILLI_SEC = 50;
+    private static final int RETRY_WAIT_MILLI_SEC = 100;
     private static final int RETRY_COUNT = 100;
     private WebElement element;
     private final RobustWebElement parent;
@@ -42,12 +42,7 @@ public class RobustWebElement implements WebElement {
                 fixClickableWebElement();
             }
         }
-        try {
-            clickHiddenElement();
-        }
-        catch (Exception e) {
-            throw new RuntimeException(exception);
-        }
+        throw new RuntimeException(exception);
     }
 
     @Override
@@ -67,7 +62,6 @@ public class RobustWebElement implements WebElement {
 
     @Override
     public void sendKeys(CharSequence... keysToSend) {
-        element.sendKeys(keysToSend);
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
