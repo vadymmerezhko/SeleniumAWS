@@ -26,7 +26,6 @@ public class RobustWebElement implements WebElement {
         this.by = by;
         this.driver = driver;
         this.waiter = waiter;
-        fixClickableWebElement();
     }
 
     @Override

@@ -1,15 +1,12 @@
 package org.example.driver;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class RobustWebDriver implements WebDriver {
+public class RobustWebDriver implements WebDriver, JavascriptExecutor {
     private static final int PAGE_LOAD_TIMEOUT_SEC = 15;
     private static final int FIND_ELEMENT_TIMEOUT_SEC = 5;
 
@@ -19,6 +16,10 @@ public class RobustWebDriver implements WebDriver {
     public RobustWebDriver(WebDriver driver) {
         this.driver = driver;
         waiter = new RobustWebDriverWaiter(driver);
+    }
+
+    public WebDriver getNativeDriver() {
+        return driver;
     }
 
     @Override
@@ -52,9 +53,11 @@ public class RobustWebDriver implements WebDriver {
                     driver.findElement(by), null, by, driver, waiter);
         }
         catch (NoSuchElementException e) {
-            return new RobustWebElement(
+/*            return new RobustWebElement(
                     waiter.waitForElementPresenceBy(
-                            by, FIND_ELEMENT_TIMEOUT_SEC), null, by, driver, waiter);
+                            by, FIND_ELEMENT_TIMEOUT_SEC), null, by, driver, waiter);*/
+            return new RobustWebElement(
+                    driver.findElement(by), null, by, driver, waiter);
         }
     }
 
@@ -96,5 +99,15 @@ public class RobustWebDriver implements WebDriver {
     @Override
     public Options manage() {
         return driver.manage();
+    }
+
+    @Override
+    public Object executeScript(String script, Object... args) {
+        return ((JavascriptExecutor)driver).executeScript(script, args);
+    }
+
+    @Override
+    public Object executeAsyncScript(String script, Object... args) {
+        return ((JavascriptExecutor)driver).executeAsyncScript(script, args);
     }
 }

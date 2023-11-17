@@ -2,7 +2,8 @@
 <suite name="Suite" thread-count="4" parallel="methods">
     <test name="Test">
         <classes>
-            <class name="org.example.SeleniumTest1"/>
+            <class name="org.example.Selenium1Test"/>
+            <class name="org.example.CommonTest"/>
         </classes>
     </test> <!-- Test -->
 </suite> <!-- Suite -->

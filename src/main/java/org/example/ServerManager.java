@@ -1,6 +1,7 @@
 package org.example;
 
 import com.amazonaws.services.ec2.AmazonEC2;
+import org.example.balancer.LoadBalancer;
 
 public class ServerManager {
     private final static LoadBalancer loadBalancer = LoadBalancer.getInstance();

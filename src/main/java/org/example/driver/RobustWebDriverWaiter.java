@@ -1,15 +1,11 @@
 package org.example.driver;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.function.Predicate;
 
 public class RobustWebDriverWaiter {
 
@@ -19,6 +15,11 @@ public class RobustWebDriverWaiter {
     public RobustWebDriverWaiter(WebDriver driver) {
         this.driver = driver;
         js = (JavascriptExecutor) driver;
+
+/*        wait = new FluentWait(driver);
+        wait.withTimeout(5000, TimeUnit.MILLISECONDS);
+        wait.pollingEvery(250, TimeUnit.MILLISECONDS);
+        wait.ignoring(NoSuchElementException.class, InvalidElementStateException.class);*/
     }
 
     public void waitForPageLoad(int timeoutSeconds) {
@@ -46,5 +47,10 @@ public class RobustWebDriverWaiter {
     public WebElement waitForElementVisibilityBy(By by, int timeoutSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
         return wait.until(ExpectedConditions.visibilityOfElementLocated(by));
+    }
+
+    public boolean waitForElementAttributeBy(By by, String attributeName, String attributeValue, int timeoutSeconds) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+        return wait.until(ExpectedConditions.attributeToBe(by, attributeName, attributeValue));
     }
 }

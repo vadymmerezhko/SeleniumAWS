@@ -2,14 +2,14 @@
 <suite name="Suite" parallel="methods">
     <test name="Test">
         <classes>
-            <class name="org.example.SeleniumTest1"/>
-            <class name="org.example.SeleniumTest2"/>
-            <class name="org.example.SeleniumTest3"/>
-            <class name="org.example.SeleniumTest4"/>
-            <class name="org.example.SeleniumTest5"/>
-            <class name="org.example.SeleniumTest6"/>
-            <class name="org.example.SeleniumTest7"/>
-            <class name="org.example.SeleniumTest8"/>
+            <class name="org.example.Selenium1Test"/>
+            <class name="org.example.Selenium2Test"/>
+            <class name="org.example.Selenium3Test"/>
+            <class name="org.example.Selenium4Test"/>
+            <class name="org.example.Selenium5Test"/>
+            <class name="org.example.Selenium6Test"/>
+            <class name="org.example.Selenium7Test"/>
+            <class name="org.example.Selenium8Test"/>
             <class name="org.example.CommonTest"/>
         </classes>
     </test> <!-- Test -->
