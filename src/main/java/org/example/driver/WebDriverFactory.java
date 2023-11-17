@@ -52,12 +52,12 @@ public class WebDriverFactory {
             }*/
 
             //driver = new RobustWebDriver(getRemoteWebDriver(ec2InstanceIp));
-            //driver = new RobustWebDriver(getLocalWebDriver());
+            driver = new RobustWebDriver(getLocalWebDriver());
             //driver = getLocalWebDriver();
-            driver = new RobustWebDriver(getAWSRemoteWebDriver(
+/*            driver = new RobustWebDriver(getAWSRemoteWebDriver(
                     AWS_DEVICE_FARM_BROWSERS_ARM, // AWS_DEVICE_FARM_BROWSER_PROJECT_ARN[(int)threadId % AWS_DEVICE_FARM_BROWSER_PROJECT_ARN.length],
                     AWS_DEVICE_FARM_BROWSERS[(int)threadId % AWS_DEVICE_FARM_BROWSERS.length],
-                   AWS_DEVICE_FARM_BROWSER_VERSIONS[(int)threadId % AWS_DEVICE_FARM_BROWSER_VERSIONS.length]));
+                   AWS_DEVICE_FARM_BROWSER_VERSIONS[(int)threadId % AWS_DEVICE_FARM_BROWSER_VERSIONS.length]));*/
             driverMap.put(threadId, driver);
             System.out.println("Tread " + threadId + " driver is set up!!!");
         }
@@ -79,7 +79,7 @@ public class WebDriverFactory {
     }
 
     public static WebDriver getLocalWebDriver() {
-        //System.setProperty("webdriver.chrome.driver", "c:\\Selenium\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "c:\\Selenium\\chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless"); // headless only
         options.addArguments("--disable-gpu"); // applicable to Windows os only
