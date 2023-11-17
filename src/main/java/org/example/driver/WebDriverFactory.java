@@ -79,7 +79,7 @@ public class WebDriverFactory {
     }
 
     public static WebDriver getLocalWebDriver() {
-        System.setProperty("webdriver.chrome.driver", "c:\\Selenium\\chromedriver.exe");
+        //System.setProperty("webdriver.chrome.driver", "c:\\Selenium\\chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless"); // headless only
         options.addArguments("--disable-gpu"); // applicable to Windows os only
