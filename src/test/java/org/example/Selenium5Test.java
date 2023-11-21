@@ -16,41 +16,41 @@ public class Selenium5Test extends BaseTest{
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 16, retryAnalyzer = org.example.RetryAnalyzer.class)
     public void signUp1() {
-        signUp();
+        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 16, retryAnalyzer = org.example.RetryAnalyzer.class)
     public void signUp2() {
-        signUp();
+        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 16, retryAnalyzer = org.example.RetryAnalyzer.class)
     public void signUp3() {
-        signUp();
+        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 16, retryAnalyzer = org.example.RetryAnalyzer.class)
     public void signUp4() {
-        signUp();
+        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 16, retryAnalyzer = org.example.RetryAnalyzer.class)
     public void signUp5() {
-        signUp();
+        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 16, retryAnalyzer = org.example.RetryAnalyzer.class)
     public void signUp6() {
-        signUp();
+        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 16, retryAnalyzer = org.example.RetryAnalyzer.class)
     public void signUp7() {
-        signUp();
+        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 16, retryAnalyzer = org.example.RetryAnalyzer.class)
     public void signUp8() {
-        signUp();
+        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
     }
 }

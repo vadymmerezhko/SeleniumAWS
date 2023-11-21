@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class AwsManager {
     static private final int WAIT_EC2_ID_TIMEOUT = 30;
@@ -92,7 +91,7 @@ public class AwsManager {
             ec2InstanceId = AwsManager.runEC2(ec2, imageId, keyPairName, groupName, userData);
 
             if (ec2InstanceId != null) break;
-            System.out.println("Repeat getting EC2 Id");
+            //System.out.println("Repeat getting EC2 Id");
         }
         return ec2InstanceId;
     }
@@ -107,7 +106,7 @@ public class AwsManager {
             ec2InstanceIp = AwsManager.getEC2PublicIp(ec2Client, ec2InstanceId);
 
             if (ec2InstanceIp != null) break;
-            System.out.println("Repeat getting EC2 IP");
+            //System.out.println("Repeat getting EC2 IP");
         }
         return ec2InstanceIp;
     }
@@ -156,19 +155,17 @@ public class AwsManager {
                 //command output holds the output of running the command
                 //eg. list of directories in case of ls
                 String commandOutput = invocation.getCommandPlugins().get(0).getOutput();
-                System.out.println(commandOutput);
+                //System.out.println(commandOutput);
                 //Process the output
             }
             //Wait for a few seconds before you check the invocation status again
-            try {
-                TimeUnit.SECONDS.sleep(timeoutInSecs);
-            } catch (InterruptedException e) {
-                //Handle not being able to sleep
-            }
+            Waiter.waitMilliSeconds(timeoutInSecs);
+
         } while(status.equals("Pending") || status.equals("InProgress"));
+
         if (!status.equals("Success")) {
             //Command ended up in a failure
-            System.out.println("Command succeeded.");
+            //System.out.println("Command succeeded.");
         }
     }
 }

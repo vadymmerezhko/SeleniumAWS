@@ -32,7 +32,7 @@ public class WebDriverFactory {
         WebDriver driver;
 
         long threadId = Thread.currentThread().threadId();
-        System.out.println("Thread: " + threadId);
+        //System.out.println("Thread: " + threadId);
 
         int threadCount = getThreadCount();
         /*String ec2InstanceIp;
@@ -59,7 +59,7 @@ public class WebDriverFactory {
                     AWS_DEVICE_FARM_BROWSERS[(int)threadId % AWS_DEVICE_FARM_BROWSERS.length],
                    AWS_DEVICE_FARM_BROWSER_VERSIONS[(int)threadId % AWS_DEVICE_FARM_BROWSER_VERSIONS.length]));*/
             driverMap.put(threadId, driver);
-            System.out.println("Tread " + threadId + " driver is set up!!!");
+            //System.out.println("Tread " + threadId + " driver is set up!!!");
         }
         else {
             driver = driverMap.get(threadId);
@@ -108,16 +108,16 @@ public class WebDriverFactory {
             try {
                 driver = new RemoteWebDriver(new URL("http://" + ec2InstanceIp + ":4444"), options);
                 driver.manage().window().maximize();
-                System.out.println("Session created");
+                //System.out.println("Session created");
                 return driver;
             } catch (Exception e) {
                 exception = e;
                 repeatCount--;
                 Waiter.waitSeconds(1);
-                System.out.println("Repeat getting WebDriver");
+                //System.out.println("Repeat getting WebDriver");
             }
         }
-        System.out.println(exception.getMessage());
+        //System.out.println(exception.getMessage());
         return driver;
     }
 
@@ -146,10 +146,10 @@ public class WebDriverFactory {
             testGridUrl = new URL(response.url());
             // You can now pass this URL into RemoteWebDriver.
             driver = new RemoteWebDriver(testGridUrl, capabilities);
-            System.out.println("AWS " + browser + " " + browserVersion + " browser is set up!!!");
+            //System.out.println("AWS " + browser + " " + browserVersion + " browser is set up!!!");
         }
         catch (Exception e) {
-            System.out.println("AWS Device Farm exception:\n" + e.getMessage());
+            //System.out.println("AWS Device Farm exception:\n" + e.getMessage());
             WebDriverFactory.closeAllDrivers();
             System.exit(-1);
             //throw new RuntimeException(e);
@@ -179,7 +179,7 @@ public class WebDriverFactory {
                 } catch (Exception e) {
                     //NOP
                 }
-                System.out.println("Waiting for: " + ec2InstanceIp);
+                //System.out.println("Waiting for: " + ec2InstanceIp);
                 Waiter.waitSeconds(5);
             }
         }
@@ -202,7 +202,7 @@ public class WebDriverFactory {
 
     public static void closeAllDrivers() {
         long startMilliSec = System.currentTimeMillis();
-        System.out.println("Start closing all drivers.");
+        //System.out.println("Start closing all drivers.");
         Set<Thread> threadSet = new HashSet<>();
 
         try {
@@ -210,7 +210,7 @@ public class WebDriverFactory {
             driverMap.keySet().forEach(threadId -> {
                 threadSet.add(closeDriverInParallel(threadId));
             });
-            System.out.println("Wait for closing all drivers.");
+            //System.out.println("Wait for closing all drivers.");
             for (Thread thread : threadSet) {
                 thread.join();
             }
@@ -220,16 +220,16 @@ public class WebDriverFactory {
         }
         long endMilliSec = System.currentTimeMillis();
         long seconds = (endMilliSec - startMilliSec) / 1000;
-        System.out.println("All drivers are closed for " + seconds + " seconds.");
+        //System.out.println("All drivers are closed for " + seconds + " seconds.");
     }
 
     private static Thread closeDriverInParallel(long threadId) {
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
-                System.out.println("Start closing driver for thread: " + threadId);
+                //System.out.println("Start closing driver for thread: " + threadId);
                 WebDriverFactory.closeDriver(threadId);
-                System.out.println("Driver ids closed for thread: " + threadId);
+                //System.out.println("Driver ids closed for thread: " + threadId);
             }});
         thread.start();
         return thread;

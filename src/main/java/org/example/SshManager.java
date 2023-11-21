@@ -21,7 +21,7 @@ public class SshManager {
 
             while (in.ready()) {
                 String s = in.readLine();
-                System.out.println(s);
+                //System.out.println(s);
             }
             out.println("exit");
 

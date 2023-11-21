@@ -26,7 +26,7 @@ public class RetryAnalyzer implements IRetryAnalyzer {
         if (retryCount < Settings.TEST_RETRY_LIMIT)
         {
             retryCount++;
-            System.out.println("Test retry " + retryCount + " !");
+            //System.out.println("Test retry " + retryCount + " !");
             return true;
         }
         return false;

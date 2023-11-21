@@ -159,8 +159,7 @@ public class RobustWebElement implements WebElement {
 
     @Override
     public WebElement findElement(By childBy) {
-        System.out.println("Fix element.");
-        return new RobustWebElement(waitForChildElementPresence(childBy), this, childBy, driver, waiter);
+        return new RobustWebElement(element.findElement(childBy), this, childBy, driver, waiter);
     }
 
     @Override
@@ -237,7 +236,7 @@ public class RobustWebElement implements WebElement {
             parent.fixClickableWebElement();
             element = parent.findElement(by);
         }
-        System.out.println("Element fixed: " + by.toString());
+        //System.out.println("Element fixed: " + by.toString());
     }
 
     private void fixVisibleWebElement() {
@@ -249,6 +248,6 @@ public class RobustWebElement implements WebElement {
             parent.fixClickableWebElement();
             element = waitForChildElementPresence(by);
         }
-        System.out.println("Element fixed: " + by.toString());
+        //System.out.println("Element fixed: " + by.toString());
     }
 }

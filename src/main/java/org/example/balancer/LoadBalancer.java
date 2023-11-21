@@ -116,7 +116,7 @@ public class LoadBalancer {
                 continue;
             }
             long count = serverThreadsCountMap.get(serverId);
-            System.out.println("Server " + serverId + " count : " + count);
+            //System.out.println("Server " + serverId + " count : " + count);
             if (serverThreadsCountMap.get(serverId) < minCount) {
                minCount = count;
                minCountServerId = serverId;
