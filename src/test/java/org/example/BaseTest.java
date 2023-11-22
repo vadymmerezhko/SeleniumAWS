@@ -5,6 +5,9 @@ import org.example.server.TestServer;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class BaseTest {
 
     private static final String TEST_NG_METHOD_FILE_TEMPLATE = """
@@ -62,9 +65,14 @@ public class BaseTest {
                 "mvn test \"-DtestSuite=%s/%s\" \"-DthreadCount=1\" \"-Dlambda=no\"\n",
                 fileFolderPath, fileName);
 
+        CommandLineExecutor.runCommandLine(String.format("cd \"%s\"", projectFolderPath));
+
+        Path currentRelativePath = Paths.get("");
+        String currentFolder = currentRelativePath.toAbsolutePath().toString();
+        System.out.println("Current folder :" + currentFolder);
+
         System.out.println("Command:\n" + command);
 
-        CommandLineExecutor.runCommandLine(String.format("cd \"%s\"", projectFolderPath));
         return CommandLineExecutor.runCommandLine(command);
     }
 }
