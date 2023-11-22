@@ -62,6 +62,8 @@ public class BaseTest {
                 "mvn test \"-DtestSuite=%s/%s\" \"-DthreadCount=1\" \"-Dlambda=no\"\n",
                 fileFolderPath, fileName);
 
+        System.out.println("Command:\n" + command);
+
         CommandLineExecutor.runCommandLine(String.format("cd \"%s\"", projectFolderPath));
         return CommandLineExecutor.runCommandLine(command);
     }
