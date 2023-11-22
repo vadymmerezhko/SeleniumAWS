@@ -36,8 +36,6 @@ public class BaseTest {
             System.out.println("Lambda for " + className + "." + methodName);
             String output = runLambdaFunction(className, methodName);
 
-            System.out.println("Output:\n" + output);
-
             if (!output.contains("BUILD SUCCESS")) {
                 Assert.fail(output);
             }
@@ -66,12 +64,6 @@ public class BaseTest {
                 fileFolderPath, fileName);
 
         CommandLineExecutor.runCommandLine(String.format("cd \"%s\"", projectFolderPath));
-
-        Path currentRelativePath = Paths.get("");
-        String currentFolder = currentRelativePath.toAbsolutePath().toString();
-        System.out.println("Current folder :" + currentFolder);
-
-        System.out.println("Command:\n" + command);
 
         return CommandLineExecutor.runCommandLine(command);
     }
