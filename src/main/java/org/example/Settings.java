@@ -1,7 +1,7 @@
 package org.example;
 
 public class Settings {
-    static public final String PROJECT_FOLDER_PATH = "/home/ec2-user";
+    static public final String PROJECT_FOLDER_PATH = "C://Users/vadym/IdeaProjects/GitHub";
     static public final String PROJECT_NAME = "SeleniumAWS";
     static public final long SELENIUM_SERVERS_COUNT = 1;
     static public final int DEFAULT_THREADS_COUNT = 4;

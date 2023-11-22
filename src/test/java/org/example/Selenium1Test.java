@@ -15,7 +15,7 @@ public class Selenium1Test extends BaseTest {
         //LoadBalancer.getInstance().decrementServerThreadCount();
     }
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 16, retryAnalyzer = org.example.RetryAnalyzer.class)
+    @Test(description = "This method validates the sign up functionality", invocationCount = 1, retryAnalyzer = org.example.RetryAnalyzer.class)
     public void signUp1() {
         signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
     }

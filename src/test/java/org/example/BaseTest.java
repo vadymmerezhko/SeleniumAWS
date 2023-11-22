@@ -57,9 +57,10 @@ public class BaseTest {
         FileManager.createFile(fileFolderPath, fileName, fileContent);
 
         String command = String.format(
-                "%s/mvn test \"-DtestSuite=%s/%s\" \"-DthreadCount=1\" \"-Dlambda=no\"\n",
-                projectFolderPath, fileFolderPath, fileName);
+                "mvn test \"-DtestSuite=%s/%s\" \"-DthreadCount=1\" \"-Dlambda=no\"\n",
+                fileFolderPath, fileName);
 
+        CommandLineExecutor.runCommandLine(String.format("cd \"%s\"", projectFolderPath));
         return CommandLineExecutor.runCommandLine(command);
     }
 }
