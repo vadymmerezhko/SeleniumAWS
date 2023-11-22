@@ -33,6 +33,8 @@ public class BaseTest {
             System.out.println("Lambda for " + className + "." + methodName);
             String output = runLambdaFunction(className, methodName);
 
+            System.out.println("Output:\n" + output);
+
             if (!output.contains("BUILD SUCCESS")) {
                 Assert.fail(output);
             }
