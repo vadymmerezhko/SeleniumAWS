@@ -38,6 +38,7 @@ public class CommandLineExecutor {
                 output.append(s);
             }*/
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             throw new RuntimeException(e);
         }
 
