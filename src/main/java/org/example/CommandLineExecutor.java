@@ -33,10 +33,10 @@ public class CommandLineExecutor {
             }
 
             // Read any errors from the attempted command
-/*            while ((s = stdError.readLine()) != null) {
+            while ((s = stdError.readLine()) != null) {
                 //System.out.println(s);
                 output.append(s);
-            }*/
+            }
         } catch (IOException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e);
