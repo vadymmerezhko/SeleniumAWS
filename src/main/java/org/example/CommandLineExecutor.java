@@ -12,9 +12,9 @@ public class CommandLineExecutor {
         if (isWindows()) {
             command = "cmd.exe /c" + command;
         }
-        else {
+/*        else {
             command = "/bin/sh -c" + command;
-        }
+        }*/
 
         Runtime rt = Runtime.getRuntime();
         Process proc;
@@ -41,7 +41,6 @@ public class CommandLineExecutor {
             System.out.println(e.getMessage());
             throw new RuntimeException(e);
         }
-
         return output.toString();
     }
 
