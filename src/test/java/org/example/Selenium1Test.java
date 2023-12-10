@@ -1,5 +1,4 @@
 package org.example;
-import org.example.driver.WebDriverFactory;
 import org.testng.annotations.*;
 
 public class Selenium1Test extends BaseTest {
