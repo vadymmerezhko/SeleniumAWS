@@ -103,10 +103,10 @@ public class WebDriverFactory {
     private static WebDriver getPlaywrightDriver() {
         try {
             Playwright playwright = Playwright.create();
-            Browser browser = playwright.chromium().launch();
-/*                    new BrowserType.LaunchOptions()
+            Browser browser = playwright.chromium().launch(//);
+                    new BrowserType.LaunchOptions()
                     .setHeadless(false)
-                    .setSlowMo(0));*/
+                    .setSlowMo(0));
             return new PlaywrightDriver(browser);
         }
         catch (Exception e) {

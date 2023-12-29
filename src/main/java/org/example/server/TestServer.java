@@ -1,10 +1,7 @@
 package org.example.server;
 
+import org.example.driver.SmartBy;
 import org.openqa.selenium.*;
-
-import java.io.File;
-import java.util.List;
-import java.util.Set;
 
 public class TestServer {
 
@@ -15,11 +12,17 @@ public class TestServer {
     }
 
     public String signUp(String value) {
-        driver.get("https://www.selenium.dev/selenium/web/web-form.html");
-        WebElement textBox = driver.findElement(By.id("my-text-id"));
-        textBox.sendKeys(value);
-        System.out.println(driver.getCurrentUrl());
+        try {
+            driver.get("https://www.selenium.dev/selenium/web/web-form.html");
+            //WebElement textBox = driver.findElement(SmartBy.id("my-text-id"));
+            WebElement textBox = driver.findElement(SmartBy.inputLabelTextContains("Text input"));
+            textBox.sendKeys(value);
+            System.out.println(driver.getCurrentUrl());
 
-        return textBox.getAttribute("value");
+            return textBox.getAttribute("value");
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
