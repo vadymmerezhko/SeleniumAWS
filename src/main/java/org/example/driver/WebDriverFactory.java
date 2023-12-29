@@ -1,5 +1,9 @@
 package org.example.driver;
 
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Playwright;
 import org.example.balancer.LoadBalancer;
 import org.example.TimeOut;
 import org.example.Waiter;
@@ -52,7 +56,8 @@ public class WebDriverFactory {
             }*/
 
             //driver = new RobustWebDriver(getRemoteWebDriver(ec2InstanceIp));
-            driver = new RobustWebDriver(getLocalWebDriver());
+            //driver = new RobustWebDriver(getLocalWebDriver());
+            driver = getPlaywrightDriver();
             //driver = getLocalWebDriver();
 /*            driver = new RobustWebDriver(getAWSRemoteWebDriver(
                     AWS_DEVICE_FARM_BROWSERS_ARM, // AWS_DEVICE_FARM_BROWSER_PROJECT_ARN[(int)threadId % AWS_DEVICE_FARM_BROWSER_PROJECT_ARN.length],
@@ -63,7 +68,7 @@ public class WebDriverFactory {
         }
         else {
             driver = driverMap.get(threadId);
-            driver.manage().deleteAllCookies();
+            //driver.manage().deleteAllCookies();
         }
         return driver;
     }
@@ -79,13 +84,13 @@ public class WebDriverFactory {
     }
 
     public static WebDriver getLocalWebDriver() {
-        String currentDirectory = System.getProperty("user.dir");
-        String chromeDriverPath = "/tmp/bin/chromedriver-linux64/chromedriver";
-        String chromeBrowserPath = "/tmp/bin/chrome-linux64/chrome";
+        //String currentDirectory = System.getProperty("user.dir");
+        String chromeDriverPath = "C:\\Selenium\\chromedriver.exe";
+        //String chromeBrowserPath = "/tmp/bin/chrome-linux64/chrome";
         System.setProperty("webdriver.chrome.driver", chromeDriverPath);
 
         ChromeOptions options = new ChromeOptions();
-        options.setBinary(chromeBrowserPath);
+        //options.setBinary(chromeBrowserPath);
         options.addArguments("--headless"); // headless only
         options.addArguments("--disable-gpu"); // applicable to Windows os only
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
@@ -93,6 +98,21 @@ public class WebDriverFactory {
         options.addArguments("--disable-extensions"); // disabling extensions
         options.addArguments("disable-infobars"); // disabling infobars
         return new ChromeDriver(options);
+    }
+
+    private static WebDriver getPlaywrightDriver() {
+        try {
+            Playwright playwright = Playwright.create();
+            Browser browser = playwright.chromium().launch();
+/*                    new BrowserType.LaunchOptions()
+                    .setHeadless(false)
+                    .setSlowMo(0));*/
+            return new PlaywrightDriver(browser);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     private static WebDriver getRemoteWebDriver(String ec2InstanceIp) {

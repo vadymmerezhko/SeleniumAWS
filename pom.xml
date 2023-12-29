@@ -37,6 +37,12 @@
       <artifactId>selenium-java</artifactId>
       <version>4.14.0</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.microsoft.playwright/playwright -->
+    <dependency>
+      <groupId>com.microsoft.playwright</groupId>
+      <artifactId>playwright</artifactId>
+      <version>1.40.0</version>
+    </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-ec2</artifactId>

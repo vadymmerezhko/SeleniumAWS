@@ -1,8 +1,10 @@
 package org.example.server;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+
+import java.io.File;
+import java.util.List;
+import java.util.Set;
 
 public class TestServer {
 
@@ -14,8 +16,7 @@ public class TestServer {
 
     public String signUp(String value) {
         driver.get("https://www.selenium.dev/selenium/web/web-form.html");
-        WebElement textBox = driver.findElement(By.name("my-text"));
-
+        WebElement textBox = driver.findElement(By.id("my-text-id"));
         textBox.sendKeys(value);
         System.out.println(driver.getCurrentUrl());
 

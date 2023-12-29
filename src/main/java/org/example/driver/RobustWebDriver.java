@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class RobustWebDriver implements WebDriver, JavascriptExecutor {
+public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScreenshot {
     private static final int PAGE_LOAD_TIMEOUT_SEC = 15;
     private static final int FIND_ELEMENT_TIMEOUT_SEC = 5;
 
@@ -109,5 +109,10 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor {
     @Override
     public Object executeAsyncScript(String script, Object... args) {
         return ((JavascriptExecutor)driver).executeAsyncScript(script, args);
+    }
+
+    @Override
+    public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
+        return (X)((TakesScreenshot)driver).getScreenshotAs(target);
     }
 }
