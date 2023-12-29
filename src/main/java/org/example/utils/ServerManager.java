@@ -1,4 +1,4 @@
-package org.example;
+package org.example.utils;
 
 import com.amazonaws.services.ec2.AmazonEC2;
 import org.example.balancer.LoadBalancer;

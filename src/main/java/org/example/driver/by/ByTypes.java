@@ -1,4 +1,4 @@
-package org.example.driver;
+package org.example.driver.by;
 
 public class ByTypes {
     public static final String ID = "id";

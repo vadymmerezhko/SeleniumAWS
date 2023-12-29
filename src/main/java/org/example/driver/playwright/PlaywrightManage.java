@@ -1,6 +1,7 @@
-package org.example.driver;
+package org.example.driver.playwright;
 
 import com.microsoft.playwright.Page;
+import org.example.utils.MethodManager;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriver.Options;

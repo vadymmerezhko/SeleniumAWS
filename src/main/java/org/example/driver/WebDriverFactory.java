@@ -2,11 +2,11 @@ package org.example.driver;
 
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import org.example.balancer.LoadBalancer;
-import org.example.TimeOut;
-import org.example.Waiter;
+import org.example.utils.TimeOut;
+import org.example.utils.Waiter;
+import org.example.driver.playwright.PlaywrightDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;

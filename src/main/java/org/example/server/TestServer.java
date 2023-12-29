@@ -1,6 +1,6 @@
 package org.example.server;
 
-import org.example.driver.SmartBy;
+import org.example.driver.by.SmartBy;
 import org.openqa.selenium.*;
 
 public class TestServer {

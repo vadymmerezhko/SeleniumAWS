@@ -2,11 +2,10 @@ package org.example;
 
 import org.example.driver.WebDriverFactory;
 import org.example.server.TestServer;
+import org.example.utils.CommandLineExecutor;
+import org.example.utils.FileManager;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class BaseTest {
 

@@ -1,4 +1,4 @@
-package org.example.driver;
+package org.example.driver.by;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;

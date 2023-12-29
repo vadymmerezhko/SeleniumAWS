@@ -1,4 +1,4 @@
-package org.example.driver;
+package org.example.utils;
 
 public class MethodManager {
 

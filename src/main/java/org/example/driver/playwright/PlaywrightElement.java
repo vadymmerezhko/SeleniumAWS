@@ -1,8 +1,10 @@
-package org.example.driver;
+package org.example.driver.playwright;
 
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.options.BoundingBox;
+import org.example.driver.by.ByParser;
+import org.example.driver.ScreenshotManager;
 import org.openqa.selenium.*;
 
 import java.util.List;

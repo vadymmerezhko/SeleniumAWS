@@ -1,5 +1,6 @@
-package org.example;
+package org.example.testng;
 
+import org.example.Settings;
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
 

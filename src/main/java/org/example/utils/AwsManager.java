@@ -1,4 +1,4 @@
-package org.example;
+package org.example.utils;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;

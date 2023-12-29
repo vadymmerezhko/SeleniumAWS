@@ -1,4 +1,4 @@
-package org.example.driver;
+package org.example.driver.playwright;
 
 
 import com.microsoft.playwright.Page;

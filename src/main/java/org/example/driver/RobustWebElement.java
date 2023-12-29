@@ -1,6 +1,6 @@
 package org.example.driver;
 
-import org.example.Waiter;
+import org.example.utils.Waiter;
 import org.openqa.selenium.*;
 
 import java.util.List;

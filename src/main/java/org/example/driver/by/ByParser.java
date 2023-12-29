@@ -1,6 +1,5 @@
-package org.example.driver;
+package org.example.driver.by;
 
-import com.microsoft.playwright.Locator;
 import org.openqa.selenium.By;
 
 public class ByParser {

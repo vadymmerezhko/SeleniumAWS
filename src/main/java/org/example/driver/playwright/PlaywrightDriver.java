@@ -1,8 +1,11 @@
-package org.example.driver;
+package org.example.driver.playwright;
 
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import org.example.driver.by.ByParser;
+import org.example.utils.MethodManager;
+import org.example.driver.ScreenshotManager;
 import org.openqa.selenium.*;
 
 import java.util.List;
