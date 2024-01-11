@@ -1,5 +1,6 @@
 package org.example.driver.by;
 
+import org.example.driver.WebDriverFactory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;
@@ -10,7 +11,9 @@ import java.util.concurrent.ConcurrentMap;
 
 public class SmartBy extends By {
 
-    private static ConcurrentMap<Long, By> byMap = new ConcurrentHashMap<>();
+    static final int MAX_NESTING_LEVEL = 8;
+
+    private static final ConcurrentMap<Long, By> byMap = new ConcurrentHashMap<>();
 
     private static long getThreadId() {
         return Thread.currentThread().threadId();
@@ -146,6 +149,52 @@ public class SmartBy extends By {
         By by = new ByXPath(String.format("//label[contains(text(),'%s')]/*", text));
         byMap.put(getThreadId(), by);
         return by;
+    }
+
+    public static By parentText(String text) {
+        By by = new ByXPath(String.format("//*[text()='%s']//*", text));
+        byMap.put(getThreadId(), by);
+        return by;
+    }
+
+    public static By parentTextContains(String text) {
+        By by = new ByXPath(String.format("//*[contains(text(),'%s')]//*", text));
+        byMap.put(getThreadId(), by);
+        return by;
+    }
+
+    public static By inputSiblingText(String text) {
+        return elementSiblingText("input", text);
+    }
+
+    public static By textareaSiblingText(String text) {
+        return elementSiblingText("textarea", text);
+    }
+
+    public static By buttonSiblingText(String text) {
+        return elementSiblingText("button", text);
+    }
+
+    public static By selectSiblingText(String text) {
+        return elementSiblingText("select", text);
+    }
+
+    public static By elementSiblingText(String elementTag, String text) {
+        String xpathPattern = "//*[text()='%s']//%s//" + elementTag;
+        String parentPath = "..";
+
+        for (int i = 0; i < MAX_NESTING_LEVEL; i++) {
+            String xpath = String.format(xpathPattern, text, parentPath);
+            By by = new ByXPath(xpath);
+
+            if (WebDriverFactory.getDriver().findElements(by).size() == 1) {
+                byMap.put(getThreadId(), by);
+                return by;
+            }
+            parentPath += "/..";
+        }
+        throw new RuntimeException(String.format(
+                "No %s locator is found by sibling text '%s'", elementTag, text));
     }
 
     public static By inputLabelText(String text) {

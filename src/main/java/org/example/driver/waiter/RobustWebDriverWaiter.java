@@ -1,4 +1,4 @@
-package org.example.driver;
+package org.example.driver.waiter;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedCondition;

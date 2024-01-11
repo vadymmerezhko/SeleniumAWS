@@ -4,6 +4,7 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Playwright;
 import org.example.balancer.LoadBalancer;
+import org.example.driver.robust.RobustWebDriver;
 import org.example.utils.TimeOut;
 import org.example.utils.Waiter;
 import org.example.driver.playwright.PlaywrightDriver;
@@ -56,8 +57,8 @@ public class WebDriverFactory {
             }*/
 
             //driver = new RobustWebDriver(getRemoteWebDriver(ec2InstanceIp));
-            //driver = new RobustWebDriver(getLocalWebDriver());
-            driver = getPlaywrightDriver();
+            driver = new RobustWebDriver(getLocalWebDriver());
+            //driver = getPlaywrightDriver();
             //driver = getLocalWebDriver();
 /*            driver = new RobustWebDriver(getAWSRemoteWebDriver(
                     AWS_DEVICE_FARM_BROWSERS_ARM, // AWS_DEVICE_FARM_BROWSER_PROJECT_ARN[(int)threadId % AWS_DEVICE_FARM_BROWSER_PROJECT_ARN.length],

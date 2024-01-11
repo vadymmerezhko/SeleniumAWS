@@ -43,8 +43,8 @@ public class BaseTest {
             driver = WebDriverFactory.getDriver();
             String inputValue = "Selenium";
             TestServer testServer = new TestServer(driver);
-            String actualValue = testServer.signUp(inputValue);
-            Assert.assertEquals(actualValue, inputValue);
+            TestResult testResult = testServer.signUp(inputValue);
+            Assert.assertEquals(testResult.textInput(), inputValue);
         }
     }
 

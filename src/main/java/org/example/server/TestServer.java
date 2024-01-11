@@ -1,6 +1,7 @@
 package org.example.server;
 
-import org.example.driver.by.SmartBy;
+import org.example.TestResult;
+import org.example.page.WebFormPage;
 import org.openqa.selenium.*;
 
 public class TestServer {
@@ -11,15 +12,28 @@ public class TestServer {
         this.driver = driver;
     }
 
-    public String signUp(String value) {
+    public TestResult signUp(String value) {
         try {
-            driver.get("https://www.selenium.dev/selenium/web/web-form.html");
-            //WebElement textBox = driver.findElement(SmartBy.id("my-text-id"));
-            WebElement textBox = driver.findElement(SmartBy.inputLabelTextContains("Text input"));
-            textBox.sendKeys(value);
-            System.out.println(driver.getCurrentUrl());
 
-            return textBox.getAttribute("value");
+            String multilineText = """
+                    Some multiline
+                    text
+                    here
+                    """;
+
+            WebFormPage webFormPage = new WebFormPage();
+            webFormPage.open("https://www.selenium.dev/selenium/web/web-form.html");
+            webFormPage.enterIntoTextInput(value);
+            webFormPage.enterPassword("Password123");
+            webFormPage.enterIntoTextarea(multilineText);
+
+            System.out.println(webFormPage.getURL());
+
+            TestResult testResult = new TestResult(
+                    webFormPage.getTextInputValue(),
+                    webFormPage.getTextareaValue());
+
+            return  testResult;
         }
         catch (Exception e) {
             throw new RuntimeException(e);

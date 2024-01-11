@@ -1,4 +1,4 @@
-package org.example.driver;
+package org.example.utils;
 
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebDriverException;

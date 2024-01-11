@@ -5,7 +5,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import org.example.driver.by.ByParser;
 import org.example.utils.MethodManager;
-import org.example.driver.ScreenshotManager;
+import org.example.utils.ScreenshotManager;
 import org.openqa.selenium.*;
 
 import java.util.List;

@@ -1,5 +1,6 @@
-package org.example.driver;
+package org.example.driver.robust;
 
+import org.example.driver.waiter.RobustWebDriverWaiter;
 import org.example.utils.Waiter;
 import org.openqa.selenium.*;
 
