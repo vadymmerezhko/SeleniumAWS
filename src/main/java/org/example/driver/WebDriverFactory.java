@@ -57,7 +57,8 @@ public class WebDriverFactory {
             }*/
 
             //driver = new RobustWebDriver(getRemoteWebDriver(ec2InstanceIp));
-            driver = new RobustWebDriver(getLocalWebDriver());
+            driver = new RobustWebDriver(getRemoteWebDriver("localhost"));
+            //driver = new RobustWebDriver(getLocalWebDriver());
             //driver = getPlaywrightDriver();
             //driver = getLocalWebDriver();
 /*            driver = new RobustWebDriver(getAWSRemoteWebDriver(
