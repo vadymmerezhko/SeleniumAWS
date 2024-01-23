@@ -231,7 +231,12 @@ public class WebDriverFactory {
 
     private static void closeDriver(long threadId) {
         if (driverMap.containsKey(threadId)) {
-            driverMap.get(threadId).quit();
+            try {
+                driverMap.get(threadId).quit();
+            }
+            catch (Exception e) {
+                // Ignore exception.
+            }
             driverMap.remove(threadId);
         }
     }
