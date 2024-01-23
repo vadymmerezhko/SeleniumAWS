@@ -9,7 +9,7 @@ public class WebFormPage extends BasePage {
 
     private final TextInput textInput = new TextInput(SmartBy.inputLabelTextContains("Text input"));
     public final Password password = new Password(SmartBy.inputLabelTextContains("Password"));
-    private final Textarea textarea = new Textarea(SmartBy.inputLabelTextContains("Textarea"));
+    private final Textarea textarea = new Textarea(SmartBy.textareaLabelTextContains("Textarea"));
 
     public void enterIntoTextInput(String text) {
         textInput.enterText(text);
