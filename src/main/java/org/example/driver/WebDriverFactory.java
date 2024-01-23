@@ -93,8 +93,8 @@ public class WebDriverFactory {
             chromeDriverPath = "C:\\Selenium\\chromedriver.exe";
             chromeBrowserPath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
         } else {
-            chromeDriverPath = "/tmp/bin/chromedriver";
-            chromeBrowserPath = "/tmp//bin/chrome-linux64/chrome";
+            chromeDriverPath = "/tmp/bin/chromedriver-linux64/ chromedriver";
+            chromeBrowserPath = "/tmp/bin/chrome-linux64/chrome";
         }
 
         System.setProperty("webdriver.chrome.driver", chromeDriverPath);
