@@ -52,4 +52,4 @@ jobs:
         args: unzip -qq chromedriver-linux64.zip -d ./bin
     
     - name: Build with Maven
-      run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=4"
+    - run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=4"
