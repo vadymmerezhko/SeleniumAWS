@@ -86,8 +86,9 @@ public class WebDriverFactory {
 
     public static WebDriver getLocalWebDriver() {
         //String currentDirectory = System.getProperty("user.dir");
-        String chromeDriverPath = "C:\\Selenium\\chromedriver.exe";
-        String chromeBrowserPath = "/tmp/bin/chrome-linux64/chrome";
+        //String chromeDriverPath = "C:\\Selenium\\chromedriver.exe";
+        String chromeDriverPath = "./bin/chromedriver";
+        String chromeBrowserPath = "./bin/chrome-linux64/chrome";
         System.setProperty("webdriver.chrome.driver", chromeDriverPath);
 
         ChromeOptions options = new ChromeOptions();
