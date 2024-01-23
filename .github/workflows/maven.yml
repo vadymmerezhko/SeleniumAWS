@@ -20,12 +20,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v3
+    
     - name: Set up JDK 21
       uses: actions/setup-java@v3
       with:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+
+    - uses: enflo/curl-action@master
+    - name: Set up Chrome browser
+      with:
+        curl: -O https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.109/linux64/chrome-linux64.zip
+
+    - uses: enflo/curl-action@master
+    - name: Set up ChromeDriver
+      with:
+        curl: -O https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.109/linux64/chromedriver-linux64.zip
+
+    - uses: montudor/action-zip@v1
+    - name: Unzip Chrome browser
+      with:
+        args: unzip -qq chrome-linux64.zip -d /tmp/bin
+
+    - uses: montudor/action-zip@v1
+    - name: Unzip ChromeDriver browser
+      with:
+        args: unzip -qq chromedriver-linux64.zip -d /tmp/bin
+    
     - name: Build with Maven
       run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=4"
