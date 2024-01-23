@@ -87,11 +87,11 @@ public class WebDriverFactory {
     public static WebDriver getLocalWebDriver() {
         //String currentDirectory = System.getProperty("user.dir");
         String chromeDriverPath = "C:\\Selenium\\chromedriver.exe";
-        //String chromeBrowserPath = "/tmp/bin/chrome-linux64/chrome";
+        String chromeBrowserPath = "/tmp/bin/chrome-linux64/chrome";
         System.setProperty("webdriver.chrome.driver", chromeDriverPath);
 
         ChromeOptions options = new ChromeOptions();
-        //options.setBinary(chromeBrowserPath);
+        options.setBinary(chromeBrowserPath);
         options.addArguments("--headless"); // headless only
         options.addArguments("--disable-gpu"); // applicable to Windows os only
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
