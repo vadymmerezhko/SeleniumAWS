@@ -39,4 +39,4 @@ jobs:
         #  image: selenium/standalone-chrome:latest
 
       - name: Test with Maven
-        run: mvn clean test "-DtestSuite=./src/test/resources/testng.xml" "-DthreadCount=4"
+        run: mvn clean test "-DtestSuite=./src/test/resources/testng.xml" "-DthreadCount=1"
