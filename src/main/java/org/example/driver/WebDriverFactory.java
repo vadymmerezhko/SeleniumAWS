@@ -137,8 +137,7 @@ public class WebDriverFactory {
         options.addArguments("disable-infobars"); // disabling infobars
         //driver = new ChromeDriver(options);
 
-        int repeatCount = 2;
-        Exception exception = null;
+        int repeatCount = 1;
 
         while (repeatCount > 0) {
             try {
@@ -147,7 +146,6 @@ public class WebDriverFactory {
                 //System.out.println("Session created");
                 return driver;
             } catch (Exception e) {
-                exception = e;
                 repeatCount--;
                 Waiter.waitSeconds(1);
                 //System.out.println("Repeat getting WebDriver");
