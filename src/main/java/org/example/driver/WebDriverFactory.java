@@ -34,7 +34,7 @@ public class WebDriverFactory {
     private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
 
     public static WebDriver getDriver() {
-        WebDriver driver;
+        WebDriver driver = null;
 
         long threadId = Thread.currentThread().threadId();
         //System.out.println("Thread: " + threadId);
@@ -57,8 +57,8 @@ public class WebDriverFactory {
             }*/
 
             //driver = new RobustWebDriver(getRemoteWebDriver(ec2InstanceIp));
-            driver = new RobustWebDriver(getRemoteWebDriver("localhost"));
-            //driver = new RobustWebDriver(getLocalWebDriver());
+            //driver = new RobustWebDriver(getRemoteWebDriver("localhost:4444"));
+            driver = new RobustWebDriver(getLocalWebDriver());
             //driver = getPlaywrightDriver();
             //driver = getLocalWebDriver();
 /*            driver = new RobustWebDriver(getAWSRemoteWebDriver(
@@ -70,7 +70,6 @@ public class WebDriverFactory {
         }
         else {
             driver = driverMap.get(threadId);
-            //driver.manage().deleteAllCookies();
         }
         return driver;
     }
@@ -116,7 +115,7 @@ public class WebDriverFactory {
             Playwright playwright = Playwright.create();
             Browser browser = playwright.chromium().launch(//);
                     new BrowserType.LaunchOptions()
-                    .setHeadless(false)
+                    .setHeadless(true)
                     .setSlowMo(0));
             return new PlaywrightDriver(browser);
         }
@@ -141,7 +140,7 @@ public class WebDriverFactory {
 
         while (repeatCount > 0) {
             try {
-                driver = new RemoteWebDriver(new URL("http://" + ec2InstanceIp + ":4444"), options);
+                driver = new RemoteWebDriver(new URL("http://" + ec2InstanceIp), options);
                 driver.manage().window().maximize();
                 //System.out.println("Session created");
                 return driver;

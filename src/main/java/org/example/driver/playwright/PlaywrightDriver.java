@@ -1,6 +1,9 @@
 package org.example.driver.playwright;
+import com.deque.html.axecore.playwright.AxeBuilder;
 
+import com.deque.html.axecore.results.AxeResults;
 import com.microsoft.playwright.Browser;
+
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import org.example.driver.by.ByParser;
@@ -8,6 +11,7 @@ import org.example.utils.MethodManager;
 import org.example.utils.ScreenshotManager;
 import org.openqa.selenium.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,9 +35,14 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         if (page == null) {
             page = browser.newPage();
         }
-        page.waitForLoadState();
         page.navigate(url);
         page.waitForLoadState();
+
+        //Verify page accessibility
+        /*AxeResults accessibilityScanResults = new AxeBuilder(page).analyze();
+        if (!accessibilityScanResults.getViolations().isEmpty()) {
+            throw new RuntimeException("Accessibility issues:\n" + accessibilityScanResults.getViolations());
+        }*/
     }
 
     @Override

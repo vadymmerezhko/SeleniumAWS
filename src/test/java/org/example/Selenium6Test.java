@@ -11,6 +11,7 @@ public class Selenium6Test extends BaseTest {
     }
     @AfterMethod(alwaysRun = true)
     public void decrementThreadPool() {
+        driver.manage().deleteAllCookies();
         //LoadBalancer.getInstance().decrementServerThreadCount();
     }
 
