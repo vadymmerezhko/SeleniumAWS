@@ -5,26 +5,27 @@ import org.openqa.selenium.support.ui.Select;
 
 public class Dropdown extends BaseElement {
 
-    private final Select select;
-
     public Dropdown(By by) {
         super(by);
-        select = new Select(getElement());
     }
 
-    public void selectOptionText(String text) {
+    public void selectOptionByText(String text) {
+        Select select = new Select(getElement());
         select.selectByVisibleText(text);
     }
 
-    public void selectOptionValue(String value) {
+    public void selectOptionByValue(String value) {
+        Select select = new Select(getElement());
         select.selectByValue(value);
     }
 
-    public void selectOptionIndex(int index) {
+    public void selectOptionByIndex(int index) {
+        Select select = new Select(getElement());
         select.selectByIndex(index);
     }
 
-    public String getSelectedOption() {
+    public String getSelectedOptionText() {
+        Select select = new Select(getElement());
         return select.getFirstSelectedOption().getText();
     }
 }

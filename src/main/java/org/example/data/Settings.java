@@ -1,4 +1,4 @@
-package org.example;
+package org.example.data;
 
 public class Settings {
     static public final String PROJECT_FOLDER_PATH = "/home/ec2-user/test";

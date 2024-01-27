@@ -3,6 +3,7 @@ package org.example.driver.robust;
 import org.example.driver.waiter.RobustWebDriverWaiter;
 import org.openqa.selenium.*;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

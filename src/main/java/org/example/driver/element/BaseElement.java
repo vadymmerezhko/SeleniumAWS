@@ -49,6 +49,26 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     }
 
     @Override
+    public String getDomProperty(String name) {
+        return getElement().getDomProperty(name);
+    }
+
+    @Override
+    public String getDomAttribute(String name) {
+        return getElement().getDomAttribute(name);
+    }
+
+    @Override
+    public String getAriaRole() {
+        return getElement().getAriaRole();
+    }
+
+    @Override
+    public String getAccessibleName() {
+        return getElement().getAccessibleName();
+    }
+
+    @Override
     public boolean isSelected() {
         return getElement().isSelected();
     }
@@ -96,6 +116,10 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     @Override
     public String getCssValue(String propertyName) {
         return getElement().getCssValue(propertyName);
+    }
+
+    public SearchContext getShadowRoot() {
+        return getElement().getShadowRoot();
     }
 
     @Override

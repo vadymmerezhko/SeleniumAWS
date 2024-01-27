@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.example.Settings.*;
+import static org.example.data.Settings.*;
 
 public class WebDriverFactory {
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
@@ -57,8 +57,8 @@ public class WebDriverFactory {
             }*/
 
             //driver = new RobustWebDriver(getRemoteWebDriver(ec2InstanceIp));
-            //driver = new RobustWebDriver(getRemoteWebDriver("localhost:4444"));
-            driver = new RobustWebDriver(getLocalWebDriver());
+            driver = new RobustWebDriver(getRemoteWebDriver("localhost:4444"));
+            //driver = new RobustWebDriver(getLocalWebDriver());
             //driver = getPlaywrightDriver();
             //driver = getLocalWebDriver();
 /*            driver = new RobustWebDriver(getAWSRemoteWebDriver(
@@ -90,8 +90,8 @@ public class WebDriverFactory {
         String chromeBrowserPath;
 
         if (osName != null && osName.startsWith("Windows")) {
-            chromeDriverPath = "C:\\Selenium\\chromedriver.exe";
-            chromeBrowserPath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+            chromeDriverPath = "C:\\Selenium\\chromedriver-win64\\chromedriver.exe";
+            chromeBrowserPath = "C:\\Chrome\\chrome-win64\\chrome.exe";
         } else {
             chromeDriverPath = "/tmp/bin/chromedriver-linux64/chromedriver";
             chromeBrowserPath = "/tmp/bin/chrome-linux64/chrome";
@@ -125,7 +125,7 @@ public class WebDriverFactory {
         }
     }
 
-    private static WebDriver getRemoteWebDriver(String ec2InstanceIp) {
+    private static WebDriver getRemoteWebDriver(String host) {
         WebDriver driver = null;
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless"); // headless only
@@ -140,7 +140,7 @@ public class WebDriverFactory {
 
         while (repeatCount > 0) {
             try {
-                driver = new RemoteWebDriver(new URL("http://" + ec2InstanceIp), options);
+                driver = new RemoteWebDriver(new URL("http://" + host), options);
                 driver.manage().window().maximize();
                 //System.out.println("Session created");
                 return driver;
@@ -205,7 +205,7 @@ public class WebDriverFactory {
                     tempDriver.get("http://" + ec2InstanceIp + ":4444");
 
                     if (!tempDriver.findElements(
-                            By.xpath("//*[contains(text(), 'Selenium Grid')]"))
+                            By.xpath("//*[contains(., 'Selenium Grid')]"))
                             .isEmpty()) {
                         return;
                     }
@@ -228,12 +228,7 @@ public class WebDriverFactory {
 
     private static void closeDriver(long threadId) {
         if (driverMap.containsKey(threadId)) {
-            try {
-                driverMap.get(threadId).quit();
-            }
-            catch (Exception e) {
-                // Ignore exception.
-            }
+            driverMap.get(threadId).quit();
             driverMap.remove(threadId);
         }
     }

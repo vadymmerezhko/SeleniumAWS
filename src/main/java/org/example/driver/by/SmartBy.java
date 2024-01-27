@@ -74,7 +74,7 @@ public class SmartBy extends By {
     }
 
     public static By textContains(String text) {
-        By by = new ByXPath(String.format("//*[contains(text(),'%s')]", text));
+        By by = new ByXPath(String.format("//*[contains(.,'%s')]", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -86,7 +86,7 @@ public class SmartBy extends By {
     }
 
     public static By buttonTextContains(String text) {
-        By by = new ByXPath(String.format("//button[contains(text(),'%s')]", text));
+        By by = new ByXPath(String.format("//button[contains(.,'%s')]", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -98,7 +98,7 @@ public class SmartBy extends By {
     }
 
     public static By optionTextContains(String text) {
-        By by = new ByXPath(String.format("//option[contains(text(),'%s')]", text));
+        By by = new ByXPath(String.format("//option[contains(.,'%s')]", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -122,7 +122,7 @@ public class SmartBy extends By {
     }
 
     public static By childElementPartialText(String text) {
-        By by = new ByXPath(String.format("./*[contains(text(),'%s')]", text));
+        By by = new ByXPath(String.format("./*[contains(.,'%s')]", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -146,7 +146,7 @@ public class SmartBy extends By {
     }
 
     public static By labelTextContains(String text) {
-        By by = new ByXPath(String.format("//label[contains(text(),'%s')]/*", text));
+        By by = new ByXPath(String.format("//label[contains(.,'%s')]/*", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -158,7 +158,7 @@ public class SmartBy extends By {
     }
 
     public static By parentTextContains(String text) {
-        By by = new ByXPath(String.format("//*[contains(text(),'%s')]//*", text));
+        By by = new ByXPath(String.format("//*[contains(.,'%s')]//*", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -204,7 +204,7 @@ public class SmartBy extends By {
     }
 
     public static By inputLabelTextContains(String text) {
-        By by = new ByXPath(String.format("//label[contains(text(),'%s')]//input", text));
+        By by = new ByXPath(String.format("//label[contains(.,'%s')]//input", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -216,7 +216,7 @@ public class SmartBy extends By {
     }
 
     public static By checkboxLabelTextContains(String text) {
-        By by = new ByXPath(String.format("//label[contains(text(),'%s')]//input[@type='checkbox']", text));
+        By by = new ByXPath(String.format("//label[contains(.,'%s')]//input[@type='checkbox']", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -228,7 +228,7 @@ public class SmartBy extends By {
     }
 
     public static By radiobuttonLabelTextContains(String text) {
-        By by = new ByXPath(String.format("//label[contains(text(),'%s')]//input[@type='radio']", text));
+        By by = new ByXPath(String.format("//label[contains(.,'%s')]//input[@type='radio']", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -240,7 +240,7 @@ public class SmartBy extends By {
     }
 
     public static By textareaLabelTextContains(String text) {
-        By by = new ByXPath(String.format("//label[contains(text(),'%s')]//textarea", text));
+        By by = new ByXPath(String.format("//label[contains(.,'%s')]//textarea", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -252,7 +252,7 @@ public class SmartBy extends By {
     }
 
     public static By selectLabelTextContains(String text) {
-        By by = new ByXPath(String.format("//label[contains(text(),'%s')]//select", text));
+        By by = new ByXPath(String.format("//label[contains(.,'%s')]//select", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -264,7 +264,7 @@ public class SmartBy extends By {
     }
 
     public static By selectedOptionLabelTextContains(String text) {
-        By by = new ByXPath(String.format("//label[contains(text(),'%s')]//select/option[@selected='selected']", text));
+        By by = new ByXPath(String.format("//label[contains(.,'%s')]//select/option[@selected='selected']", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -276,7 +276,7 @@ public class SmartBy extends By {
     }
 
     public static By datalistLabelTextContains(String text) {
-        By by = new ByXPath(String.format("//label[contains(text(),'%s')]//datalist", text));
+        By by = new ByXPath(String.format("//label[contains(.,'%s')]//datalist", text));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -288,7 +288,7 @@ public class SmartBy extends By {
     }
 
     public static By selectOptionLabelTextContains(String text, String option) {
-        By by = new ByXPath(String.format("//label[contains(text(),'%s')]//select/option[text()='%s']", text, option));
+        By by = new ByXPath(String.format("//label[contains(.,'%s')]//select/option[text()='%s']", text, option));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -300,7 +300,7 @@ public class SmartBy extends By {
     }
 
     public static By datalistOptionLabelTextContains(String text, String option) {
-        By by = new ByXPath(String.format("//label[contains(text(),'%s)']//datalist/option[text()='%s']", text, option));
+        By by = new ByXPath(String.format("//label[contains(.,'%s)']//datalist/option[text()='%s']", text, option));
         byMap.put(getThreadId(), by);
         return by;
     }
@@ -312,7 +312,7 @@ public class SmartBy extends By {
     }
 
     public static By tableLabelTextContains(String text) {
-        By by = new ByXPath(String.format("//label[contains(text(),'%s')]//table", text));
+        By by = new ByXPath(String.format("//label[contains(.,'%s')]//table", text));
         byMap.put(getThreadId(), by);
         return by;
     }

@@ -1,11 +1,10 @@
 package org.example.driver.element;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
-public class Radiobox extends BaseElement {
+public class Radiobutton extends BaseElement {
 
-    public Radiobox(By by) {
+    public Radiobutton(By by) {
         super(by);
     }
 
@@ -13,5 +12,9 @@ public class Radiobox extends BaseElement {
         if (!getElement().isSelected()) {
             getElement().click();
         }
+    }
+
+    public boolean getValue() {
+        return isSelected();
     }
 }

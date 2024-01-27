@@ -29,6 +29,10 @@ public class RobustWebElement implements WebElement {
         this.waiter = waiter;
     }
 
+    public WebElement getNativeElement() {
+        return element;
+    }
+
     @Override
     public void click() {
         Exception exception = null;
@@ -110,6 +114,63 @@ public class RobustWebElement implements WebElement {
     }
 
     @Override
+    public String getDomProperty(String name) {
+        Exception exception = null;
+        for (int i = 0; i < RETRY_COUNT; i++) {
+            try {
+                return element.getDomProperty(name);
+            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+                exception = e;
+                fixVisibleWebElement();
+            }
+        }
+        throw new RuntimeException(exception);
+    }
+
+    @Override
+    public String getDomAttribute(String name) {
+        Exception exception = null;
+        for (int i = 0; i < RETRY_COUNT; i++) {
+            try {
+                return element.getDomAttribute(name);
+            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+                exception = e;
+                fixVisibleWebElement();
+            }
+        }
+        throw new RuntimeException(exception);
+    }
+
+    @Override
+    public String getAriaRole() {
+        Exception exception = null;
+        for (int i = 0; i < RETRY_COUNT; i++) {
+            try {
+                return element.getAriaRole();
+            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+                exception = e;
+                fixVisibleWebElement();
+            }
+        }
+        throw new RuntimeException(exception);
+    }
+
+    @Override
+    public String getAccessibleName() {
+        Exception exception = null;
+        for (int i = 0; i < RETRY_COUNT; i++) {
+            try {
+                return element.getAccessibleName();
+            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+                exception = e;
+                fixVisibleWebElement();
+            }
+        }
+        throw new RuntimeException(exception);
+    }
+
+
+    @Override
     public boolean isSelected() {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
@@ -188,7 +249,11 @@ public class RobustWebElement implements WebElement {
         return element.getCssValue(propertyName);
     }
 
-    @Override
+    public SearchContext getShadowRoot() {
+        return element.getShadowRoot();
+    }
+
+        @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
         return element.getScreenshotAs(target);
     }
@@ -249,6 +314,5 @@ public class RobustWebElement implements WebElement {
             parent.fixClickableWebElement();
             element = waitForChildElementPresence(by);
         }
-        //System.out.println("Element fixed: " + by.toString());
     }
 }

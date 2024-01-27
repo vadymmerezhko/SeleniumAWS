@@ -30,7 +30,7 @@ public class ByParser {
             case ByTypes.CLASS_NAME -> String.format(".%s]", byValue);
             case ByTypes.NAME -> String.format("*[name='%s']", byValue);
             case ByTypes.LINK_TEXT -> String.format("//a[text()='%s']", byValue);
-            case ByTypes.PARTIAL_LINK_TEXT -> String.format("//a[contains(text(),'%s')]", byValue);
+            case ByTypes.PARTIAL_LINK_TEXT -> String.format("//a[contains(.,'%s')]", byValue);
             default -> throw new RuntimeException(String.format("Wrong locator type: %s", byType));
         };
     }

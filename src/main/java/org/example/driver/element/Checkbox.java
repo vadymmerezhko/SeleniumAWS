@@ -21,6 +21,14 @@ public class Checkbox extends BaseElement {
         }
     }
 
+    public void setValue(boolean value) {
+        if (value) {
+            check();
+        } else {
+            uncheck();
+        }
+    }
+
     public boolean isChecked() {
         return getElement().isSelected();
     }

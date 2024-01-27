@@ -1,5 +1,8 @@
 package org.example;
 
+import org.example.data.Settings;
+import org.example.data.TestInput;
+import org.example.data.TestResult;
 import org.example.driver.WebDriverFactory;
 import org.example.server.TestServer;
 import org.example.utils.CommandLineExecutor;
@@ -41,10 +44,33 @@ public class BaseTest {
         }
         else {
             driver = WebDriverFactory.getDriver();
-            String inputValue = "Selenium";
+
+            TestInput testInput = new TestInput(
+                    "Selenium",
+                    "Selenium\nWebDriver",
+                    "Two",
+                    "Chicago",
+                    System.getProperty("webdriver.chrome.driver"),
+                    false,
+                    true,
+                    false,
+                    true,
+                    "#0088ff",
+                    "05/23/1970",
+                    5);
+
             TestServer testServer = new TestServer(driver);
-            TestResult testResult = testServer.signUp(inputValue);
-            Assert.assertEquals(testResult.textInput(), inputValue);
+            TestResult testResult = testServer.signUp(testInput);
+            Assert.assertEquals(testResult.textInput(), testInput.textInput());
+            Assert.assertEquals(testResult.textareaInput(), testInput.textareaInput());
+            Assert.assertEquals(testResult.dropdownSelectedOption(), testInput.dropdownSelectedOption());
+            Assert.assertEquals(testResult.dataListSelectOption(), testInput.dataListSelectOption());
+            Assert.assertTrue((testResult.filePath().contains("chromedriver")));
+            Assert.assertEquals(testResult.checkbox1Value(), testInput.checkbox1Value());
+            Assert.assertEquals(testResult.checkbox2Value(), testInput.checkbox2Value());
+            Assert.assertEquals(testResult.color(), testInput.color());
+            Assert.assertEquals(testResult.date(), testInput.date());
+            Assert.assertEquals(testResult.range(), testInput.range());
         }
     }
 
