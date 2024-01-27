@@ -134,6 +134,7 @@ public class WebDriverFactory {
         options.addArguments("--no-sandbox"); // bypass OS security model
         options.addArguments("--disable-extensions"); // disabling extensions
         options.addArguments("disable-infobars"); // disabling infobars
+        //options.setEnableDownloads(true);
         //driver = new ChromeDriver(options);
 
         int repeatCount = 1;

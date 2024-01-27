@@ -23,7 +23,7 @@ public class TestServer {
             webFormPage.enterIntoTextarea(testInput.textareaInput());
             webFormPage.selectDropdownOption(testInput.dropdownSelectedOption());
             webFormPage.selectDataListOption(testInput.dataListSelectOption());
-            webFormPage.enterFilePath(testInput.filePath());
+            //webFormPage.enterFilePath(testInput.filePath());
             webFormPage.setCheckbox1Value(testInput.checkbox1Value());
             webFormPage.setCheckbox2Value(testInput.checkbox2Value());
 

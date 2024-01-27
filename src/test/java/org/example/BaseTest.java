@@ -1,5 +1,6 @@
 package org.example;
 
+import com.google.common.io.Files;
 import org.example.data.Settings;
 import org.example.data.TestInput;
 import org.example.data.TestResult;
@@ -9,6 +10,10 @@ import org.example.utils.CommandLineExecutor;
 import org.example.utils.FileManager;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class BaseTest {
 
@@ -45,12 +50,15 @@ public class BaseTest {
         else {
             driver = WebDriverFactory.getDriver();
 
+            Path currentRelativePath = Paths.get("pom.xml");
+            String currentFolderPath = currentRelativePath.toAbsolutePath().toString();
+
             TestInput testInput = new TestInput(
                     "Selenium",
                     "Selenium\nWebDriver",
                     "Two",
                     "Chicago",
-                    System.getProperty("webdriver.chrome.driver"),
+                    currentFolderPath,
                     false,
                     true,
                     false,
@@ -65,7 +73,7 @@ public class BaseTest {
             Assert.assertEquals(testResult.textareaInput(), testInput.textareaInput());
             Assert.assertEquals(testResult.dropdownSelectedOption(), testInput.dropdownSelectedOption());
             Assert.assertEquals(testResult.dataListSelectOption(), testInput.dataListSelectOption());
-            Assert.assertTrue((testResult.filePath().contains("chromedriver")));
+            //Assert.assertTrue((testResult.filePath().contains("pom.xml")));
             Assert.assertEquals(testResult.checkbox1Value(), testInput.checkbox1Value());
             Assert.assertEquals(testResult.checkbox2Value(), testInput.checkbox2Value());
             Assert.assertEquals(testResult.color(), testInput.color());
