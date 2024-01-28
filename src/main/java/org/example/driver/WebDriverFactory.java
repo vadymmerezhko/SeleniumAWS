@@ -6,6 +6,7 @@ import com.microsoft.playwright.Playwright;
 import org.example.balancer.LoadBalancer;
 import org.example.driver.robust.RobustWebDriver;
 import org.example.utils.TimeOut;
+import org.example.utils.TimeOutException;
 import org.example.utils.Waiter;
 import org.example.driver.playwright.PlaywrightDriver;
 import org.openqa.selenium.By;
@@ -34,30 +35,30 @@ public class WebDriverFactory {
     private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
 
     public static WebDriver getDriver() {
-        WebDriver driver = null;
+        WebDriver driver;
 
         long threadId = Thread.currentThread().threadId();
         //System.out.println("Thread: " + threadId);
 
-        int threadCount = getThreadCount();
-        /*String ec2InstanceIp;
+        //int threadCount = getThreadCount();
+        String ec2InstanceIp;
         loadBalancer.incrementServerThreadCount();
         long serverId = loadBalancer.getThreadServerId();
-        System.out.println("Serer Id: " + serverId);*/
+        System.out.println("Serer Id: " + serverId);
 
         if (!driverMap.containsKey(threadId)) {
-/*          ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
+          ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
             try {
                 waitForSeleniumGrid(ec2InstanceIp);
             }
-            catch (TimeOutException e) {
+            catch (Exception e) {
                 System.out.println("Wait Selenium Grid timeout!");
                 loadBalancer.lockSever(serverId);
                 return getDriver();
-            }*/
+            }
 
-            //driver = new RobustWebDriver(getRemoteWebDriver(ec2InstanceIp));
-            driver = new RobustWebDriver(getRemoteWebDriver("localhost:4444"));
+            driver = new RobustWebDriver(getRemoteWebDriver(ec2InstanceIp + ":4444"));
+            //driver = new RobustWebDriver(getRemoteWebDriver("localhost:4444"));
             //driver = new RobustWebDriver(getLocalWebDriver());
             //driver = getPlaywrightDriver();
             //driver = getLocalWebDriver();
@@ -192,13 +193,15 @@ public class WebDriverFactory {
     }
 
     private static void waitForSeleniumGrid(String ec2InstanceIp) {
-        System.setProperty("webdriver.chrome.driver", "c:\\Selenium\\chromedriver.exe");
+        WebDriver tempDriver;
+        /*System.setProperty("webdriver.chrome.driver", "C:\\Selenium\\chromedriver-win64\\chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless"); // headless only
         options.addArguments("--disable-gpu"); // applicable to Windows os only
-        WebDriver tempDriver = new ChromeDriver(options);
+        tempDriver = new ChromeDriver(options);
         TimeOut timeOut = new TimeOut(WAIT_SELENIUM_GRID_TIMEOUT);
-        timeOut.start();
+        timeOut.start();*/
+        tempDriver = getRemoteWebDriver("localhost:4444");
 
         try {
             while (true) {

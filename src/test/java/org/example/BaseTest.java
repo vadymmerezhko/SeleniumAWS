@@ -38,66 +38,36 @@ public class BaseTest {
 
     protected void signUp(String className, String methodName) {
         String lambda = System.getProperty("lambda");
+        driver = WebDriverFactory.getDriver();
 
-        if (lambda != null && lambda.toLowerCase().trim().equals("yes")) {
-            System.out.println("Lambda for " + className + "." + methodName);
-            String output = runLambdaFunction(className, methodName);
+        Path currentRelativePath = Paths.get("pom.xml");
+        String currentFolderPath = currentRelativePath.toAbsolutePath().toString();
 
-            if (!output.contains("BUILD SUCCESS")) {
-                Assert.fail(output);
-            }
-        }
-        else {
-            driver = WebDriverFactory.getDriver();
+        TestInput testInput = new TestInput(
+                "Selenium",
+                "Selenium\nWebDriver",
+                "Two",
+                "Chicago",
+                currentFolderPath,
+                false,
+                true,
+                false,
+                true,
+                "#0088ff",
+                "05/23/1970",
+                5);
 
-            Path currentRelativePath = Paths.get("pom.xml");
-            String currentFolderPath = currentRelativePath.toAbsolutePath().toString();
-
-            TestInput testInput = new TestInput(
-                    "Selenium",
-                    "Selenium\nWebDriver",
-                    "Two",
-                    "Chicago",
-                    currentFolderPath,
-                    false,
-                    true,
-                    false,
-                    true,
-                    "#0088ff",
-                    "05/23/1970",
-                    5);
-
-            TestServer testServer = new TestServer(driver);
-            TestResult testResult = testServer.signUp(testInput);
-            Assert.assertEquals(testResult.textInput(), testInput.textInput());
-            Assert.assertEquals(testResult.textareaInput(), testInput.textareaInput());
-            Assert.assertEquals(testResult.dropdownSelectedOption(), testInput.dropdownSelectedOption());
-            Assert.assertEquals(testResult.dataListSelectOption(), testInput.dataListSelectOption());
-            //Assert.assertTrue((testResult.filePath().contains("pom.xml")));
-            Assert.assertEquals(testResult.checkbox1Value(), testInput.checkbox1Value());
-            Assert.assertEquals(testResult.checkbox2Value(), testInput.checkbox2Value());
-            Assert.assertEquals(testResult.color(), testInput.color());
-            Assert.assertEquals(testResult.date(), testInput.date());
-            Assert.assertEquals(testResult.range(), testInput.range());
-        }
-    }
-
-    private String runLambdaFunction(String className, String methodName) {
-        String projectFolderPath = String.format("%s/%s", Settings.PROJECT_FOLDER_PATH, Settings.PROJECT_NAME);
-        String fileFolderPath = String.format("%s/src/test/resources", projectFolderPath);
-        String fileName = String.format("%s.%s.xml", className, methodName);
-        String fileContent = TEST_NG_METHOD_FILE_TEMPLATE;
-        fileContent = fileContent.replace(CLASS_NAME_PLACEHOLDER, className);
-        fileContent = fileContent.replace(METHOD_NAME_PLACEHOLDER, methodName);
-
-        FileManager.createFile(fileFolderPath, fileName, fileContent);
-
-        String command = String.format(
-                "mvn test \"-DtestSuite=%s/%s\" \"-DthreadCount=1\" \"-Dlambda=no\"\n",
-                fileFolderPath, fileName);
-
-        CommandLineExecutor.runCommandLine(String.format("cd \"%s\"", projectFolderPath));
-
-        return CommandLineExecutor.runCommandLine(command);
+        TestServer testServer = new TestServer(driver);
+        TestResult testResult = testServer.signUp(testInput);
+        Assert.assertEquals(testResult.textInput(), testInput.textInput());
+        Assert.assertEquals(testResult.textareaInput(), testInput.textareaInput());
+        Assert.assertEquals(testResult.dropdownSelectedOption(), testInput.dropdownSelectedOption());
+        Assert.assertEquals(testResult.dataListSelectOption(), testInput.dataListSelectOption());
+        //Assert.assertTrue((testResult.filePath().contains("pom.xml")));
+        Assert.assertEquals(testResult.checkbox1Value(), testInput.checkbox1Value());
+        Assert.assertEquals(testResult.checkbox2Value(), testInput.checkbox2Value());
+        Assert.assertEquals(testResult.color(), testInput.color());
+        Assert.assertEquals(testResult.date(), testInput.date());
+        Assert.assertEquals(testResult.range(), testInput.range());
     }
 }
