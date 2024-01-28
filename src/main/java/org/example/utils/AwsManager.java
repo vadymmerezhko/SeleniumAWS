@@ -91,7 +91,6 @@ public class AwsManager {
             ec2InstanceId = AwsManager.runEC2(ec2, imageId, keyPairName, groupName, userData);
 
             if (ec2InstanceId != null) break;
-            //System.out.println("Repeat getting EC2 Id");
         }
         return ec2InstanceId;
     }
@@ -106,7 +105,6 @@ public class AwsManager {
             ec2InstanceIp = AwsManager.getEC2PublicIp(ec2Client, ec2InstanceId);
 
             if (ec2InstanceIp != null) break;
-            //System.out.println("Repeat getting EC2 IP");
         }
         return ec2InstanceIp;
     }
@@ -154,7 +152,7 @@ public class AwsManager {
             if (status.equals("Success")) {
                 //command output holds the output of running the command
                 //eg. list of directories in case of ls
-                String commandOutput = invocation.getCommandPlugins().get(0).getOutput();
+                //String commandOutput = invocation.getCommandPlugins().get(0).getOutput();
                 //System.out.println(commandOutput);
                 //Process the output
             }

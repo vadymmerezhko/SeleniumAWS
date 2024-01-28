@@ -6,7 +6,6 @@ import com.microsoft.playwright.Playwright;
 import org.example.balancer.LoadBalancer;
 import org.example.driver.robust.RobustWebDriver;
 import org.example.utils.TimeOut;
-import org.example.utils.TimeOutException;
 import org.example.utils.Waiter;
 import org.example.driver.playwright.PlaywrightDriver;
 import org.openqa.selenium.By;
@@ -19,7 +18,6 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.devicefarm.DeviceFarmClient;
 import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlRequest;
 import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlResponse;
-
 
 import java.net.URL;
 import java.util.HashSet;
@@ -38,13 +36,11 @@ public class WebDriverFactory {
         WebDriver driver;
 
         long threadId = Thread.currentThread().threadId();
-        //System.out.println("Thread: " + threadId);
 
-        //int threadCount = getThreadCount();
         String ec2InstanceIp;
         loadBalancer.incrementServerThreadCount();
         long serverId = loadBalancer.getThreadServerId();
-        System.out.println("Serer Id: " + serverId);
+        System.out.println("Thread Id: " + threadId);
 
         if (!driverMap.containsKey(threadId)) {
           ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
@@ -62,12 +58,11 @@ public class WebDriverFactory {
             //driver = new RobustWebDriver(getLocalWebDriver());
             //driver = getPlaywrightDriver();
             //driver = getLocalWebDriver();
-/*            driver = new RobustWebDriver(getAWSRemoteWebDriver(
+            /*driver = new RobustWebDriver(getAWSRemoteWebDriver(
                     AWS_DEVICE_FARM_BROWSERS_ARM, // AWS_DEVICE_FARM_BROWSER_PROJECT_ARN[(int)threadId % AWS_DEVICE_FARM_BROWSER_PROJECT_ARN.length],
                     AWS_DEVICE_FARM_BROWSERS[(int)threadId % AWS_DEVICE_FARM_BROWSERS.length],
                    AWS_DEVICE_FARM_BROWSER_VERSIONS[(int)threadId % AWS_DEVICE_FARM_BROWSER_VERSIONS.length]));*/
             driverMap.put(threadId, driver);
-            //System.out.println("Tread " + threadId + " driver is set up!!!");
         }
         else {
             driver = driverMap.get(threadId);
@@ -136,7 +131,6 @@ public class WebDriverFactory {
         options.addArguments("--disable-extensions"); // disabling extensions
         options.addArguments("disable-infobars"); // disabling infobars
         //options.setEnableDownloads(true);
-        //driver = new ChromeDriver(options);
 
         int repeatCount = 1;
 
@@ -144,15 +138,12 @@ public class WebDriverFactory {
             try {
                 driver = new RemoteWebDriver(new URL("http://" + host), options);
                 driver.manage().window().maximize();
-                //System.out.println("Session created");
                 return driver;
             } catch (Exception e) {
                 repeatCount--;
                 Waiter.waitSeconds(1);
-                //System.out.println("Repeat getting WebDriver");
             }
         }
-        //System.out.println(exception.getMessage());
         return driver;
     }
 
@@ -162,14 +153,6 @@ public class WebDriverFactory {
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("browserName", browser);
         capabilities.setCapability("browserVersion", browserVersion);
-/*        capabilities.setCapability("platform", "windows");
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); // headless only
-        options.addArguments("--disable-gpu"); // applicable to Windows os only
-        options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
-        options.addArguments("--no-sandbox"); // bypass OS security model
-        options.addArguments("--disable-extensions"); // disabling extensions
-        options.addArguments("disable-infobars"); // disabling infobars*/
 
         try {
             DeviceFarmClient client = DeviceFarmClient.builder().region(Region.US_WEST_2).build();
@@ -181,27 +164,19 @@ public class WebDriverFactory {
             testGridUrl = new URL(response.url());
             // You can now pass this URL into RemoteWebDriver.
             driver = new RemoteWebDriver(testGridUrl, capabilities);
-            //System.out.println("AWS " + browser + " " + browserVersion + " browser is set up!!!");
         }
         catch (Exception e) {
-            //System.out.println("AWS Device Farm exception:\n" + e.getMessage());
+            System.out.println("AWS Device Farm exception:\n" + e.getMessage());
             WebDriverFactory.closeAllDrivers();
             System.exit(-1);
-            //throw new RuntimeException(e);
         }
         return driver;
     }
 
     private static void waitForSeleniumGrid(String ec2InstanceIp) {
-        WebDriver tempDriver;
-        /*System.setProperty("webdriver.chrome.driver", "C:\\Selenium\\chromedriver-win64\\chromedriver.exe");
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); // headless only
-        options.addArguments("--disable-gpu"); // applicable to Windows os only
-        tempDriver = new ChromeDriver(options);
+        WebDriver tempDriver = getRemoteWebDriver("localhost:4444");
         TimeOut timeOut = new TimeOut(WAIT_SELENIUM_GRID_TIMEOUT);
-        timeOut.start();*/
-        tempDriver = getRemoteWebDriver("localhost:4444");
+        timeOut.start();
 
         try {
             while (true) {
@@ -216,7 +191,6 @@ public class WebDriverFactory {
                 } catch (Exception e) {
                     //NOP
                 }
-                //System.out.println("Waiting for: " + ec2InstanceIp);
                 Waiter.waitSeconds(5);
             }
         }
@@ -238,35 +212,27 @@ public class WebDriverFactory {
     }
 
     public static void closeAllDrivers() {
-        long startMilliSec = System.currentTimeMillis();
-        //System.out.println("Start closing all drivers.");
         Set<Thread> threadSet = new HashSet<>();
 
         try {
-            //driverMap.keySet().forEach(WebDriverFactory::closeDriver);
             driverMap.keySet().forEach(threadId -> {
                 threadSet.add(closeDriverInParallel(threadId));
             });
-            //System.out.println("Wait for closing all drivers.");
+            // Wait for closing all drivers.
             for (Thread thread : threadSet) {
                 thread.join();
             }
         }
         catch (Exception e) {
-            System.out.println("Exception when closing all drivers:\n" + e.getMessage());
+            System.out.println("Ca not close all drivers:\n" + e.getMessage());
         }
-        long endMilliSec = System.currentTimeMillis();
-        long seconds = (endMilliSec - startMilliSec) / 1000;
-        //System.out.println("All drivers are closed for " + seconds + " seconds.");
     }
 
     private static Thread closeDriverInParallel(long threadId) {
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
-                //System.out.println("Start closing driver for thread: " + threadId);
                 WebDriverFactory.closeDriver(threadId);
-                //System.out.println("Driver ids closed for thread: " + threadId);
             }});
         thread.start();
         return thread;
