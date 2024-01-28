@@ -40,4 +40,4 @@ jobs:
         run: docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:latest
 
       - name: Test with Maven
-        run: mvn clean test "-DtestSuite=./src/test/resources/testng.xml" "-DthreadCount=1"
+        run: mvn clean test "-DtestSuite=./src/test/resources/testng.xml" "-DthreadCount=32"
