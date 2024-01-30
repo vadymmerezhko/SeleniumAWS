@@ -1,11 +1,22 @@
 package org.example.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DockerManager {
 
     private DockerManager() {}
 
     public static String stopAllContainers() {
-        return CommandLineExecutor.runCommandLine("docker stop $(docker ps -a -q)");
+        String result = "\n";
+        String output = CommandLineExecutor.runCommandLine("docker ps -a -q");
+        int size = output.length() / 12;
+
+        for (int i = 0; i < size; i++) {
+            String id = output.substring(i * 12, (i + 1)  *12);
+            result += CommandLineExecutor.runCommandLine(String.format("docker kill %s", id)) + "\n";
+        }
+        return result;
     }
 
     public static String removeAllContainers() {
