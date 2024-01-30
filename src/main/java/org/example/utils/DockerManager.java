@@ -35,12 +35,8 @@ public class DockerManager {
     }
 
     public static String runSeleniumStandalone(String browserName, String browserVersion, int threadCount) {
-        String shmSize = System.getProperty("os.name").startsWith("Windows") ? "\"2g\"" : "2";
-/*        System.setProperty("SE_NODE_MAX_SESSIONS", Integer.toString(threadCount));
-        System.setProperty("NODE_MAX_CONCURRENT_SESSIONS", Integer.toString(threadCount));*/
-
         return CommandLineExecutor.runCommandLine(String.format(
-                "docker run -e SE_NODE_MAX_SESSIONS=%d -d -p 4444:4444 -p 7900:7900 --shm-size=%s selenium/standalone-%s:%s",
-                threadCount, shmSize, browserName, browserVersion));
+                "docker run -e SE_NODE_MAX_SESSIONS=%d -d -p 4444:4444 -p 7900:7900 --shm-size=\"2g\" selenium/standalone-%s:%s",
+                threadCount, browserName, browserVersion));
     }
 }
