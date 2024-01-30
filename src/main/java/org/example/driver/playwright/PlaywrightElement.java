@@ -136,6 +136,16 @@ public class PlaywrightElement implements WebElement {
     }
 
     @Override
+    public String getDomProperty(String name) {
+        return locator.getAttribute(name);
+    }
+
+    @Override
+    public String getDomAttribute(String name) {
+        return locator.getAttribute(name);
+    }
+
+    @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
         byte[] data = locator.screenshot();
         return ScreenshotManager.convertScreenshotBytes(target, data);

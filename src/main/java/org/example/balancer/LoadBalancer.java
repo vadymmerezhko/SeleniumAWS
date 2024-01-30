@@ -1,5 +1,8 @@
 package org.example.balancer;
 
+import org.example.constants.Settings;
+import org.example.utils.ServerManager;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -65,11 +68,24 @@ public class LoadBalancer {
     public void setServerEC2Id(long serverEC2Id, String ec2Id) {
         serverEC2IdMap.put(serverEC2Id, ec2Id);
     }
-    public String getServerPublicIp(long serverId) {
+    public synchronized String getServerPublicIp(long serverId) {
+        if (serverIdPublicIpMap.isEmpty()) {
+            try {
+                ServerManager.createServerInstances(
+                        Settings.SELENIUM_SERVERS_COUNT,
+                        Settings.AWS_IMAGE_ID,
+                        Settings.SECURITY_KEY_PAIR_NAME,
+                        Settings.SECURITY_GROUP_NAME,
+                        Settings.USER_DATA);
+            } catch (Exception e) {
+                System.out.println("Cannot create all servers:\n" + e.getMessage());
+                System.exit(-1);
+            }
+        }
         return serverIdPublicIpMap.get(serverId);
     }
 
-    public long getThreadServerId() {
+    public synchronized long getThreadServerId() {
         long threadId = Thread.currentThread().getId();
         return threadIdServerIdMap.get(threadId);
     }
