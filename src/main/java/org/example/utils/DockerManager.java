@@ -30,7 +30,7 @@ public class DockerManager {
 
     public static String runSeleniumNode(String browserName, String browserVersion) {
         return CommandLineExecutor.runCommandLine(String.format(
-                "docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub --shm-size=\"2g\" " +
+                "docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub --shm-size=2g " +
                         "-e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 " +
                         "selenium/node-%s:%s", browserName, browserVersion));
     }
