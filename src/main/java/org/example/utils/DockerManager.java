@@ -14,7 +14,7 @@ public class DockerManager {
 
         for (int i = 0; i < size; i++) {
             String id = output.substring(i * 12, (i + 1)  *12);
-            result += CommandLineExecutor.runCommandLine(String.format("docker kill %s", id)) + "\n";
+            result += CommandLineExecutor.runCommandLine(String.format("docker stop %s", id)) + "\n";
         }
         return result;
     }

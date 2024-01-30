@@ -366,6 +366,7 @@ public class WebDriverFactory {
 
     synchronized private static void runSeleniumGridOnDocker(
             String browserName, String browserVersion, int threadCount) {
+
         if (!dockerSeleniumGridStarted) {
             stopSeleniumGridOnDocker();
             System.out.println("Starting Selenium Grid Hub on Docker.");
@@ -381,11 +382,9 @@ public class WebDriverFactory {
     }
 
     synchronized private static void stopSeleniumGridOnDocker() {
-        if (dockerSeleniumGridStarted) {
-            System.out.println("Stopping Selenium Grid on Docker.");
-            System.out.println(DockerManager.stopAllContainers());
-            System.out.println(DockerManager.removeAllContainers());
-            dockerSeleniumGridStarted = false;
-        }
+        System.out.println("Stopping Selenium Grid on Docker.");
+        System.out.println(DockerManager.stopAllContainers());
+        System.out.println(DockerManager.removeAllContainers());
+        dockerSeleniumGridStarted = false;
     }
 }
