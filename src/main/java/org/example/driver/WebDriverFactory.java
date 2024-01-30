@@ -39,6 +39,7 @@ import static org.example.constants.TestModes.*;
 
 public class WebDriverFactory {
     static private final String SELENIUM_GRID_URL_TEMPLATE = "http://%S:4444";
+    static private final String LOCALHOST = "localhost";
     static private final Config config = new Config("config.properties");
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
     static private final int WAIT_SELENIUM_GRID_TIMEOUT = 30;
@@ -49,6 +50,9 @@ public class WebDriverFactory {
         WebDriver driver;
         long threadId = Thread.currentThread().threadId();
         String testMethod = config.getTestMode();
+        String browserName = config.getBrowserName();
+        String browserVersion = config.getBrowserVersion();
+        int threadCount = config.getThreadCount();
 
         String ec2InstanceIp = null;
         loadBalancer.incrementServerThreadCount();
@@ -59,7 +63,7 @@ public class WebDriverFactory {
             if (testMethod.equals(AWS_DOCKER)) {
                 ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
                 try {
-                    waitForSeleniumGrid(ec2InstanceIp);
+                    waitForSeleniumGrid(String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp));
                 } catch (Exception e) {
                     System.out.println("Wait Selenium Grid timeout!");
                     loadBalancer.lockSever(serverId);
@@ -68,11 +72,14 @@ public class WebDriverFactory {
             }
             switch (testMethod) {
                 case AWS_DOCKER -> driver = new RobustWebDriver(getRemoteWebDriver(
+                        browserName,
                         String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp)));
-                case LOCAL_DOCKER -> driver = new RobustWebDriver(getLocalDockerWebDriver());
-                case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver());
-                case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver();
-                case AWS_DEVICE_FARM -> driver = new RobustWebDriver(getAWSRemoteWebDriver());
+                case LOCAL_DOCKER -> driver = new RobustWebDriver(getLocalDockerWebDriver(
+                        browserName, browserVersion, threadCount));
+                case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName));
+                case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver(browserName);
+                case AWS_DEVICE_FARM -> driver = new RobustWebDriver(getAWSDeviceFarmWebDriver(
+                        browserName, browserVersion));
                 default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
             }
             driverMap.put(threadId, driver);
@@ -93,9 +100,8 @@ public class WebDriverFactory {
         }
     }
 
-    public static WebDriver getLocalWebDriver() {
+    public static WebDriver getLocalWebDriver(String browserName) {
         WebDriver driver;
-        String browserName = config.getBrowserName();
 
         switch (browserName) {
             case CHROME -> driver = new ChromeDriver(getChromeOptions());
@@ -106,25 +112,20 @@ public class WebDriverFactory {
         return driver;
     }
 
-    private static WebDriver getLocalDockerWebDriver() {
-        String browserName = config.getBrowserName();
-        String browserVersion = config.getBrowserVersion();
-        int threadCount = config.getThreadCount();
+    private static WebDriver getLocalDockerWebDriver(String browserName, String browserVersion, int threadCount) {
 
         switch (browserName) {
-            case CHROME:
-            case FIREFOX:
-            case EDGE:
+            case CHROME, FIREFOX, EDGE -> {
                 runSeleniumGridOnDocker(browserName, browserVersion, threadCount);
                 return new RobustWebDriver(getRemoteWebDriver(
-                        String.format(SELENIUM_GRID_URL_TEMPLATE, "localhost")));
-            default:
-                throw new RuntimeException("Unsupported Docker browser: " + browserName);
+                        browserName,
+                        String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST)));
+            }
+            default -> throw new RuntimeException("Unsupported Docker browser: " + browserName);
         }
     }
 
-    private static WebDriver getPlaywrightDriver() {
-        String browserName = config.getBrowserName();
+    private static WebDriver getPlaywrightDriver(String browserName) {
         boolean headless = config.getHeadless();
         Playwright playwright = Playwright.create();
         BrowserType browserType;
@@ -149,10 +150,9 @@ public class WebDriverFactory {
         }
     }
 
-    private static WebDriver getRemoteWebDriver(String host) {
+    private static WebDriver getRemoteWebDriver(String browserName, String host) {
         WebDriver driver = null;
-        Capabilities options = null;
-        String browserName = config.getBrowserName();
+        Capabilities options;
 
         switch (browserName) {
             case CHROME -> options = getChromeOptions();
@@ -175,13 +175,11 @@ public class WebDriverFactory {
         return driver;
     }
 
-    private static WebDriver getAWSRemoteWebDriver() {
+    private static WebDriver getAWSDeviceFarmWebDriver(String browserName, String browserVersion) {
         WebDriver driver = null;
-        String browser = config.getBrowserName();
-        String browserVersion = config.getBrowserVersion();
         URL testGridUrl;
         DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("browserName", browser);
+        capabilities.setCapability("browserName", browserName);
         capabilities.setCapability("browserVersion", browserVersion);
 
         try {
@@ -299,15 +297,15 @@ public class WebDriverFactory {
         return options;
     }
 
-    private static void waitForSeleniumGrid(String ec2InstanceIp) {
-        WebDriver tempDriver = getRemoteWebDriver("http://localhost:4444");
+    private static void waitForSeleniumGrid(String ec2InstanceHost) {
+        WebDriver tempDriver = getPlaywrightDriver(CHROMIUM);
         TimeOut timeOut = new TimeOut(WAIT_SELENIUM_GRID_TIMEOUT);
         timeOut.start();
 
         try {
             while (true) {
                 try {
-                    tempDriver.get("http://" + ec2InstanceIp + ":4444");
+                    tempDriver.get(ec2InstanceHost);
 
                     if (!tempDriver.findElements(
                             By.xpath("//*[contains(., 'Selenium Grid')]"))
@@ -370,14 +368,15 @@ public class WebDriverFactory {
         if (!dockerSeleniumGridStarted) {
             stopSeleniumGridOnDocker();
             System.out.println("Starting Selenium Grid Hub on Docker.");
-            System.out.println(DockerManager.runSeleniumHub());
+/*            System.out.println(DockerManager.runSeleniumHub());
 
             for (int i = 0; i < threadCount; i++) {
                 System.out.println(String.format(
                         "Starting Selenium %s:%s Node on Docker.", browserName,browserVersion));
                 System.out.println(DockerManager.runSeleniumNode(browserName, browserVersion));
-            }
-            //System.out.println(DockerManager.runSeleniumStandalone(browserName, browserVersion, threadCount));
+            }*/
+            System.out.println(DockerManager.runSeleniumStandalone(browserName, browserVersion, threadCount));
+            waitForSeleniumGrid(String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST));
             dockerSeleniumGridStarted = true;
         }
     }

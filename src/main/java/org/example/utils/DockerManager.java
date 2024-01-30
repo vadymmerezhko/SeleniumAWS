@@ -1,10 +1,5 @@
 package org.example.utils;
 
-import org.apache.maven.surefire.booter.SystemUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class DockerManager {
 
     private DockerManager() {}
@@ -40,11 +35,12 @@ public class DockerManager {
     }
 
     public static String runSeleniumStandalone(String browserName, String browserVersion, int threadCount) {
-        System.setProperty("SE_NODE_MAX_SESSIONS", Integer.toString(threadCount));
-        System.setProperty("NODE_MAX_CONCURRENT_SESSIONS", Integer.toString(threadCount));
+        String shmSize = System.getProperty("os.name").startsWith("Windows") ? "\"2g\"" : "2";
+/*        System.setProperty("SE_NODE_MAX_SESSIONS", Integer.toString(threadCount));
+        System.setProperty("NODE_MAX_CONCURRENT_SESSIONS", Integer.toString(threadCount));*/
 
         return CommandLineExecutor.runCommandLine(String.format(
-                "docker run -d -p 4444:4444 -p 7900:7900 selenium/standalone-%s:%s",
-                browserName, browserVersion));
+                "docker run -e SE_NODE_MAX_SESSIONS=%d -d -p 4444:4444 -p 7900:7900 --shm-size=%s selenium/standalone-%s:%s",
+                threadCount, shmSize, browserName, browserVersion));
     }
 }
