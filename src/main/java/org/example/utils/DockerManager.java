@@ -30,8 +30,17 @@ public class DockerManager {
 
     public static String runSeleniumNode(String browserName, String browserVersion) {
         return CommandLineExecutor.runCommandLine(String.format(
-                "docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub " +
+                "docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub --shm-size=\"2g\" " +
                         "-e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 " +
                         "selenium/node-%s:%s", browserName, browserVersion));
+    }
+
+    public static String runSeleniumStandalone(String browserName, String browserVersion, int threadCount) {
+        System.setProperty("SE_NODE_MAX_SESSIONS", Integer.toString(threadCount));
+        System.setProperty("NODE_MAX_CONCURRENT_SESSIONS", Integer.toString(threadCount));
+
+        return CommandLineExecutor.runCommandLine(String.format(
+                "docker run -d -p 4444:4444 -p 7900:7900 selenium/standalone-%s:%s",
+                browserName, browserVersion));
     }
 }

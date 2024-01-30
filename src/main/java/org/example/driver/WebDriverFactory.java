@@ -377,6 +377,7 @@ public class WebDriverFactory {
                         "Starting Selenium %s:%s Node on Docker.", browserName,browserVersion));
                 System.out.println(DockerManager.runSeleniumNode(browserName, browserVersion));
             }
+            //System.out.println(DockerManager.runSeleniumStandalone(browserName, browserVersion, threadCount));
             dockerSeleniumGridStarted = true;
         }
     }
