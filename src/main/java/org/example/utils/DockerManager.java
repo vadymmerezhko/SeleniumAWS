@@ -1,5 +1,7 @@
 package org.example.utils;
 
+import org.apache.maven.surefire.booter.SystemUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +31,12 @@ public class DockerManager {
     }
 
     public static String runSeleniumNode(String browserName, String browserVersion) {
+        String shmSize = System.getProperty("os.name").startsWith("Windows") ? "\"2g\"" : "2";
+
         return CommandLineExecutor.runCommandLine(String.format(
-                "docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub --shm-size=\"2gb\" " +
+                "docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub --shm-size=%s " +
                         "-e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 " +
-                        "selenium/node-%s:%s", browserName, browserVersion));
+                        "selenium/node-%s:%s", shmSize, browserName, browserVersion));
     }
 
     public static String runSeleniumStandalone(String browserName, String browserVersion, int threadCount) {
