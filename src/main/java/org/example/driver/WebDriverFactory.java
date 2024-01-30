@@ -43,7 +43,7 @@ public class WebDriverFactory {
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
     static private final int WAIT_SELENIUM_GRID_TIMEOUT = 30;
     private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
-    private static boolean seleniumGridStartedOnDocker = false;
+    private static boolean dockerSeleniumGridStarted = false;
 
     public static WebDriver getDriver() {
         WebDriver driver;
@@ -300,7 +300,7 @@ public class WebDriverFactory {
     }
 
     private static void waitForSeleniumGrid(String ec2InstanceIp) {
-        WebDriver tempDriver = getRemoteWebDriver("localhost:4444");
+        WebDriver tempDriver = getRemoteWebDriver("http://localhost:4444");
         TimeOut timeOut = new TimeOut(WAIT_SELENIUM_GRID_TIMEOUT);
         timeOut.start();
 
@@ -364,19 +364,28 @@ public class WebDriverFactory {
         return thread;
     }
 
-    synchronized private static void runSeleniumGridOnDocker(String browserName, String browserVersion, int threadCount) {
-        stopSeleniumGridOnDocker();
-        System.out.println(DockerManager.runSeleniumHub());
+    synchronized private static void runSeleniumGridOnDocker(
+            String browserName, String browserVersion, int threadCount) {
+        if (!dockerSeleniumGridStarted) {
+            stopSeleniumGridOnDocker();
+            System.out.println("Starting Selenium Grid Hub on Docker.");
+            System.out.println(DockerManager.runSeleniumHub());
 
-        for (int i = 0; i < threadCount; i++) {
-            System.out.println(DockerManager.runSeleniumNode(browserName, browserVersion));
+            for (int i = 0; i < threadCount; i++) {
+                System.out.println(String.format(
+                        "Starting Selenium %s:%s Node on Docker.", browserName,browserVersion));
+                System.out.println(DockerManager.runSeleniumNode(browserName, browserVersion));
+            }
+            dockerSeleniumGridStarted = true;
         }
-        seleniumGridStartedOnDocker = true;
     }
 
     synchronized private static void stopSeleniumGridOnDocker() {
-        System.out.println(DockerManager.stopAllContainers());
-        System.out.println(DockerManager.removeAllContainers());
-        seleniumGridStartedOnDocker = false;
+        if (dockerSeleniumGridStarted) {
+            System.out.println("Stopping Selenium Grid on Docker.");
+            System.out.println(DockerManager.stopAllContainers());
+            System.out.println(DockerManager.removeAllContainers());
+            dockerSeleniumGridStarted = false;
+        }
     }
 }
