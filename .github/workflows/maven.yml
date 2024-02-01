@@ -34,4 +34,4 @@ jobs:
           cache: maven
 
       - name: Test with Maven
-        run: mvn clean test "-DtestSuite=./src/test/resources/testng.xml" "-DthreadCount=2" "-DtestMode=local"
+        run: mvn clean test "-DtestSuite=./src/test/resources/testng.xml" "-DthreadCount=1" "-DtestMode=local"
