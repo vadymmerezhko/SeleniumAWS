@@ -9,7 +9,7 @@ public class CommandLineExecutor {
     public static String runCommandLine(String command) {
         StringBuilder output = new StringBuilder();
 
-        if (isWindows()) {
+        if (SystemManager.isWindows()) {
             command = "cmd.exe /c" + command;
         }
 /*        else {
@@ -42,10 +42,5 @@ public class CommandLineExecutor {
             throw new RuntimeException(e);
         }
         return output.toString();
-    }
-
-    private static boolean isWindows() {
-        String os = System.getProperty("os.name");
-        return os.toLowerCase().startsWith("windows");
     }
 }

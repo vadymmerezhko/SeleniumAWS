@@ -5,15 +5,15 @@ public class DockerManager {
     private DockerManager() {}
 
     public static String stopAllContainers() {
-        String result = "\n";
+        StringBuilder result = new StringBuilder("\n");
         String output = CommandLineExecutor.runCommandLine("docker ps -a -q");
         int size = output.length() / 12;
 
         for (int i = 0; i < size; i++) {
             String id = output.substring(i * 12, (i + 1)  *12);
-            result += CommandLineExecutor.runCommandLine(String.format("docker stop %s", id)) + "\n";
+            result.append(CommandLineExecutor.runCommandLine(String.format("docker stop %s", id))).append("\n");
         }
-        return result;
+        return result.toString();
     }
 
     public static String removeAllContainers() {
@@ -26,16 +26,16 @@ public class DockerManager {
     }
 
     public static String runSeleniumNode(String browserName, String browserVersion) {
-        String shmSize = System.getProperty("os.name").startsWith("Windows") ? "\"2g\"" : "2";
+        String shmSize = SystemManager.isWindows() ? "--shm-size=\"2g\"" : "";
 
         return CommandLineExecutor.runCommandLine(String.format(
-                "docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub --shm-size=%s " +
+                "docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub %s " +
                         "-e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 " +
                         "selenium/node-%s:%s", shmSize, browserName, browserVersion));
     }
 
     public static String runSeleniumStandalone(String browserName, String browserVersion, int threadCount) {
-        String shmSize = System.getProperty("os.name").startsWith("Windows") ? "--shm-size=\"2g\"" : "";
+        String shmSize = SystemManager.isWindows() ? "--shm-size=\"2g\"" : "";
 
         return CommandLineExecutor.runCommandLine(String.format(
                 "docker run -e SE_NODE_MAX_SESSIONS=%d -d -p 4444:4444 -p 7900:7900 %s selenium/standalone-%s:%s",

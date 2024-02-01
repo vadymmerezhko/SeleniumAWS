@@ -6,9 +6,7 @@ import com.microsoft.playwright.Playwright;
 import org.example.balancer.LoadBalancer;
 import org.example.data.Config;
 import org.example.driver.robust.RobustWebDriver;
-import org.example.utils.DockerManager;
-import org.example.utils.TimeOut;
-import org.example.utils.Waiter;
+import org.example.utils.*;
 import org.example.driver.playwright.PlaywrightDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Capabilities;
@@ -72,11 +70,11 @@ public class WebDriverFactory {
             }
             switch (testMethod) {
                 case AWS_DOCKER -> driver = new RobustWebDriver(getRemoteWebDriver(
-                        browserName,
+                        browserName, browserVersion,
                         String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp)));
                 case LOCAL_DOCKER -> driver = new RobustWebDriver(getLocalDockerWebDriver(
                         browserName, browserVersion, threadCount));
-                case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName));
+                case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, browserVersion));
                 case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver(browserName);
                 case AWS_DEVICE_FARM -> driver = new RobustWebDriver(getAWSDeviceFarmWebDriver(
                         browserName, browserVersion));
@@ -100,11 +98,11 @@ public class WebDriverFactory {
         }
     }
 
-    public static WebDriver getLocalWebDriver(String browserName) {
+    public static WebDriver getLocalWebDriver(String browserName, String browserVersion) {
         WebDriver driver;
 
         switch (browserName) {
-            case CHROME -> driver = new ChromeDriver(getChromeOptions());
+            case CHROME -> driver = new ChromeDriver(getChromeOptions(browserName, browserVersion));
             case FIREFOX -> driver = new FirefoxDriver(getFirefoxOptions());
             case EDGE -> driver = new EdgeDriver(getEdgeOptions());
             default -> throw new RuntimeException("Unsupported browser: " + browserName);
@@ -118,7 +116,7 @@ public class WebDriverFactory {
             case CHROME, FIREFOX, EDGE -> {
                 runSeleniumGridOnDocker(browserName, browserVersion, threadCount);
                 return new RobustWebDriver(getRemoteWebDriver(
-                        browserName,
+                        browserName, browserVersion,
                         String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST)));
             }
             default -> throw new RuntimeException("Unsupported Docker browser: " + browserName);
@@ -150,12 +148,12 @@ public class WebDriverFactory {
         }
     }
 
-    private static WebDriver getRemoteWebDriver(String browserName, String host) {
+    private static WebDriver getRemoteWebDriver(String browserName, String browserVersion, String host) {
         WebDriver driver = null;
         Capabilities options;
 
         switch (browserName) {
-            case CHROME -> options = getChromeOptions();
+            case CHROME -> options = getChromeOptions(browserName, browserVersion);
             case FIREFOX -> options = getFirefoxOptions();
             case EDGE -> options = getEdgeOptions();
             default -> throw new RuntimeException("Unsupported browser: " + browserName);
@@ -200,21 +198,20 @@ public class WebDriverFactory {
         return driver;
     }
 
-    private static ChromeOptions getChromeOptions() {
+    private static ChromeOptions getChromeOptions(String browserName, String browserVersion) {
         ChromeOptions options = new ChromeOptions();
 
         if (config.getTestMode().equals(LOCAL)) {
-            String osName = System.getProperty("os.name");
-            String chromeDriverPath;
-            String chromeBrowserPath;
+            String chromeDriverPath = BrowserManager.downloadWebDriverBinary(browserName, browserVersion);
+            String chromeBrowserPath = BrowserManager.downloadBrowserBinary(browserName, browserVersion);
 
-            if (osName != null && osName.startsWith("Windows")) {
-                chromeDriverPath = "C:\\Selenium\\chromedriver-win64\\chromedriver.exe";
-                chromeBrowserPath = "C:\\Chrome\\chrome-win64\\chrome.exe";
+ /*           if (SystemManager.isWindows()) {
+                chromeDriverPath = "src\\test\\resources\\bin\\chromedriver\\122\\chromedriver.exe"; //"C:\\Selenium\\chromedriver-win64\\chromedriver.exe";
+                chromeBrowserPath = "src\\test\\resources\\bin\\chrome\\122\\chrome.exe"; //"C:\\Chrome\\chrome-win64\\chrome.exe";
             } else {
                 chromeDriverPath = "/tmp/bin/chromedriver-linux64/chromedriver";
                 chromeBrowserPath = "/tmp/bin/chrome-linux64/chrome";
-            }
+            }*/
             System.setProperty("webdriver.chrome.driver", chromeDriverPath);
             options.setBinary(chromeBrowserPath);
         }
@@ -236,11 +233,10 @@ public class WebDriverFactory {
         FirefoxOptions options = new FirefoxOptions();
 
         if (config.getTestMode().equals(LOCAL)) {
-            String osName = System.getProperty("os.name");
             String geckoDriverPath = null;
             String firefoxBrowserPath = null;
 
-            if (osName != null && osName.startsWith("Windows")) {
+            if (SystemManager.isWindows()) {
                 geckoDriverPath = "C:\\Selenium\\edgedriver_win64\\msedgedriver.exe";
                 firefoxBrowserPath = null;
             } else {
@@ -268,11 +264,10 @@ public class WebDriverFactory {
        EdgeOptions options = new EdgeOptions();
 
         if (config.getTestMode().equals(LOCAL)) {
-            String osName = System.getProperty("os.name");
             String edgeDriverPath = null;
             String edgeBrowserPath = null;
 
-            if (osName != null && osName.startsWith("Windows")) {
+            if (SystemManager.isWindows()) {
                 edgeDriverPath = "C:\\Selenium\\geckodriver-win64\\geckodriver.exe";
                 edgeBrowserPath = null;
             } else {
@@ -367,14 +362,7 @@ public class WebDriverFactory {
 
         if (!dockerSeleniumGridStarted) {
             stopSeleniumGridOnDocker();
-            System.out.println("Starting Selenium Grid Hub on Docker.");
-/*            System.out.println(DockerManager.runSeleniumHub());
-
-            for (int i = 0; i < threadCount; i++) {
-                System.out.println(String.format(
-                        "Starting Selenium %s:%s Node on Docker.", browserName,browserVersion));
-                System.out.println(DockerManager.runSeleniumNode(browserName, browserVersion));
-            }*/
+            System.out.println("Starting Selenium Standalone on Docker.");
             System.out.println(DockerManager.runSeleniumStandalone(browserName, browserVersion, threadCount));
             waitForSeleniumGrid(String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST));
             dockerSeleniumGridStarted = true;
