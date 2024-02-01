@@ -6,6 +6,7 @@ import org.example.driver.WebDriverFactory;
 import org.example.server.TestServer;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +15,11 @@ public class BaseTest {
 
 
     protected WebDriver driver;
+
+    @AfterTest
+    public void afterTest() {
+        //WebDriverFactory.closeDriver();
+    }
 
     protected void signUp(String className, String methodName) {
         driver = WebDriverFactory.getDriver();

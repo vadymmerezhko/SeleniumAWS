@@ -1,14 +1,30 @@
 {
   "chrome": {
     "windows64": {
-      "121": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/121.0.6167.85/win64/chromedriver-win64.zip",
-      "122" : "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/122.0.6261.6/win64/chromedriver-win64.zip",
-      "123": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/123.0.6263.0/win64/chromedriver-win64.zip"
+      "stable": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/121.0.6167.85/win64/chromedriver-win64.zip",
+      "beta": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/122.0.6261.6/win64/chromedriver-win64.zip",
+      "canary": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/123.0.6263.0/win64/chromedriver-win64.zip"
     },
     "linux64": {
-      "121": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/121.0.6167.85/linux64/chromedriver-linux64.zip",
-      "122": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/122.0.6261.6/linux64/chromedriver-linux64.zip",
-      "123": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/123.0.6263.0/linux64/chromedriver-linux64.zip"
+      "stable": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/121.0.6167.85/linux64/chromedriver-linux64.zip",
+      "beta": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/122.0.6261.6/linux64/chromedriver-linux64.zip",
+      "canary": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/123.0.6263.0/linux64/chromedriver-linux64.zip"
+    }
+  },
+  "firefox": {
+    "windows64": {
+      "stable": "https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-win64.zip"
+    },
+    "linux64": {
+      "stable": "https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz"
+    }
+  },
+  "edge": {
+    "windows64": {
+      "stable": "https://msedgedriver.azureedge.net/121.0.2277.83/edgedriver_win64.zip"
+    },
+    "linux64": {
+      "stable": "https://msedgedriver.azureedge.net/121.0.2277.83/edgedriver_linux64.zip"
     }
   }
 }

@@ -103,8 +103,8 @@ public class WebDriverFactory {
 
         switch (browserName) {
             case CHROME -> driver = new ChromeDriver(getChromeOptions(browserName, browserVersion));
-            case FIREFOX -> driver = new FirefoxDriver(getFirefoxOptions());
-            case EDGE -> driver = new EdgeDriver(getEdgeOptions());
+            case FIREFOX -> driver = new FirefoxDriver(getFirefoxOptions(browserName, browserVersion));
+            case EDGE -> driver = new EdgeDriver(getEdgeOptions(browserName, browserVersion));
             default -> throw new RuntimeException("Unsupported browser: " + browserName);
         }
         return driver;
@@ -154,8 +154,8 @@ public class WebDriverFactory {
 
         switch (browserName) {
             case CHROME -> options = getChromeOptions(browserName, browserVersion);
-            case FIREFOX -> options = getFirefoxOptions();
-            case EDGE -> options = getEdgeOptions();
+            case FIREFOX -> options = getFirefoxOptions(browserName, browserVersion);
+            case EDGE -> options = getEdgeOptions(browserName, browserVersion);
             default -> throw new RuntimeException("Unsupported browser: " + browserName);
         }
 
@@ -177,13 +177,19 @@ public class WebDriverFactory {
         WebDriver driver = null;
         URL testGridUrl;
         DesiredCapabilities capabilities = new DesiredCapabilities();
+
+        if (browserName.equals(EDGE)) {
+            browserName = "MicrosoftEdge";
+            capabilities.setCapability("ms:edgeChromium", true);
+        }
+
         capabilities.setCapability("browserName", browserName);
         capabilities.setCapability("browserVersion", browserVersion);
 
         try {
             DeviceFarmClient client = DeviceFarmClient.builder().region(Region.US_WEST_2).build();
             CreateTestGridUrlRequest request = CreateTestGridUrlRequest.builder()
-                    .expiresInSeconds(300)
+                    .expiresInSeconds(AWS_URL_EXPIRES_SECONDS)
                     .projectArn(AWS_DEVICE_FARM_BROWSERS_ARM)
                     .build();
             CreateTestGridUrlResponse response = client.createTestGridUrl(request);
@@ -205,13 +211,6 @@ public class WebDriverFactory {
             String chromeDriverPath = BrowserManager.downloadWebDriverBinary(browserName, browserVersion);
             String chromeBrowserPath = BrowserManager.downloadBrowserBinary(browserName, browserVersion);
 
- /*           if (SystemManager.isWindows()) {
-                chromeDriverPath = "src\\test\\resources\\bin\\chromedriver\\122\\chromedriver.exe"; //"C:\\Selenium\\chromedriver-win64\\chromedriver.exe";
-                chromeBrowserPath = "src\\test\\resources\\bin\\chrome\\122\\chrome.exe"; //"C:\\Chrome\\chrome-win64\\chrome.exe";
-            } else {
-                chromeDriverPath = "/tmp/bin/chromedriver-linux64/chromedriver";
-                chromeBrowserPath = "/tmp/bin/chrome-linux64/chrome";
-            }*/
             System.setProperty("webdriver.chrome.driver", chromeDriverPath);
             options.setBinary(chromeBrowserPath);
         }
@@ -229,22 +228,12 @@ public class WebDriverFactory {
         return options;
     }
 
-    private static FirefoxOptions getFirefoxOptions() {
+    private static FirefoxOptions getFirefoxOptions(String browserName, String browserVersion) {
         FirefoxOptions options = new FirefoxOptions();
 
         if (config.getTestMode().equals(LOCAL)) {
-            String geckoDriverPath = null;
-            String firefoxBrowserPath = null;
-
-            if (SystemManager.isWindows()) {
-                geckoDriverPath = "C:\\Selenium\\edgedriver_win64\\msedgedriver.exe";
-                firefoxBrowserPath = null;
-            } else {
-                geckoDriverPath = null;
-                firefoxBrowserPath = null;
-            }
+            String geckoDriverPath = BrowserManager.downloadWebDriverBinary(browserName, browserVersion);
             System.setProperty("webdriver.chrome.driver", geckoDriverPath);
-            //options.setBinary(chromeBrowserPath);
         }
 
         options.addArguments("--disable-gpu"); // applicable to Windows os only
@@ -260,22 +249,12 @@ public class WebDriverFactory {
         return options;
     }
 
-    private static EdgeOptions getEdgeOptions() {
+    private static EdgeOptions getEdgeOptions(String browserName, String browserVersion) {
        EdgeOptions options = new EdgeOptions();
 
         if (config.getTestMode().equals(LOCAL)) {
-            String edgeDriverPath = null;
-            String edgeBrowserPath = null;
-
-            if (SystemManager.isWindows()) {
-                edgeDriverPath = "C:\\Selenium\\geckodriver-win64\\geckodriver.exe";
-                edgeBrowserPath = null;
-            } else {
-                edgeDriverPath = null;
-                edgeBrowserPath = null;
-            }
+            String edgeDriverPath = BrowserManager.downloadWebDriverBinary(browserName, browserVersion);
             System.setProperty("webdriver.chrome.driver", edgeDriverPath);
-            //options.setBinary(chromeBrowserPath);
         }
 
         options.addArguments("--disable-gpu"); // applicable to Windows os only

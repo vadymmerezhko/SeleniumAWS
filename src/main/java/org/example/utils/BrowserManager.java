@@ -1,5 +1,6 @@
 package org.example.utils;
 
+import org.apache.commons.io.FilenameUtils;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -82,7 +83,7 @@ public class BrowserManager {
     }
 
     private static String getBrowserBinaryFilePath(String browserName, String browserFolderPath, String zipFileName) {
-        String browserFolderName =  zipFileName.split("\\.")[0];
+        String browserFolderName = FilenameUtils.removeExtension(zipFileName);
         String browserFileName;
 
         switch (browserName) {
