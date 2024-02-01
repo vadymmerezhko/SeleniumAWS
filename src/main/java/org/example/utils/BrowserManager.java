@@ -18,37 +18,49 @@ public class BrowserManager {
     private static final String WEBDRIVERS_DOWNLOAD_JSON_FILE_PATH = "src/test/resources/downloads/webdrivers.json";
 
     public synchronized static String downloadBrowserBinary(String browserName, String browserVersion) {
-        String downloadUrl = getBrowserDownloadUrl(browserName, browserVersion);
-        String zipFileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
-        String browserFolderPath = String.format(BROWSER_BIN_FOLDER_PATH_TEMPLATE, browserName, browserVersion);
-        String browserBinaryFilePath = getBrowserBinaryFilePath(browserName, browserFolderPath, zipFileName);
+        try {
+            String downloadUrl = getBrowserDownloadUrl(browserName, browserVersion);
+            String zipFileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
+            String browserFolderPath = String.format(BROWSER_BIN_FOLDER_PATH_TEMPLATE, browserName, browserVersion);
+            String browserBinaryFilePath = getBrowserBinaryFilePath(browserName, browserFolderPath, zipFileName);
 
-        if (!new File(browserBinaryFilePath).exists()) {
-            System.out.printf("Downloading %s:%s browser binary files...%n", browserName, browserVersion);
-            FileManager.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
-            WebDownloadManager.download(downloadUrl, DOWNLOAD_BROWSER_ZIP_FILE_PATH);
-            FileManager.deleteDirectory(browserFolderPath);
-            ZipManager.unzip(DOWNLOAD_BROWSER_ZIP_FILE_PATH, browserFolderPath);
-            FileManager.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
+            if (!new File(browserBinaryFilePath).exists()) {
+                System.out.printf("Downloading %s:%s browser binary files...%n", browserName, browserVersion);
+                FileManager.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
+                WebDownloadManager.download(downloadUrl, DOWNLOAD_BROWSER_ZIP_FILE_PATH);
+                FileManager.deleteDirectory(browserFolderPath);
+                ZipManager.unzip(DOWNLOAD_BROWSER_ZIP_FILE_PATH, browserFolderPath);
+                FileManager.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
+            }
+            return browserBinaryFilePath;
         }
-        return browserBinaryFilePath;
+        catch (Exception e) {
+            throw new RuntimeException(String.format("Cannot download %s:%s browser binary.\n%s",
+                    browserName, browserVersion, e.getMessage()));
+        }
     }
 
     public synchronized static String downloadWebDriverBinary(String browserName, String browserVersion) {
-        String downloadUrl = getWebDriverDownloadUrl(browserName, browserVersion);
-        String zipFileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
-        String webDriverFolderPath = String.format(WEBDRIVER_BIN_FOLDER_PATH_TEMPLATE, browserName, browserVersion);
-        String webDriverBinaryFilePath = getWebDriversBinaryPath(browserName, webDriverFolderPath, zipFileName);
+        try {
+            String downloadUrl = getWebDriverDownloadUrl(browserName, browserVersion);
+            String zipFileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
+            String webDriverFolderPath = String.format(WEBDRIVER_BIN_FOLDER_PATH_TEMPLATE, browserName, browserVersion);
+            String webDriverBinaryFilePath = getWebDriversBinaryPath(browserName, webDriverFolderPath, zipFileName);
 
-        if (!new File(webDriverBinaryFilePath).exists()) {
-            System.out.printf("Downloading %s:%s WebDriver binary file...%n", browserName, browserVersion);
-            FileManager.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
-            WebDownloadManager.download(downloadUrl, DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
-            FileManager.deleteDirectory(webDriverFolderPath);
-            ZipManager.unzip(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH, webDriverFolderPath);
-            FileManager.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
+            if (!new File(webDriverBinaryFilePath).exists()) {
+                System.out.printf("Downloading %s:%s WebDriver binary file...%n", browserName, browserVersion);
+                FileManager.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
+                WebDownloadManager.download(downloadUrl, DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
+                FileManager.deleteDirectory(webDriverFolderPath);
+                ZipManager.unzip(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH, webDriverFolderPath);
+                FileManager.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
+            }
+            return webDriverBinaryFilePath;
         }
-        return webDriverBinaryFilePath;
+        catch (Exception e) {
+            throw new RuntimeException(String.format("Cannot download %s:%s WebDriver binary.\n%s",
+                    browserName, browserVersion, e.getMessage()));
+        }
     }
 
     private static String getBrowserDownloadUrl(String browserName, String browserVersion) {
