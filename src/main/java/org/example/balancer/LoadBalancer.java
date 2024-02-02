@@ -3,16 +3,17 @@ package org.example.balancer;
 import org.example.constants.Settings;
 import org.example.utils.ServerManager;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class LoadBalancer {
 
+    private static final String USER_DATA_TEMPLATE =
+            "#!/bin/bash\n" +
+            "sudo docker run -e SE_NODE_MAX_SESSIONS=%d -d -p 4444:4444 -p 7900:7900 " +
+            "--shm-size=\"2g\" selenium/standalone-%s:%s";
     private final AtomicLong maxServersCount = new AtomicLong(0);
     private final ConcurrentMap<Long, Long> serverThreadsCountMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Long> threadIdServerIdMap = new ConcurrentHashMap<>();
@@ -62,21 +63,29 @@ public class LoadBalancer {
     public long getMaxServersCount() {
         return maxServersCount.get();
     }
+
     public void setServerEC2PublicIp(long serverId, String publicIp) {
         serverIdPublicIpMap.put(serverId, publicIp);
     }
+
     public void setServerEC2Id(long serverEC2Id, String ec2Id) {
         serverEC2IdMap.put(serverEC2Id, ec2Id);
     }
-    public synchronized String getServerPublicIp(long serverId) {
+
+    public synchronized String getServerPublicIp(long serverId, int threadCount, String browserName, String browserVersion) {
+        String userData = String.format(USER_DATA_TEMPLATE, threadCount, browserName, browserVersion);
+        String encodedUserData = Base64.getEncoder().encodeToString(userData.getBytes());
+
         if (serverIdPublicIpMap.isEmpty()) {
             try {
                 ServerManager.createServerInstances(
                         Settings.SELENIUM_SERVERS_COUNT,
-                        Settings.AWS_IMAGE_ID,
+                        //Settings.AWS_IMAGE_ID,
+                        Settings.AWS_DOCKER_IMAGE_ID,
                         Settings.SECURITY_KEY_PAIR_NAME,
                         Settings.SECURITY_GROUP_NAME,
-                        Settings.USER_DATA);
+                        //Settings.USER_DATA
+                        encodedUserData);
             } catch (Exception e) {
                 System.out.println("Cannot create all servers:\n" + e.getMessage());
                 System.exit(-1);
@@ -86,12 +95,12 @@ public class LoadBalancer {
     }
 
     public synchronized long getThreadServerId() {
-        long threadId = Thread.currentThread().getId();
+        long threadId = Thread.currentThread().threadId();
         return threadIdServerIdMap.get(threadId);
     }
 
     public synchronized void incrementServerThreadCount() {
-        long threadId = Thread.currentThread().getId();
+        long threadId = Thread.currentThread().threadId();
         long serverId = getMinCountPoolServerId();
 
         threadIdServerIdMap.put(threadId, serverId);
@@ -106,7 +115,7 @@ public class LoadBalancer {
     }
 
     public synchronized void decrementServerThreadCount() {
-        long threadId = Thread.currentThread().getId();
+        long threadId = Thread.currentThread().threadId();
         long serverId = threadIdServerIdMap.get(threadId);
 
         if (serverThreadsCountMap.containsKey(serverId)) {

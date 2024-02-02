@@ -24,6 +24,7 @@ import software.amazon.awssdk.services.devicefarm.DeviceFarmClient;
 import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlRequest;
 import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlResponse;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +60,7 @@ public class WebDriverFactory {
 
         if (!driverMap.containsKey(threadId)) {
             if (testMethod.equals(AWS_DOCKER)) {
-                ec2InstanceIp = loadBalancer.getServerPublicIp(serverId);
+                ec2InstanceIp = loadBalancer.getServerPublicIp(serverId, threadCount, browserName, browserVersion);
                 try {
                     waitForSeleniumGrid(String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp));
                 } catch (Exception e) {
@@ -86,16 +87,6 @@ public class WebDriverFactory {
             driver = driverMap.get(threadId);
         }
         return driver;
-    }
-
-    private static int getThreadCount() {
-        try {
-            String threadCount = System.getProperty("threadCount");
-            return Integer.parseInt(threadCount);
-        }
-        catch (Exception e) {
-            return DEFAULT_THREADS_COUNT;
-        }
     }
 
     public static WebDriver getLocalWebDriver(String browserName, String browserVersion) {
@@ -163,7 +154,8 @@ public class WebDriverFactory {
 
         while (repeatCount > 0) {
             try {
-                driver = new RemoteWebDriver(new URL(host), options);
+                URI uri = new URI(host);
+                driver = new RemoteWebDriver(uri.toURL(), options);
                 return driver;
             } catch (Exception e) {
                 repeatCount--;
@@ -193,7 +185,8 @@ public class WebDriverFactory {
                     .projectArn(AWS_DEVICE_FARM_BROWSERS_ARM)
                     .build();
             CreateTestGridUrlResponse response = client.createTestGridUrl(request);
-            testGridUrl = new URL(response.url());
+            URI uri = new URI(response.url());
+            testGridUrl = uri.toURL();
             driver = new RemoteWebDriver(testGridUrl, capabilities);
         }
         catch (Exception e) {
@@ -313,9 +306,9 @@ public class WebDriverFactory {
         Set<Thread> threadSet = new HashSet<>();
 
         try {
-            driverMap.keySet().forEach(threadId -> {
+            for (Long threadId : driverMap.keySet()) {
                 threadSet.add(closeDriverInParallel(threadId));
-            });
+            }
             // Wait for closing all drivers.
             for (Thread thread : threadSet) {
                 thread.join();
@@ -327,11 +320,7 @@ public class WebDriverFactory {
     }
 
     private static Thread closeDriverInParallel(long threadId) {
-        Thread thread = new Thread(new Runnable() {
-            public void run()
-            {
-                WebDriverFactory.closeDriver(threadId);
-            }});
+        Thread thread = new Thread(() -> WebDriverFactory.closeDriver(threadId));
         thread.start();
         return thread;
     }
