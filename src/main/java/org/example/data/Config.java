@@ -50,7 +50,11 @@ public class Config {
 
     synchronized public String getOsVersion() {
         String browser = getStringProperty(OS_PROP_NAME);
-        return getSubValue(browser, 1);
+        String browserVersion = getSubValue(browser, 1);
+        if (browserVersion == null) {
+            throw new RuntimeException("Browser version is undefined.");
+        }
+        return browserVersion;
     }
 
     synchronized public boolean getHeadless() {

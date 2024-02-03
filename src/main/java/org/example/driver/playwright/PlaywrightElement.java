@@ -23,6 +23,15 @@ public class PlaywrightElement implements WebElement {
         locator.click();
     }
 
+    public void selectOptionByText(String option) {
+        locator.selectOption(option);
+    }
+
+    public void setValue(String value) {
+        ElementHandle elementHandle = locator.elementHandle();
+        locator.evaluate(String.format("elementHandle => elementHandle.value='%s'", value), elementHandle);
+    }
+
     @Override
     public void submit() {
         locator.click();
@@ -63,6 +72,10 @@ public class PlaywrightElement implements WebElement {
 
     @Override
     public boolean isSelected() {
+        if (getTagName().equals("option")) {
+            String selected = getDomProperty("selected");
+            return selected.equals("true");
+        }
         return locator.isChecked();
     }
 
@@ -136,13 +149,19 @@ public class PlaywrightElement implements WebElement {
     }
 
     @Override
-    public String getDomProperty(String name) {
-        return locator.getAttribute(name);
+    public String getDomProperty(String propertyName) {
+        ElementHandle elementHandle = locator.elementHandle();
+        Object property = locator.evaluate(
+                "elementHandle => elementHandle." + propertyName, elementHandle);
+        return String.valueOf(property);
     }
 
     @Override
-    public String getDomAttribute(String name) {
-        return locator.getAttribute(name);
+    public String getDomAttribute(String attributeName) {
+        ElementHandle elementHandle = locator.elementHandle();
+        Object attribute = locator.evaluate(
+                String.format("elementHandle => elementHandle.getAttribute('%s')", attributeName), elementHandle);
+        return String.valueOf(attribute);
     }
 
     @Override

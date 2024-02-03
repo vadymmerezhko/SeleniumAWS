@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PlaywrightManage implements Options {
-    private Page page;
+    private final Page page;
 
     public PlaywrightManage(Page page) {
         this.page = page;
@@ -33,7 +33,7 @@ public class PlaywrightManage implements Options {
     public void deleteCookieNamed(String name) {
         List<com.microsoft.playwright.options.Cookie> cookies =
                 (page.context().cookies()).stream().filter(cookie ->
-                        cookie.name != name).collect(Collectors.toList());
+                        !cookie.name.equals(name)).collect(Collectors.toList());
         page.context().clearCookies();
         page.context().addCookies(cookies);
     }
@@ -42,14 +42,16 @@ public class PlaywrightManage implements Options {
     public void deleteCookie(Cookie cookieToDelete) {
         List<com.microsoft.playwright.options.Cookie> cookies =
                 (page.context().cookies()).stream().filter(cookie ->
-                cookie.name != cookieToDelete.getName()).collect(Collectors.toList());
+                !cookie.name.equals(cookieToDelete.getName())).collect(Collectors.toList());
         page.context().clearCookies();
         page.context().addCookies(cookies);
     }
 
     @Override
     public void deleteAllCookies() {
-        page.context().clearCookies();
+        if (page != null) {
+            page.context().clearCookies();
+        }
     }
 
     @Override

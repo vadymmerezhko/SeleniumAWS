@@ -1,6 +1,8 @@
 package org.example.driver.element;
 
+import org.example.driver.playwright.PlaywrightElement;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
 public class Dropdown extends BaseElement {
@@ -10,12 +12,24 @@ public class Dropdown extends BaseElement {
     }
 
     public void selectOptionByText(String text) {
-        Select select = new Select(getElement());
+        WebElement dropdown = getElement();
+        if (dropdown instanceof PlaywrightElement) {
+            click();
+            ((PlaywrightElement)dropdown).selectOptionByText(text);
+            return;
+        }
+        Select select = new Select(dropdown);
         select.selectByVisibleText(text);
     }
 
     public void selectOptionByValue(String value) {
-        Select select = new Select(getElement());
+        WebElement dropdown = getElement();
+        if (dropdown instanceof PlaywrightElement) {
+            click();
+            ((PlaywrightElement)dropdown).selectOptionByText(value);
+            return;
+        }
+        Select select = new Select(dropdown);
         select.selectByValue(value);
     }
 

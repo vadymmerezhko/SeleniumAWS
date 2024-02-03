@@ -44,10 +44,6 @@ public class LoadBalancer {
         serverLockMap.remove(serverId);
     }
 
-    public Collection<String> getAllServersEC2PublicIps() {
-        return serverIdPublicIpMap.values();
-    }
-
     public Collection<String> getAllServersEC2Ids() {
         return serverEC2IdMap.values();
     }
@@ -58,10 +54,6 @@ public class LoadBalancer {
         for (long i = 0; i < count; i++) {
             serverThreadsCountMap.put(i, 0L);
         }
-    }
-
-    public long getMaxServersCount() {
-        return maxServersCount.get();
     }
 
     public void setServerEC2PublicIp(long serverId, String publicIp) {
@@ -80,11 +72,10 @@ public class LoadBalancer {
             try {
                 ServerManager.createServerInstances(
                         Settings.SELENIUM_SERVERS_COUNT,
-                        //Settings.AWS_IMAGE_ID,
                         Settings.AWS_DOCKER_IMAGE_ID,
                         Settings.SECURITY_KEY_PAIR_NAME,
                         Settings.SECURITY_GROUP_NAME,
-                        //Settings.USER_DATA
+
                         encodedUserData);
             } catch (Exception e) {
                 System.out.println("Cannot create all servers:\n" + e.getMessage());

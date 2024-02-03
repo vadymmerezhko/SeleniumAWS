@@ -14,51 +14,51 @@ public class Selenium3Test extends BaseTest {
 
     @AfterMethod(alwaysRun = true)
     public void decrementThreadPool() {
-        driver.manage().deleteAllCookies();
+        //driver.manage().deleteAllCookies();
         LoadBalancer.getInstance().decrementServerThreadCount();
     }
 
     @Test(description="This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
     public void signUp1()
     {
-        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
+        signUp();
     }
 
     @Test(description="This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
     public void signUp2()
     {
-        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
+        signUp();
     }
 
     @Test(description="This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
     public void signUp3()
     {
-        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
+        signUp();
     }
 
     @Test(description="This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
     public void signUp4()
     {
-        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
+        signUp();
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
     public void signUp5() {
-        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
+        signUp();
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
     public void signUp6() {
-        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
+        signUp();
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
     public void signUp7() {
-        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
+        signUp();
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
     public void signUp8() {
-        signUp(this.getClass().getName(), new Object(){}.getClass().getEnclosingMethod().getName());
+        signUp();
     }
 }

@@ -50,7 +50,6 @@ public class WebDriverFactory {
         long threadId = Thread.currentThread().threadId();
         String testMethod = config.getTestMode();
         String browserName = config.getBrowserName();
-        String browserVersion = config.getBrowserVersion();
         int threadCount = config.getThreadCount();
 
         String ec2InstanceIp = null;
@@ -60,7 +59,8 @@ public class WebDriverFactory {
 
         if (!driverMap.containsKey(threadId)) {
             if (testMethod.equals(AWS_DOCKER)) {
-                ec2InstanceIp = loadBalancer.getServerPublicIp(serverId, threadCount, browserName, browserVersion);
+                ec2InstanceIp = loadBalancer.getServerPublicIp(
+                        serverId, threadCount, browserName, config.getBrowserVersion());
                 try {
                     waitForSeleniumGrid(String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp));
                 } catch (Exception e) {
@@ -71,20 +71,21 @@ public class WebDriverFactory {
             }
             switch (testMethod) {
                 case AWS_DOCKER -> driver = new RobustWebDriver(getRemoteWebDriver(
-                        browserName, browserVersion,
+                        browserName, config.getBrowserVersion(),
                         String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp)));
                 case LOCAL_DOCKER -> driver = new RobustWebDriver(getLocalDockerWebDriver(
-                        browserName, browserVersion, threadCount));
-                case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, browserVersion));
+                        browserName, config.getBrowserVersion(), threadCount));
+                case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, config.getBrowserVersion()));
                 case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver(browserName);
                 case AWS_DEVICE_FARM -> driver = new RobustWebDriver(getAWSDeviceFarmWebDriver(
-                        browserName, browserVersion));
+                        browserName, config.getBrowserVersion()));
                 default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
             }
             driverMap.put(threadId, driver);
         }
         else {
             driver = driverMap.get(threadId);
+            driver.manage().deleteAllCookies();
         }
         return driver;
     }
@@ -115,7 +116,10 @@ public class WebDriverFactory {
     }
 
     private static WebDriver getPlaywrightDriver(String browserName) {
-        boolean headless = config.getHeadless();
+        return getPlaywrightDriver(browserName, config.getHeadless());
+    }
+
+    private static WebDriver getPlaywrightDriver(String browserName, boolean headless) {
         Playwright playwright = Playwright.create();
         BrowserType browserType;
 
@@ -150,7 +154,7 @@ public class WebDriverFactory {
             default -> throw new RuntimeException("Unsupported browser: " + browserName);
         }
 
-        int repeatCount = 1;
+        int repeatCount = 3;
 
         while (repeatCount > 0) {
             try {
@@ -192,6 +196,7 @@ public class WebDriverFactory {
         catch (Exception e) {
             System.out.println("AWS Device Farm exception:\n" + e.getMessage());
             WebDriverFactory.closeAllDrivers();
+            ServerManager.terminateAllSeleniumServers();
             System.exit(-1);
         }
         return driver;
@@ -265,7 +270,7 @@ public class WebDriverFactory {
     }
 
     private static void waitForSeleniumGrid(String ec2InstanceHost) {
-        WebDriver tempDriver = getPlaywrightDriver(CHROMIUM);
+        WebDriver tempDriver = getPlaywrightDriver(CHROMIUM, true);
         TimeOut timeOut = new TimeOut(WAIT_SELENIUM_GRID_TIMEOUT);
         timeOut.start();
 

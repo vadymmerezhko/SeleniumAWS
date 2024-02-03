@@ -29,10 +29,6 @@ public class RobustWebElement implements WebElement {
         this.waiter = waiter;
     }
 
-    public WebElement getNativeElement() {
-        return element;
-    }
-
     @Override
     public void click() {
         Exception exception = null;
@@ -269,8 +265,8 @@ public class RobustWebElement implements WebElement {
         }
     }
 
-    protected void clickHiddenElement() {
-        ((JavascriptExecutor)driver).executeScript("arguments[0].click();", element);
+    public void setValue(String value) {
+        ((JavascriptExecutor)driver).executeScript(String.format("arguments[0].value='%s'", value), element);
     }
 
     private WebElement waitForChildElementPresence(By childBy) {

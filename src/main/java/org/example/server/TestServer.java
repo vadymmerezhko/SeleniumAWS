@@ -21,8 +21,7 @@ public class TestServer {
             webFormPage.enterIntoTextInput(testInput.textInput());
             webFormPage.enterPassword("Password123");
             webFormPage.enterIntoTextarea(testInput.textareaInput());
-            //TODO: Fif dropdown for Playwright
-            //webFormPage.selectDropdownOption(testInput.dropdownSelectedOption());
+            webFormPage.selectDropdownOption(testInput.dropdownSelectedOption());
             webFormPage.selectDataListOption(testInput.dataListSelectOption());
             // TODO: Fix file path for remote run.
             //webFormPage.enterFilePath(testInput.filePath());
@@ -46,9 +45,9 @@ public class TestServer {
             return new TestResult(
                     webFormPage.getTextInputValue(),
                     webFormPage.getTextareaValue(),
-                    "", //webFormPage.getDropdownSelectedOption(),
+                    webFormPage.getDropdownSelectedOption(),
                     webFormPage.getDataListSelectedOption(),
-                    webFormPage.getFilePath(),
+                    "", //webFormPage.getFilePath(),
                     webFormPage.getCheckbox1Value(),
                     webFormPage.getCheckbox2Value(),
                     webFormPage.getRadiobutton1Value(),

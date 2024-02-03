@@ -21,7 +21,7 @@ public class BaseTest {
         //WebDriverFactory.closeDriver();
     }
 
-    protected void signUp(String className, String methodName) {
+    protected void signUp() {
         driver = WebDriverFactory.getDriver();
 
         Path currentRelativePath = Paths.get("pom.xml");
@@ -45,18 +45,14 @@ public class BaseTest {
         TestResult testResult = testServer.signUp(testInput);
         Assert.assertEquals(testResult.textInput(), testInput.textInput());
         Assert.assertEquals(testResult.textareaInput(), testInput.textareaInput());
-        // TODO: Fix dropdown for Playwright.
-        //Assert.assertEquals(testResult.dropdownSelectedOption(), testInput.dropdownSelectedOption());
+        Assert.assertEquals(testResult.dropdownSelectedOption(), testInput.dropdownSelectedOption());
         Assert.assertEquals(testResult.dataListSelectOption(), testInput.dataListSelectOption());
         // TODO: Fix file path for remote run.
         //Assert.assertTrue((testResult.filePath().contains("pom.xml")));
         Assert.assertEquals(testResult.checkbox1Value(), testInput.checkbox1Value());
         Assert.assertEquals(testResult.checkbox2Value(), testInput.checkbox2Value());
-        // TODO: Fix color picker for Firefox and Playwright.
-        //Assert.assertEquals(testResult.color(), testInput.color());
-        // TODO: Fix date picker for Playwright.
-        //Assert.assertEquals(testResult.date(), testInput.date());
-        // TODO: Fix rage slider for Playwright.
-        //Assert.assertEquals(testResult.range(), testInput.range());
+        Assert.assertEquals(testResult.color(), testInput.color());
+        Assert.assertEquals(testResult.date(), testInput.date());
+        Assert.assertEquals(testResult.range(), testInput.range());
     }
 }
