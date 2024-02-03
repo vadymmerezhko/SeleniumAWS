@@ -259,7 +259,10 @@ public class RobustWebElement implements WebElement {
     }
 
     protected void scrollToElement() {
-        WebElement nativeElement = ((RobustWebElement)element).getNativeElement();
+        WebElement nativeElement = element;
+        if (element instanceof RobustWebElement) {
+            nativeElement = ((RobustWebElement) element).getNativeElement();
+        }
         try {
             ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", nativeElement);
         }
@@ -271,7 +274,10 @@ public class RobustWebElement implements WebElement {
     }
 
     public void setValue(String value) {
-        WebElement nativeElement = ((RobustWebElement)element).getNativeElement();
+        WebElement nativeElement = element;
+        if (element instanceof RobustWebElement) {
+            nativeElement = ((RobustWebElement) element).getNativeElement();
+        }
         ((JavascriptExecutor)driver).executeScript(String.format("arguments[0].value='%s'", value), nativeElement);
     }
 
