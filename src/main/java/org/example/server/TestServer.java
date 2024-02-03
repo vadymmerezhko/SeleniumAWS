@@ -15,7 +15,6 @@ public class TestServer {
 
     public TestResult signUp(TestInput testInput) {
         try {
-
             WebFormPage webFormPage = new WebFormPage();
             webFormPage.open("https://www.selenium.dev/selenium/web/web-form.html");
             webFormPage.enterIntoTextInput(testInput.textInput());

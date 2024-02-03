@@ -29,6 +29,10 @@ public class RobustWebElement implements WebElement {
         this.waiter = waiter;
     }
 
+    public WebElement getNativeElement() {
+        return element;
+    }
+
     @Override
     public void click() {
         Exception exception = null;
@@ -255,8 +259,9 @@ public class RobustWebElement implements WebElement {
     }
 
     protected void scrollToElement() {
+        WebElement nativeElement = ((RobustWebElement)element).getNativeElement();
         try {
-            ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", element);
+            ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", nativeElement);
         }
         catch (StaleElementReferenceException |
                ElementNotInteractableException |
@@ -266,7 +271,8 @@ public class RobustWebElement implements WebElement {
     }
 
     public void setValue(String value) {
-        ((JavascriptExecutor)driver).executeScript(String.format("arguments[0].value='%s'", value), element);
+        WebElement nativeElement = ((RobustWebElement)element).getNativeElement();
+        ((JavascriptExecutor)driver).executeScript(String.format("arguments[0].value='%s'", value), nativeElement);
     }
 
     private WebElement waitForChildElementPresence(By childBy) {
