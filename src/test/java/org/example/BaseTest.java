@@ -1,12 +1,14 @@
 package org.example;
 
+import org.example.balancer.LoadBalancer;
 import org.example.data.TestInput;
 import org.example.data.TestResult;
 import org.example.driver.WebDriverFactory;
 import org.example.server.TestServer;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,9 +18,14 @@ public class BaseTest {
 
     protected WebDriver driver;
 
-    @AfterTest
-    public void afterTest() {
-        //WebDriverFactory.closeDriver();
+    @BeforeMethod(alwaysRun = true)
+    public void openBrowser() {
+        driver = WebDriverFactory.getDriver();
+    }
+
+    @AfterMethod
+    public void afterMethod() {
+        LoadBalancer.getInstance().decrementServerThreadCount();
     }
 
     protected void signUp() {

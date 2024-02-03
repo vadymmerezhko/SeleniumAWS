@@ -1,21 +1,8 @@
 package org.example;
-import org.example.balancer.LoadBalancer;
-import org.example.driver.WebDriverFactory;
 import org.example.testng.RetryAnalyzer;
 import org.testng.annotations.*;
 
 public class Selenium5Test extends BaseTest{
-
-    @BeforeMethod(alwaysRun = true)
-    public void openBrowser() {
-        driver = WebDriverFactory.getDriver();
-    }
-
-    @AfterMethod(alwaysRun = true)
-    public void decrementThreadPool() {
-        //driver.manage().deleteAllCookies();
-        LoadBalancer.getInstance().decrementServerThreadCount();
-    }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
     public void signUp1() {
