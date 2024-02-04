@@ -220,7 +220,6 @@ public class WebDriverFactory {
         options.addArguments("--no-sandbox"); // bypass OS security model
         options.addArguments("--disable-extensions"); // disabling extensions
         options.addArguments("disable-infobars"); // disabling infobars
-        options.setEnableDownloads(true);
 
         if (config.getHeadless()) {
             options.addArguments("--headless"); // headless only
@@ -241,7 +240,6 @@ public class WebDriverFactory {
         options.addArguments("--no-sandbox"); // bypass OS security model
         options.addArguments("--disable-extensions"); // disabling extensions
         options.addArguments("disable-infobars"); // disabling infobars
-        options.setEnableDownloads(true);
 
         if (config.getHeadless()) {
             options.addArguments("--headless"); // headless only
@@ -263,7 +261,6 @@ public class WebDriverFactory {
         options.addArguments("--disable-extensions"); // disabling extensions
         options.addArguments("disable-infobars"); // disabling infobars
         options.setExperimentalOption("excludeSwitches", List.of("disable-popup-blocking"));
-        options.setEnableDownloads(true);
 
         if (config.getHeadless()) {
             options.addArguments("--headless"); // headless only
