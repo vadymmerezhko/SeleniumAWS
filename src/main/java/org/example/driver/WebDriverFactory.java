@@ -190,6 +190,7 @@ public class WebDriverFactory {
         capabilities.setCapability("browserVersion", browserVersion);
 
         try {
+            System.out.println("Waiting for AWS Device Farm browser:  " + browserName);
             DeviceFarmClient client = DeviceFarmClient.builder().region(Region.US_WEST_2).build();
             CreateTestGridUrlRequest request = CreateTestGridUrlRequest.builder()
                     .expiresInSeconds(AWS_URL_EXPIRES_SECONDS)
