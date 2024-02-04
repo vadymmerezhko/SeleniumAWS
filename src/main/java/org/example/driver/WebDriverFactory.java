@@ -78,7 +78,7 @@ public class WebDriverFactory {
                 case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, config.getBrowserVersion()));
                 case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver(browserName);
                 case REMOTE -> driver = new RobustWebDriver(getRemoteWebDriver(
-                        browserName, config.getBrowserVersion(), config.getRemoteHost()));
+                        config.getRemoteHost(), browserName, config.getBrowserVersion()));
                 case AWS_DEVICE_FARM -> driver = new RobustWebDriver(getAWSDeviceFarmWebDriver(
                         browserName, config.getBrowserVersion()));
                 default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
@@ -110,8 +110,8 @@ public class WebDriverFactory {
             case CHROME, FIREFOX, EDGE -> {
                 runSeleniumGridOnDocker(browserName, browserVersion, threadCount);
                 return new RobustWebDriver(getRemoteWebDriver(
-                        browserName, browserVersion,
-                        String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST)));
+                        String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST),
+                        browserName, browserVersion));
             }
             default -> throw new RuntimeException("Unsupported Docker browser: " + browserName);
         }
