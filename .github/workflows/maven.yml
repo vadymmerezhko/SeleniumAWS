@@ -33,8 +33,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Test - Local Docker - Linux Edge
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker" "-Dbrowser=edge:latest"
+      - name: Test - Local Docker - Linux Firefox
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker" "-Dbrowser=firefox:latest"
 
       - name: Test - Local WebDriver - Linux Chrome
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local" "-Dbrowser=chrome:stable"
