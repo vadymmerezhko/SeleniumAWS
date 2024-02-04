@@ -71,12 +71,14 @@ public class WebDriverFactory {
             }
             switch (testMethod) {
                 case AWS_DOCKER -> driver = new RobustWebDriver(getRemoteWebDriver(
-                        browserName, config.getBrowserVersion(),
-                        String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp)));
+                        String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp),
+                        browserName, config.getBrowserVersion()));
                 case LOCAL_DOCKER -> driver = new RobustWebDriver(getLocalDockerWebDriver(
                         browserName, config.getBrowserVersion(), threadCount));
                 case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, config.getBrowserVersion()));
                 case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver(browserName);
+                case REMOTE -> driver = new RobustWebDriver(getRemoteWebDriver(
+                        browserName, config.getBrowserVersion(), config.getRemoteHost()));
                 case AWS_DEVICE_FARM -> driver = new RobustWebDriver(getAWSDeviceFarmWebDriver(
                         browserName, config.getBrowserVersion()));
                 default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
@@ -143,7 +145,7 @@ public class WebDriverFactory {
         }
     }
 
-    private static WebDriver getRemoteWebDriver(String browserName, String browserVersion, String host) {
+    private static WebDriver getRemoteWebDriver(String remoteHost, String browserName, String browserVersion) {
         WebDriver driver = null;
         Capabilities options;
 
@@ -158,7 +160,7 @@ public class WebDriverFactory {
 
         while (repeatCount > 0) {
             try {
-                URI uri = new URI(host);
+                URI uri = new URI(remoteHost);
                 driver = new RemoteWebDriver(uri.toURL(), options);
                 return driver;
             } catch (Exception e) {
@@ -218,11 +220,11 @@ public class WebDriverFactory {
         options.addArguments("--no-sandbox"); // bypass OS security model
         options.addArguments("--disable-extensions"); // disabling extensions
         options.addArguments("disable-infobars"); // disabling infobars
+        options.setEnableDownloads(true);
 
         if (config.getHeadless()) {
             options.addArguments("--headless"); // headless only
         }
-
         return options;
     }
 
@@ -239,11 +241,11 @@ public class WebDriverFactory {
         options.addArguments("--no-sandbox"); // bypass OS security model
         options.addArguments("--disable-extensions"); // disabling extensions
         options.addArguments("disable-infobars"); // disabling infobars
+        options.setEnableDownloads(true);
 
         if (config.getHeadless()) {
             options.addArguments("--headless"); // headless only
         }
-
         return options;
     }
 
@@ -261,11 +263,11 @@ public class WebDriverFactory {
         options.addArguments("--disable-extensions"); // disabling extensions
         options.addArguments("disable-infobars"); // disabling infobars
         options.setExperimentalOption("excludeSwitches", List.of("disable-popup-blocking"));
+        options.setEnableDownloads(true);
 
         if (config.getHeadless()) {
             options.addArguments("--headless"); // headless only
         }
-
         return options;
     }
 

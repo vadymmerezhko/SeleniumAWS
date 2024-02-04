@@ -22,6 +22,10 @@ public class FileManager {
         }
     }
 
+    public static synchronized void createFolder(String folderPath) {
+
+    }
+
     public static synchronized String readFile(String filePath) {
         try {
             return Files.readString(Paths.get(filePath));

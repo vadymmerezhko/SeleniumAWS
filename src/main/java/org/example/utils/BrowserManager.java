@@ -11,8 +11,9 @@ public class BrowserManager {
 
     private BrowserManager() {}
 
-    private static final String DOWNLOAD_BROWSER_ZIP_FILE_PATH = "src/test/resources/bin/browser.zip";
-    private static final String DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH = "src/test/resources/bin/webdriver.zip";
+    private static final String DOWNLOAD_BIN_FOLDER_PATH = "src/test/resources/bin";
+    private static final String DOWNLOAD_BROWSER_ZIP_FILE_PATH = DOWNLOAD_BIN_FOLDER_PATH + "/browser.zip";
+    private static final String DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH = DOWNLOAD_BIN_FOLDER_PATH + "/webdriver.zip";
     private static final String BROWSER_BIN_FOLDER_PATH_TEMPLATE = "src/test/resources/bin/browser/%s/%s";
     private static final String WEBDRIVER_BIN_FOLDER_PATH_TEMPLATE = "src/test/resources/bin/webdriver/%s/%s";
     private static final String BROWSERS_DOWNLOAD_JSON_FILE_PATH = "src/test/resources/downloads/browsers.json";
@@ -27,6 +28,7 @@ public class BrowserManager {
 
             if (!new File(browserBinaryFilePath).exists()) {
                 System.out.printf("Downloading %s:%s browser binary files...%n", browserName, browserVersion);
+                createDownloadBinFolder();
                 FileManager.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
                 WebDownloadManager.download(downloadUrl, DOWNLOAD_BROWSER_ZIP_FILE_PATH);
                 FileManager.deleteDirectory(browserFolderPath);
@@ -50,6 +52,7 @@ public class BrowserManager {
 
             if (!new File(webDriverBinaryFilePath).exists()) {
                 System.out.printf("Downloading %s:%s WebDriver binary file...%n", browserName, browserVersion);
+                createDownloadBinFolder();
                 FileManager.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
                 WebDownloadManager.download(downloadUrl, DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
                 FileManager.deleteDirectory(webDriverFolderPath);
@@ -61,6 +64,15 @@ public class BrowserManager {
         catch (Exception e) {
             throw new RuntimeException(String.format("Cannot download %s:%s WebDriver binary.\n%s",
                     browserName, browserVersion, e.getMessage()));
+        }
+    }
+
+    private static void createDownloadBinFolder() {
+        File binFolder = new File(DOWNLOAD_BIN_FOLDER_PATH);
+        if (!binFolder.exists()) {
+            if (!binFolder.mkdir()) {
+                throw new RuntimeException("Cannot create downloads bin folder: " + DOWNLOAD_BIN_FOLDER_PATH);
+            }
         }
     }
 

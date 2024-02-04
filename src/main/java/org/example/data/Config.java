@@ -12,6 +12,7 @@ public class Config {
     private static final String BROWSER_PROP_NAME = "browser";
     private static final String OS_PROP_NAME = "os";
     private static final String HEADLESS_PROP_NAME = "headless";
+    private static final String REMOTE_HOST = "remoteHost";
     private static final String VALUES_DELIMITER = ":";
 
     private static final Map<String, String> stringPropertyMap = new HashMap<>();
@@ -31,6 +32,10 @@ public class Config {
 
     synchronized public String getTestMode() {
         return getStringProperty(TEST_MODE_PROP_NAME);
+    }
+
+    synchronized public String getRemoteHost() {
+        return getStringProperty(REMOTE_HOST);
     }
 
     synchronized public String getBrowserName() {
