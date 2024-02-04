@@ -52,27 +52,14 @@ public class WebDriverFactory {
         String browserName = config.getBrowserName();
         int threadCount = config.getThreadCount();
 
-        String ec2InstanceIp = null;
         loadBalancer.incrementServerThreadCount();
-        long serverId = loadBalancer.getThreadServerId();
         System.out.println("Thread Id: " + threadId);
 
         if (!driverMap.containsKey(threadId)) {
-            if (testMethod.equals(AWS_DOCKER)) {
-                ec2InstanceIp = loadBalancer.getServerPublicIp(
-                        serverId, threadCount, browserName, config.getBrowserVersion());
-                try {
-                    waitForSeleniumGrid(String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp));
-                } catch (Exception e) {
-                    System.out.println("Wait Selenium Grid timeout!");
-                    loadBalancer.lockSever(serverId);
-                    return getDriver();
-                }
-            }
+
             switch (testMethod) {
-                case AWS_DOCKER -> driver = new RobustWebDriver(getRemoteWebDriver(
-                        String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp),
-                        browserName, config.getBrowserVersion()));
+                case AWS_DOCKER -> driver = new RobustWebDriver(getAWSDockerDriver(
+                        browserName, config.getBrowserVersion(), threadCount));
                 case LOCAL_DOCKER -> driver = new RobustWebDriver(getLocalDockerWebDriver(
                         browserName, config.getBrowserVersion(), threadCount));
                 case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, config.getBrowserVersion()));
@@ -115,6 +102,24 @@ public class WebDriverFactory {
             }
             default -> throw new RuntimeException("Unsupported Docker browser: " + browserName);
         }
+    }
+
+    private static WebDriver getAWSDockerDriver(String browserName, String browserVersion, int threadCount) {
+            long serverId = loadBalancer.getThreadServerId();
+            String ec2InstanceIp = loadBalancer.getServerPublicIp(
+                    serverId, threadCount, browserName, browserVersion);
+            try {
+                System.out.println("Waiting for AWS EC2 instance...");
+                waitForSeleniumGrid(String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp));
+            } catch (Exception e) {
+                System.out.println("Wait Selenium Grid timeout expired!");
+                loadBalancer.lockSever(serverId);
+                return getDriver();
+            }
+
+        return getRemoteWebDriver(
+                String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp),
+                browserName, config.getBrowserVersion());
     }
 
     private static WebDriver getPlaywrightDriver(String browserName) {

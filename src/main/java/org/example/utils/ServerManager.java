@@ -6,7 +6,8 @@ import org.example.balancer.LoadBalancer;
 public class ServerManager {
     private final static LoadBalancer loadBalancer = LoadBalancer.getInstance();
 
-    public static void createServerInstances(long serverCount,
+    public static void createServerInstances(int serverCount,
+                                             int threadCount,
                                              String awsImageId,
                                              String securityKeyPairName,
                                              String securityGroupName,
@@ -16,7 +17,7 @@ public class ServerManager {
 
         for (long i = 0; i < serverCount; i++) {
             String instanceId = AwsManager.runEC2AndEWaitForId(
-                    ec2, awsImageId, securityKeyPairName, securityGroupName, userData);
+                    ec2, threadCount,  awsImageId, securityKeyPairName, securityGroupName, userData);
             loadBalancer.setServerEC2Id(i, instanceId);
             String instanceIp = AwsManager.waitForEC2Ip(ec2, instanceId);
             loadBalancer.setServerEC2PublicIp(i, instanceIp);
@@ -25,9 +26,6 @@ public class ServerManager {
 
     public static void terminateAllSeleniumServers() {
         AmazonEC2 ec2Client = AwsManager.getEC2Client();
-
-        loadBalancer.getAllServersEC2Ids().forEach(ec2Id -> {
-            AwsManager.terminateEC2(ec2Client, ec2Id);
-        });
+        loadBalancer.getAllServersEC2Ids().forEach(ec2Id -> AwsManager.terminateEC2(ec2Client, ec2Id));
     }
 }

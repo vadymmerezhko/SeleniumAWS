@@ -72,6 +72,7 @@ public class LoadBalancer {
             try {
                 ServerManager.createServerInstances(
                         Settings.SELENIUM_SERVERS_COUNT,
+                        threadCount,
                         Settings.AWS_DOCKER_IMAGE_ID,
                         Settings.SECURITY_KEY_PAIR_NAME,
                         Settings.SECURITY_GROUP_NAME,

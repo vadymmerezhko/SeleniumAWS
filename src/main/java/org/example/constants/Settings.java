@@ -1,9 +1,7 @@
 package org.example.constants;
 
 public class Settings {
-    static public final long SELENIUM_SERVERS_COUNT = 1;
-    static public final int DEFAULT_THREADS_COUNT = 4;
-
+    static public final int SELENIUM_SERVERS_COUNT = 1;
     public static final int TEST_RETRY_LIMIT = 4;
     static public final String AWS_DOCKER_IMAGE_ID = "ami-0d93c31a4c91fcd51";
     static public final String SECURITY_KEY_PAIR_NAME = "SeleniumKeyPair";

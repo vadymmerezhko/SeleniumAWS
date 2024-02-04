@@ -26,7 +26,6 @@ public class AwsManager {
             final String awsAccessKeyId = System.getProperty("AWS_ACCESS_KEY_ID");
             final String awsSecretAccessKey =  System.getProperty("AWS_SECRET_ACCESS_KEY");
 
-
             public AWSCredentials getCredentials() {
                 return new BasicAWSCredentials(
                         awsAccessKeyId,
@@ -39,7 +38,7 @@ public class AwsManager {
     }
 
     public static AmazonEC2 getEC2Client() {
-        AWSCredentialsProvider provider = new EnvironmentVariableCredentialsProvider(); // getAwsCredentialProvider();
+        AWSCredentialsProvider provider = new EnvironmentVariableCredentialsProvider();
 
         return AmazonEC2ClientBuilder.standard()
                 .withCredentials(provider)
@@ -47,9 +46,8 @@ public class AwsManager {
                 .build();
     }
 
-    public static String runEC2(
-            AmazonEC2 ec2, String imageId, String keyPairName, String groupName, String userData) {
-
+    public static String runEC2(AmazonEC2 ec2, int threadCount, String imageId,
+                                String keyPairName, String groupName, String userData) {
         RunInstancesRequest runInstancesRequest =
                 new RunInstancesRequest();
 
@@ -57,7 +55,7 @@ public class AwsManager {
         profile.withArn("AWS_SSM_Role");
 
         runInstancesRequest.withImageId(imageId)
-                .withInstanceType(InstanceType.M58xlarge)
+                .withInstanceType(getEc2InstanceType(threadCount))
                 .withMinCount(1)
                 .withMaxCount(1)
                 .withKeyName(keyPairName)
@@ -80,32 +78,30 @@ public class AwsManager {
         return reservations.get(0).getInstances().get(0).getPublicIpAddress();
     }
 
-    public static String runEC2AndEWaitForId(
-            AmazonEC2 ec2, String imageId, String keyPairName, String groupName, String userData) {
-        String ec2InstanceId = null;
+    public static String runEC2AndEWaitForId(AmazonEC2 ec2, int threadCount, String imageId,
+                                             String keyPairName, String groupName, String userData) {
+        String ec2InstanceId;
         TimeOut timeOut = new TimeOut(WAIT_EC2_ID_TIMEOUT);
         timeOut.start();
 
-        while (true) {
+        do {
             Waiter.waitSeconds(1);
-            ec2InstanceId = AwsManager.runEC2(ec2, imageId, keyPairName, groupName, userData);
+            ec2InstanceId = AwsManager.runEC2(ec2, threadCount, imageId, keyPairName, groupName, userData);
+        } while (ec2InstanceId == null);
 
-            if (ec2InstanceId != null) break;
-        }
         return ec2InstanceId;
     }
 
     public static String waitForEC2Ip(AmazonEC2 ec2Client, String ec2InstanceId) {
-        String ec2InstanceIp = null;
+        String ec2InstanceIp;
         TimeOut timeOut = new TimeOut(WAIT_EC2_PUBLIC_IP_TIMEOUT);
         timeOut.start();
 
-        while (true) {
+        do {
             Waiter.waitSeconds(1);
             ec2InstanceIp = AwsManager.getEC2PublicIp(ec2Client, ec2InstanceId);
+        } while (ec2InstanceIp == null);
 
-            if (ec2InstanceIp != null) break;
-        }
         return ec2InstanceIp;
     }
 
@@ -152,9 +148,8 @@ public class AwsManager {
             if (status.equals("Success")) {
                 //command output holds the output of running the command
                 //eg. list of directories in case of ls
-                //String commandOutput = invocation.getCommandPlugins().get(0).getOutput();
-                //System.out.println(commandOutput);
-                //Process the output
+                String commandOutput = invocation.getCommandPlugins().get(0).getOutput();
+                System.out.println(commandOutput);
             }
             //Wait for a few seconds before you check the invocation status again
             Waiter.waitMilliSeconds(timeoutInSecs);
@@ -162,8 +157,28 @@ public class AwsManager {
         } while(status.equals("Pending") || status.equals("InProgress"));
 
         if (!status.equals("Success")) {
-            //Command ended up in a failure
-            //System.out.println("Command succeeded.");
+            System.out.println("Command succeeded.");
         }
+    }
+
+    private static InstanceType getEc2InstanceType(int threadCount) {
+
+        if (threadCount > 0 && threadCount <= 2) {
+            return InstanceType.M5Large;
+        }
+        else if (threadCount > 2 && threadCount <= 4) {
+            return InstanceType.M5Xlarge;
+        }
+        else if (threadCount > 4 && threadCount <= 8) {
+            return InstanceType.M52xlarge;
+        }
+        else if (threadCount > 8 && threadCount <= 16) {
+            return InstanceType.M54xlarge;
+        }
+        else if (threadCount > 16 && threadCount <= 32) {
+            return InstanceType.M58xlarge;
+        }
+        throw new RuntimeException(
+                "Thread count should be positive and less than 32.\nWrong thread count : " + threadCount);
     }
 }

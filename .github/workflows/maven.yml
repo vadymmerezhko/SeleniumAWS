@@ -33,5 +33,17 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Test with Maven
-        run: mvn clean test "-DtestSuite=./src/test/resources/testng.xml" "-DthreadCount=2"
+      - name: Test - Local Docker - Linux Chrome
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker" "-Dbrowser=chrome:latest"
+
+      - name: Test - Local WebDriver - Linux Edge
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local" "-Dbrowser=edge:stable"
+
+      - name: Test - Local Playwright - Linux Firefox
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local" "-Dbrowser=firefox"
+
+      - name: Test - AWS Device Farm - Windows Chrome
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=5" "-DtestMode=aws_device_farm" "-Dbrowser=chrome:latest"
+
+      - name: Test - AWS EC2 Docker - Linux Chrome
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
