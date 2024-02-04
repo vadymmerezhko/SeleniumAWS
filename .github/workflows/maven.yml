@@ -40,7 +40,7 @@ jobs:
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local" "-Dbrowser=edge:stable"
 
       - name: Test - Local Playwright - Linux Firefox
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local" "-Dbrowser=firefox"
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_playwright" "-Dbrowser=firefox"
 
       - name: Test - AWS Device Farm - Windows Chrome
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=5" "-DtestMode=aws_device_farm" "-Dbrowser=chrome:latest"
