@@ -55,9 +55,17 @@ public class BrowserManager {
                 createDownloadBinFolder();
                 FileManager.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
                 WebDownloadManager.download(downloadUrl, DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
-                FileManager.deleteDirectory(webDriverFolderPath);
+                File webDriverBinaryFile = new File(webDriverBinaryFilePath);
+                FileManager.deleteDirectory(webDriverBinaryFile.getParent());
                 ZipManager.unzip(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH, webDriverFolderPath);
                 FileManager.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
+
+                // Workaround for Chrome WebDriver zip files up to the version 114.
+                if (!webDriverBinaryFile.exists()) {
+                    String webDriverFileName = webDriverBinaryFile.getName();
+                    String parentFolderFilePath = String.format("%s/%s", webDriverFolderPath, webDriverFileName);
+                    FileManager.moveFile(parentFolderFilePath, webDriverBinaryFilePath);
+                }
             }
             return webDriverBinaryFilePath;
         }

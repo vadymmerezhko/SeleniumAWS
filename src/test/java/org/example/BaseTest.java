@@ -56,8 +56,10 @@ public class BaseTest {
         Assert.assertEquals(testResult.dataListSelectOption(), testInput.dataListSelectOption());
         // TODO: Fix file path for remote run.
         //Assert.assertTrue((testResult.filePath().contains("pom.xml")));
+        //TODO: fix checkbox value for Android
         Assert.assertEquals(testResult.checkbox1Value(), testInput.checkbox1Value());
-        Assert.assertEquals(testResult.checkbox2Value(), testInput.checkbox2Value());
+        Assert.assertEquals(testResult.radiobutton1Value(), testInput.radiobutton1Value());
+        Assert.assertEquals(testResult.radiobutton2Value(), testInput.radiobutton2Value());
         Assert.assertEquals(testResult.color(), testInput.color());
         Assert.assertEquals(testResult.date(), testInput.date());
         Assert.assertEquals(testResult.range(), testInput.range());

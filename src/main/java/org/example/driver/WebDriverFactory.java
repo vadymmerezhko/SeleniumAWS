@@ -3,6 +3,8 @@ package org.example.driver;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Playwright;
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.android.options.UiAutomator2Options;
 import org.example.balancer.LoadBalancer;
 import org.example.data.Config;
 import org.example.driver.robust.RobustWebDriver;
@@ -17,6 +19,7 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import software.amazon.awssdk.regions.Region;
@@ -42,6 +45,7 @@ public class WebDriverFactory {
     static private final Config config = new Config("config.properties");
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
     static private final int WAIT_SELENIUM_GRID_TIMEOUT = 30;
+    static private final int ADB_EXEC_TIMEOUT_SECONDS = 120000;
     private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
     private static boolean dockerSeleniumGridStarted = false;
 
@@ -68,6 +72,7 @@ public class WebDriverFactory {
                         config.getRemoteHost(), browserName, config.getBrowserVersion()));
                 case AWS_DEVICE_FARM -> driver = new RobustWebDriver(getAWSDeviceFarmWebDriver(
                         browserName, config.getBrowserVersion()));
+                case LOCAL_APPIUM -> driver = new RobustWebDriver(getAppiumWebDriver(config.getEmulator()));
                 default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
             }
             driverMap.put(threadId, driver);
@@ -210,6 +215,41 @@ public class WebDriverFactory {
         return driver;
     }
 
+    private static WebDriver getAppiumWebDriver(String emulatorName) {
+        try {
+            String deviceName = AppiumManager.getDeviceName(emulatorName);
+            String platformName = AppiumManager.getPlatformName(emulatorName);
+            String platformVersion = AppiumManager.getPlatformVersion(emulatorName);
+            String browserName = AppiumManager.getBrowserName(emulatorName);
+            String browserVersion = AppiumManager.getBrowserVersion(emulatorName);
+            String chromeDriverPath = BrowserManager.downloadWebDriverBinary(browserName.toLowerCase(), browserVersion);
+            //long portIncrement = Thread.currentThread().threadId() % config.getThreadCount();
+
+            URL appiumServiceUrl = AppiumManager.startAppiumServer(config.getThreadCount());
+
+            System.out.println("Starting emulator...");
+            UiAutomator2Options options = new UiAutomator2Options();
+            options.setPlatformName(platformName);
+            options.setPlatformVersion(platformVersion);
+            options.setCapability("avd", deviceName);
+            options.setDeviceName(deviceName);
+            options.setCapability(CapabilityType.BROWSER_NAME, browserName);
+            options.setCapability("chromedriverExecutable", chromeDriverPath);
+            options.setCapability("adbExecTimeout", ADB_EXEC_TIMEOUT_SECONDS);
+            options.setCapability("noReset", "true");
+            options.setCapability("maxInstances", config.getThreadCount());
+   /*       options.setCapability("systemPort", 55550 + portIncrement);
+            options.setCapability("chromedriverPort", 66660 + portIncrement);
+            options.setCapability("mjpegServerPort", 77770 + portIncrement);*/
+
+            return new AppiumDriver(appiumServiceUrl, options);
+        }
+        catch (Exception e) {
+            AppiumManager.stopAppiumServer();
+            throw new RuntimeException("Cannot get Appium WebDriver:\n" + e.getMessage());
+        }
+    }
+
     private static ChromeOptions getChromeOptions(String browserName, String browserVersion) {
         ChromeOptions options = new ChromeOptions();
 
@@ -326,6 +366,10 @@ public class WebDriverFactory {
         }
         catch (Exception e) {
             System.out.println("Ca not close all drivers:\n" + e.getMessage());
+        }
+
+        if (config.getTestMode().equals(LOCAL_APPIUM)) {
+            AppiumManager.stopAllAppiumServers();
         }
     }
 

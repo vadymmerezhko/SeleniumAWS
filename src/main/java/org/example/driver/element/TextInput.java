@@ -10,7 +10,7 @@ public class TextInput extends BaseTextElement {
     }
 
     public String getValue() {
-        return getElement().getAttribute("value");
+        return getElement().getDomProperty("value");
     }
 
     public void selectAllText() {

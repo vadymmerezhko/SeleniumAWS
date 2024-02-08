@@ -20,6 +20,6 @@ public class DatePicker extends BaseElement {
     }
 
     public String getPickedDate() {
-        return getElement().getAttribute("value");
+        return getElement().getDomProperty("value");
     }
 }

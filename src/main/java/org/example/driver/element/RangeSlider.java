@@ -32,6 +32,6 @@ public class RangeSlider extends BaseElement {
     }
 
     public int getValue() {
-        return Integer.parseInt(getElement().getAttribute("value"));
+        return Integer.parseInt(getElement().getDomProperty("value"));
     }
 }

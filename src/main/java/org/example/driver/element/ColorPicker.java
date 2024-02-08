@@ -24,6 +24,6 @@ public class ColorPicker extends BaseElement {
     }
 
     public String gwtPickedColor() {
-        return getElement().getAttribute("value");
+        return getElement().getDomProperty("value");
     }
 }

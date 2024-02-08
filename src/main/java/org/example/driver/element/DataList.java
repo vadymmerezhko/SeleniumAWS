@@ -18,7 +18,7 @@ public class DataList extends BaseTextElement {
                 String.format("..//option[%d]", index)));
         String optionText = option.getText();
         if (optionText == null || optionText.isEmpty()) {
-            String optionValue = option.getAttribute("value");
+            String optionValue = option.getDomProperty("value");
             selectOptionByText(optionValue);
         } else {
             selectOptionByText(optionText);
@@ -26,6 +26,6 @@ public class DataList extends BaseTextElement {
     }
 
     public String getSelectedOptionText() {
-        return getElement().getAttribute("value");
+        return getElement().getDomProperty("value");
     }
 }

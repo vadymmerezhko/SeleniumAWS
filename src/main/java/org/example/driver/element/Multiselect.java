@@ -45,7 +45,7 @@ public class Multiselect extends BaseElement {
     }
 
     public String getFirstSelectedOptionValue() {
-        return select.getFirstSelectedOption().getAttribute("value");
+        return select.getFirstSelectedOption().getDomProperty("value");
     }
 
     public List<String> getAlSelectedOptionTexts() {

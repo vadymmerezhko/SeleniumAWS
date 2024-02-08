@@ -1,0 +1,44 @@
+{
+  "pixel3a": {
+    "deviceName": "Pixel_3a_API_34_extension_level_7_x86_64",
+    "platformName": "Android",
+    "platformVersion": "14",
+    "browserName": "Chrome",
+    "browserVersion": "113"
+  },
+  "pixel4a": {
+    "deviceName": "Pixel_4a_API_34",
+    "platformName": "Android",
+    "platformVersion": "14",
+    "browserName": "Chrome",
+    "browserVersion": "113"
+  },
+  "pixel5": {
+    "deviceName": "Pixel_5_API_34",
+    "platformName": "Android",
+    "platformVersion": "14",
+    "browserName": "Chrome",
+    "browserVersion": "113"
+  },
+  "pixel6": {
+    "deviceName": "Pixel_6_API_34",
+    "platformName": "Android",
+    "platformVersion": "14",
+    "browserName": "Chrome",
+    "browserVersion": "113"
+  },
+  "fold-in7": {
+    "deviceName": "7.6_Fold-in_with_outer_display_API_34",
+    "platformName": "Android",
+    "platformVersion": "14",
+    "browserName": "Chrome",
+    "browserVersion": "113"
+  },
+  "pixelC": {
+    "deviceName": "Pixel_C_API_34",
+    "platformName": "Android",
+    "platformVersion": "14",
+    "browserName": "Chrome",
+    "browserVersion": "113"
+  }
+}

@@ -4,7 +4,6 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileManager {
@@ -20,10 +19,6 @@ public class FileManager {
             throw new RuntimeException(String.format("Cannot create %s/%s file:\n",
                     folderPath, fileName) + e.getMessage());
         }
-    }
-
-    public static synchronized void createFolder(String folderPath) {
-
     }
 
     public static synchronized String readFile(String filePath) {
@@ -56,5 +51,17 @@ public class FileManager {
         catch (IOException e) {
             throw new RuntimeException(String.format("Cannot delete directory %s\n%s" , dirPath, e.getMessage()));
         }
+    }
+
+    public static synchronized void moveFile(String fromPath, String toPath) {
+        try {
+            //Files.move(Paths.get(fromPath), Paths.get(toPath));
+            FileUtils.moveFile(FileUtils.getFile(fromPath), FileUtils.getFile(toPath));
+        }
+        catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Cannot move file %s to %s\n%s", fromPath, toPath, e.getMessage()));
+        }
+
     }
 }

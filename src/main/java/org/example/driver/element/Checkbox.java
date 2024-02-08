@@ -1,7 +1,6 @@
 package org.example.driver.element;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 public class Checkbox extends BaseElement {
 
@@ -30,6 +29,6 @@ public class Checkbox extends BaseElement {
     }
 
     public boolean isChecked() {
-        return getElement().isSelected();
+        return getDomProperty("value").equals("true");
     }
 }
