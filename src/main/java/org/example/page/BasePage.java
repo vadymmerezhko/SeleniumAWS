@@ -2,7 +2,6 @@ package org.example.page;
 
 import org.example.driver.WebDriverFactory;
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.PageFactory;
 
 public abstract class BasePage {
 
@@ -10,7 +9,6 @@ public abstract class BasePage {
 
     BasePage() {
         driver = WebDriverFactory.getDriver();
-        //PageFactory.initElements(driver, this);
     }
 
     public void open(String url) {

@@ -8,4 +8,5 @@ public class TestModes {
     public static final String AWS_DEVICE_FARM = "aws_device_farm";
     public static final String REMOTE = "remote";
     public static final String LOCAL_APPIUM = "local_appium";
+    public static final String AWS_LAMBDA = "aws_lambda";
 }

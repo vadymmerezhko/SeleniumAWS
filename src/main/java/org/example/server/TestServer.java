@@ -1,19 +1,37 @@
 package org.example.server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.data.Config;
 import org.example.data.TestInput;
 import org.example.data.TestResult;
 import org.example.page.WebFormPage;
-import org.openqa.selenium.*;
 
-public class TestServer {
 
-    WebDriver driver;
+import javax.naming.Context;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-    public TestServer(WebDriver driver) {
-        this.driver = driver;
+import static org.example.constants.TestModes.AWS_LAMBDA;
+
+public class TestServer implements TestServerInterface {
+    private static final String LAMBDA_ERROR_MSG_TMP = "AWS Lambda error:\n%s";
+    private final Config config = new Config("config.properties");
+    static private final ConcurrentMap<Long, Boolean> threadMap = new ConcurrentHashMap<>();
+
+    public TestServer() {
+        threadMap.put(Thread.currentThread().threadId(), true);
+        System.out.printf("Thread count: %d%n", threadMap.size());
     }
 
+    @Override
     public TestResult signUp(TestInput testInput) {
+
+        if (config.getTestMode().equals(AWS_LAMBDA)) {
+            TestServerLambda testServerLambda = new TestServerLambda();
+            return testServerLambda.signUp(testInput);
+        }
+
         try {
             WebFormPage webFormPage = new WebFormPage();
             webFormPage.open("https://www.selenium.dev/selenium/web/web-form.html");

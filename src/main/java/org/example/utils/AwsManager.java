@@ -1,41 +1,29 @@
 package org.example.utils;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
+import com.amazonaws.auth.*;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.*;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
-import com.amazonaws.services.simplesystemsmanagement.model.*;
+import com.amazonaws.services.lambda.model.TooManyRequestsException;
+import com.amazonaws.services.lambda.AWSLambda;
+import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
+import com.amazonaws.services.lambda.model.InvokeRequest;
+import com.amazonaws.services.lambda.model.InvokeResult;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class AwsManager {
     static private final int WAIT_EC2_ID_TIMEOUT = 30;
     static private final int WAIT_EC2_PUBLIC_IP_TIMEOUT = 30;
+    static private final int AWS_LAMBDA_RETRY_COUNT = 20;
+    static private final String AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID";
+    static private final String AWS_SECRET_ACCESS_KEY = "AWS_SECRET_ACCESS_KEY";
+    static private final ConcurrentMap<Long, AWSLambda> amsLambdaClientMam = new ConcurrentHashMap<>();
 
-    public static AWSCredentialsProvider getAwsCredentialProvider() {
-        return new AWSCredentialsProvider() {
-            final String awsAccessKeyId = System.getProperty("AWS_ACCESS_KEY_ID");
-            final String awsSecretAccessKey =  System.getProperty("AWS_SECRET_ACCESS_KEY");
-
-            public AWSCredentials getCredentials() {
-                return new BasicAWSCredentials(
-                        awsAccessKeyId,
-                        awsSecretAccessKey);
-            }
-            public void refresh() {
-                // NOP
-            }
-        };
-    }
 
     public static AmazonEC2 getEC2Client() {
         AWSCredentialsProvider provider = new EnvironmentVariableCredentialsProvider();
@@ -111,53 +99,65 @@ public class AwsManager {
         ec2.terminateInstances(request);
     }
 
-    public static void runCommand(String instanceId, String command) {
-        Map<String, List<String>> params = new HashMap<>(){{
-            put("commands", new ArrayList<>(){{ add(command); }});
-        }};
-        int timeoutInSecs = 5;
-        //You can add multiple command ids separated by commas
-        Target target = new Target().withKey("InstanceIds").withValues(instanceId);
-        //Create ssm client.
-        //The builder could be chosen as per your preferred way of authentication
-        //use withRegion for specifying your region
-        AWSCredentialsProvider provider = getAwsCredentialProvider();
-        AWSSimpleSystemsManagement ssm = AWSSimpleSystemsManagementClientBuilder.standard()
-                .withCredentials(provider)
-                .withRegion(Regions.US_WEST_1)
-                .build();
-        //Build a send command request
-        SendCommandRequest commandRequest = new SendCommandRequest()
-                .withTargets(target)
-                .withDocumentName("AWS-RunShellScript")
-                .withParameters(params);
+    public static String invokeLambdaFunction(String functionName, String input) {
+        try {
+            AWSLambda client = getAwsLambdaClient();
+            String lambdaInput = Converter.convertJsonStringToLambdaInput(input);
+            InvokeRequest request = new InvokeRequest()
+                    .withFunctionName(functionName)
+                    .withPayload(lambdaInput);
+            InvokeResult result;
+            int tryCount = 1;
 
-        //The result has commandId which is used to track the execution further
-        SendCommandResult commandResult = ssm.sendCommand(commandRequest);
-        String commandId = commandResult.getCommand().getCommandId();
-        //Loop until the invocation ends
-        String status;
-        do {
-            ListCommandInvocationsRequest request = new ListCommandInvocationsRequest()
-                    .withCommandId(commandId)
-                    .withDetails(true);
-            //You get one invocation per ec2 instance that you added to target
-            //For just a single instance use get(0) else loop over the instanced
-            CommandInvocation invocation = ssm.listCommandInvocations(request).getCommandInvocations().get(0);
-            status = invocation.getStatus();
-            if (status.equals("Success")) {
-                //command output holds the output of running the command
-                //eg. list of directories in case of ls
-                String commandOutput = invocation.getCommandPlugins().get(0).getOutput();
-                System.out.println(commandOutput);
+            // Retry AWS Lambda function in case of "Too many requests" error.
+            do {
+                try {
+                    result = client.invoke(request);
+                    break;
+                }
+                catch (TooManyRequestsException e) {
+                    if (tryCount == AWS_LAMBDA_RETRY_COUNT) {
+                        throw e;
+                    }
+                    System.out.printf("Retry %d for thread id %d%n", tryCount, Thread.currentThread().threadId());
+                    tryCount++;
+                }
             }
-            //Wait for a few seconds before you check the invocation status again
-            Waiter.waitMilliSeconds(timeoutInSecs);
+            while (true);
 
-        } while(status.equals("Pending") || status.equals("InProgress"));
+            if (result.getFunctionError() != null) {
+                throw new RuntimeException("AWS Lambda error:\n" + result.getFunctionError());
+            }
 
-        if (!status.equals("Success")) {
-            System.out.println("Command succeeded.");
+            if (result.getStatusCode() != 200) {
+                throw new RuntimeException("AWS Lambda status call: " + result.getStatusCode());
+            }
+
+            String lambdaOutput = new String(result.getPayload().array());
+            return Converter.convertLambdaOutputToJsonString(lambdaOutput);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static AWSLambda getAwsLambdaClient() {
+        long threadId = Thread.currentThread().threadId();
+
+        if (!amsLambdaClientMam.containsKey(threadId)) {
+            String accessKey = System.getenv(AWS_ACCESS_KEY_ID);
+            String secretKey = System.getenv(AWS_SECRET_ACCESS_KEY);
+            BasicAWSCredentials credentials = new
+                    BasicAWSCredentials(accessKey, secretKey);
+            AWSLambdaClientBuilder builder = AWSLambdaClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                    .withRegion(Regions.US_WEST_1);
+            AWSLambda client = builder.build();
+            amsLambdaClientMam.put(threadId, client);
+            return client;
+        }
+        else {
+            return amsLambdaClientMam.get(threadId);
         }
     }
 

@@ -56,9 +56,6 @@ public class WebDriverFactory {
         String browserName = config.getBrowserName();
         int threadCount = config.getThreadCount();
 
-        loadBalancer.incrementServerThreadCount();
-        System.out.println("Thread Id: " + threadId);
-
         if (!driverMap.containsKey(threadId)) {
 
             switch (testMethod) {
@@ -101,9 +98,8 @@ public class WebDriverFactory {
         switch (browserName) {
             case CHROME, FIREFOX, EDGE -> {
                 runSeleniumGridOnDocker(browserName, browserVersion, threadCount);
-                return new RobustWebDriver(getRemoteWebDriver(
-                        String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST),
-                        browserName, browserVersion));
+                return getRemoteWebDriver(String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST),
+                        browserName, browserVersion);
             }
             default -> throw new RuntimeException("Unsupported Docker browser: " + browserName);
         }

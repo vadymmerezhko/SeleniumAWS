@@ -43,12 +43,6 @@
       <artifactId>java-client</artifactId>
       <version>9.1.0</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/com.microsoft.playwright/playwright -->
-    <dependency>
-      <groupId>com.microsoft.playwright</groupId>
-      <artifactId>playwright</artifactId>
-      <version>1.40.0</version>
-    </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-ec2</artifactId>
@@ -100,12 +94,18 @@
           <groupId>org.seleniumhq.selenium</groupId>
           <artifactId>selenium-support</artifactId>
           <version>4.14.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.amazonaws.secretsmanager</groupId>
-        <artifactId>aws-secretsmanager-caching-java</artifactId>
-        <version>2.0.0</version>
-      </dependency>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws.secretsmanager</groupId>
+      <artifactId>aws-secretsmanager-caching-java</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.microsoft.playwright/playwright -->
+    <dependency>
+      <groupId>com.microsoft.playwright</groupId>
+      <artifactId>playwright</artifactId>
+      <version>1.40.0</version>
+    </dependency>
     <!-- https://mvnrepository.com/artifact/com.deque.html.axe-core/playwright -->
     <dependency>
       <groupId>com.deque.html.axe-core</groupId>
@@ -130,6 +130,17 @@
       <artifactId>json</artifactId>
       <version>20231013</version>
     </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-lambda-java-core</artifactId>
+      <version>1.2.3</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-lambda -->
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-lambda</artifactId>
+      <version>1.12.688</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -147,7 +158,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.2</version>
+        <version>3.2.5</version>
         <configuration>
           <threadCount>${threadCount}</threadCount>
           <suiteXmlFiles>

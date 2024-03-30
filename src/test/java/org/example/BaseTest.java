@@ -3,7 +3,6 @@ package org.example;
 import org.example.balancer.LoadBalancer;
 import org.example.data.TestInput;
 import org.example.data.TestResult;
-import org.example.driver.WebDriverFactory;
 import org.example.server.TestServer;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
@@ -15,12 +14,9 @@ import java.nio.file.Paths;
 
 public class BaseTest {
 
-
-    protected WebDriver driver;
-
     @BeforeMethod(alwaysRun = true)
     public void openBrowser() {
-        driver = WebDriverFactory.getDriver();
+        LoadBalancer.getInstance().incrementServerThreadCount();
     }
 
     @AfterMethod
@@ -29,8 +25,6 @@ public class BaseTest {
     }
 
     protected void signUp() {
-        driver = WebDriverFactory.getDriver();
-
         Path currentRelativePath = Paths.get("pom.xml");
         String currentFolderPath = currentRelativePath.toAbsolutePath().toString();
 
@@ -48,8 +42,14 @@ public class BaseTest {
                 "05/23/1970",
                 2);
 
-        TestServer testServer = new TestServer(driver);
+
+        signUp(testInput);
+    }
+
+    private void signUp(TestInput testInput) {
+        TestServer testServer = new TestServer();
         TestResult testResult = testServer.signUp(testInput);
+
         Assert.assertEquals(testResult.textInput(), testInput.textInput());
         Assert.assertEquals(testResult.textareaInput(), testInput.textareaInput());
         Assert.assertEquals(testResult.dropdownSelectedOption(), testInput.dropdownSelectedOption());
@@ -63,5 +63,7 @@ public class BaseTest {
         Assert.assertEquals(testResult.color(), testInput.color());
         Assert.assertEquals(testResult.date(), testInput.date());
         Assert.assertEquals(testResult.range(), testInput.range());
+
+        System.out.println("Test passed for Thread: " + Thread.currentThread().threadId());
     }
 }

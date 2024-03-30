@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 import static io.appium.java_client.service.local.flags.GeneralServerFlag.BASEPATH;
 
 public class AppiumManager {
-    private static final String MOBILE_DEVICE_JSON_PATH = "src/test/resources/devices/mobile.json";
+    private static final String MOBILE_DEVICE_JSON_PATH = "src/main/resources/devices/mobile.json";
     private static final ConcurrentMap<Long, AppiumDriverLocalService> appiumServiceMap = new ConcurrentHashMap<>();
 
     public static String getDeviceName(String emulatorName) {
