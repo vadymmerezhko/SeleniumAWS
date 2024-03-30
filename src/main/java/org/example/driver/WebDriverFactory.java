@@ -45,7 +45,7 @@ public class WebDriverFactory {
     static private final Config config = new Config("config.properties");
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
     static private final int WAIT_SELENIUM_GRID_TIMEOUT = 30;
-    static private final int ADB_EXEC_TIMEOUT_SECONDS = 120000;
+    static private final int ADB_EXEC_TIMEOUT_SECONDS = 180000;
     private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
     private static boolean dockerSeleniumGridStarted = false;
 
@@ -69,7 +69,8 @@ public class WebDriverFactory {
                         config.getRemoteHost(), browserName, config.getBrowserVersion()));
                 case AWS_DEVICE_FARM -> driver = new RobustWebDriver(getAWSDeviceFarmWebDriver(
                         browserName, config.getBrowserVersion()));
-                case LOCAL_APPIUM -> driver = new RobustWebDriver(getAppiumWebDriver(config.getEmulator()));
+                case LOCAL_APPIUM -> driver = new RobustWebDriver(
+                        getAppiumWebDriver(config.getEmulator((int)threadId % threadCount)));
                 default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
             }
             driverMap.put(threadId, driver);
@@ -219,7 +220,6 @@ public class WebDriverFactory {
             String browserName = AppiumManager.getBrowserName(emulatorName);
             String browserVersion = AppiumManager.getBrowserVersion(emulatorName);
             String chromeDriverPath = BrowserManager.downloadWebDriverBinary(browserName.toLowerCase(), browserVersion);
-            //long portIncrement = Thread.currentThread().threadId() % config.getThreadCount();
 
             URL appiumServiceUrl = AppiumManager.startAppiumServer(config.getThreadCount());
 
@@ -234,9 +234,6 @@ public class WebDriverFactory {
             options.setCapability("adbExecTimeout", ADB_EXEC_TIMEOUT_SECONDS);
             options.setCapability("noReset", "true");
             options.setCapability("maxInstances", config.getThreadCount());
-   /*       options.setCapability("systemPort", 55550 + portIncrement);
-            options.setCapability("chromedriverPort", 66660 + portIncrement);
-            options.setCapability("mjpegServerPort", 77770 + portIncrement);*/
 
             return new AppiumDriver(appiumServiceUrl, options);
         }
