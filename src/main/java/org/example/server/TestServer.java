@@ -1,21 +1,19 @@
 package org.example.server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.data.Config;
-import org.example.data.TestInput;
-import org.example.data.TestResult;
+import org.example.data.SignUpTestInput;
+import org.example.data.SignUpTestResult;
 import org.example.page.WebFormPage;
 
 
-import javax.naming.Context;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.example.constants.TestModes.AWS_LAMBDA;
 
 public class TestServer implements TestServerInterface {
-    private static final String LAMBDA_ERROR_MSG_TMP = "AWS Lambda error:\n%s";
     private final Config config = new Config("config.properties");
     static private final ConcurrentMap<Long, Boolean> threadMap = new ConcurrentHashMap<>();
 
@@ -24,8 +22,21 @@ public class TestServer implements TestServerInterface {
         System.out.printf("Thread count: %d%n", threadMap.size());
     }
 
+    public Object invokeMethod(String methodName, String paramClassName, Object param) {
+
+        try {
+            Class<?> paramClass = Class.forName(paramClassName);
+            Method method = this.getClass().getMethod(methodName, paramClass);
+            return method.invoke(this, param);
+        }
+        catch (ClassNotFoundException | IllegalAccessException |
+               InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
-    public TestResult signUp(TestInput testInput) {
+    public SignUpTestResult signUp(SignUpTestInput testInput) {
 
         if (config.getTestMode().equals(AWS_LAMBDA)) {
             TestServerLambda testServerLambda = new TestServerLambda();
@@ -59,7 +70,7 @@ public class TestServer implements TestServerInterface {
 
             System.out.println(webFormPage.getURL());
 
-            return new TestResult(
+            return new SignUpTestResult(
                     webFormPage.getTextInputValue(),
                     webFormPage.getTextareaValue(),
                     webFormPage.getDropdownSelectedOption(),

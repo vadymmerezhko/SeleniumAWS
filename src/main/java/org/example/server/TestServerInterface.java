@@ -1,8 +1,8 @@
 package org.example.server;
 
-import org.example.data.TestInput;
-import org.example.data.TestResult;
+import org.example.data.SignUpTestInput;
+import org.example.data.SignUpTestResult;
 
 public interface TestServerInterface {
-    TestResult signUp(TestInput testInput);
+    SignUpTestResult signUp(SignUpTestInput testInput);
 }

@@ -1,10 +1,9 @@
 package org.example;
 
 import org.example.balancer.LoadBalancer;
-import org.example.data.TestInput;
-import org.example.data.TestResult;
+import org.example.data.SignUpTestInput;
+import org.example.data.SignUpTestResult;
 import org.example.server.TestServer;
-import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -15,7 +14,7 @@ import java.nio.file.Paths;
 public class BaseTest {
 
     @BeforeMethod(alwaysRun = true)
-    public void openBrowser() {
+    public void beforeMethod() {
         LoadBalancer.getInstance().incrementServerThreadCount();
     }
 
@@ -28,9 +27,9 @@ public class BaseTest {
         Path currentRelativePath = Paths.get("pom.xml");
         String currentFolderPath = currentRelativePath.toAbsolutePath().toString();
 
-        TestInput testInput = new TestInput(
+        SignUpTestInput testInput = new SignUpTestInput(
                 "Selenium",
-                "Selenium\nWebDriver",
+                "Selenium WebDriver",
                 "Two",
                 "Chicago",
                 currentFolderPath,
@@ -42,13 +41,12 @@ public class BaseTest {
                 "05/23/1970",
                 2);
 
-
         signUp(testInput);
     }
 
-    private void signUp(TestInput testInput) {
+    private void signUp(SignUpTestInput testInput) {
         TestServer testServer = new TestServer();
-        TestResult testResult = testServer.signUp(testInput);
+        SignUpTestResult testResult = testServer.signUp(testInput);
 
         Assert.assertEquals(testResult.textInput(), testInput.textInput());
         Assert.assertEquals(testResult.textareaInput(), testInput.textareaInput());
