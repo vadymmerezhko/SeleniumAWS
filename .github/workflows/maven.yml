@@ -33,45 +33,6 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build AWS Lambda jar
-        run: mvn -f lambda-pom.xml clean package shade:shade
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-1
-
-      - name: Build AWS Lambda Docker image
-        run: docker build -t selenium_test_repo .
-
-      - name: Docker meta
-        id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
-        with:
-          images: l7r7/sample
-          tag-custom: latest
-          tag-semver: |
-            {{raw}}
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: false
-          tags: ${{ steps.docker_meta.outputs.tags }}
-          labels: ${{ steps.docker_meta.outputs.labels }}
-
-      - name: Tag AWS Lambda Docker image
-        run: docker tag selenium-test-ecr:latest 535905549021.dkr.ecr.us-west-1.amazonaws.com/selenium-test-ecr:latest
-
-      - name: Push AWS Lambda Docker image to AWS ECS
-        run: docker push 535905549021.dkr.ecr.us-west-1.amazonaws.com/selenium-test-ecr:latest
-
-      - name: Test - AWS Lambda - Playwright Firefox
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=aws_lambda"
-
       - name: Test - Local Docker - Linux Firefox
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker" "-Dbrowser=firefox:latest"
 
@@ -87,4 +48,6 @@ jobs:
       - name: Test - AWS EC2 Docker - Linux Chrome
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
 
+      - name: Test - AWS Lambda - Playwright Firefox
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=aws_lambda"
 
