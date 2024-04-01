@@ -14,8 +14,8 @@ public class BrowserManager {
     private static final String DOWNLOAD_BIN_FOLDER_PATH = "src/test/resources/bin";
     private static final String DOWNLOAD_BROWSER_ZIP_FILE_PATH = DOWNLOAD_BIN_FOLDER_PATH + "/browser.zip";
     private static final String DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH = DOWNLOAD_BIN_FOLDER_PATH + "/webdriver.zip";
-    private static final String BROWSER_BIN_FOLDER_PATH_TEMPLATE = "src/main/resources/bin/browser/%s/%s";
-    private static final String WEBDRIVER_BIN_FOLDER_PATH_TEMPLATE = "src/main/resources/bin/webdriver/%s/%s";
+    private static final String BROWSER_BIN_FOLDER_PATH_TEMPLATE = "src/test/resources/bin/browser/%s/%s";
+    private static final String WEBDRIVER_BIN_FOLDER_PATH_TEMPLATE = "src/test/resources/bin/webdriver/%s/%s";
     private static final String BROWSERS_DOWNLOAD_JSON_FILE_PATH = "src/main/resources/downloads/browsers.json";
     private static final String WEBDRIVERS_DOWNLOAD_JSON_FILE_PATH = "src/main/resources/downloads/webdrivers.json";
 
