@@ -43,11 +43,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-1
 
-      - name: Build and deploy AWS Lambda Docker image
+      - name: Build AWS Lambda Docker image
         run: docker build -t selenium_test_repo .
 
       - name: Tag AWS Lambda Docker image
-        run: docker tag selenium-test-ecr:latest 535905549021.dkr.ecr.us-west-1.amazonaws.com/selenium-test-ecr:latest
+        run: docker tag selenium-test-ecr:local 535905549021.dkr.ecr.us-west-1.amazonaws.com/selenium-test-ecr:latest
 
       - name: Push AWS Lambda Docker image to AWS ECS
         run: docker push 535905549021.dkr.ecr.us-west-1.amazonaws.com/selenium-test-ecr:latest
