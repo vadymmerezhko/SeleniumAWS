@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileManager {
@@ -62,6 +63,10 @@ public class FileManager {
             throw new RuntimeException(
                     String.format("Cannot move file %s to %s\n%s", fromPath, toPath, e.getMessage()));
         }
+    }
 
+    public static String getCurrentFolder() {
+        Path currentRelativePath = Paths.get("");
+        return currentRelativePath.toAbsolutePath().toString();
     }
 }

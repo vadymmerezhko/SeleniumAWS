@@ -11,10 +11,12 @@ import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
 import static org.example.constants.TestModes.AWS_LAMBDA;
+import static org.example.constants.TestModes.AWS_RMI;
 
 public class TestServer implements TestServerInterface {
-    private final Config config = new Config("config.properties");
+    private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     static private final ConcurrentMap<Long, Boolean> threadMap = new ConcurrentHashMap<>();
 
     public TestServer() {
@@ -41,6 +43,11 @@ public class TestServer implements TestServerInterface {
         if (config.getTestMode().equals(AWS_LAMBDA)) {
             TestServerLambda testServerLambda = new TestServerLambda();
             return testServerLambda.signUp(testInput);
+        }
+
+        if (config.getTestMode().equals(AWS_RMI)) {
+            TestServerRmi testServerRmi = new TestServerRmi();
+            return testServerRmi.signUp(testInput);
         }
 
         try {

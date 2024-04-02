@@ -42,7 +42,7 @@ import static org.example.constants.TestModes.*;
 public class WebDriverFactory {
     static private final String SELENIUM_GRID_URL_TEMPLATE = "http://%S:4444";
     static private final String LOCALHOST = "localhost";
-    static private final Config config = new Config("config.properties");
+    static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
     static private final int WAIT_SELENIUM_GRID_TIMEOUT = 30;
     static private final int ADB_EXEC_TIMEOUT_SECONDS = 180000;
@@ -71,6 +71,8 @@ public class WebDriverFactory {
                         browserName, config.getBrowserVersion()));
                 case LOCAL_APPIUM -> driver = new RobustWebDriver(
                         getAppiumWebDriver(config.getEmulator((int)threadId % threadCount)));
+                case AWS_LAMBDA -> driver = getPlaywrightDriver(FIREFOX);
+                case AWS_RMI ->  driver = new RobustWebDriver(getLocalWebDriver(CHROME, "latest"));
                 default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
             }
             driverMap.put(threadId, driver);

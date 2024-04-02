@@ -76,7 +76,6 @@ public class LoadBalancer {
                         Settings.AWS_DOCKER_IMAGE_ID,
                         Settings.SECURITY_KEY_PAIR_NAME,
                         Settings.SECURITY_GROUP_NAME,
-
                         encodedUserData);
             } catch (Exception e) {
                 System.out.println("Cannot create all servers:\n" + e.getMessage());

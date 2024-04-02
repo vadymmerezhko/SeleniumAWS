@@ -1,7 +1,6 @@
 package org.example.data;
 
-public record LambdaInput(
-        long threadId,
+public record MethodInput(
         String methodName,
         String paramClassName,
         String inputData) {
