@@ -3,7 +3,6 @@ package org.example.server;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.data.MethodInput;
-import org.example.data.SignUpTestResult;
 
 public class BaseTestServer {
 

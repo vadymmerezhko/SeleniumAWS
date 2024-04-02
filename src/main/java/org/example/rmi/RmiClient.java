@@ -1,10 +1,8 @@
 package org.example.rmi;
 
 import com.amazonaws.services.ec2.AmazonEC2;
-import org.example.constants.Settings;
 import org.example.data.Config;
 import org.example.utils.AwsManager;
-import org.example.utils.ServerManager;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -14,11 +12,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.example.constants.Settings.*;
 
 public class RmiClient {
-    private static final String RMI_SERVER_USER_DATA = "#!/bin/bash\n" +
-                    "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +
-                    "cd SeleniumAWS\n" +
-                    "sudo mvn -f rmi-pom.xml install\n" +
-                    "sudo java -jar target/SeleniumAWSRmiServer-1.0-SNAPSHOT.jar";
+    private static final String RMI_SERVER_USER_DATA = """
+            #!/bin/bash
+            sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git
+            cd SeleniumAWS
+            sudo mvn -f rmi-pom.xml install
+            sudo java -jar target/SeleniumAWSRmiServer-1.0-SNAPSHOT.jar""";
     private static final AtomicReference<RmiServer> RMI_SERVER = new AtomicReference<>();
 
     private RmiClient() {}

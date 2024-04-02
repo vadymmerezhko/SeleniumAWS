@@ -3,7 +3,6 @@ package org.example.server;
 import org.example.data.MethodInput;
 import org.example.data.SignUpTestInput;
 import org.example.data.SignUpTestResult;
-import org.example.server.TestServerInterface;
 
 public class TestServerRmi extends BaseTestServerRmi implements TestServerInterface {
     @Override
