@@ -54,6 +54,7 @@ public class WebDriverFactory {
         long threadId = Thread.currentThread().threadId();
         String testMethod = config.getTestMode();
         String browserName = config.getBrowserName();
+        String browserVersion = config.getBrowserVersion();
         int threadCount = config.getThreadCount();
 
         if (!driverMap.containsKey(threadId)) {
@@ -63,7 +64,7 @@ public class WebDriverFactory {
                         browserName, config.getBrowserVersion(), threadCount));
                 case LOCAL_DOCKER -> driver = new RobustWebDriver(getLocalDockerWebDriver(
                         browserName, config.getBrowserVersion(), threadCount));
-                case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, config.getBrowserVersion()));
+                case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, browserVersion));
                 case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver(browserName);
                 case REMOTE -> driver = new RobustWebDriver(getRemoteWebDriver(
                         config.getRemoteHost(), browserName, config.getBrowserVersion()));
@@ -72,7 +73,7 @@ public class WebDriverFactory {
                 case LOCAL_APPIUM -> driver = new RobustWebDriver(
                         getAppiumWebDriver(config.getEmulator((int)threadId % threadCount)));
                 case AWS_LAMBDA -> driver = getPlaywrightDriver(FIREFOX);
-                case AWS_RMI ->  driver = new RobustWebDriver(getLocalWebDriver(CHROME, "latest"));
+                case AWS_RMI ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, browserVersion));
                 default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
             }
             driverMap.put(threadId, driver);
