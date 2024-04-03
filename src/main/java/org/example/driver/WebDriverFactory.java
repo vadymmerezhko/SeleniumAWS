@@ -73,7 +73,7 @@ public class WebDriverFactory {
                 case LOCAL_APPIUM -> driver = new RobustWebDriver(
                         getAppiumWebDriver(config.getEmulator((int)threadId % threadCount)));
                 case AWS_LAMBDA -> driver = getPlaywrightDriver(FIREFOX);
-                case AWS_RMI ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, browserVersion));
+                //case AWS_RMI ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, browserVersion));
                 default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
             }
             driverMap.put(threadId, driver);
