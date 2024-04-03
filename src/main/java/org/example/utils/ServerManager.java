@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class ServerManager {
+    private static String AWS_RMI_SERVER_INSTANCE_ID;
     private static String AWS_RMI_SERVER_INSTANCE_IP;
     private final static LoadBalancer loadBalancer = LoadBalancer.getInstance();
 
