@@ -2,18 +2,12 @@ package org.example.utils;
 
 import com.amazonaws.services.ec2.AmazonEC2;
 import org.example.balancer.LoadBalancer;
-import org.example.data.Config;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Base64;
-
-import static org.example.constants.Settings.*;
-import static org.example.constants.Settings.SECURITY_GROUP_NAME;
 
 public class ServerManager {
-    private static String AWS_RMI_SERVER_INSTANCE_ID;
     private static String AWS_RMI_SERVER_INSTANCE_IP;
     private final static LoadBalancer loadBalancer = LoadBalancer.getInstance();
 
@@ -58,7 +52,7 @@ public class ServerManager {
                 socket.close();
             }
             catch (IOException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
     }
@@ -66,12 +60,16 @@ public class ServerManager {
     public static synchronized String createRmiServerPublicIp() {
         if (AWS_RMI_SERVER_INSTANCE_IP == null) {
             try {
+/*
                 Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
                 String encodedUserData = Base64.getEncoder().encodeToString(RMI_SERVER_USER_DATA.getBytes());
                 AmazonEC2 ec2 = AwsManager.getEC2Client();
                 AWS_RMI_SERVER_INSTANCE_ID = AwsManager.runEC2AndEWaitForId(ec2, config.getThreadCount(),
                         AWS_RMI_IMAGE_ID, SECURITY_KEY_PAIR_NAME, SECURITY_GROUP_NAME, encodedUserData);
                 AWS_RMI_SERVER_INSTANCE_IP = AwsManager.getEC2PublicIp(ec2, AWS_RMI_SERVER_INSTANCE_ID);
+*/
+                AWS_RMI_SERVER_INSTANCE_IP = "54.183.163.162";
+                System.setProperty("java.rmi.server.hostname", AWS_RMI_SERVER_INSTANCE_IP);
                 System.out.println("AWS EC2 RMI server ip: " + AWS_RMI_SERVER_INSTANCE_IP);
             }
             catch (Exception e) {

@@ -20,6 +20,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
         RmiServer server;
 
         try {
+            System.setProperty("java.rmi.server.hostname", "54.183.163.162");
             server = new RmiServerImpl();
             Registry registry = LocateRegistry.createRegistry(RMI_REGISTRY_PORT);
             registry.rebind(RMI_SERVER_NAME, server);
