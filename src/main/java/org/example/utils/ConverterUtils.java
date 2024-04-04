@@ -1,7 +1,7 @@
 package org.example.utils;
 
-public class Converter {
-    private Converter() {}
+public class ConverterUtils {
+    private ConverterUtils() {}
 
     public static String convertJsonStringToLambdaInput(String jsonString) {
         return String.format("\"%s\"",

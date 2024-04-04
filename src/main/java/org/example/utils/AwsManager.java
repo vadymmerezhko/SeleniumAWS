@@ -102,7 +102,7 @@ public class AwsManager {
     public static String invokeLambdaFunction(String functionName, String inputJsonString) {
         try {
             AWSLambda client = getAwsLambdaClient();
-            String lambdaInput = Converter.convertJsonStringToLambdaInput(inputJsonString);
+            String lambdaInput = ConverterUtils.convertJsonStringToLambdaInput(inputJsonString);
             InvokeRequest request = new InvokeRequest()
                     .withFunctionName(functionName)
                     .withPayload(lambdaInput);
@@ -134,7 +134,7 @@ public class AwsManager {
             }
 
             String lambdaOutputJsonString = new String(result.getPayload().array());
-            return Converter.convertLambdaOutputToJsonString(lambdaOutputJsonString);
+            return ConverterUtils.convertLambdaOutputToJsonString(lambdaOutputJsonString);
         }
         catch (Exception e) {
             throw new RuntimeException(e);

@@ -1,41 +1,49 @@
 package org.example.server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.data.MethodInput;
+import org.example.rmi.RmiClient;
+import org.example.utils.AwsManager;
+import org.example.utils.RecordUtils;
+
+import java.lang.reflect.Method;
+
+import static org.example.constants.Settings.AWS_LAMBDA_FUNCTION_ARN;
 
 public class BaseTestServer {
 
-    protected String methodInputToSting(MethodInput methodInput) {
-        ObjectMapper mapper = new ObjectMapper();
-
+    public String invokeMethod(String methodName, String paramClassName, String paramJsonString) {
         try {
-            return mapper.writeValueAsString(methodInput);
+            Class<?> paramClass = Class.forName(paramClassName);
+            Method method = this.getClass().getMethod(methodName, paramClass);
+            Object param = RecordUtils.stringToRecord(paramJsonString, paramClass);
+            Object testResult = method.invoke(this, param);
+            return RecordUtils.recordToString(testResult);
         }
-        catch (JsonProcessingException e) {
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected String testInputToString(Object testInput) {
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            return mapper.writeValueAsString(testInput);
-        }
-        catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+    protected Object invokeRemoteMethod(String methodName, Object testInput, Class<?> testOutputClass) {
+        return RecordUtils.stringToRecord(
+                RmiClient.invokeMethod(
+                        testInputToMethodInputString(methodName, testInput)),
+                        testOutputClass);
     }
 
-    protected Object stringToTestResult(String testOutputJsonString, Class<?> testResultClass) {
-        ObjectMapper mapper = new ObjectMapper();
+    protected Object invokeLambdaFunction(String methodName, Object testInput, Class<?> testOutputClass) {
+        return RecordUtils.stringToRecord(
+                AwsManager.invokeLambdaFunction(
+                        AWS_LAMBDA_FUNCTION_ARN,
+                        testInputToMethodInputString(methodName, testInput)),
+                testOutputClass);
+    }
 
-        try {
-            return mapper.readValue(testOutputJsonString, testResultClass);
-        }
-        catch (JsonProcessingException e) {
-            throw new RuntimeException (e.getMessage());
-        }
+    protected String testInputToMethodInputString(String methodName, Object testInput) {
+        return  RecordUtils.recordToString(
+                new MethodInput(
+                        methodName,
+                        testInput.getClass().getName(),
+                        RecordUtils.recordToString(testInput)));
     }
 }

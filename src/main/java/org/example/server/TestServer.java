@@ -5,9 +5,6 @@ import org.example.data.SignUpTestInput;
 import org.example.data.SignUpTestResult;
 import org.example.page.WebFormPage;
 
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -15,7 +12,7 @@ import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
 import static org.example.constants.TestModes.AWS_LAMBDA;
 import static org.example.constants.TestModes.AWS_RMI;
 
-public class TestServer implements TestServerInterface {
+public class TestServer extends BaseTestServer implements TestServerInterface {
     private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     static private final ConcurrentMap<Long, Boolean> threadMap = new ConcurrentHashMap<>();
 
@@ -24,30 +21,16 @@ public class TestServer implements TestServerInterface {
         System.out.printf("Thread count: %d%n", threadMap.size());
     }
 
-    public Object invokeMethod(String methodName, String paramClassName, Object param) {
-
-        try {
-            Class<?> paramClass = Class.forName(paramClassName);
-            Method method = this.getClass().getMethod(methodName, paramClass);
-            return method.invoke(this, param);
-        }
-        catch (ClassNotFoundException | IllegalAccessException |
-               InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     public SignUpTestResult signUp(SignUpTestInput testInput) {
+        String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String testMode = config.getTestMode();
 
-        if (config.getTestMode().equals(AWS_LAMBDA)) {
-            TestServerLambda testServerLambda = new TestServerLambda();
-            return testServerLambda.signUp(testInput);
+        if (testMode.equals(AWS_LAMBDA)) {
+            return (SignUpTestResult) invokeLambdaFunction(methodName, testInput, SignUpTestResult.class);
         }
-
-        if (config.getTestMode().equals(AWS_RMI)) {
-            TestServerRmi testServerRmi = new TestServerRmi();
-            return testServerRmi.signUp(testInput);
+        else if (testMode.equals(AWS_RMI)) {
+            return (SignUpTestResult) invokeRemoteMethod(methodName, testInput, SignUpTestResult.class);
         }
 
         try {
