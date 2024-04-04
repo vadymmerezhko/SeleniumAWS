@@ -13,14 +13,21 @@ public class TestServerRequestHandler implements RequestHandler<String, String> 
 
     @Override
     public String handleRequest(String methodInputJsonString, Context context) {
-        MethodInput methodInput = (MethodInput) RecordUtils.stringToRecord(methodInputJsonString, MethodInput.class);
-
         try {
+            System.out.println("Method input Json:\n" + methodInputJsonString);
+
+            MethodInput methodInput =
+                    (MethodInput) RecordUtils.stringToRecord(methodInputJsonString, MethodInput.class);
+
+            System.out.println("Method input object:\n" + methodInput.toString());
+
             TestServer testServer = new TestServer();
             Object testResult = testServer.invokeMethod(
                     methodInput.methodName(),
                     methodInput.paramClassName(),
                     methodInput.inputData());
+
+            System.out.println("Method output object:\n" + testResult.toString());
             return RecordUtils.recordToString(testResult);
         }
         catch (Exception e) {
