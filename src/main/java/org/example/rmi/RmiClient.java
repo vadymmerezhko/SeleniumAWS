@@ -17,7 +17,8 @@ public class RmiClient {
     public static String invokeMethod(String methodInput) {
         try {
             setRmiServer();
-            return RMI_SERVER.get().invokeTestServerMethod(methodInput);
+            String methodOutput =  RMI_SERVER.get().invokeTestServerMethod(methodInput);
+            return methodOutput;
         }
         catch (Exception e) {
             System.out.println("RMI Exception: " + e.getMessage());

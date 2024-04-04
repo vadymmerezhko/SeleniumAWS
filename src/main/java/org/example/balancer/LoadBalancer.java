@@ -8,12 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.example.constants.Settings.AWS_EC2_USER_DATA_TEMPLATE;
+
 public class LoadBalancer {
 
-    private static final String USER_DATA_TEMPLATE =
-            "#!/bin/bash\n" +
-            "sudo docker run -e SE_NODE_MAX_SESSIONS=%d -d -p 4444:4444 -p 7900:7900 " +
-            "--shm-size=\"2g\" selenium/standalone-%s:%s";
     private final AtomicLong maxServersCount = new AtomicLong(0);
     private final ConcurrentMap<Long, Long> serverThreadsCountMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Long> threadIdServerIdMap = new ConcurrentHashMap<>();
@@ -65,7 +63,7 @@ public class LoadBalancer {
     }
 
     public synchronized String getServerPublicIp(long serverId, int threadCount, String browserName, String browserVersion) {
-        String userData = String.format(USER_DATA_TEMPLATE, threadCount, browserName, browserVersion);
+        String userData = String.format(AWS_EC2_USER_DATA_TEMPLATE, threadCount, browserName, browserVersion);
         String encodedUserData = Base64.getEncoder().encodeToString(userData.getBytes());
 
         if (serverIdPublicIpMap.isEmpty()) {

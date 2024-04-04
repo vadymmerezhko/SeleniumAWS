@@ -8,6 +8,7 @@ import org.example.utils.RecordUtils;
 import java.lang.reflect.Method;
 
 import static org.example.constants.Settings.AWS_LAMBDA_FUNCTION_ARN;
+import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
 
 public class BaseTestServer {
 
@@ -25,18 +26,17 @@ public class BaseTestServer {
     }
 
     protected Object invokeRemoteMethod(String methodName, Object testInput, Class<?> testOutputClass) {
-        return RecordUtils.stringToRecord(
-                RmiClient.invokeMethod(
-                        testInputToMethodInputString(methodName, testInput)),
-                        testOutputClass);
+        String testOutputString = RmiClient.invokeMethod(testInputToMethodInputString(methodName, testInput));
+        checkRequestHandlerError(testOutputString);
+        return RecordUtils.stringToRecord(testOutputString, testOutputClass);
     }
 
     protected Object invokeLambdaFunction(String methodName, Object testInput, Class<?> testOutputClass) {
-        return RecordUtils.stringToRecord(
-                AwsManager.invokeLambdaFunction(
-                        AWS_LAMBDA_FUNCTION_ARN,
-                        testInputToMethodInputString(methodName, testInput)),
-                testOutputClass);
+        String testOutputString = AwsManager.invokeLambdaFunction(
+                AWS_LAMBDA_FUNCTION_ARN,
+                testInputToMethodInputString(methodName, testInput));
+        checkRequestHandlerError(testOutputString);
+        return RecordUtils.stringToRecord(testOutputString, testOutputClass);
     }
 
     protected String testInputToMethodInputString(String methodName, Object testInput) {
@@ -45,5 +45,11 @@ public class BaseTestServer {
                         methodName,
                         testInput.getClass().getName(),
                         RecordUtils.recordToString(testInput)));
+    }
+
+    private void checkRequestHandlerError(String methodOutput) {
+        if (methodOutput.contains(REQUEST_HANDLER_ERROR_MSG)) {
+            throw new RuntimeException(methodOutput);
+        }
     }
 }
