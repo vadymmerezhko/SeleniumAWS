@@ -57,6 +57,9 @@ public class WebDriverFactory {
         String browserVersion = config.getBrowserVersion();
         int threadCount = config.getThreadCount();
 
+        System.out.println("Driver Factory thread d: " + threadId);
+        System.out.println("Free memory (bytes): " + Runtime.getRuntime().freeMemory());
+
         if (!driverMap.containsKey(threadId)) {
 
             switch (testMethod) {
