@@ -36,20 +36,20 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     @Override
     public String invokeTestServerMethod(String methodInput) throws RemoteException {
 
-        SESSION_NUMBER.incrementAndGet();
+        long sessionNumber =  SESSION_NUMBER.incrementAndGet();
         Thread sessionThread = new Thread(() -> {
             long threadId = Thread.currentThread().threadId();
             System.out.println("RMI server thread id: " + threadId);
             TestServerRequestHandler requestHandler = new TestServerRequestHandler();
             String methodResult = requestHandler.handleRequest(methodInput, null);
-            MEtHOD_RESULT_MAP.put(SESSION_NUMBER.get(), methodResult);
+            MEtHOD_RESULT_MAP.put(sessionNumber, methodResult);
         });
         sessionThread.start();
 
         while (true) {
             Waiter.waitSeconds(1);
-            if (MEtHOD_RESULT_MAP.containsKey(SESSION_NUMBER.get())) {
-                return MEtHOD_RESULT_MAP.get(SESSION_NUMBER.get());
+            if (MEtHOD_RESULT_MAP.containsKey(sessionNumber)) {
+                return MEtHOD_RESULT_MAP.get(sessionNumber);
             }
         }
     }
