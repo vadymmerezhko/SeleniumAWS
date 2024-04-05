@@ -6,18 +6,18 @@ public class DockerManager {
 
     public static String stopAllContainers() {
         StringBuilder result = new StringBuilder("\n");
-        String output = CommandLineExecutor.runCommandLine("docker ps -a -q");
+        String output = CommandLineExecutor.runCommandLine("sudo docker ps -a -q");
         int size = output.length() / 12;
 
         for (int i = 0; i < size; i++) {
             String id = output.substring(i * 12, (i + 1)  *12);
-            result.append(CommandLineExecutor.runCommandLine(String.format("docker stop %s", id))).append("\n");
+            result.append(CommandLineExecutor.runCommandLine(String.format("sudo docker stop %s", id))).append("\n");
         }
         return result.toString();
     }
 
     public static String removeAllContainers() {
-        return CommandLineExecutor.runCommandLine("docker container prune -f");
+        return CommandLineExecutor.runCommandLine("sudo docker container prune -f");
     }
 
     public static String runSeleniumHub() {
