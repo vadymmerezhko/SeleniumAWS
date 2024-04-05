@@ -1,5 +1,6 @@
 package org.example.rmi;
 
+import org.example.utils.ConverterUtils;
 import org.example.utils.ServerManager;
 
 import java.rmi.registry.LocateRegistry;
@@ -17,8 +18,8 @@ public class RmiClient {
     public static String invokeMethod(String methodInput) {
         try {
             setRmiServer();
-            String methodOutput =  RMI_SERVER.get().invokeTestServerMethod(methodInput);
-            return methodOutput;
+            String methodOutput = RMI_SERVER.get().invokeTestServerMethod(methodInput);
+            return ConverterUtils.convertRemoteOutputToJsonString(methodOutput);
         }
         catch (Exception e) {
             System.out.println("RMI Exception: " + e.getMessage());

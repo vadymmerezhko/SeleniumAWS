@@ -28,6 +28,7 @@ public class BaseTestServer {
     protected Object invokeRemoteMethod(String methodName, Object testInput, Class<?> testOutputClass) {
         String testOutputString = RmiClient.invokeMethod(testInputToMethodInputString(methodName, testInput));
         checkRequestHandlerError(testOutputString);
+        System.out.println("Output Json:\n" + testOutputString);
         return RecordUtils.stringToRecord(testOutputString, testOutputClass);
     }
 
