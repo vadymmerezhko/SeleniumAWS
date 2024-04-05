@@ -52,14 +52,14 @@ public class RmiClient {
     }
 
     private static String getServerName(long threadId) {
-        return RmiServerImpl.getRmiServerName(getServerIndex(threadId));
+        return RMI_SERVER_NAME; //RmiServerImpl.getRmiServerName(getServerIndex(threadId));
     }
 
     static int getServerIndex(long threadId) {
-        return (int) threadId % TREAD_COUNT + 1;
+        return  (int) threadId % TREAD_COUNT + 1;
     }
 
     private static int getServerPort(long threadId) {
-        return RmiServerImpl.getRmiServerPort(getServerIndex(threadId));
+        return RMI_REGISTRY_PORT; //RmiServerImpl.getRmiServerPort(getServerIndex(threadId));
     }
 }

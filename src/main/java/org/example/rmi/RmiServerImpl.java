@@ -52,16 +52,16 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     }
 
     public static String getRmiServerName(int index) {
-        return String.format("%s-%d", RMI_SERVER_NAME, index);
+        return RMI_SERVER_NAME; //String.format("%s-%d", RMI_SERVER_NAME, index);
     }
 
     public static int getRmiServerPort(int index) {
-        return RMI_REGISTRY_PORT + index;
+        return RMI_REGISTRY_PORT; //RMI_REGISTRY_PORT + index;
     }
 
     private static void registerRmiServer() {
         try {
-            for (int i = 1; i <= THREAD_COUNT; i++) {
+            for (int i = 1; i <=1  /*THREAD_COUNT*/; i++) {
                 String serverName = getRmiServerName(i);
                 int port = getRmiServerPort(i);
 
