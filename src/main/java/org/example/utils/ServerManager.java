@@ -69,7 +69,7 @@ public class ServerManager {
                         AWS_RMI_IMAGE_ID, SECURITY_KEY_PAIR_NAME, SECURITY_GROUP_NAME, encodedUserData);
                 AWS_RMI_SERVER_INSTANCE_IP = AwsManager.getEC2PublicIp(ec2, AWS_RMI_SERVER_INSTANCE_ID);
 */
-                AWS_RMI_SERVER_INSTANCE_IP = "13.57.221.243";
+                AWS_RMI_SERVER_INSTANCE_IP = "3.101.150.75";
                 System.setProperty("java.rmi.server.hostname", AWS_RMI_SERVER_INSTANCE_IP);
                 System.out.println("AWS EC2 RMI server ip: " + AWS_RMI_SERVER_INSTANCE_IP);
             }
