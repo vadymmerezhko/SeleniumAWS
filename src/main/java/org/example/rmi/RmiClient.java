@@ -31,14 +31,16 @@ public class RmiClient {
 
     private static RmiServer getRmiServer() {
         long threadId = Thread.currentThread().threadId();
-        String serverName = getServerName(threadId);
 
         if (!RMI_SERVER_MAP.containsKey(threadId)) {
             try {
+                String serverName = getServerName(threadId);
                 String serverIP = createRmiServerPublicIp();
-                Registry registry = LocateRegistry.getRegistry(serverIP, RMI_REGISTRY_PORT);
+                int port = getServerPort(threadId);
+                Registry registry = LocateRegistry.getRegistry(serverIP, port);
                 RMI_SERVER_MAP.put(threadId, (RmiServer) registry.lookup(serverName));
-                if (!ServerManager.isAddressReachable(serverIP, RMI_REGISTRY_PORT, RMI_SERVER_WAIT_TIMEOUT)) {
+                if (!ServerManager.isAddressReachable(
+                        serverIP, port, RMI_SERVER_WAIT_TIMEOUT)) {
                     throw new RuntimeException("RMI server ip/port is not reachable.");
                 }
             }
@@ -50,6 +52,14 @@ public class RmiClient {
     }
 
     private static String getServerName(long threadId) {
-        return RmiServerImpl.getRmiServerName((int)threadId % TREAD_COUNT + 1);
+        return RmiServerImpl.getRmiServerName(getServerIndex(threadId));
+    }
+
+    static int getServerIndex(long threadId) {
+        return (int) threadId % TREAD_COUNT + 1;
+    }
+
+    private static int getServerPort(long threadId) {
+        return RmiServerImpl.getRmiServerPort(getServerIndex(threadId));
     }
 }
