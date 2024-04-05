@@ -25,9 +25,12 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     }
 
     public static void main(String[] args) {
-        for (int i = 1; i <= THREAD_COUNT; i++) {
+
+        registerRmiServer();
+
+/*        for (int i = 1; i <= THREAD_COUNT; i++) {
             registerRmiServer();
-        }
+        }*/
     }
 
     @Override
@@ -61,19 +64,17 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
 
     private static void registerRmiServer() {
         try {
-            for (int i = 1; i <=1  /*THREAD_COUNT*/; i++) {
-                String serverName = getRmiServerName(i);
-                int port = getRmiServerPort(i);
+            String serverName = getRmiServerName(1);
+            int port = getRmiServerPort(1);
 
-                System.out.println("RMI Server name: " + serverName);
-                System.out.println("RMI port: " + port);
+            System.out.println("RMI Server name: " + serverName);
+            System.out.println("RMI port: " + port);
 
-                System.setProperty("java.rmi.server.hostname", "13.57.221.243");
-                RmiServer server = new RmiServerImpl();
-                Registry registry = LocateRegistry.createRegistry(port);
-                registry.rebind(serverName, server);
-                System.out.printf("RMI Test Server has been registered: %s%n", serverName);
-            }
+            System.setProperty("java.rmi.server.hostname", "13.57.221.243");
+            RmiServer server = new RmiServerImpl();
+            Registry registry = LocateRegistry.createRegistry(port);
+            registry.rebind(serverName, server);
+            System.out.printf("RMI Test Server has been registered: %s%n", serverName);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
