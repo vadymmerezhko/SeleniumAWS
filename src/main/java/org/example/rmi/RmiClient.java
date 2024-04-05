@@ -5,20 +5,21 @@ import org.example.utils.ServerManager;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.example.constants.Settings.*;
 import static org.example.utils.ServerManager.createRmiServerPublicIp;
 
 public class RmiClient {
-    private static final AtomicReference<RmiServer> RMI_SERVER = new AtomicReference<>();
+    private static final ConcurrentMap <Long, RmiServer> RMI_SERVER_MAP = new ConcurrentHashMap<>();
 
     private RmiClient() {}
 
     public static String invokeMethod(String methodInput) {
         try {
-            setRmiServer();
-            String methodOutput = RMI_SERVER.get().invokeTestServerMethod(methodInput);
+            String methodOutput = getRmiServer().invokeTestServerMethod(methodInput);
             return ConverterUtils.convertRemoteOutputToJsonString(methodOutput);
         }
         catch (Exception e) {
@@ -27,12 +28,14 @@ public class RmiClient {
         }
     }
 
-    private static synchronized void setRmiServer() {
-        if (RMI_SERVER.get() == null) {
+    private static RmiServer getRmiServer() {
+        long threadId = Thread.currentThread().threadId();
+
+        if (!RMI_SERVER_MAP.containsKey(threadId)) {
             try {
                 String serverIP = createRmiServerPublicIp();
                 Registry registry = LocateRegistry.getRegistry(serverIP, RMI_REGISTRY_PORT);
-                RMI_SERVER.set((RmiServer) registry.lookup(RMI_SERVER_NAME));
+                RMI_SERVER_MAP.put(threadId, (RmiServer) registry.lookup(RMI_SERVER_NAME));
                 if (!ServerManager.isAddressReachable(serverIP, RMI_REGISTRY_PORT, RMI_SERVER_WAIT_TIMEOUT)) {
                     throw new RuntimeException("RMI server ip/port is not reachable.");
                 }
@@ -41,5 +44,6 @@ public class RmiClient {
                 throw new RuntimeException(e);
             }
         }
+        return RMI_SERVER_MAP.get(threadId);
     }
 }

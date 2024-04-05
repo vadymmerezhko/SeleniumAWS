@@ -14,7 +14,7 @@ public class Settings {
     static public final String SECURITY_GROUP_NAME = "Selenium Test Security Group";
     static public final int AWS_URL_EXPIRES_SECONDS = 60 * 15;
     public static final int RMI_REGISTRY_PORT = 4200;
-    public static final int RMI_SERVER_WAIT_TIMEOUT = 60 * 1000;
+    public static final int RMI_SERVER_WAIT_TIMEOUT = 180 * 1000;
     public static final String RMI_SERVER_USER_DATA = "sudo bash start-rmi-server.sh";
     static public final String AWS_DEVICE_FARM_BROWSERS_ARM =
             "arn:aws:devicefarm:us-west-2:535905549021:testgrid-project:4b3efa9e-934a-4530-ad16-73ea5a12e7df";
