@@ -35,23 +35,10 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
 
     @Override
     public String invokeTestServerMethod(String methodInput) throws RemoteException {
-
-        long sessionNumber =  SESSION_NUMBER.incrementAndGet();
-        Thread sessionThread = new Thread(() -> {
             long threadId = Thread.currentThread().threadId();
             System.out.println("RMI server thread id: " + threadId);
             TestServerRequestHandler requestHandler = new TestServerRequestHandler();
-            String methodResult = requestHandler.handleRequest(methodInput, null);
-            MEtHOD_RESULT_MAP.put(sessionNumber, methodResult);
-        });
-        sessionThread.start();
-
-        while (true) {
-            Waiter.waitSeconds(1);
-            if (MEtHOD_RESULT_MAP.containsKey(sessionNumber)) {
-                return MEtHOD_RESULT_MAP.get(sessionNumber);
-            }
-        }
+            return requestHandler.handleRequest(methodInput, null);
     }
 
     public static String getRmiServerName(int index) {
@@ -70,7 +57,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
             System.out.println("RMI Server name: " + serverName);
             System.out.println("RMI port: " + port);
 
-            System.setProperty("java.rmi.server.hostname", "3.101.150.75");
+            System.setProperty("java.rmi.server.hostname", "13.52.235.50");
             RmiServer server = new RmiServerImpl();
             Registry registry = LocateRegistry.createRegistry(port);
             registry.rebind(serverName, server);
