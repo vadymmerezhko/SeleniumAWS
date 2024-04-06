@@ -36,6 +36,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     @Override
     public String invokeTestServerMethod(String methodInput) throws RemoteException {
             long threadId = Thread.currentThread().threadId();
+            System.out.println("RMI server process id: " + ProcessHandle.current().pid());
             System.out.println("RMI server thread id: " + threadId);
             TestServerRequestHandler requestHandler = new TestServerRequestHandler();
             return requestHandler.handleRequest(methodInput, null);

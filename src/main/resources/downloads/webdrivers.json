@@ -1,18 +1,14 @@
 {
   "chrome": {
     "windows64": {
-      "stable": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/121.0.6167.85/win64/chromedriver-win64.zip",
-      "beta": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/122.0.6261.6/win64/chromedriver-win64.zip",
-      "canary": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/123.0.6263.0/win64/chromedriver-win64.zip",
-      "113": "https://chromedriver.storage.googleapis.com/113.0.5672.63/chromedriver_win32.zip",
-      "103": "https://chromedriver.storage.googleapis.com/103.0.5060.53/chromedriver_win32.zip"
+      "stable": "https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.105/win64/chromedriver-win64.zip",
+      "beta": "https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.29/linux64/chromedriver-linux64.zip",
+      "canary": "https://storage.googleapis.com/chrome-for-testing-public/125.0.6403.0/win64/chromedriver-win64.zip"
     },
     "linux64": {
-      "stable": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/121.0.6167.85/linux64/chromedriver-linux64.zip",
-      "beta": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/122.0.6261.6/linux64/chromedriver-linux64.zip",
-      "canary": "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/123.0.6263.0/linux64/chromedriver-linux64.zip",
-      "113": "https://chromedriver.storage.googleapis.com/113.0.5672.63/chromedriver_linux64.zip",
-      "103": "https://chromedriver.storage.googleapis.com/103.0.5060.53/chromedriver_linux64.zip"
+      "stable": "https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.105/linux64/chromedriver-linux64.zip",
+      "beta": "https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.29/linux64/chromedriver-linux64.zip",
+      "canary": "https://storage.googleapis.com/chrome-for-testing-public/125.0.6403.0/linux64/chromedriver-linux64.zip"
     }
   },
   "firefox": {
