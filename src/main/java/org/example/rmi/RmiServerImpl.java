@@ -13,7 +13,7 @@ import static org.example.constants.Settings.*;
 public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
 
     private static final String GET_EC2_PUBLIC_IP_COMMAND_LINE =
-            "curl http://169.254.169.254/latest/meta-data/public-ipv4";
+            "sudo curl http://169.254.169.254/latest/meta-data/public-ipv4";
 
     private static final String RMI_SERVER_USER_NAME = "ubuntu";
 
@@ -52,6 +52,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
 
     private static String getCurrentEc2PublicIp() {
         String output = CommandLineExecutor.runCommandLine(GET_EC2_PUBLIC_IP_COMMAND_LINE);
+        System.out.println("CURL output: " + output);
         return output.substring(0, output.indexOf(RMI_SERVER_USER_NAME));
     }
 }
