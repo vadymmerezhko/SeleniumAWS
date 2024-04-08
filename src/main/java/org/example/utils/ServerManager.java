@@ -42,14 +42,11 @@ public class ServerManager {
     public static boolean isAddressReachable(String address, int port, int timeout) {
         Socket socket = new Socket();
         try {
-            // Connects this socket to the server with a specified timeout value.
             socket.connect(new InetSocketAddress(address, port), timeout);
-            // Return true if connection successful
+
             return true;
         }
         catch (IOException exception) {
-            exception.printStackTrace();
-            // Return false if connection fails
             return false;
         }
         finally {
@@ -75,15 +72,28 @@ public class ServerManager {
                 AWS_RMI_SERVER_INSTANCE_ID = AwsManager.runEC2AndEWaitForId(ec2, config.getThreadCount(),
                         AWS_RMI_IMAGE_ID, SECURITY_KEY_PAIR_NAME, SECURITY_GROUP_NAME, encodedUserData);
                 AWS_RMI_SERVER_INSTANCE_IP = AwsManager.getEC2PublicIp(ec2, AWS_RMI_SERVER_INSTANCE_ID);
-
-                System.setProperty("java.rmi.server.hostname", AWS_RMI_SERVER_INSTANCE_IP);
-                System.out.println("AWS EC2 RMI server ip: " + AWS_RMI_SERVER_INSTANCE_IP);
+                waitForRmiServer(AWS_RMI_SERVER_INSTANCE_IP);
+                System.out.println("AWS EC2 RMI server is running on IP: " + AWS_RMI_SERVER_INSTANCE_IP);
             }
             catch (Exception e) {
                 terminateAwsRmiServer();
             }
         }
         return AWS_RMI_SERVER_INSTANCE_IP;
+    }
+
+    public static void waitForRmiServer(String serverIP) {
+        TimeOut timeOut = new TimeOut(RMI_SERVER_WAIT_TIMEOUT_SECONDS);
+        timeOut.start();
+        System.out.println("Waiting for RMI server...");
+
+        while (true) {
+            Waiter.waitSeconds(1);
+            if (ServerManager.isAddressReachable(serverIP, RMI_REGISTRY_PORT, 15000)) {
+                System.out.println("RMI server is ready.");
+                break;
+            }
+        }
     }
 
     public static void terminateAwsRmiServer() {

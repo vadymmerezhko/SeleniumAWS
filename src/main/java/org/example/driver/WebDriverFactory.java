@@ -5,7 +5,6 @@ import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Playwright;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
-import org.apache.commons.io.FileSystemUtils;
 import org.example.balancer.LoadBalancer;
 import org.example.data.Config;
 import org.example.driver.robust.RobustWebDriver;
@@ -29,13 +28,8 @@ import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlRequest
 import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlResponse;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.FileStore;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,7 +62,7 @@ public class WebDriverFactory {
         System.out.println("Free memory (M bytes): " + Runtime.getRuntime().freeMemory() / (1024 * 1024));
         File file = new File("/");
         System.out.println("Free disk (M bytes): " + file.getFreeSpace() / (1024.0 * 1024));
-        
+
         if (!driverMap.containsKey(threadId)) {
 
             switch (testMethod) {
@@ -126,7 +120,8 @@ public class WebDriverFactory {
             try {
                 System.out.println("Waiting for AWS EC2 instance...");
                 waitForSeleniumGrid(String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp));
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 System.out.println("Wait Selenium Grid timeout expired!");
                 loadBalancer.lockSever(serverId);
                 return getDriver();
