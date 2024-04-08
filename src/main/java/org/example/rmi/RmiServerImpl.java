@@ -4,6 +4,7 @@ import org.example.data.Config;
 import org.example.server.TestServerRequestHandler;
 import org.example.utils.CommandLineExecutor;
 import org.example.utils.ServerManager;
+import org.example.utils.Waiter;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -24,6 +25,10 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     public static void main(String[] args) {
         for (int i = 1; i <= THREAD_COUNT; i++) {
             registerRmiServer(i);
+        }
+
+        while (true) {
+            Waiter.waitSeconds(5);
         }
     }
 
@@ -46,8 +51,8 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
             Registry registry = LocateRegistry.createRegistry(rmiRegistryPort);
             registry.rebind(rmiServerName, server);
 
-            System.out.printf("RMI Test Server has been registered: %s%n", rmiServerName);
-            System.out.printf("Public IP: %s%n", publicIp);
+            System.out.printf("RMI Test Server %s has been registered: %s:%d %n",
+                    rmiServerName, publicIp, rmiRegistryPort);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
