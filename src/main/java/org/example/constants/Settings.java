@@ -13,8 +13,9 @@ public class Settings {
     static public final String SECURITY_KEY_PAIR_NAME = "SeleniumKeyPair";
     static public final String SECURITY_GROUP_NAME = "Selenium Test Security Group";
     static public final int AWS_URL_EXPIRES_SECONDS = 60 * 15;
-    public static final int RMI_REGISTRY_PORT = 4200;
-    public static final int RMI_SERVER_WAIT_TIMEOUT_SECONDS = 180;
+    public static final int RMI_SERVER_BASE_PORT = 4200;
+    public static final int REMOTE_WEB_DRIVER_PORT = 4444;
+    public static final int SERVER_WAIT_TIMEOUT_SECONDS = 180;
     public static final String RMI_SERVER_USER_DATA_TEMPLATE =
             "#!/bin/bash\n" +
             "sudo docker run -e SE_NODE_MAX_SESSIONS=%d -d -p 4444:4444 -p 7900:7900 " +

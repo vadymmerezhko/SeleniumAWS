@@ -1,7 +1,9 @@
 package org.example.rmi;
 
+import org.example.data.Config;
 import org.example.server.TestServerRequestHandler;
 import org.example.utils.CommandLineExecutor;
+import org.example.utils.ServerManager;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -13,13 +15,16 @@ import static org.example.constants.Settings.*;
 public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     private static final String GET_EC2_PUBLIC_IP_COMMAND_LINE =
             "sudo curl http://169.254.169.254/latest/meta-data/public-ipv4";
+    private static final int THREAD_COUNT = new Config(CONFIG_PROPERTIES_FILE_NAME).getThreadCount();
 
     protected RmiServerImpl() throws RemoteException {
         super();
     }
 
     public static void main(String[] args) {
-        registerRmiServer();
+        for (int i = 1; i <= THREAD_COUNT; i++) {
+            registerRmiServer(i);
+        }
     }
 
     @Override
@@ -31,15 +36,17 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
             return requestHandler.handleRequest(methodInput, null);
     }
 
-    private static void registerRmiServer() {
+    private static void registerRmiServer(int index) {
         try {
             String publicIp = getCurrentEc2PublicIp();
+            String rmiServerName = ServerManager.getRmiServerName(index);
+            int rmiRegistryPort = ServerManager.getRmiServerPort(index);
             System.setProperty("java.rmi.server.hostname", publicIp);
             RmiServer server = new RmiServerImpl();
-            Registry registry = LocateRegistry.createRegistry(RMI_REGISTRY_PORT);
-            registry.rebind(RMI_SERVER_NAME, server);
+            Registry registry = LocateRegistry.createRegistry(rmiRegistryPort);
+            registry.rebind(rmiServerName, server);
 
-            System.out.printf("RMI Test Server has been registered: %s%n", RMI_SERVER_NAME);
+            System.out.printf("RMI Test Server has been registered: %s%n", rmiServerName);
             System.out.printf("Public IP: %s%n", publicIp);
         }
         catch (Exception e) {

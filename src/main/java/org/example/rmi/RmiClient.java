@@ -1,6 +1,5 @@
 package org.example.rmi;
 
-import org.example.data.Config;
 import org.example.utils.ConverterUtils;
 
 import java.rmi.registry.LocateRegistry;
@@ -8,8 +7,7 @@ import java.rmi.registry.Registry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.example.constants.Settings.*;
-import static org.example.utils.ServerManager.createRmiServerPublicIp;
+import static org.example.utils.ServerManager.*;
 
 public class RmiClient {
     private static final ConcurrentMap <Long, RmiServer> RMI_SERVER_MAP = new ConcurrentHashMap<>();
@@ -33,8 +31,10 @@ public class RmiClient {
         if (!RMI_SERVER_MAP.containsKey(threadId)) {
             try {
                 String serverIP = createRmiServerPublicIp();
-                Registry registry = LocateRegistry.getRegistry(serverIP, RMI_REGISTRY_PORT);
-                RMI_SERVER_MAP.put(threadId, (RmiServer) registry.lookup(RMI_SERVER_NAME));
+                String rmiServerName = getRmiServerName();
+                int rmiServerPort = getRmiServerPort();
+                Registry registry = LocateRegistry.getRegistry(serverIP, rmiServerPort);
+                RMI_SERVER_MAP.put(threadId, (RmiServer) registry.lookup(rmiServerName));
             }
             catch (Exception e) {
                 throw new RuntimeException(e);

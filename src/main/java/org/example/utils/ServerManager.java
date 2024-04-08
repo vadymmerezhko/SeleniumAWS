@@ -14,6 +14,7 @@ import static org.example.constants.Settings.*;
 public class ServerManager {
     private static String AWS_RMI_SERVER_INSTANCE_ID;
     private static String AWS_RMI_SERVER_INSTANCE_IP;
+    private static final int THREAD_COUNT = new Config(CONFIG_PROPERTIES_FILE_NAME).getThreadCount();
     private final static LoadBalancer loadBalancer = LoadBalancer.getInstance();
 
     public static void createServerInstances(int serverCount,
@@ -72,7 +73,8 @@ public class ServerManager {
                 AWS_RMI_SERVER_INSTANCE_ID = AwsManager.runEC2AndEWaitForId(ec2, config.getThreadCount(),
                         AWS_RMI_IMAGE_ID, SECURITY_KEY_PAIR_NAME, SECURITY_GROUP_NAME, encodedUserData);
                 AWS_RMI_SERVER_INSTANCE_IP = AwsManager.getEC2PublicIp(ec2, AWS_RMI_SERVER_INSTANCE_ID);
-                waitForRmiServer(AWS_RMI_SERVER_INSTANCE_IP);
+                waitForServer(AWS_RMI_SERVER_INSTANCE_IP, REMOTE_WEB_DRIVER_PORT);
+                waitForServer(AWS_RMI_SERVER_INSTANCE_IP, RMI_SERVER_BASE_PORT);
                 System.out.println("AWS EC2 RMI server is running on IP: " + AWS_RMI_SERVER_INSTANCE_IP);
             }
             catch (Exception e) {
@@ -82,15 +84,38 @@ public class ServerManager {
         return AWS_RMI_SERVER_INSTANCE_IP;
     }
 
-    public static void waitForRmiServer(String serverIP) {
-        TimeOut timeOut = new TimeOut(RMI_SERVER_WAIT_TIMEOUT_SECONDS);
+    public static String getRmiServerName(int index) {
+        return RMI_SERVER_NAME + index;
+    }
+
+    public static String getRmiServerName() {
+        int index = getRmiServerIndex();
+        return RMI_SERVER_NAME + index;
+    }
+
+    public static int getRmiServerPort(int index) {
+        return RMI_SERVER_BASE_PORT + index;
+    }
+
+    public static int getRmiServerPort() {
+        int index = getRmiServerIndex();
+        return RMI_SERVER_BASE_PORT + index;
+    }
+
+    private static int getRmiServerIndex() {
+        long threadId = Thread.currentThread().threadId();
+        return (int)threadId % THREAD_COUNT + 1;
+    }
+
+    public static void waitForServer(String serverIP, int port) {
+        TimeOut timeOut = new TimeOut(SERVER_WAIT_TIMEOUT_SECONDS);
         timeOut.start();
-        System.out.println("Waiting for RMI server...");
+        System.out.printf("Waiting for server %s:%d...%n", serverIP, port);
 
         while (true) {
             Waiter.waitSeconds(1);
-            if (ServerManager.isAddressReachable(serverIP, RMI_REGISTRY_PORT, 15000)) {
-                System.out.println("RMI server is ready.");
+            if (ServerManager.isAddressReachable(serverIP, port, 15000)) {
+                System.out.printf("Server %s:%d is ready.%n", serverIP, port);
                 break;
             }
         }
