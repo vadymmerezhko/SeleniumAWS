@@ -22,7 +22,7 @@ public class Settings {
             "--shm-size=\"2g\" selenium/standalone-%s:%s\n" +
             "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +
             "cd SeleniumAWS\n" +
-            "mvn -f rmi-pom.xml exec:java";
+            "sudo mvn -f rmi-pom.xml exec:java";
             //"sudo mvn -f rmi-pom.xml install\n" +
             //"sudo java -jar target/SeleniumAWSRmiServer-1.0-SNAPSHOT.jar";
     static public final String AWS_DEVICE_FARM_BROWSERS_ARM =
