@@ -22,6 +22,7 @@ public class Settings {
             "--shm-size=\"2g\" selenium/standalone-%s:%s\n" +
             "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +
             "cd SeleniumAWS\n" +
+            "sudo mvn -f rmi-pom.xml compile\n" +
             "sudo mvn -f rmi-pom.xml exec:java";
             //"sudo mvn -f rmi-pom.xml install\n" +
             //"sudo java -jar target/SeleniumAWSRmiServer-1.0-SNAPSHOT.jar";
