@@ -21,7 +21,7 @@ public class Settings {
             "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +
             "cd SeleniumAWS\n" +
             "sudo mvn -f rmi-pom.xml compile\n" +
-            "sudo mvn -f rmi-pom.xml exec:java \"-DtestMode=local_docker\" \"-Dbrowser=%s:%s\"";
+            "sudo mvn -f rmi-pom.xml exec:java \"-DthreadCount=%d\" \"-DtestMode=local_docker\" \"-Dbrowser=%s:%s\"";
     static public final String AWS_DEVICE_FARM_BROWSERS_ARM =
             "arn:aws:devicefarm:us-west-2:535905549021:testgrid-project:4b3efa9e-934a-4530-ad16-73ea5a12e7df";
     static public final String AWS_LAMBDA_FUNCTION_ARN =
