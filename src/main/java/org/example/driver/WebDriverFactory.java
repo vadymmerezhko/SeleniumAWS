@@ -57,10 +57,6 @@ public class WebDriverFactory {
         String browserVersion = config.getBrowserVersion();
         int threadCount = config.getThreadCount();
 
-        System.out.println("WebDriver Factory test mode: " + config.getTestMode());
-        System.out.println("WebDriver Factory browser name: " + config.getBrowserName());
-        System.out.println("WebDriver Factory browser version: " + config.getBrowserVersion());
-
         if (!driverMap.containsKey(threadId)) {
 
             switch (testMethod) {
