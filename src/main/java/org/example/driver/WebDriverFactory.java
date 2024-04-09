@@ -27,7 +27,6 @@ import software.amazon.awssdk.services.devicefarm.DeviceFarmClient;
 import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlRequest;
 import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlResponse;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
@@ -57,11 +56,6 @@ public class WebDriverFactory {
         String browserName = config.getBrowserName();
         String browserVersion = config.getBrowserVersion();
         int threadCount = config.getThreadCount();
-
-        System.out.println("Driver Factory thread d: " + threadId);
-        System.out.println("Free memory (M bytes): " + Runtime.getRuntime().freeMemory() / (1024 * 1024));
-        File file = new File("/");
-        System.out.println("Free disk (M bytes): " + file.getFreeSpace() / (1024.0 * 1024));
 
         if (!driverMap.containsKey(threadId)) {
 

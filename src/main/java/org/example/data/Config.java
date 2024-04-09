@@ -80,7 +80,7 @@ public class Config {
 
     private String getStringProperty(String propertyName) {
         if (!stringPropertyMap.containsKey(propertyName)) {
-            String propertyValue = System.getProperty(propertyName);
+            String propertyValue = System.getenv(propertyName);
             if (propertyValue == null) {
                 propertyValue = getConfigProperties().getProperty(propertyName);
             }
