@@ -381,7 +381,7 @@ public class WebDriverFactory {
             stopSeleniumGridOnDocker();
             System.out.println("Starting Selenium Standalone on Docker.");
             System.out.println(DockerManager.runSeleniumStandalone(browserName, browserVersion, threadCount));
-            waitForSeleniumGrid(String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST));
+            ServerManager.waitForServer(LOCALHOST, REMOTE_WEB_DRIVER_PORT);
             dockerSeleniumGridStarted = true;
         }
     }
