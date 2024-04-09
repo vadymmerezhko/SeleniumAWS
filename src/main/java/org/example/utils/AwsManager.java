@@ -134,7 +134,8 @@ public class AwsManager {
             }
 
             String lambdaOutputJsonString = new String(result.getPayload().array());
-            return ConverterUtils.convertRemoteOutputToJsonString(lambdaOutputJsonString);
+            return ConverterUtils.convertRemoteOutputToJsonString(
+                    ConverterUtils.convertRemoteOutputToJsonString(lambdaOutputJsonString));
         }
         catch (Exception e) {
             throw new RuntimeException(e);
