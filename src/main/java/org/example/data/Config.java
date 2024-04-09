@@ -83,6 +83,10 @@ public class Config {
             String propertyValue = System.getenv(propertyName);
 
             if (propertyValue == null) {
+                propertyValue = System.getProperty(propertyName);
+            }
+
+            if (propertyValue == null) {
                 propertyValue = getConfigProperties().getProperty(propertyName);
             }
 
