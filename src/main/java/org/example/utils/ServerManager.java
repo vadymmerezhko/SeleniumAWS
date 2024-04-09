@@ -73,7 +73,7 @@ public class ServerManager {
                 AWS_RMI_SERVER_INSTANCE_ID = AwsManager.runEC2AndEWaitForId(ec2, config.getThreadCount(),
                         AWS_RMI_IMAGE_ID, SECURITY_KEY_PAIR_NAME, SECURITY_GROUP_NAME, encodedUserData);
                 AWS_RMI_SERVER_INSTANCE_IP = AwsManager.waitForEC2Ip(ec2, AWS_RMI_SERVER_INSTANCE_ID);
-                waitForServer(AWS_RMI_SERVER_INSTANCE_IP, REMOTE_WEB_DRIVER_PORT);
+                //waitForServer(AWS_RMI_SERVER_INSTANCE_IP, REMOTE_WEB_DRIVER_PORT);
                 waitForServer(AWS_RMI_SERVER_INSTANCE_IP, getRmiServerPort(THREAD_COUNT));
                 System.out.println("AWS EC2 RMI server is running on IP: " + AWS_RMI_SERVER_INSTANCE_IP);
             }

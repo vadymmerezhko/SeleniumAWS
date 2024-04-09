@@ -23,6 +23,10 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     }
 
     public static void main(String[] args) {
+
+        Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
+        System.out.printf("Browser: %s:%s", config.getBrowserName(), config.getBrowserVersion());
+
         for (int i = 1; i <= THREAD_COUNT; i++) {
             registerRmiServer(i);
         }
