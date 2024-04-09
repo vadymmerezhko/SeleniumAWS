@@ -18,8 +18,6 @@ public class Settings {
     public static final int SERVER_WAIT_TIMEOUT_SECONDS = 180;
     public static final String RMI_SERVER_USER_DATA_TEMPLATE =
             "#!/bin/bash\n" +
-            //"sudo docker run -e SE_NODE_MAX_SESSIONS=%d -d -p 4444:4444 -p 7900:7900 " +
-            //"--shm-size=\"2g\" selenium/standalone-%s:%s\n" +
             "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +
             "cd SeleniumAWS\n" +
             "sudo mvn -f rmi-pom.xml compile\n" +
