@@ -106,7 +106,7 @@ public class ServerManager {
         return (int)threadId % THREAD_COUNT + 1;
     }
 
-    public static void waitForServer(String serverIP, int port) {
+    public static synchronized void waitForServer(String serverIP, int port) {
         TimeOut timeOut = new TimeOut(SERVER_WAIT_TIMEOUT_SECONDS);
         timeOut.start();
         System.out.printf("Waiting for server %s:%d...%n", serverIP, port);

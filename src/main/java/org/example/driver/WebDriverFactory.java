@@ -10,7 +10,6 @@ import org.example.data.Config;
 import org.example.driver.robust.RobustWebDriver;
 import org.example.utils.*;
 import org.example.driver.playwright.PlaywrightDriver;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -44,7 +43,6 @@ public class WebDriverFactory {
     static private final String LOCALHOST = "localhost";
     static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
-    static private final int WAIT_SELENIUM_GRID_TIMEOUT = 30;
     static private final int ADB_EXEC_TIMEOUT_SECONDS = 180000;
     private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
     private static boolean dockerSeleniumGridStarted = false;
@@ -113,7 +111,7 @@ public class WebDriverFactory {
                     serverId, threadCount, browserName, browserVersion);
             try {
                 System.out.println("Waiting for AWS EC2 instance...");
-                waitForSeleniumGrid(String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp));
+                ServerManager.waitForServer(ec2InstanceIp, REMOTE_WEB_DRIVER_PORT);
             }
             catch (Exception e) {
                 System.out.println("Wait Selenium Grid timeout expired!");
@@ -307,32 +305,6 @@ public class WebDriverFactory {
             options.addArguments("--headless"); // headless only
         }
         return options;
-    }
-
-    private static void waitForSeleniumGrid(String ec2InstanceHost) {
-        WebDriver tempDriver = getPlaywrightDriver(CHROMIUM, true);
-        TimeOut timeOut = new TimeOut(WAIT_SELENIUM_GRID_TIMEOUT);
-        timeOut.start();
-
-        try {
-            while (true) {
-                try {
-                    tempDriver.get(ec2InstanceHost);
-
-                    if (!tempDriver.findElements(
-                            By.xpath("//*[contains(., 'Selenium Grid')]"))
-                            .isEmpty()) {
-                        return;
-                    }
-                } catch (Exception e) {
-                    //NOP
-                }
-                Waiter.waitSeconds(5);
-            }
-        }
-        finally {
-            tempDriver.quit();
-        }
     }
 
     public static void closeDriver() {
