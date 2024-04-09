@@ -65,7 +65,7 @@ public class ServerManager {
             try {
                 Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
                 String userData = String.format(RMI_SERVER_USER_DATA_TEMPLATE,
-                        config.getThreadCount(),
+                        //config.getThreadCount(),
                         config.getBrowserName(),
                         config.getBrowserVersion());
                 String encodedUserData = Base64.getEncoder().encodeToString(userData.getBytes());
