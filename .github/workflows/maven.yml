@@ -52,6 +52,6 @@ jobs:
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=aws_lambda"
 
       - name: Test - AWS RMI Docker - Chrome latest
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=4" "-DtestMode=aws_rmi" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
+        run: mvn clean test "-DtestSuite=./src/test/resources/testng1.xml" "-DthreadCount=4" "-DtestMode=aws_rmi" "-Dbrowser=chrome:latest"
 
 
