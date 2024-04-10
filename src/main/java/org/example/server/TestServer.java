@@ -9,29 +9,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
-import static org.example.constants.TestModes.AWS_LAMBDA;
-import static org.example.constants.TestModes.AWS_RMI;
 
 public class TestServer extends BaseTestServer implements TestServerInterface {
-    private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     static private final ConcurrentMap<Long, Boolean> threadMap = new ConcurrentHashMap<>();
 
-    public TestServer() {
+    TestServer() {
         threadMap.put(Thread.currentThread().threadId(), true);
         System.out.printf("Thread count: %d%n", threadMap.size());
     }
 
     @Override
     public SignUpTestResult signUp(SignUpTestInput testInput) {
-        String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        String testMode = config.getTestMode();
-
-        if (testMode.equals(AWS_LAMBDA)) {
-            return (SignUpTestResult) invokeLambdaFunction(methodName, testInput, SignUpTestResult.class);
-        }
-        else if (testMode.equals(AWS_RMI)) {
-            return (SignUpTestResult) invokeRemoteMethod(methodName, testInput, SignUpTestResult.class);
-        }
 
         try {
             WebFormPage webFormPage = new WebFormPage();

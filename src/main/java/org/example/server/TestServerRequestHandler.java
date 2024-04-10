@@ -2,7 +2,6 @@ package org.example.server;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.data.MethodInput;
 import org.example.utils.RecordUtils;
 
@@ -31,8 +30,7 @@ public class TestServerRequestHandler implements RequestHandler<String, String> 
             return RecordUtils.recordToString(testResult);
         }
         catch (Exception e) {
-            System.out.println(getErrorMessage(e.getMessage()));
-            return getErrorMessage(e.getMessage());
+            return getErrorMessage(getErrorMessage(e.getMessage()));
         }
     }
 

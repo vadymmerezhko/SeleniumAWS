@@ -3,7 +3,8 @@ package org.example;
 import org.example.balancer.LoadBalancer;
 import org.example.data.SignUpTestInput;
 import org.example.data.SignUpTestResult;
-import org.example.server.TestServer;
+import org.example.server.BaseTestServer;
+import org.example.server.TestServerInterface;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -45,7 +46,7 @@ public class BaseTest {
     }
 
     private void signUp(SignUpTestInput testInput) {
-        TestServer testServer = new TestServer();
+        TestServerInterface testServer = BaseTestServer.getTestServer();
         SignUpTestResult testResult = testServer.signUp(testInput);
 
         Assert.assertEquals(testResult.textInput(), testInput.textInput());
