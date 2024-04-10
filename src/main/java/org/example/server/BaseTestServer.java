@@ -1,32 +1,18 @@
 package org.example.server;
 
-import org.example.data.Config;
 import org.example.data.MethodInput;
 import org.example.rmi.RmiClient;
 import org.example.utils.AwsManager;
 import org.example.utils.RecordUtils;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.example.constants.Settings.*;
-import static org.example.constants.TestModes.AWS_LAMBDA;
-import static org.example.constants.TestModes.AWS_RMI;
 
-public class BaseTestServer {
+
+ class BaseTestServer {
 
     BaseTestServer() {}
-
-    private static final AtomicReference<Config> config =
-            new AtomicReference<>(new Config(CONFIG_PROPERTIES_FILE_NAME));
-
-    public static TestServerInterface getTestServer() {
-        return switch (config.get().getTestMode()) {
-            case AWS_LAMBDA -> new LambdaTestServer();
-            case AWS_RMI -> new RmiTestServer();
-            default -> new TestServer();
-        };
-    }
 
     public String invokeMethod(String methodName, String paramClassName, String paramJsonString) {
         try {
