@@ -1,16 +1,12 @@
 package org.example.aws_local;
 
 import org.example.data.Config;
-import org.example.utils.AwsManager;
-import org.example.utils.CommandLineExecutor;
-import org.example.utils.SystemManager;
-import org.example.utils.ZipManager;
+import org.example.utils.*;
 import org.testng.Assert;
 
 import java.text.SimpleDateFormat;
 
-import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
-import static org.example.constants.Settings.TEST_REPORTS_AWS_BUCKET_NAME;
+import static org.example.constants.Settings.*;
 
 public class LocalTestRunner {
     static private final String RUN_TESTS_COMMAND_TEMPLATE =
