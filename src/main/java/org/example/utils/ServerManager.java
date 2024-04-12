@@ -60,7 +60,7 @@ public class ServerManager {
         }
     }
 
-    public static synchronized String createRmiServerPublicIp() {
+    public static synchronized String createRmiServer() {
         if (AWS_RMI_SERVER_INSTANCE_IP == null) {
             try {
                 Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
@@ -123,6 +123,30 @@ public class ServerManager {
     public static void terminateAwsRmiServer() {
         if (AWS_RMI_SERVER_INSTANCE_ID != null) {
             AwsManager.terminateEC2(AwsManager.getEC2Client(), AWS_RMI_SERVER_INSTANCE_ID);
+        }
+    }
+
+    public static synchronized void createLocalRunServerAndRunTests() {
+
+        try {
+            Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
+            String userData = String.format(AWS_LOCAL_SERVER_USER_DATA_TEMPLATE,
+                    config.getTestngFile(),
+                    config.getThreadCount(),
+                    config.getBrowserName(),
+                    config.getBrowserVersion());
+            String encodedUserData = Base64.getEncoder().encodeToString(userData.getBytes());
+            AmazonEC2 ec2 = AwsManager.getEC2Client();
+            String instanceId = AwsManager.runEC2AndEWaitForId(ec2, config.getThreadCount(),
+                    AWS_LOCAL_RUN_IMAGE_ID, SECURITY_KEY_PAIR_NAME, SECURITY_GROUP_NAME, encodedUserData);
+            String publicIp = AwsManager.waitForEC2Ip(ec2, instanceId);
+            System.out.printf("AWS EC2 local test run completed on IP: %s%n", publicIp);
+
+            AwsManager.terminateEC2(ec2, instanceId);
+            System.out.printf("AWS EC2 local test run server terminated: %s%n", publicIp);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

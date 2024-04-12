@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class Config {
+    private static final String TESTNG_FILE_PROP_NAME = "testngFile";
     private static final String TREAD_COUNT_PROP_NAME = "threadCount";
     private static final String TEST_MODE_PROP_NAME = "testMode";
     private static final String BROWSER_PROP_NAME = "browser";
@@ -25,6 +26,10 @@ public class Config {
 
     public Config(String filePath) {
         this.filePath = filePath;
+    }
+
+    synchronized public String getTestngFile() {
+        return getStringProperty(TESTNG_FILE_PROP_NAME);
     }
 
     synchronized public int getThreadCount() {

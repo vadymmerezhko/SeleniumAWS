@@ -11,6 +11,10 @@ public class SystemManager {
         return SystemUtils.IS_OS_WINDOWS;
     }
 
+    public static boolean isLinux() {
+        return SystemUtils.IS_OS_LINUX;
+    }
+
     public static String getPlatform() {
 
         if (SystemUtils.IS_OS_WINDOWS) {

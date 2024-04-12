@@ -1,7 +1,6 @@
 package org.example.utils;
 
 import com.amazonaws.auth.*;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.*;
@@ -10,11 +9,18 @@ import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static org.example.constants.Settings.AWS_REGION;
 
 public class AwsManager {
     static private final int WAIT_EC2_ID_TIMEOUT = 30;
@@ -30,7 +36,7 @@ public class AwsManager {
 
         return AmazonEC2ClientBuilder.standard()
                 .withCredentials(provider)
-                .withRegion(Regions.US_WEST_1)
+                .withRegion(AWS_REGION)
                 .build();
     }
 
@@ -152,7 +158,7 @@ public class AwsManager {
                     BasicAWSCredentials(accessKey, secretKey);
             AWSLambdaClientBuilder builder = AWSLambdaClientBuilder.standard()
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withRegion(Regions.US_WEST_1);
+                    .withRegion(AWS_REGION);
             AWSLambda client = builder.build();
             amsLambdaClientMam.put(threadId, client);
             return client;
@@ -181,5 +187,31 @@ public class AwsManager {
         }
         throw new RuntimeException(
                 "Thread count should be positive and less than 32.\nWrong thread count : " + threadCount);
+    }
+
+    public static void uploadFileToS3(String filePath, String bucketName) {
+        try {
+            File file = new File(filePath);
+            String fileName = file.getName();
+            String accessKey = System.getenv(AWS_ACCESS_KEY_ID);
+            String secretKey = System.getenv(AWS_SECRET_ACCESS_KEY);
+            BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+
+            AmazonS3 s3 = AmazonS3ClientBuilder
+                    .standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                    .withRegion(AWS_REGION)
+                    .build();
+
+            PutObjectRequest request = new PutObjectRequest(bucketName, fileName, file);
+            s3.putObject(request);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Cannot upload file %s to AWS S3 bucket '%s'.\n%s",
+                            filePath,
+                            bucketName,
+                            e.getMessage()));
+        }
     }
 }

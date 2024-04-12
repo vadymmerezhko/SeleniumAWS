@@ -30,7 +30,7 @@ public class RmiClient {
 
         if (!RMI_SERVER_MAP.containsKey(threadId)) {
             try {
-                String serverIP = createRmiServerPublicIp();
+                String serverIP = createRmiServer();
                 String rmiServerName = getRmiServerName();
                 int rmiServerPort = getRmiServerPort();
                 Registry registry = LocateRegistry.getRegistry(serverIP, rmiServerPort);

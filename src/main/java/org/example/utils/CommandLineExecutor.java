@@ -12,9 +12,6 @@ public class CommandLineExecutor {
         if (SystemManager.isWindows()) {
             command = "cmd.exe /c" + command;
         }
-/*        else {
-            command = "/bin/sh -c" + command;
-        }*/
 
         Runtime rt = Runtime.getRuntime();
         Process proc;
@@ -28,14 +25,14 @@ public class CommandLineExecutor {
             // Read the output from the command
             String s;
             while ((s = stdInput.readLine()) != null) {
-                //System.out.println(s);
-                output.append(s);
+                output.append(s).append('\n');
+                System.out.println(s);
             }
 
             // Read any errors from the attempted command
             while ((s = stdError.readLine()) != null) {
-                //System.out.println(s);
-                output.append(s);
+                output.append(s).append('\n');
+                System.out.println(s);
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
