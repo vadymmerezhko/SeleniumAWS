@@ -38,7 +38,10 @@ public class LocalTestRunner {
         String zipFilePath = String.format("%s/%s", TEST_REPORT_ZIP_FOLDER_PATH, zipFileName);
 
         ZipManager.zipFolder(TEST_REPORT_FOLDER_PATH, zipFilePath);
-        AwsManager.uploadFileToS3(zipFilePath, TEST_REPORTS_AWS_BUCKET_NAME);
+        AwsManager.uploadFileToS3(zipFilePath, TEST_REPORTS_AWS_BUCKET_NAME,
+                config.getAccessKey(), config.getSecretKey());
+
+        DockerManager.stopAllContainers();
 
         if (!testOutput.contains(NO_FAILURES)) {
             Assert.fail(testOutput);

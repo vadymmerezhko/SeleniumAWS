@@ -32,7 +32,8 @@ public class Settings {
             "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +
             "cd SeleniumAWS\n" +
             "sudo mvn -f aws-local-pom.xml compile\n" +
-            "sudo mvn -f aws-local-pom.xml exec:java \"-DtestngFile=%s\" " +
+            "sudo mvn -f aws-local-pom.xml exec:java " +
+            "\"-DaccessKey=%s\" \"-DsecretKey=%s\" \"-DtestngFile=%s\" " +
             "\"-DthreadCount=%d\" \"-DtestMode=local_docker\" \"-Dbrowser=%s:%s\"";
 
     public static final String AWS_DEVICE_FARM_BROWSERS_ARM =

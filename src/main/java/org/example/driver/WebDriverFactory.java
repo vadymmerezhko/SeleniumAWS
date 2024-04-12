@@ -111,7 +111,7 @@ public class WebDriverFactory {
                     serverId, threadCount, browserName, browserVersion);
             try {
                 System.out.println("Waiting for AWS EC2 instance...");
-                ServerManager.waitForServer(ec2InstanceIp, REMOTE_WEB_DRIVER_PORT);
+                ServerManager.waitForServerAvailability(ec2InstanceIp, REMOTE_WEB_DRIVER_PORT);
             }
             catch (Exception e) {
                 System.out.println("Wait Selenium Grid timeout expired!");
@@ -353,7 +353,7 @@ public class WebDriverFactory {
             stopSeleniumGridOnDocker();
             System.out.println("Starting Selenium Standalone on Docker.");
             System.out.println(DockerManager.runSeleniumStandalone(browserName, browserVersion, threadCount));
-            ServerManager.waitForServer(LOCALHOST, REMOTE_WEB_DRIVER_PORT);
+            ServerManager.waitForServerAvailability(LOCALHOST, REMOTE_WEB_DRIVER_PORT);
             dockerSeleniumGridStarted = true;
         }
     }

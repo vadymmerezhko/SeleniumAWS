@@ -152,10 +152,8 @@ public class AwsManager {
         long threadId = Thread.currentThread().threadId();
 
         if (!amsLambdaClientMam.containsKey(threadId)) {
-            String accessKey = System.getenv(AWS_ACCESS_KEY_ID);
-            String secretKey = System.getenv(AWS_SECRET_ACCESS_KEY);
             BasicAWSCredentials credentials = new
-                    BasicAWSCredentials(accessKey, secretKey);
+                    BasicAWSCredentials(getAwsAccessKey(), getAwsSecretKey());
             AWSLambdaClientBuilder builder = AWSLambdaClientBuilder.standard()
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
                     .withRegion(AWS_REGION);
@@ -190,11 +188,13 @@ public class AwsManager {
     }
 
     public static void uploadFileToS3(String filePath, String bucketName) {
+        uploadFileToS3(filePath, bucketName, getAwsAccessKey(), getAwsSecretKey());
+    }
+
+    public static void uploadFileToS3(String filePath, String bucketName, String accessKey, String secretKey) {
         try {
             File file = new File(filePath);
             String fileName = file.getName();
-            String accessKey = System.getenv(AWS_ACCESS_KEY_ID);
-            String secretKey = System.getenv(AWS_SECRET_ACCESS_KEY);
             BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
 
             AmazonS3 s3 = AmazonS3ClientBuilder
@@ -213,5 +213,13 @@ public class AwsManager {
                             bucketName,
                             e.getMessage()));
         }
+    }
+
+    public static String getAwsAccessKey() {
+        return System.getenv(AWS_ACCESS_KEY_ID);
+    }
+
+    public static String getAwsSecretKey() {
+        return System.getenv(AWS_SECRET_ACCESS_KEY);
     }
 }

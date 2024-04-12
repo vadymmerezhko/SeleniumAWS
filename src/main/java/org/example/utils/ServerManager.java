@@ -73,7 +73,7 @@ public class ServerManager {
                 AWS_RMI_SERVER_INSTANCE_ID = AwsManager.runEC2AndEWaitForId(ec2, config.getThreadCount(),
                         AWS_RMI_IMAGE_ID, SECURITY_KEY_PAIR_NAME, SECURITY_GROUP_NAME, encodedUserData);
                 AWS_RMI_SERVER_INSTANCE_IP = AwsManager.waitForEC2Ip(ec2, AWS_RMI_SERVER_INSTANCE_ID);
-                waitForServer(AWS_RMI_SERVER_INSTANCE_IP, getRmiServerPort(THREAD_COUNT));
+                waitForServerAvailability(AWS_RMI_SERVER_INSTANCE_IP, getRmiServerPort(THREAD_COUNT));
                 System.out.println("AWS EC2 RMI server is running on IP: " + AWS_RMI_SERVER_INSTANCE_IP);
             }
             catch (Exception e) {
@@ -106,15 +106,29 @@ public class ServerManager {
         return (int)threadId % THREAD_COUNT + 1;
     }
 
-    public static synchronized void waitForServer(String serverIP, int port) {
+    public static synchronized void waitForServerAvailability(String serverIP, int port) {
         TimeOut timeOut = new TimeOut(SERVER_WAIT_TIMEOUT_SECONDS);
         timeOut.start();
-        System.out.printf("Waiting for server %s:%d...%n", serverIP, port);
+        System.out.printf("Waiting for server availability: %s:%d...%n", serverIP, port);
 
         while (true) {
             Waiter.waitSeconds(1);
             if (ServerManager.isAddressReachable(serverIP, port, 15000)) {
-                System.out.printf("Server %s:%d is ready.%n", serverIP, port);
+                System.out.printf("Server %s:%d is available.%n", serverIP, port);
+                break;
+            }
+        }
+    }
+
+    public static synchronized void waitForServerUnavailability(String serverIP, int port) {
+        TimeOut timeOut = new TimeOut(SERVER_WAIT_TIMEOUT_SECONDS);
+        timeOut.start();
+        System.out.printf("Waiting for server unavailability: %s:%d...%n", serverIP, port);
+
+        while (true) {
+            Waiter.waitSeconds(1);
+            if (!ServerManager.isAddressReachable(serverIP, port, 15000)) {
+                System.out.printf("Server %s:%d is unavailable.%n", serverIP, port);
                 break;
             }
         }
@@ -131,6 +145,8 @@ public class ServerManager {
         try {
             Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
             String userData = String.format(AWS_LOCAL_SERVER_USER_DATA_TEMPLATE,
+                    AwsManager.getAwsAccessKey(),
+                    AwsManager.getAwsSecretKey(),
                     config.getTestngFile(),
                     config.getThreadCount(),
                     config.getBrowserName(),
@@ -140,6 +156,9 @@ public class ServerManager {
             String instanceId = AwsManager.runEC2AndEWaitForId(ec2, config.getThreadCount(),
                     AWS_LOCAL_RUN_IMAGE_ID, SECURITY_KEY_PAIR_NAME, SECURITY_GROUP_NAME, encodedUserData);
             String publicIp = AwsManager.waitForEC2Ip(ec2, instanceId);
+
+            ServerManager.waitForServerAvailability(publicIp, REMOTE_WEB_DRIVER_PORT);
+            ServerManager.waitForServerUnavailability(publicIp, REMOTE_WEB_DRIVER_PORT);
             System.out.printf("AWS EC2 local test run completed on IP: %s%n", publicIp);
 
             AwsManager.terminateEC2(ec2, instanceId);
