@@ -11,8 +11,9 @@ import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-
+import com.amazonaws.services.s3.model.S3Object;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -187,22 +188,11 @@ public class AwsManager {
                 "Thread count should be positive and less than 32.\nWrong thread count : " + threadCount);
     }
 
-    public static void uploadFileToS3(String filePath, String bucketName) {
-        uploadFileToS3(filePath, bucketName, getAwsAccessKey(), getAwsSecretKey());
-    }
-
     public static void uploadFileToS3(String filePath, String bucketName, String accessKey, String secretKey) {
         try {
             File file = new File(filePath);
             String fileName = file.getName();
-            BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-
-            AmazonS3 s3 = AmazonS3ClientBuilder
-                    .standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                    .withRegion(AWS_REGION)
-                    .build();
-
+            AmazonS3 s3 = getAwsS3Client(accessKey, secretKey);
             PutObjectRequest request = new PutObjectRequest(bucketName, fileName, file);
             s3.putObject(request);
         }
@@ -215,11 +205,47 @@ public class AwsManager {
         }
     }
 
+    public static String downloadFileFromS3(String fileName, String targetFolderPath,
+                                          String bucketName, String accessKey, String secretKey) {
+        try {
+            AmazonS3 s3 = getAwsS3Client(accessKey, secretKey);
+            GetObjectRequest request = new GetObjectRequest(bucketName, fileName);
+            S3Object s3Object = s3.getObject(request);
+            byte[] data = s3Object.getObjectContent().readAllBytes();
+            String fileContent = new String(data);
+
+            FileManager.createFile(targetFolderPath, fileName, fileContent);
+            File file = new File(String.format("%s/%s", targetFolderPath, fileName));
+            return file.getPath();
+        }
+        catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Cannot download file %s from AWS S3 bucket '%s'.\n%s",
+                            fileName,
+                            bucketName,
+                            e.getMessage()));
+        }
+    }
+
     public static String getAwsAccessKey() {
         return System.getenv(AWS_ACCESS_KEY_ID);
     }
 
     public static String getAwsSecretKey() {
         return System.getenv(AWS_SECRET_ACCESS_KEY);
+    }
+
+    private static AmazonS3 getAwsS3Client(String accessKey, String secretKey) {
+        try {
+            BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+            return AmazonS3ClientBuilder
+                    .standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                    .withRegion(AWS_REGION)
+                    .build();
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

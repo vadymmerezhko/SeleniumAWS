@@ -17,6 +17,7 @@ public class Config {
     private static final String EMULATORS = "emulators";
     private static final String ACCESS_KEY = "accessKey";
     private static final String SECRET_KEY = "secretKey";
+    private static final String START_DATE = "startDate";
     private static final String VALUES_DELIMITER = ":";
 
     private static final Map<String, String> stringPropertyMap = new HashMap<>();
@@ -52,6 +53,10 @@ public class Config {
 
     synchronized public String getSecretKey() {
         return getStringProperty(SECRET_KEY);
+    }
+
+    synchronized public String getStartDate() {
+        return getStringProperty(START_DATE);
     }
 
     synchronized public String getEmulator(int index) {

@@ -7,6 +7,7 @@ import org.example.data.Config;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
 
 import static org.example.constants.Settings.*;
@@ -140,13 +141,16 @@ public class ServerManager {
         }
     }
 
-    public static synchronized void createLocalRunServerAndRunTests() {
-
+    public static synchronized String createLocalRunServerAndRunTests() {
         try {
             Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
+            String startDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new java.util.Date());
+            String accessKey = AwsManager.getAwsAccessKey();
+            String secretKey = AwsManager.getAwsSecretKey();
             String userData = String.format(AWS_LOCAL_SERVER_USER_DATA_TEMPLATE,
-                    AwsManager.getAwsAccessKey(),
-                    AwsManager.getAwsSecretKey(),
+                    accessKey,
+                    secretKey,
+                    startDate,
                     config.getTestngFile(),
                     config.getThreadCount(),
                     config.getBrowserName(),
@@ -163,6 +167,11 @@ public class ServerManager {
 
             AwsManager.terminateEC2(ec2, instanceId);
             System.out.printf("AWS EC2 local test run server terminated: %s%n", publicIp);
+
+            String testLogFileName = String.format(TEST_REPORT_LOG_FILE_NAME_TEMPLATE, startDate);
+            String filePath = AwsManager.downloadFileFromS3(testLogFileName, ".",
+                    TEST_REPORTS_AWS_BUCKET_NAME, accessKey, secretKey);
+            return FileManager.readFile(filePath);
         }
         catch (Exception e) {
             throw new RuntimeException(e);

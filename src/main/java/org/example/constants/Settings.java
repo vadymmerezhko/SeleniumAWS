@@ -33,7 +33,7 @@ public class Settings {
             "cd SeleniumAWS\n" +
             "sudo mvn -f aws-local-pom.xml compile\n" +
             "sudo mvn -f aws-local-pom.xml exec:java " +
-            "\"-DaccessKey=%s\" \"-DsecretKey=%s\" \"-DtestngFile=%s\" " +
+            "\"-DaccessKey=%s\" \"-DsecretKey=%s\" \" -DstartDate=%s\" \"-DtestngFile=%s\" " +
             "\"-DthreadCount=%d\" \"-DtestMode=local_docker\" \"-Dbrowser=%s:%s\"";
 
     public static final String AWS_DEVICE_FARM_BROWSERS_ARM =
@@ -44,4 +44,6 @@ public class Settings {
     public static final String RMI_SERVER_NAME = "RmiTestServer";
     public static final String REQUEST_HANDLER_ERROR_MSG = "Request handler error";
     public static final String CONFIG_PROPERTIES_FILE_NAME = "config.properties";
+    static public final String TEST_REPORT_LOG_FILE_NAME_TEMPLATE = "test-output-%s.log";
+    static public final String NO_FAILURES = "Failures: 0, Errors: 0";
 }
