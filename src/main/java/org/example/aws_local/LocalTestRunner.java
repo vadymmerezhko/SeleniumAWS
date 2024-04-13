@@ -12,7 +12,6 @@ public class LocalTestRunner {
             "\"-DthreadCount=%d\" \"-DtestMode=%s\" \"-Dbrowser=%s:%s\"";
     static private final String TEST_REPORT_FOLDER_PATH = "target/surefire-reports";
     static private final String TARGET_FOLDER_PATH = "target";
-    static private final String TEST_REPORT_ZIP_FILE_NAME_TEMPLATE = "test-report-%s.zip";
 
     public static void main(String[] params) {
         Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);

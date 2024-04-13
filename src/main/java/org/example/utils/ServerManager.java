@@ -144,7 +144,7 @@ public class ServerManager {
     public static synchronized String createLocalRunServerAndRunTests() {
         try {
             Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
-            String startDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new java.util.Date());
+            String startDate = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new java.util.Date());
             String accessKey = AwsManager.getAwsAccessKey();
             String secretKey = AwsManager.getAwsSecretKey();
             String userData = String.format(AWS_LOCAL_SERVER_USER_DATA_TEMPLATE,
