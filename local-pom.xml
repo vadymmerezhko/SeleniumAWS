@@ -166,7 +166,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
-          <mainClass>org.example.aws_local.AwsEc2LocalTestRunner</mainClass>
+          <mainClass>org.example.aws_local.LocalTestRunner</mainClass>
         </configuration>
       </plugin>
       <plugin>

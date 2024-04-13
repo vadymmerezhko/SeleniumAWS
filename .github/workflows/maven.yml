@@ -54,4 +54,7 @@ jobs:
       - name: Test - AWS RMI Docker - Chrome latest
         run: mvn clean test "-DtestSuite=./src/test/resources/testng1.xml" "-DthreadCount=4" "-DtestMode=aws_rmi" "-Dbrowser=chrome:latest"
 
+      - name: Test - AWS Local Docker - Chrome latest
+        run: mvn -f aws-local-pom.xml exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
+
 
