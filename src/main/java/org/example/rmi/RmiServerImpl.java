@@ -65,6 +65,8 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
 
     private static String getCurrentEc2PublicIp() {
         String output = CommandLineExecutor.runCommandLine(GET_EC2_PUBLIC_IP_COMMAND_LINE);
-        return output.substring(0, output.indexOf(" "));
+        return output.substring(0, output.indexOf(" "))
+                .replace("\n", "")
+                .replace(";", "");
     }
 }
