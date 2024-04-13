@@ -49,7 +49,7 @@ public class BaseTest {
         TestServerInterface testServer = TestServerManager.getTestServer();
         SignUpTestResult testResult = testServer.signUp(testInput);
 
-        Assert.assertEquals(testResult.textInput(), testInput.textInput() + "X");
+        Assert.assertEquals(testResult.textInput(), testInput.textInput());
         Assert.assertEquals(testResult.textareaInput(), testInput.textareaInput());
         Assert.assertEquals(testResult.dropdownSelectedOption(), testInput.dropdownSelectedOption());
         Assert.assertEquals(testResult.dataListSelectOption(), testInput.dataListSelectOption());
