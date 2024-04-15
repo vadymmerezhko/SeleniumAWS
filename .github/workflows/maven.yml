@@ -45,7 +45,7 @@ jobs:
       - name: Test - AWS Device Farm - Windows Edge
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=5" "-DtestMode=aws_device_farm" "-Dbrowser=edge:latest"
 
-      - name: Test - AWS EC2 Docker - Linux Chrome
+      - name: Test - AWS Remote Docker - Linux Chrome
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
 
       - name: Test - AWS Lambda - Playwright Firefox
@@ -55,6 +55,6 @@ jobs:
         run: mvn clean test "-DtestSuite=./src/test/resources/testng1.xml" "-DthreadCount=4" "-DtestMode=aws_rmi" "-Dbrowser=chrome:latest"
 
       - name: Test - AWS Local Docker - Chrome latest
-        run: mvn -f aws-local-pom.xml exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
+        run: mvn -f aws-local-pom.xml compile exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
 
 

@@ -1,9 +1,6 @@
 package org.example.driver.playwright;
-import com.deque.html.axecore.playwright.AxeBuilder;
 
-import com.deque.html.axecore.results.AxeResults;
 import com.microsoft.playwright.Browser;
-
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import org.example.driver.by.ByParser;
@@ -11,7 +8,6 @@ import org.example.utils.MethodManager;
 import org.example.utils.ScreenshotManager;
 import org.openqa.selenium.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,6 +16,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
     private Browser browser;
     private PlaywrightPage playwrightPage;
     private Page page;
+    private boolean accessibilityTestEnabled = false;
 
     public PlaywrightDriver(Browser browser) {
         this.browser = browser;
@@ -28,6 +25,14 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
     public PlaywrightDriver(PlaywrightPage playwrightPage) {
         this.playwrightPage = playwrightPage;
         page = playwrightPage.getPage();
+    }
+
+    public void setAccessibilityTestEnabled(boolean enabled) {
+        accessibilityTestEnabled = enabled;
+    }
+
+    public boolean getAccessibilityEnabled() {
+        return accessibilityTestEnabled;
     }
 
     @Override
