@@ -25,7 +25,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     public static void main(String[] args) {
 
         Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
-        System.out.printf("Browser: %s:%s", config.getBrowserName(), config.getBrowserVersion());
+        System.out.printf("Browser: %s:%s%n", config.getBrowserName(), config.getBrowserVersion());
 
         for (int i = 1; i <= THREAD_COUNT; i++) {
             registerRmiServer(i);
@@ -48,6 +48,8 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     private static void registerRmiServer(int index) {
         try {
             String publicIp = getCurrentEc2PublicIp();
+            System.out.printf("RMI server port was detected: %s%n", publicIp);
+
             String rmiServerName = ServerManager.getRmiServerName(index);
             int rmiRegistryPort = ServerManager.getRmiServerPort(index);
             System.setProperty("java.rmi.server.hostname", publicIp);
