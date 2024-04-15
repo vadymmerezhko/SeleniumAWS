@@ -31,8 +31,8 @@ public class Settings {
             "#!/bin/bash\n" +
             "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +
             "cd SeleniumAWS\n" +
-            "sudo mvn -f aws-local-pom.xml compile\n" +
-            "sudo mvn -f aws-local-pom.xml exec:java " +
+            "sudo mvn -f local-pom.xml compile\n" +
+            "sudo mvn -f local-pom.xml exec:java " +
             "\"-DaccessKey=%s\" \"-DsecretKey=%s\" \"-DstartDate=%s\" \"-DtestngFile=%s\" " +
             "\"-DthreadCount=%d\" \"-DtestMode=local_docker\" \"-Dbrowser=%s:%s\"";
 

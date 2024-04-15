@@ -31,7 +31,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         accessibilityTestEnabled = enabled;
     }
 
-    public boolean getAccessibilityEnabled() {
+    public boolean getAccessibilityTestEnabled() {
         return accessibilityTestEnabled;
     }
 
