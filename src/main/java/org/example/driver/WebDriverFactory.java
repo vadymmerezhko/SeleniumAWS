@@ -70,6 +70,8 @@ public class WebDriverFactory {
                         browserName, config.getBrowserVersion()));
                 case LOCAL_APPIUM -> driver = new RobustWebDriver(
                         getAppiumWebDriver(config.getEmulator((int)threadId % threadCount)));
+                case LOCAL_ACCESSIBILITY -> driver = getPlaywrightDriver(
+                        CHROMIUM, config.getHeadless(), true);
                  default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
             }
             driverMap.put(threadId, driver);
@@ -125,10 +127,11 @@ public class WebDriverFactory {
     }
 
     private static WebDriver getPlaywrightDriver(String browserName) {
-        return getPlaywrightDriver(browserName, config.getHeadless());
+        return getPlaywrightDriver(browserName, config.getHeadless(), false);
     }
 
-    private static WebDriver getPlaywrightDriver(String browserName, boolean headless) {
+    private static WebDriver getPlaywrightDriver(
+            String browserName, boolean headless, boolean accessibilityTest) {
         Playwright playwright = Playwright.create();
         BrowserType browserType;
 
@@ -144,7 +147,9 @@ public class WebDriverFactory {
                     new BrowserType.LaunchOptions()
                     .setHeadless(headless)
                     .setSlowMo(0));
-            return new PlaywrightDriver(browser);
+            PlaywrightDriver driver = new PlaywrightDriver(browser);
+            driver.setAccessibilityTestEnabled(accessibilityTest);
+            return driver;
         }
         catch (Exception e) {
             System.out.println(e.getMessage());

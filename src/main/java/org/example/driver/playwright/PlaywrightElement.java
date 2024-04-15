@@ -12,15 +12,18 @@ import java.util.stream.Collectors;
 
 public class PlaywrightElement implements WebElement {
 
+    private final PlaywrightDriver driver;
     private final Locator locator;
 
-    public PlaywrightElement(Locator locator) {
+    public PlaywrightElement(PlaywrightDriver driver, Locator locator) {
+        this.driver = driver;
         this.locator = locator;
     }
 
     @Override
     public void click() {
         locator.click();
+        driver.checkAccessibility();
     }
 
     public void selectOptionByText(String option) {
@@ -99,7 +102,9 @@ public class PlaywrightElement implements WebElement {
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return childLocators.stream().map(PlaywrightElement::new).collect(Collectors.toList());
+        return childLocators.stream()
+                .map(locator -> new PlaywrightElement(driver, locator))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -107,7 +112,7 @@ public class PlaywrightElement implements WebElement {
         String locatorString = ByParser.getLocatorString(by);
         try {
             Locator childLocator = locator.locator(locatorString);
-            return new PlaywrightElement(childLocator);
+            return new PlaywrightElement(driver, childLocator);
         }
         catch (Exception e) {
             throw new RuntimeException(e);

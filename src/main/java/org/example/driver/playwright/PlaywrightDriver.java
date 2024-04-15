@@ -1,5 +1,7 @@
 package org.example.driver.playwright;
 
+import com.deque.html.axecore.playwright.AxeBuilder;
+import com.deque.html.axecore.results.AxeResults;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -18,6 +20,10 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
     private Page page;
     private boolean accessibilityTestEnabled = false;
 
+    public void setAccessibilityTestEnabled(boolean enabled) {
+        accessibilityTestEnabled = enabled;
+    }
+
     public PlaywrightDriver(Browser browser) {
         this.browser = browser;
     }
@@ -27,12 +33,14 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         page = playwrightPage.getPage();
     }
 
-    public void setAccessibilityTestEnabled(boolean enabled) {
-        accessibilityTestEnabled = enabled;
-    }
-
-    public boolean getAccessibilityTestEnabled() {
-        return accessibilityTestEnabled;
+    public void checkAccessibility() {
+        if (accessibilityTestEnabled) {
+            // Verify page accessibility.
+            AxeResults accessibilityScanResults = new AxeBuilder(page).analyze();
+            if (!accessibilityScanResults.getViolations().isEmpty()) {
+                throw new RuntimeException("Accessibility issues:\n" + accessibilityScanResults.getViolations());
+            }
+        }
     }
 
     @Override
@@ -42,12 +50,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         }
         page.navigate(url);
         page.waitForLoadState();
-
-        //Verify page accessibility
-        /*AxeResults accessibilityScanResults = new AxeBuilder(page).analyze();
-        if (!accessibilityScanResults.getViolations().isEmpty()) {
-            throw new RuntimeException("Accessibility issues:\n" + accessibilityScanResults.getViolations());
-        }*/
+        checkAccessibility();
     }
 
     @Override
@@ -70,7 +73,9 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return locators.stream().map(PlaywrightElement::new).collect(Collectors.toList());
+        return locators.stream()
+                .map(locator -> new PlaywrightElement(this, locator))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -78,7 +83,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         String locatorString = ByParser.getLocatorString(by);
         try {
             Locator locator = page.locator(locatorString);
-            return new PlaywrightElement(locator);
+            return new PlaywrightElement(this, locator);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
