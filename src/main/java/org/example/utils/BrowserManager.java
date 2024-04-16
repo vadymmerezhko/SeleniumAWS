@@ -1,5 +1,6 @@
 package org.example.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.json.JSONObject;
 
@@ -7,6 +8,7 @@ import java.io.File;
 
 import static org.example.constants.Browsers.*;
 
+@Slf4j
 public class BrowserManager {
 
     private BrowserManager() {}
@@ -27,7 +29,7 @@ public class BrowserManager {
             String browserBinaryFilePath = getBrowserBinaryFilePath(browserName, browserFolderPath, zipFileName);
 
             if (!new File(browserBinaryFilePath).exists()) {
-                System.out.printf("Downloading %s:%s browser binary files...%n", browserName, browserVersion);
+                log.info("Downloading {}:{} browser binary files...", browserName, browserVersion);
                 createDownloadBinFolder();
                 FileManager.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
                 WebDownloadManager.download(downloadUrl, DOWNLOAD_BROWSER_ZIP_FILE_PATH);
@@ -51,7 +53,7 @@ public class BrowserManager {
             String webDriverBinaryFilePath = getWebDriversBinaryPath(browserName, webDriverFolderPath, zipFileName);
 
             if (!new File(webDriverBinaryFilePath).exists()) {
-                System.out.printf("Downloading %s:%s WebDriver binary file...%n", browserName, browserVersion);
+                log.info("Downloading {}:{} WebDriver binary file...", browserName, browserVersion);
                 createDownloadBinFolder();
                 FileManager.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
                 WebDownloadManager.download(downloadUrl, DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);

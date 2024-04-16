@@ -1,5 +1,6 @@
 package org.example.driver.robust;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.driver.waiter.RobustWebDriverWaiter;
 import org.example.utils.Waiter;
 import org.openqa.selenium.*;
@@ -7,6 +8,7 @@ import org.openqa.selenium.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class RobustWebElement implements WebElement {
     private static final int WAIT_FOR_ELEMENT_TIMEOUT_SEC = 15;
     private static final int RETRY_WAIT_MILLI_SEC = 100;
@@ -310,7 +312,7 @@ public class RobustWebElement implements WebElement {
             parent.fixClickableWebElement();
             element = parent.findElement(by);
         }
-        //System.out.println("Element fixed: " + by.toString());
+        log.debug("Element fixed: {}", by.toString());
     }
 
     private void fixVisibleWebElement() {

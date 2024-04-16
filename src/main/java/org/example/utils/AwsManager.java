@@ -14,6 +14,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static org.example.constants.Settings.AWS_REGION;
 
+@Slf4j
 public class AwsManager {
     static private final int WAIT_EC2_ID_TIMEOUT = 30;
     static private final int WAIT_EC2_PUBLIC_IP_TIMEOUT = 30;
@@ -126,7 +128,7 @@ public class AwsManager {
                     if (tryCount == AWS_LAMBDA_RETRY_COUNT) {
                         throw e;
                     }
-                    System.out.printf("Retry %d for thread id %d%n", tryCount, Thread.currentThread().threadId());
+                    log.info("Retry {} for thread id {}", tryCount, Thread.currentThread().threadId());
                     tryCount++;
                 }
             }

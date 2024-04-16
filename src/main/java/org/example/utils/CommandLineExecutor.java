@@ -35,7 +35,6 @@ public class CommandLineExecutor {
                 System.out.println(s);
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
             throw new RuntimeException(e);
         }
         return output.toString();

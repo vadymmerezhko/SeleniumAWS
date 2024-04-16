@@ -62,7 +62,5 @@ public class BaseTest {
         Assert.assertEquals(testResult.color(), testInput.color());
         Assert.assertEquals(testResult.date(), testInput.date());
         Assert.assertEquals(testResult.range(), testInput.range());
-
-        System.out.println("Test passed for Thread: " + Thread.currentThread().threadId());
     }
 }
