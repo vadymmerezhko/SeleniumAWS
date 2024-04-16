@@ -169,9 +169,11 @@ public class ServerManager {
             System.out.printf("AWS EC2 local test run server terminated: %s%n", publicIp);
 
             String testLogFileName = String.format(TEST_REPORT_LOG_FILE_NAME_TEMPLATE, startDate);
-            String filePath = AwsManager.downloadFileFromS3(testLogFileName, ".",
+            String logFilePath = AwsManager.downloadFileFromS3(testLogFileName, ".",
                     TEST_REPORTS_AWS_BUCKET_NAME, accessKey, secretKey);
-            return FileManager.readFile(filePath);
+            String testOutput = FileManager.readFile(logFilePath);
+            FileManager.deleteFile(logFilePath);
+            return testOutput;
         }
         catch (Exception e) {
             throw new RuntimeException(e);
