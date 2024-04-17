@@ -1,6 +1,5 @@
 package org.example.server;
 
-import lombok.extern.slf4j.Slf4j;
 import org.example.data.MethodInput;
 import org.example.rmi.RmiClient;
 import org.example.utils.AwsManager;
@@ -10,7 +9,6 @@ import java.lang.reflect.Method;
 
 import static org.example.constants.Settings.*;
 
-@Slf4j
  class BaseTestServer {
 
     BaseTestServer() {}
@@ -31,7 +29,7 @@ import static org.example.constants.Settings.*;
     protected Object invokeRemoteMethod(String methodName, Object testInput, Class<?> testOutputClass) {
         String testOutputString = RmiClient.invokeMethod(testInputToMethodInputString(methodName, testInput));
         checkRequestHandlerError(testOutputString);
-        log.debug("Output Json:\n{}", testOutputString);
+        System.out.println("Output Json:\n" + testOutputString);
         return RecordUtils.stringToRecord(testOutputString, testOutputClass);
     }
 
