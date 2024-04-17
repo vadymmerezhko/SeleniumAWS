@@ -1,6 +1,5 @@
 package org.example.rmi;
 
-import lombok.extern.slf4j.Slf4j;
 import org.example.data.Config;
 import org.example.server.TestServerRequestHandler;
 import org.example.utils.CommandLineExecutor;
@@ -14,7 +13,6 @@ import java.rmi.server.UnicastRemoteObject;
 
 import static org.example.constants.Settings.*;
 
-@Slf4j
 public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     private static final String GET_EC2_PUBLIC_IP_COMMAND_LINE =
             "sudo curl http://169.254.169.254/latest/meta-data/public-ipv4";
@@ -38,8 +36,8 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     @Override
     public String invokeTestServerMethod(String methodInput) throws RemoteException {
             long threadId = Thread.currentThread().threadId();
-            log.info("RMI server process id: {}", ProcessHandle.current().pid());
-            log.info("RMI server thread id: {}", threadId);
+            System.out.printf("RMI server process id: %d%n", ProcessHandle.current().pid());
+            System.out.printf("RMI server thread id: %d%n", threadId);
             TestServerRequestHandler requestHandler = new TestServerRequestHandler();
             return requestHandler.handleRequest(methodInput, null);
     }
@@ -47,7 +45,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     private static void registerRmiServer(int index) {
         try {
             String publicIp = getCurrentEc2PublicIp();
-            log.info("RMI server port was detected: {}", publicIp);
+            System.out.printf("RMI server port was detected: %s%n", publicIp);
 
             String rmiServerName = ServerManager.getRmiServerName(index);
             int rmiRegistryPort = ServerManager.getRmiServerPort(index);
@@ -56,7 +54,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
             Registry registry = LocateRegistry.createRegistry(rmiRegistryPort);
             registry.rebind(rmiServerName, server);
 
-            log.info("RMI Test Server {} has been registered: {}:{}",
+            System.out.printf("RMI Test Server %s has been registered: %s:%s%n",
                     rmiServerName, publicIp, rmiRegistryPort);
         }
         catch (Exception e) {

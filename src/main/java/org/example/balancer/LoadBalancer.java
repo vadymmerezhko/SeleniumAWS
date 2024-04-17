@@ -1,6 +1,5 @@
 package org.example.balancer;
 
-import lombok.extern.slf4j.Slf4j;
 import org.example.constants.Settings;
 import org.example.utils.ServerManager;
 
@@ -11,7 +10,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.example.constants.Settings.AWS_EC2_USER_DATA_TEMPLATE;
 
-@Slf4j
 public class LoadBalancer {
 
     private final AtomicLong maxServersCount = new AtomicLong(0);
@@ -78,7 +76,7 @@ public class LoadBalancer {
                         Settings.SECURITY_GROUP_NAME,
                         encodedUserData);
             } catch (Exception e) {
-                log.error("Cannot create all servers:\n{}", e.getMessage());
+                System.out.printf("Cannot create all servers:%n%s%n", e.getMessage());
                 System.exit(-1);
             }
         }
