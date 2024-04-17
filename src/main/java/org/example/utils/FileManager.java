@@ -1,5 +1,6 @@
 package org.example.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -7,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Slf4j
 public class FileManager {
 
     public static synchronized void createFile(String folderPath, String fileName, String fileContent) {
@@ -36,7 +38,7 @@ public class FileManager {
 
         if (file.exists()) {
             if (file.delete()) {
-                System.out.println("Deleted the file: " + filePath);
+                log.info("Deleted the file: {}", filePath);
             } else {
                 throw new RuntimeException("Cannot delete file: " + filePath);
             }
@@ -47,16 +49,16 @@ public class FileManager {
         File directory = new File(dirPath);
         try {
             FileUtils.deleteDirectory(directory);
-            System.out.println("Deleted the directory: " + dirPath);
+            log.info("Deleted the directory: {}", dirPath);
         }
         catch (IOException e) {
-            throw new RuntimeException(String.format("Cannot delete directory %s\n%s" , dirPath, e.getMessage()));
+            throw new RuntimeException(String.format(
+                    "Cannot delete directory %s\n%s" , dirPath, e.getMessage()));
         }
     }
 
     public static synchronized void moveFile(String fromPath, String toPath) {
         try {
-            //Files.move(Paths.get(fromPath), Paths.get(toPath));
             FileUtils.moveFile(FileUtils.getFile(fromPath), FileUtils.getFile(toPath));
         }
         catch (Exception e) {

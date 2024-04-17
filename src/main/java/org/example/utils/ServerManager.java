@@ -1,6 +1,7 @@
 package org.example.utils;
 
 import com.amazonaws.services.ec2.AmazonEC2;
+import lombok.extern.slf4j.Slf4j;
 import org.example.balancer.LoadBalancer;
 import org.example.data.Config;
 
@@ -12,6 +13,7 @@ import java.util.Base64;
 
 import static org.example.constants.Settings.*;
 
+@Slf4j
 public class ServerManager {
     private static String AWS_RMI_SERVER_INSTANCE_ID;
     private static String AWS_RMI_SERVER_INSTANCE_IP;
@@ -75,7 +77,7 @@ public class ServerManager {
                         AWS_RMI_IMAGE_ID, SECURITY_KEY_PAIR_NAME, SECURITY_GROUP_NAME, encodedUserData);
                 AWS_RMI_SERVER_INSTANCE_IP = AwsManager.waitForEC2Ip(ec2, AWS_RMI_SERVER_INSTANCE_ID);
                 waitForServerAvailability(AWS_RMI_SERVER_INSTANCE_IP, getRmiServerPort(THREAD_COUNT));
-                System.out.println("AWS EC2 RMI server is running on IP: " + AWS_RMI_SERVER_INSTANCE_IP);
+                log.info("AWS EC2 RMI server is running on IP: {}", AWS_RMI_SERVER_INSTANCE_IP);
             }
             catch (Exception e) {
                 terminateAwsRmiServer();
@@ -110,12 +112,12 @@ public class ServerManager {
     public static synchronized void waitForServerAvailability(String serverIP, int port) {
         TimeOut timeOut = new TimeOut(SERVER_WAIT_TIMEOUT_SECONDS);
         timeOut.start();
-        System.out.printf("Waiting for server availability: %s:%d...%n", serverIP, port);
+        log.info("Waiting for server availability: {}:{}...", serverIP, port);
 
         while (true) {
             Waiter.waitSeconds(1);
             if (ServerManager.isAddressReachable(serverIP, port, 15000)) {
-                System.out.printf("Server %s:%d is available.%n", serverIP, port);
+                log.info("Server {}:{} is available.", serverIP, port);
                 break;
             }
         }
@@ -124,12 +126,12 @@ public class ServerManager {
     public static synchronized void waitForServerUnavailability(String serverIP, int port) {
         TimeOut timeOut = new TimeOut(SERVER_WAIT_TIMEOUT_SECONDS);
         timeOut.start();
-        System.out.printf("Waiting for server unavailability: %s:%d...%n", serverIP, port);
+        log.info("Waiting for server unavailability: %{}:{}...", serverIP, port);
 
         while (true) {
             Waiter.waitSeconds(1);
             if (!ServerManager.isAddressReachable(serverIP, port, 15000)) {
-                System.out.printf("Server %s:%d is unavailable.%n", serverIP, port);
+                log.info("Server {}:{} is unavailable.", serverIP, port);
                 break;
             }
         }
@@ -163,10 +165,10 @@ public class ServerManager {
 
             ServerManager.waitForServerAvailability(publicIp, REMOTE_WEB_DRIVER_PORT);
             ServerManager.waitForServerUnavailability(publicIp, REMOTE_WEB_DRIVER_PORT);
-            System.out.printf("AWS EC2 local test run completed on IP: %s%n", publicIp);
+            log.info("AWS EC2 local test run completed on IP: {}", publicIp);
 
             AwsManager.terminateEC2(ec2, instanceId);
-            System.out.printf("AWS EC2 local test run server terminated: %s%n", publicIp);
+            log.info("AWS EC2 local test run server terminated: {}", publicIp);
 
             String testLogFileName = String.format(TEST_REPORT_LOG_FILE_NAME_TEMPLATE, startDate);
             String logFilePath = AwsManager.downloadFileFromS3(testLogFileName, ".",

@@ -20,7 +20,6 @@ public class RmiClient {
             return ConverterUtils.convertRemoteOutputToJsonString(methodOutput);
         }
         catch (Exception e) {
-            System.out.println("RMI Exception: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }

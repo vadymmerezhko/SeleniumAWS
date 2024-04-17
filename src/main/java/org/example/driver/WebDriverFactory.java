@@ -5,6 +5,7 @@ import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Playwright;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
+import lombok.extern.slf4j.Slf4j;
 import org.example.balancer.LoadBalancer;
 import org.example.data.Config;
 import org.example.driver.robust.RobustWebDriver;
@@ -38,6 +39,7 @@ import static org.example.constants.Browsers.*;
 import static org.example.constants.Settings.*;
 import static org.example.constants.TestModes.*;
 
+@Slf4j
 public class WebDriverFactory {
     static private final String SELENIUM_GRID_URL_TEMPLATE = "http://%S:4444";
     static private final String LOCALHOST = "localhost";
@@ -112,11 +114,11 @@ public class WebDriverFactory {
             String ec2InstanceIp = loadBalancer.getServerPublicIp(
                     serverId, threadCount, browserName, browserVersion);
             try {
-                System.out.println("Waiting for AWS EC2 instance...");
+                log.info("Waiting for AWS EC2 instance...");
                 ServerManager.waitForServerAvailability(ec2InstanceIp, REMOTE_WEB_DRIVER_PORT);
             }
             catch (Exception e) {
-                System.out.println("Wait Selenium Grid timeout expired!");
+                log.info("Wait Selenium Grid timeout expired!");
                 loadBalancer.lockSever(serverId);
                 return getDriver();
             }
@@ -152,7 +154,6 @@ public class WebDriverFactory {
             return driver;
         }
         catch (Exception e) {
-            System.out.println(e.getMessage());
             throw new RuntimeException("Playwright driver exception:\n" + e.getMessage());
         }
     }
@@ -197,7 +198,7 @@ public class WebDriverFactory {
         capabilities.setCapability("browserVersion", browserVersion);
 
         try {
-            System.out.println("Waiting for AWS Device Farm browser:  " + browserName);
+            log.info("Waiting for AWS Device Farm browser: {}", browserName);
             DeviceFarmClient client = DeviceFarmClient.builder().region(Region.US_WEST_2).build();
             CreateTestGridUrlRequest request = CreateTestGridUrlRequest.builder()
                     .expiresInSeconds(AWS_URL_EXPIRES_SECONDS)
@@ -209,7 +210,7 @@ public class WebDriverFactory {
             driver = new RemoteWebDriver(testGridUrl, capabilities);
         }
         catch (Exception e) {
-            System.out.println("AWS Device Farm exception:\n" + e.getMessage());
+            log.error("AWS Device Farm exception:\n{}", e.getMessage());
             WebDriverFactory.closeAllDrivers();
             ServerManager.terminateAllSeleniumServers();
             System.exit(-1);
@@ -228,7 +229,7 @@ public class WebDriverFactory {
 
             URL appiumServiceUrl = AppiumManager.startAppiumServer(config.getThreadCount());
 
-            System.out.println("Starting emulator...");
+            log.info("Starting emulator...");
             UiAutomator2Options options = new UiAutomator2Options();
             options.setPlatformName(platformName);
             options.setPlatformVersion(platformVersion);
@@ -337,7 +338,7 @@ public class WebDriverFactory {
             }
         }
         catch (Exception e) {
-            System.out.println("Ca not close all drivers:\n" + e.getMessage());
+            log.error("Cannot close all drivers:\n{}", e.getMessage());
         }
 
         if (config.getTestMode().equals(LOCAL_APPIUM)) {
@@ -356,17 +357,17 @@ public class WebDriverFactory {
 
         if (!dockerSeleniumGridStarted) {
             stopSeleniumGridOnDocker();
-            System.out.println("Starting Selenium Standalone on Docker.");
-            System.out.println(DockerManager.runSeleniumStandalone(browserName, browserVersion, threadCount));
+            log.info("Starting Selenium Standalone on Docker.");
+            log.debug(DockerManager.runSeleniumStandalone(browserName, browserVersion, threadCount));
             ServerManager.waitForServerAvailability(LOCALHOST, REMOTE_WEB_DRIVER_PORT);
             dockerSeleniumGridStarted = true;
         }
     }
 
     synchronized private static void stopSeleniumGridOnDocker() {
-        System.out.println("Stopping Selenium Grid on Docker.");
-        System.out.println(DockerManager.stopAllContainers());
-        System.out.println(DockerManager.removeAllContainers());
+        log.info("Stopping Selenium Grid on Docker...");
+        log.debug(DockerManager.stopAllContainers());
+        log.debug(DockerManager.removeAllContainers());
         dockerSeleniumGridStarted = false;
     }
 }

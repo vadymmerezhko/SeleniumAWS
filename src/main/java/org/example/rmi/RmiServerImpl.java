@@ -1,5 +1,6 @@
 package org.example.rmi;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.data.Config;
 import org.example.server.TestServerRequestHandler;
 import org.example.utils.CommandLineExecutor;
@@ -13,6 +14,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 import static org.example.constants.Settings.*;
 
+@Slf4j
 public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     private static final String GET_EC2_PUBLIC_IP_COMMAND_LINE =
             "sudo curl http://169.254.169.254/latest/meta-data/public-ipv4";
@@ -23,9 +25,6 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     }
 
     public static void main(String[] args) {
-
-        Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
-        System.out.printf("Browser: %s:%s%n", config.getBrowserName(), config.getBrowserVersion());
 
         for (int i = 1; i <= THREAD_COUNT; i++) {
             registerRmiServer(i);
@@ -39,8 +38,8 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     @Override
     public String invokeTestServerMethod(String methodInput) throws RemoteException {
             long threadId = Thread.currentThread().threadId();
-            System.out.println("RMI server process id: " + ProcessHandle.current().pid());
-            System.out.println("RMI server thread id: " + threadId);
+            log.info("RMI server process id: {}", ProcessHandle.current().pid());
+            log.info("RMI server thread id: {}", threadId);
             TestServerRequestHandler requestHandler = new TestServerRequestHandler();
             return requestHandler.handleRequest(methodInput, null);
     }
@@ -48,7 +47,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     private static void registerRmiServer(int index) {
         try {
             String publicIp = getCurrentEc2PublicIp();
-            System.out.printf("RMI server port was detected: %s%n", publicIp);
+            log.info("RMI server port was detected: {}", publicIp);
 
             String rmiServerName = ServerManager.getRmiServerName(index);
             int rmiRegistryPort = ServerManager.getRmiServerPort(index);
@@ -57,7 +56,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
             Registry registry = LocateRegistry.createRegistry(rmiRegistryPort);
             registry.rebind(rmiServerName, server);
 
-            System.out.printf("RMI Test Server %s has been registered: %s:%d %n",
+            log.info("RMI Test Server {} has been registered: {}:{}",
                     rmiServerName, publicIp, rmiRegistryPort);
         }
         catch (Exception e) {
