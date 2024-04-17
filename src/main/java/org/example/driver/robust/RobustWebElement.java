@@ -310,7 +310,6 @@ public class RobustWebElement implements WebElement {
             parent.fixClickableWebElement();
             element = parent.findElement(by);
         }
-        //System.out.println("Element fixed: " + by.toString());
     }
 
     private void fixVisibleWebElement() {
