@@ -7,6 +7,7 @@ import java.rmi.registry.Registry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
 import static org.example.utils.ServerManager.*;
 
 public class RmiClient {
@@ -17,6 +18,10 @@ public class RmiClient {
     public static String invokeMethod(String methodInput) {
         try {
             String methodOutput = getRmiServer().invokeTestServerMethod(methodInput);
+
+            if (methodInput.contains(REQUEST_HANDLER_ERROR_MSG)) {
+                return methodOutput;
+            }
             return ConverterUtils.convertRemoteOutputToJsonString(methodOutput);
         }
         catch (Exception e) {
