@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.example.constants.Settings.AWS_REGION;
+import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
 
 public class AwsManager {
     static private final int WAIT_EC2_ID_TIMEOUT = 30;
@@ -141,6 +142,9 @@ public class AwsManager {
             }
 
             String lambdaOutputJsonString = new String(result.getPayload().array());
+            if (lambdaOutputJsonString.contains(REQUEST_HANDLER_ERROR_MSG)) {
+                return lambdaOutputJsonString;
+            }
             return ConverterUtils.convertRemoteOutputToJsonString(
                     ConverterUtils.convertRemoteOutputToJsonString(lambdaOutputJsonString));
         }
