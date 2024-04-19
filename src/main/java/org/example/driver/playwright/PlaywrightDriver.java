@@ -102,8 +102,10 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
 
     @Override
     public void quit() {
-        browser.close();
-        browser = null;
+        if (browser != null) {
+            browser.close();
+            browser = null;
+        }
     }
 
     @Override

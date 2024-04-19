@@ -3,14 +3,12 @@ package org.example.driver.robust;
 import org.example.driver.waiter.RobustWebDriverWaiter;
 import org.openqa.selenium.*;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScreenshot {
     private static final int PAGE_LOAD_TIMEOUT_SEC = 15;
-    private static final int FIND_ELEMENT_TIMEOUT_SEC = 5;
 
     private final WebDriver driver;
     private final RobustWebDriverWaiter waiter;
@@ -18,10 +16,6 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
     public RobustWebDriver(WebDriver driver) {
         this.driver = driver;
         waiter = new RobustWebDriverWaiter(driver);
-    }
-
-    public WebDriver getNativeDriver() {
-        return driver;
     }
 
     @Override
@@ -75,7 +69,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
 
     @Override
     public void quit() {
-        driver.quit();
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @Override
@@ -115,6 +111,6 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
 
     @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
-        return (X)((TakesScreenshot)driver).getScreenshotAs(target);
+        return ((TakesScreenshot)driver).getScreenshotAs(target);
     }
 }
