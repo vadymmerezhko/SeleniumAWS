@@ -33,9 +33,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # TODO: Uncomment when Maven exec plugin vulnerability is fixed.
-      #- name: Test - AWS Local Docker - Chrome latest
-      #  run: mvn -f aws-local-pom.xml clean compile exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
+      - name: Test - AWS Local Docker - Chrome latest
+        run: mvn -f aws-local-pom.xml clean compile exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
 
       - name: Test - Local Docker - Linux Firefox
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker" "-Dbrowser=firefox:latest"
