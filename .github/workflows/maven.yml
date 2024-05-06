@@ -56,8 +56,9 @@ jobs:
       #- name: Test - AWS Lambda - Playwright Firefox
       #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=aws_lambda"
 
-      - name: Test - AWS RMI Docker - Chrome latest
-        run: mvn clean test "-DtestSuite=./src/test/resources/testng1.xml" "-DthreadCount=4" "-DtestMode=aws_rmi" "-Dbrowser=chrome:latest"
+      # TODO: Uncomment when Maven exec plugin vulnerability is fixed.
+      #- name: Test - AWS RMI Docker - Chrome latest
+      #  run: mvn clean test "-DtestSuite=./src/test/resources/testng1.xml" "-DthreadCount=4" "-DtestMode=aws_rmi" "-Dbrowser=chrome:latest"
 
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_accessibility"
