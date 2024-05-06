@@ -33,8 +33,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Test - AWS Local Docker - Chrome latest
-        run: mvn -f aws-local-pom.xml clean compile exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
+      # TODO: Uncomment when Maven exec plugin vulnerability is fixed.
+      #- name: Test - AWS Local Docker - Chrome latest
+      #  run: mvn -f aws-local-pom.xml clean compile exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
 
       - name: Test - Local Docker - Linux Firefox
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker" "-Dbrowser=firefox:latest"
@@ -51,8 +52,9 @@ jobs:
       - name: Test - AWS Remote Docker - Linux Chrome
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
 
-      - name: Test - AWS Lambda - Playwright Firefox
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=aws_lambda"
+      # TODO: Uncomment when Maven exec plugin vulnerability is fixed.
+      #- name: Test - AWS Lambda - Playwright Firefox
+      #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=aws_lambda"
 
       - name: Test - AWS RMI Docker - Chrome latest
         run: mvn clean test "-DtestSuite=./src/test/resources/testng1.xml" "-DthreadCount=4" "-DtestMode=aws_rmi" "-Dbrowser=chrome:latest"
