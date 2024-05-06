@@ -14,6 +14,7 @@
 
   <build>
     <plugins>
+<!--  TODO: Uncomment when Maven exec plugin vulnerability is fixed.
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
@@ -21,7 +22,7 @@
         <configuration>
           <mainClass>org.example.aws_local.LocalTestRunner</mainClass>
         </configuration>
-      </plugin>
+      </plugin>-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
