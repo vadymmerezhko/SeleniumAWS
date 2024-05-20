@@ -16,47 +16,6 @@ Test mode:
 ```bash
 -DtestMode=<test mode>
 ```
-Test modes:
-- Local:
-```bash
--DtestMode=local
-```
-- Local Docker:
-```bash
--DtestMode=local_docker
-```
-- Local Playwright:
-```bash
--DtestMode=local_playwright
-```
-- Local Playwright accessibility:
-```bash
--DtestMode=local_accessibility
-```
-- AWS Docker:
-```bash
--DtestMode=aws_docker
-```
-- AWS Device farm:
-```bash
--DtestMode=aws_device_farm
-```
-- Remote (Selenium Grid):
-```bash
--DtestMode=remote
-```
-- Local Appium:
-```bash
--DtestMode=local_appium";
-```
-- AWS Lambda:
-```bash
--DtestMode=aws_lambda
-```
-- AWS RMI:
-```bash
--DtestMode=aws_rmi
-```
 Browser name:
 ```bash
 -Dbrowser=<browser name>
@@ -65,66 +24,107 @@ Browser name and version:
 ```bash
 -Dbrowser=<browser name>:<browser version>
 ```
-Browser names:
-- Local mode Chrome stable:
-```bash
--Dbrowser=chrome:stable
-```
-- Local mode Chrome beta:
-```bash
--Dbrowser=chrome:beta
-```
-- Local mode Chrome canary:
-```bash
--Dbrowser=chrome:canary
-```
-- Local Docker mode Chrome latest:
-```bash
--Dbrowser=chrome:latest
-```
-- Local Docker mode Chrome 112:
-```bash
--Dbrowser=chrome:112.0
-```
-- Local mode Firefox stable:
-```bash
--Dbrowser=firefox:stable
-```
-- Local Docker mode Firefox latest:
-```bash
--Dbrowser=chrome:latest
-```
-- Local mode Edge stable:
-```bash
--Dbrowser=firefox:stable
-```
-- Local Playwright mode Firefox:
-```bash
--Dbrowser=firefox
-```
-- Local Playwright mode Chromium:
-```bash
--Dbrowser=firefox:chromium
-```
-- Local Playwright mode WebKit (Safari):
-```bash
--Dbrowser=firefox:webkit
-```
-- Headless:
+Headless:
 ```bash
 -Dheadless=true
 ```
-- Non-headless:
+Non-headless:
 ```bash
 -Dheadless=false
 ```
-- Remote host:
+Remote host:
 ```bash
 -DremoteHost=<remote host URL>
 ```
-- Remote host example:
+Remote host example:
 ```bash
 -DremoteHost=http://localhost:4444
+```
+### Test modes
+Local:
+```bash
+-DtestMode=local
+```
+Local Docker:
+```bash
+-DtestMode=local_docker
+```
+Local Playwright:
+```bash
+-DtestMode=local_playwright
+```
+Local Playwright accessibility:
+```bash
+-DtestMode=local_accessibility
+```
+AWS Docker:
+```bash
+-DtestMode=aws_docker
+```
+AWS Device farm:
+```bash
+-DtestMode=aws_device_farm
+```
+Remote (Selenium Grid):
+```bash
+-DtestMode=remote
+```
+Local Appium:
+```bash
+-DtestMode=local_appium";
+```
+AWS Lambda:
+```bash
+-DtestMode=aws_lambda
+```
+AWS RMI:
+```bash
+-DtestMode=aws_rmi
+```
+#### Browser names:
+Local mode Chrome stable:
+```bash
+-Dbrowser=chrome:stable
+```
+Local mode Chrome beta:
+```bash
+-Dbrowser=chrome:beta
+```
+Local mode Chrome canary:
+```bash
+-Dbrowser=chrome:canary
+```
+Local Docker mode Chrome latest:
+```bash
+-Dbrowser=chrome:latest
+```
+Local Docker mode Chrome 112:
+```bash
+-Dbrowser=chrome:112.0
+```
+Local mode Firefox stable:
+```bash
+-Dbrowser=firefox:stable
+```
+Local Docker mode Firefox latest:
+```bash
+-Dbrowser=chrome:latest
+```
+Local mode Edge stable:
+```bash
+-Dbrowser=firefox:stable
+```
+Local Playwright mode Firefox:
+```bash
+-Dbrowser=firefox
+```
+Local Playwright mode Chromium:
+```bash
+-Dbrowser=firefox:chromium
+```
+Local Playwright mode WebKit (Safari):
+```bash
+-Dbrowser=firefox:webkit
 ```
 ### Test Run Command Lines
 #### Local Run - Chrome stable
