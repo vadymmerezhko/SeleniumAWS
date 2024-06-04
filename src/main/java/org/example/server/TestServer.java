@@ -7,14 +7,25 @@ import org.example.page.WebFormPage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Test server implementation class.
+ */
 public class TestServer extends BaseTestServer implements TestServerInterface {
     static private final ConcurrentMap<Long, Boolean> threadMap = new ConcurrentHashMap<>();
 
+    /**
+     * Test server implementation constructor.
+     */
     TestServer() {
         threadMap.put(Thread.currentThread().threadId(), true);
         System.out.println("Thread count: " + threadMap.size());
     }
 
+    /**
+     * Sign up test method implementation with JSON input and output string.
+     * @param testInput The JSON input string.
+     * @return The JSON output string.
+     */
     @Override
     public SignUpTestResult signUp(SignUpTestInput testInput) {
 

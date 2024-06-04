@@ -1,16 +1,20 @@
 package org.example.utils;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 
-import java.util.AbstractMap;
-
+/**
+ * AWS secret manager class.
+ */
 public class SecretManager {
 
+    /**
+     * Returns secret valur by its name.
+     * @param secretName The secret name.
+     * @return The secret value.
+     */
     public static String getSecret(String secretName) {
         Region region = Region.US_WEST_1;
         System.setProperty("AWS_ACCESS_KEY_ID", "AKIAXZRTVXLO42XFAHH6");

@@ -1,5 +1,8 @@
 package org.example.driver.by;
 
+/**
+ * The By locator type names.
+ */
 public class ByTypes {
     public static final String ID = "id";
     public static final String NAME = "name";

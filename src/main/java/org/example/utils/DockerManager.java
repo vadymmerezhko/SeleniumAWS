@@ -1,9 +1,17 @@
 package org.example.utils;
 
+/**
+ * Docker manager class.
+ * Contains common Docker functionality.
+ */
 public class DockerManager {
 
     private DockerManager() {}
 
+    /**
+     * Stops all Docker containers.
+     * @return The result output string.
+     */
     public static String stopAllContainers() {
         StringBuilder result = new StringBuilder("\n");
         String output = CommandLineExecutor.runCommandLine("docker ps -a -q");
@@ -16,15 +24,29 @@ public class DockerManager {
         return result.toString();
     }
 
+    /**
+     * Remotes all Docker containers.
+     * @return The result output string.
+     */
     public static String removeAllContainers() {
         return CommandLineExecutor.runCommandLine("docker container prune -f");
     }
 
+    /**
+     * Runs Selenium hub.
+     * @return The result output string.
+     */
     public static String runSeleniumHub() {
         return CommandLineExecutor.runCommandLine(
                 "docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:latest");
     }
 
+    /**
+     * Runs Selenium node by browser name and version.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version.
+     * @return The result output string.
+     */
     public static String runSeleniumNode(String browserName, String browserVersion) {
         String shmSize = SystemManager.isWindows() ? "--shm-size=\"2g\"" : "";
 
@@ -34,6 +56,13 @@ public class DockerManager {
                         "selenium/node-%s:%s", shmSize, browserName, browserVersion));
     }
 
+    /**
+     * Runs Selenium standalone by browser name and version and thread count.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version.
+     * @param threadCount The thread count.
+     * @return The result output string.
+     */
     public static String runSeleniumStandalone(String browserName, String browserVersion, int threadCount) {
         String shmSize = SystemManager.isWindows() ? "--shm-size=\"2g\"" : "";
 

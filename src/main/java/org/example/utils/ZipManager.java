@@ -4,12 +4,26 @@ import net.lingala.zip4j.ZipFile;
 
 import java.io.File;
 
+/**
+ * Zip manager class.
+ */
 public class ZipManager {
 
+    /**
+     * Unzips zipped file.
+     * @param source The zipped file path.
+     * @param destination The unzipped file path.
+     */
     public static void unzip(String source, String destination) {
         unzip(source, destination, null);
     }
 
+    /**
+     * Unzips zipped file protected with password.
+     * @param source The zipped file path.
+     * @param destination The unzipped file path.
+     * @param password The password.
+     */
     public static void unzip(String source, String destination, String password) {
         try {
             ZipFile zipFile = new ZipFile(source);
@@ -24,6 +38,11 @@ public class ZipManager {
         }
     }
 
+    /**
+     * Zips file folder.
+     * @param folderSource The folder path.
+     * @param destination The destination path.
+     */
     public static void zipFolder(String folderSource, String destination) {
         try {
             ZipFile zipFile = new ZipFile(destination);

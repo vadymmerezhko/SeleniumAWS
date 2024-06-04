@@ -4,8 +4,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * Command line executor class.
+ */
 public class CommandLineExecutor {
 
+    /**
+     * Runs command line and returns output string.
+     * @param command The command line.
+     * @return The output string.
+     */
     public static String runCommandLine(String command) {
         StringBuilder output = new StringBuilder();
 

@@ -12,13 +12,24 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * The Playwright manage class.
+ */
 public class PlaywrightManage implements Options {
     private final Page page;
 
+    /**
+     * The Playwright manage constructor.
+     * @param page The Playwright page instance.
+     */
     public PlaywrightManage(Page page) {
         this.page = page;
     }
 
+    /**
+     * Adds cookie.
+     * @param cookie The cookie to add.
+     */
     @Override
     public void addCookie(Cookie cookie) {
         List<com.microsoft.playwright.options.Cookie> cookies = new ArrayList<>();
@@ -29,6 +40,10 @@ public class PlaywrightManage implements Options {
         page.context().addCookies(cookies);
     }
 
+    /**
+     * Delete cookie by its name.
+     * @param name The name of the cookie to delete.
+     */
     @Override
     public void deleteCookieNamed(String name) {
         List<com.microsoft.playwright.options.Cookie> cookies =
@@ -38,6 +53,10 @@ public class PlaywrightManage implements Options {
         page.context().addCookies(cookies);
     }
 
+    /**
+     * Deletes cookie.
+     * @param cookieToDelete The cookie to delete.
+     */
     @Override
     public void deleteCookie(Cookie cookieToDelete) {
         List<com.microsoft.playwright.options.Cookie> cookies =
@@ -47,6 +66,9 @@ public class PlaywrightManage implements Options {
         page.context().addCookies(cookies);
     }
 
+    /**
+     * Deletes all cookies.
+     */
     @Override
     public void deleteAllCookies() {
         if (page != null) {
@@ -54,6 +76,10 @@ public class PlaywrightManage implements Options {
         }
     }
 
+    /**
+     * Returns all cookies.
+     * @return The list of cookies.
+     */
     @Override
     public Set<Cookie> getCookies() {
         return page.context().cookies().stream()
@@ -65,6 +91,11 @@ public class PlaywrightManage implements Options {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Returns cookie by its name.
+     * @param name The cookie name.
+     * @return The cookie.
+     */
     @Override
     public Cookie getCookieNamed(String name) {
         List <com.microsoft.playwright.options.Cookie> cookies =
@@ -76,6 +107,10 @@ public class PlaywrightManage implements Options {
                 String.format("%s://%s%s", protocol, targetCookie.domain, targetCookie.path));
     }
 
+    /**
+     * Returns timeouts.
+     * @return The timeouts instance.
+     */
     @Override
     public WebDriver.Timeouts timeouts() {
         String methodName = this.getClass().getEnclosingMethod().getName();
@@ -83,6 +118,10 @@ public class PlaywrightManage implements Options {
         return null;
     }
 
+    /**
+     * Return window instance.
+     * @return The window instance.
+     */
     @Override
     public WebDriver.Window window() {
         String methodName = this.getClass().getEnclosingMethod().getName();
@@ -90,6 +129,10 @@ public class PlaywrightManage implements Options {
         return null;
     }
 
+    /**
+     * Returns logs instance.
+     * @return The log instance.
+     */
     @Override
     public Logs logs() {
         String methodName = this.getClass().getEnclosingMethod().getName();

@@ -9,8 +9,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 
+/**
+ * Screenshot manager class.
+ */
 public class ScreenshotManager {
 
+    /**
+     * Converts screenshot data to bytes.
+     * @param target The screenshot target.
+     * @param data The screenshot data.
+     * @return The screenshot output.
+     * @param <X> The output type.
+     */
     public static <X> X convertScreenshotBytes(OutputType<X> target, byte[] data) {
         if (target.equals(OutputType.BYTES)) {
             return (X)data;

@@ -1,4 +1,4 @@
-package org.example.aws_local;
+package org.example.testrunners;
 
 import org.example.data.Config;
 import org.example.utils.*;
@@ -6,6 +6,9 @@ import org.testng.Assert;
 
 import static org.example.constants.Settings.*;
 
+/**
+ * This class runs tests locally.
+ */
 public class LocalTestRunner {
     static private final String RUN_TESTS_COMMAND_TEMPLATE =
             "mvn clean test \"-DtestSuite=./src/test/resources/%s\" "+
@@ -13,6 +16,10 @@ public class LocalTestRunner {
     static private final String TEST_REPORT_FOLDER_PATH = "target/surefire-reports";
     static private final String TARGET_FOLDER_PATH = "target";
 
+    /**
+     * Local Test Runner entry point method.
+     * @param params The array of parameters. See README.md for more details.
+     */
     public static void main(String[] params) {
         Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
         String startDate = config.getStartDate();

@@ -1,5 +1,8 @@
 package org.example.constants;
 
+/**
+ * The test modes name constants.
+ */
 public class TestModes {
     public static final String LOCAL = "local";
     public static final String LOCAL_DOCKER = "local_docker";

@@ -20,7 +20,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
-          <mainClass>org.example.aws_local.LocalTestRunner</mainClass>
+          <mainClass>org.example.testrunners.LocalTestRunner</mainClass>
         </configuration>
       </plugin>-->
       <plugin>

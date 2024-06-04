@@ -1,8 +1,6 @@
 package org.example;
 
-import org.example.constants.Settings;
-import org.example.driver.WebDriverFactory;
-import org.example.rmi.RmiClient;
+import org.example.factory.WebDriverFactory;
 import org.example.utils.ServerManager;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;

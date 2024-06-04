@@ -24,6 +24,9 @@ import java.util.concurrent.ConcurrentMap;
 import static org.example.constants.Settings.AWS_REGION;
 import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
 
+/**
+ * AWS manager class.
+ */
 public class AwsManager {
     static private final int WAIT_EC2_ID_TIMEOUT = 30;
     static private final int WAIT_EC2_PUBLIC_IP_TIMEOUT = 30;
@@ -33,6 +36,10 @@ public class AwsManager {
     static private final ConcurrentMap<Long, AWSLambda> amsLambdaClientMam = new ConcurrentHashMap<>();
 
 
+    /**
+     * Creates AWS EC2 client.
+     * @return The EC2 client instance.
+     */
     public static AmazonEC2 getEC2Client() {
         AWSCredentialsProvider provider = new EnvironmentVariableCredentialsProvider();
 
@@ -42,6 +49,16 @@ public class AwsManager {
                 .build();
     }
 
+    /**
+     * Runs EC2 instance.
+     * @param ec2 The EC2 client.
+     * @param threadCount The max thread count.
+     * @param imageId The AWS EC2 image ID.
+     * @param keyPairName The AWS EC@ key pair name.
+     * @param groupName The AWS EC2 group name.
+     * @param userData The user data to run when EC2 starts.
+     * @return The EC2 instance ID.
+     */
     public static String runEC2(AmazonEC2 ec2, int threadCount, String imageId,
                                 String keyPairName, String groupName, String userData) {
         RunInstancesRequest runInstancesRequest =
@@ -62,6 +79,12 @@ public class AwsManager {
         return runInstancesResult.getReservation().getInstances().get(0).getInstanceId();
     }
 
+    /**
+     * Returns AWS EC2 instance public IP address.
+     * @param ec2 The EC2 client.
+     * @param instanceId The EC@ instance ID.
+     * @return The EC2 public IP address.
+     */
     public static String getEC2PublicIp(AmazonEC2 ec2, String instanceId) {
         List<String> instanceIds = new ArrayList<>();
         instanceIds.add(instanceId);
@@ -74,6 +97,16 @@ public class AwsManager {
         return reservations.get(0).getInstances().get(0).getPublicIpAddress();
     }
 
+    /**
+     * Runs EC2 instance and waits till ID is availble.
+     * @param ec2 The EC2 client.
+     * @param threadCount The max thread count.
+     * @param imageId The EC2 image ID.
+     * @param keyPairName The EC2 key pair name.
+     * @param groupName The EC2 group name.
+     * @param userData The EC2 user data to run when EC2 starts.
+     * @return The EC2 instance ID.
+     */
     public static String runEC2AndEWaitForId(AmazonEC2 ec2, int threadCount, String imageId,
                                              String keyPairName, String groupName, String userData) {
         String ec2InstanceId;
@@ -88,6 +121,12 @@ public class AwsManager {
         return ec2InstanceId;
     }
 
+    /**
+     * Waits for EC2 instance public IP address.
+     * @param ec2Client The EC2 client.
+     * @param ec2InstanceId The EC2 instance ID.
+     * @return The EC2 instance public IP.
+     */
     public static String waitForEC2Ip(AmazonEC2 ec2Client, String ec2InstanceId) {
         String ec2InstanceIp;
         TimeOut timeOut = new TimeOut(WAIT_EC2_PUBLIC_IP_TIMEOUT);
@@ -101,12 +140,23 @@ public class AwsManager {
         return ec2InstanceIp;
     }
 
+    /**
+     * Terminates EC2 instance.
+     * @param ec2 The EC2 client.
+     * @param instanceID The EC2 instance ID.
+     */
     public static void terminateEC2(AmazonEC2 ec2, String instanceID) {
         TerminateInstancesRequest request = new TerminateInstancesRequest();
         request.withInstanceIds(instanceID);
         ec2.terminateInstances(request);
     }
 
+    /**
+     * Invokes AWS Lambda function by its name with JSON input parameter.
+     * @param functionName The function name.
+     * @param inputJsonString The JSON input string.
+     * @return The JSON output string.
+     */
     public static String invokeLambdaFunction(String functionName, String inputJsonString) {
         try {
             AWSLambda client = getAwsLambdaClient();
@@ -153,6 +203,77 @@ public class AwsManager {
         }
     }
 
+    /**
+     * Uploads file to AWS S3 bucket.
+     * @param filePath The file path to upload.
+     * @param bucketName The bucket name.
+     * @param accessKey The AWS access key.
+     * @param secretKey The AWS secret key.
+     */
+    public static void uploadFileToS3(String filePath, String bucketName, String accessKey, String secretKey) {
+        try {
+            File file = new File(filePath);
+            String fileName = file.getName();
+            AmazonS3 s3 = getAwsS3Client(accessKey, secretKey);
+            PutObjectRequest request = new PutObjectRequest(bucketName, fileName, file);
+            s3.putObject(request);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Cannot upload file %s to AWS S3 bucket '%s'.\n%s",
+                            filePath,
+                            bucketName,
+                            e.getMessage()));
+        }
+    }
+
+    /**
+     * Downloads file to AWS S3 bucket.
+     * @param fileName The file name to download.
+     * @param targetFolderPath The target folder path.
+     * @param bucketName The bucket name.
+     * @param accessKey The AWS access key.
+     * @param secretKey The AWS secret key.
+     * @return The downloaded file path.
+     */
+    public static String downloadFileFromS3(String fileName, String targetFolderPath,
+                                          String bucketName, String accessKey, String secretKey) {
+        try {
+            AmazonS3 s3 = getAwsS3Client(accessKey, secretKey);
+            GetObjectRequest request = new GetObjectRequest(bucketName, fileName);
+            S3Object s3Object = s3.getObject(request);
+            byte[] data = s3Object.getObjectContent().readAllBytes();
+            String fileContent = new String(data);
+
+            FileManager.createFile(targetFolderPath, fileName, fileContent);
+            File file = new File(String.format("%s/%s", targetFolderPath, fileName));
+            return file.getPath();
+        }
+        catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Cannot download file %s from AWS S3 bucket '%s'.\n%s",
+                            fileName,
+                            bucketName,
+                            e.getMessage()));
+        }
+    }
+
+    /**
+     * Returns AWS access key value.
+     * @return The access key value.
+     */
+    public static String getAwsAccessKey() {
+        return System.getenv(AWS_ACCESS_KEY_ID);
+    }
+
+    /**
+     * Returns AWS secret key value.
+     * @return The secret key value.
+     */
+    public static String getAwsSecretKey() {
+        return System.getenv(AWS_SECRET_ACCESS_KEY);
+    }
+
     private static AWSLambda getAwsLambdaClient() {
         long threadId = Thread.currentThread().threadId();
 
@@ -190,53 +311,6 @@ public class AwsManager {
         }
         throw new RuntimeException(
                 "Thread count should be positive and less than 32.\nWrong thread count : " + threadCount);
-    }
-
-    public static void uploadFileToS3(String filePath, String bucketName, String accessKey, String secretKey) {
-        try {
-            File file = new File(filePath);
-            String fileName = file.getName();
-            AmazonS3 s3 = getAwsS3Client(accessKey, secretKey);
-            PutObjectRequest request = new PutObjectRequest(bucketName, fileName, file);
-            s3.putObject(request);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(
-                    String.format("Cannot upload file %s to AWS S3 bucket '%s'.\n%s",
-                            filePath,
-                            bucketName,
-                            e.getMessage()));
-        }
-    }
-
-    public static String downloadFileFromS3(String fileName, String targetFolderPath,
-                                          String bucketName, String accessKey, String secretKey) {
-        try {
-            AmazonS3 s3 = getAwsS3Client(accessKey, secretKey);
-            GetObjectRequest request = new GetObjectRequest(bucketName, fileName);
-            S3Object s3Object = s3.getObject(request);
-            byte[] data = s3Object.getObjectContent().readAllBytes();
-            String fileContent = new String(data);
-
-            FileManager.createFile(targetFolderPath, fileName, fileContent);
-            File file = new File(String.format("%s/%s", targetFolderPath, fileName));
-            return file.getPath();
-        }
-        catch (Exception e) {
-            throw new RuntimeException(
-                    String.format("Cannot download file %s from AWS S3 bucket '%s'.\n%s",
-                            fileName,
-                            bucketName,
-                            e.getMessage()));
-        }
-    }
-
-    public static String getAwsAccessKey() {
-        return System.getenv(AWS_ACCESS_KEY_ID);
-    }
-
-    public static String getAwsSecretKey() {
-        return System.getenv(AWS_SECRET_ACCESS_KEY);
     }
 
     private static AmazonS3 getAwsS3Client(String accessKey, String secretKey) {

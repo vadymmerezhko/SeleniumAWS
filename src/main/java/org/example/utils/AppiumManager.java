@@ -12,34 +12,72 @@ import java.util.concurrent.ConcurrentMap;
 
 import static io.appium.java_client.service.local.flags.GeneralServerFlag.BASEPATH;
 
+/**
+ * Appium manager class.
+ * This class contains Appium functionality.
+ */
 public class AppiumManager {
     private static final String MOBILE_DEVICE_JSON_PATH = "src/test/resources/devices/mobile.json";
     private static final ConcurrentMap<Long, AppiumDriverLocalService> appiumServiceMap = new ConcurrentHashMap<>();
 
+    /**
+     * Returns device name from emulator name.
+     * @param emulatorName The emulator name.
+     * @return The device name.
+     */
     public static String getDeviceName(String emulatorName) {
         return getStringProperty(emulatorName,"deviceName");
     }
 
+    /**
+     * Returns platform name from emulator name.
+     * @param emulatorName The emulator name.
+     * @return The platform name.
+     */
     public static String getPlatformName(String emulatorName) {
         return getStringProperty(emulatorName, "platformName");
     }
 
+    /**
+     * Returns platform version from emulator name.
+     * @param emulatorName The emulator name.
+     * @return The platform version name.
+     */
     public static String getPlatformVersion(String emulatorName) {
         return getStringProperty(emulatorName,"platformVersion");
     }
 
+    /**
+     * Returns browser name name from emulator name.
+     * @param emulatorName The emulator name.
+     * @return The browser name.
+     */
     public static String getBrowserName(String emulatorName) {
         return getStringProperty(emulatorName,"browserName");
     }
 
+    /**
+     * Returns browser version from emulator name.
+     * @param emulatorName The emulator name.
+     * @return The browser version.
+     */
     public static String getBrowserVersion(String emulatorName) {
         return getStringProperty(emulatorName,"browserVersion");
     }
 
+    /**
+     * Starts emulator by device name.
+     * @param deviceName The device name.
+     */
     public static void startEmulator(String deviceName) {
         CommandLineExecutor.runCommandLine("emulator -avd " + deviceName);
     }
 
+    /**
+     * Strats Appium server with maximal thread count parameter and returns server URL.
+     * @param threadCount The maximal thread count.
+     * @return The remote server URL.
+     */
     public static synchronized URL startAppiumServer(int threadCount) {
         long threadId = Thread.currentThread().threadId();
 
@@ -70,6 +108,9 @@ public class AppiumManager {
         }
     }
 
+    /**
+     * Stops current thread Appium server.
+     */
     public static void stopAppiumServer() {
         long threadId = Thread.currentThread().threadId();
 
@@ -77,10 +118,16 @@ public class AppiumManager {
             appiumServiceMap.get(threadId).stop();        }
     }
 
+    /**
+     * Stops all Appium servers.
+     */
     public static void stopAllAppiumServers() {
         appiumServiceMap.values().forEach(AppiumDriverLocalService::stop);
     }
 
+    /**
+     * Stops all Appium emulators.
+     */
     public static void stopAllEmulators() {
         String killCommandLine =
                 SystemManager.isWindows() ? "taskkill /f /t /im qemu-system-x86_64.exe" : "pkill qemu-system-x86_64";

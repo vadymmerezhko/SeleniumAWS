@@ -2,6 +2,9 @@ package org.example.constants;
 
 import com.amazonaws.regions.Regions;
 
+/**
+ * The setting constants.
+ */
 public class Settings {
     public static final int SELENIUM_SERVERS_COUNT = 1;
     public static final Regions AWS_REGION = Regions.US_WEST_1;

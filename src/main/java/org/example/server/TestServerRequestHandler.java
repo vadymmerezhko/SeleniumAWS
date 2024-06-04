@@ -7,9 +7,18 @@ import org.example.utils.RecordUtils;
 
 import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
 
+/**
+ * Test server request handler class.
+ */
 public class TestServerRequestHandler implements RequestHandler<String, String> {
     private static final String REQUEST_HANDLER_ERROR_MSG_TMP = REQUEST_HANDLER_ERROR_MSG + ":\n%s";
 
+    /**
+     * Handles RMI request with JSON input string and context parameters.
+     * @param methodInputJsonString The method JSON string input.
+     * @param context The context.
+     * @return The output JSON string.
+     */
     @Override
     public String handleRequest(String methodInputJsonString, Context context) {
         try {

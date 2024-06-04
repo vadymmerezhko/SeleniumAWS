@@ -1,16 +1,29 @@
 package org.example.utils;
 
+/**
+ * Converter utils.
+ */
 public class ConverterUtils {
     private ConverterUtils() {}
 
+    /**
+     * Converts remote string to RMI input string.
+     * @param jsonString The JSON string.
+     * @return The remote input string.
+     */
     public static String convertJsonStringToRemoteInput(String jsonString) {
         return String.format("\"%s\"",
                 jsonString.replace("\\", "\\\\")
                         .replace("\"", "\\\""));
     }
 
-    public static String convertRemoteOutputToJsonString(String lambdaOutput) {
-        return lambdaOutput.substring(1, lambdaOutput.length() - 1)
+    /**
+     * Converts remote output to JSON string.
+     * @param remoteOutput The remote output string.
+     * @return The JSON string.
+     */
+    public static String convertRemoteOutputToJsonString(String remoteOutput) {
+        return remoteOutput.substring(1, remoteOutput.length() - 1)
                 .replace("\\\"", "\"")
                 .replace("\\\\", "\\");
     }

@@ -10,15 +10,27 @@ import org.openqa.selenium.WebDriver.TargetLocator;
 
 import java.util.List;
 
+/**
+ * The Playwright target locator class.
+ */
 public class PlaywrightTargetLocator implements TargetLocator {
     private final PlaywrightPage playwrightPage;
     private final Page page;
 
+    /**
+     * The Playwright target locator constructor.
+     * @param playwrightPage The Playwright page instance.
+     */
     public PlaywrightTargetLocator (PlaywrightPage playwrightPage) {
         this.playwrightPage = playwrightPage;
         page = playwrightPage.getPage();
     }
 
+    /**
+     * Returns frame web driver by its index.
+     * @param index The frame index.
+     * @return The frame web driver.
+     */
     @Override
     public WebDriver frame(int index) {
         List<Frame> frames = page.frames();
@@ -31,6 +43,11 @@ public class PlaywrightTargetLocator implements TargetLocator {
         return new PlaywrightDriver(new PlaywrightPage(new PlaywrightPage(page), frame.page()));
     }
 
+    /**
+     * Returns frame web driver by its name or id.
+     * @param nameOrId The frame name or id.
+     * @return The frame web driver.
+     */
     @Override
     public WebDriver frame(String nameOrId) {
         List<Frame> frames = page.frames();
@@ -50,6 +67,11 @@ public class PlaywrightTargetLocator implements TargetLocator {
         throw new RuntimeException(String.format("Frame with name or id '%s' is not found.", nameOrId));
     }
 
+    /**
+     * Returns frame web driver by its web element.
+     * @param frameElement The frame web element.
+     * @return The frame web driver.
+     */
     @Override
     public WebDriver frame(WebElement frameElement) {
         if (frameElement == null) {
@@ -72,11 +94,20 @@ public class PlaywrightTargetLocator implements TargetLocator {
         throw new RuntimeException(String.format("Frame with element %s is not found.", frameElement));
     }
 
+    /**
+     * Returns parent frame web driver.
+     * @return The parent frame web driver.
+     */
     @Override
     public WebDriver parentFrame() {
         return new PlaywrightDriver(playwrightPage.getParentPage());
     }
 
+    /**
+     * Returns frame web driver by window name or handle.
+     * @param nameOrHandle The window name or handle.
+     * @return The frame web driver.
+     */
     @Override
     public WebDriver window(String nameOrHandle) {
         List<Page> pages = page.context().pages();
@@ -89,6 +120,11 @@ public class PlaywrightTargetLocator implements TargetLocator {
         throw new RuntimeException(String.format("Window with title %s is not found.", nameOrHandle));
     }
 
+    /**
+     * Returns frame web driver by window type hint
+     * @param typeHint The window type hint.
+     * @return The frame web driver.
+     */
     @Override
     public WebDriver newWindow(WindowType typeHint) {
         String methodName = this.getClass().getEnclosingMethod().getName();
@@ -96,6 +132,10 @@ public class PlaywrightTargetLocator implements TargetLocator {
         return null;
     }
 
+    /**
+     * Returns default content frame web driver.
+     * @return The default content web driver.
+     */
     @Override
     public WebDriver defaultContent() {
         String methodName = this.getClass().getEnclosingMethod().getName();
@@ -103,6 +143,10 @@ public class PlaywrightTargetLocator implements TargetLocator {
         return null;
     }
 
+    /**
+     * Returns an active element.
+     * @return The active web element.
+     */
     @Override
     public WebElement activeElement() {
         String methodName = this.getClass().getEnclosingMethod().getName();
@@ -110,6 +154,10 @@ public class PlaywrightTargetLocator implements TargetLocator {
         return null;
     }
 
+    /**
+     * Returns alert instance.
+     * @return The alert instance.
+     */
     @Override
     public Alert alert() {
         String methodName = this.getClass().getEnclosingMethod().getName();

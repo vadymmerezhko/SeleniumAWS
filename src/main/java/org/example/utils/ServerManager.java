@@ -12,18 +12,30 @@ import java.util.Base64;
 
 import static org.example.constants.Settings.*;
 
+/**
+ * Server manager class.
+ */
 public class ServerManager {
     private static String AWS_RMI_SERVER_INSTANCE_ID;
     private static String AWS_RMI_SERVER_INSTANCE_IP;
     private static final int THREAD_COUNT = new Config(CONFIG_PROPERTIES_FILE_NAME).getThreadCount();
     private final static LoadBalancer loadBalancer = LoadBalancer.getInstance();
 
-    public static void createServerInstances(int serverCount,
-                                             int threadCount,
-                                             String awsImageId,
-                                             String securityKeyPairName,
-                                             String securityGroupName,
-                                             String userData) {
+    /**
+     * Creates Selenium server instance(s).
+     * @param serverCount The server count.
+     * @param threadCount The server thread count.
+     * @param awsImageId The AWS EC2 image ID.
+     * @param securityKeyPairName The AWS security pair name.
+     * @param securityGroupName The AWS security group name.
+     * @param userData The EC2 user data to run when EC@ instance starts.
+     */
+    public static void createSeleniumServerInstances(int serverCount,
+                                                     int threadCount,
+                                                     String awsImageId,
+                                                     String securityKeyPairName,
+                                                     String securityGroupName,
+                                                     String userData) {
         loadBalancer.setMaxServersCount(serverCount);
         AmazonEC2 ec2 = AwsManager.getEC2Client();
 
@@ -36,11 +48,21 @@ public class ServerManager {
         }
     }
 
+    /**
+     * Terminates all Selenium servers.
+     */
     public static void terminateAllSeleniumServers() {
         AmazonEC2 ec2Client = AwsManager.getEC2Client();
         loadBalancer.getAllServersEC2Ids().forEach(ec2Id -> AwsManager.terminateEC2(ec2Client, ec2Id));
     }
 
+    /**
+     * Checks if server address is reachable.
+     * @param address The server address.
+     * @param port The server port.
+     * @param timeout The timeout.
+     * @return true if server is reachable, or false otherwise.
+     */
     public static boolean isAddressReachable(String address, int port, int timeout) {
         Socket socket = new Socket();
         try {
@@ -61,6 +83,10 @@ public class ServerManager {
         }
     }
 
+    /**
+     * Creates RMI server and returns its public IP address.
+     * @return The RMI server public IP address.
+     */
     public static synchronized String createRmiServer() {
         if (AWS_RMI_SERVER_INSTANCE_IP == null) {
             try {
@@ -84,29 +110,56 @@ public class ServerManager {
         return AWS_RMI_SERVER_INSTANCE_IP;
     }
 
+    /**
+     * Returns RMI server name by its index.
+     * @param index The server index.
+     * @return The RMI server name.
+     */
     public static String getRmiServerName(int index) {
         return RMI_SERVER_NAME + index;
     }
 
+    /**
+     * Returns RMI server name.
+     * @return The RMI server name.
+     */
     public static String getRmiServerName() {
         int index = getRmiServerIndex();
         return RMI_SERVER_NAME + index;
     }
 
+    /**
+     * Returns RMI server port by its index.
+     * @param index The server index.
+     * @return The RMI server port.
+     */
     public static int getRmiServerPort(int index) {
         return RMI_SERVER_BASE_PORT + index;
     }
 
+    /**
+     * Returns RMI server port.
+     * @return The RMI server port.
+     */
     public static int getRmiServerPort() {
         int index = getRmiServerIndex();
         return RMI_SERVER_BASE_PORT + index;
     }
 
+    /**
+     * Returns current thread RMI server index.
+     * @return The RMI server index.
+     */
     private static int getRmiServerIndex() {
         long threadId = Thread.currentThread().threadId();
         return (int)threadId % THREAD_COUNT + 1;
     }
 
+    /**
+     * Waits for server availability by server IP address and port number.
+     * @param serverIP The server IP address
+     * @param port The server port number.
+     */
     public static synchronized void waitForServerAvailability(String serverIP, int port) {
         TimeOut timeOut = new TimeOut(SERVER_WAIT_TIMEOUT_SECONDS);
         timeOut.start();
@@ -121,6 +174,11 @@ public class ServerManager {
         }
     }
 
+    /**
+     * Waits for server unavailability by server IP address and port number.
+     * @param serverIP The server IP address
+     * @param port The server port number.
+     */
     public static synchronized void waitForServerUnavailability(String serverIP, int port) {
         TimeOut timeOut = new TimeOut(SERVER_WAIT_TIMEOUT_SECONDS);
         timeOut.start();
@@ -135,12 +193,19 @@ public class ServerManager {
         }
     }
 
+    /**
+     * Terminates RMI server.
+     */
     public static void terminateAwsRmiServer() {
         if (AWS_RMI_SERVER_INSTANCE_ID != null) {
             AwsManager.terminateEC2(AwsManager.getEC2Client(), AWS_RMI_SERVER_INSTANCE_ID);
         }
     }
 
+    /**
+     * Creates local run server and runs tests.
+     * @return The test result output.
+     */
     public static synchronized String createLocalRunServerAndRunTests() {
         try {
             Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);

@@ -1,4 +1,4 @@
-package org.example.driver;
+package org.example.factory;
 
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
@@ -38,6 +38,9 @@ import static org.example.constants.Browsers.*;
 import static org.example.constants.Settings.*;
 import static org.example.constants.TestModes.*;
 
+/**
+ * The web driver factory class.
+ */
 public class WebDriverFactory {
     static private final String SELENIUM_GRID_URL_TEMPLATE = "http://%S:4444";
     static private final String LOCALHOST = "localhost";
@@ -47,6 +50,11 @@ public class WebDriverFactory {
     private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
     private static boolean dockerSeleniumGridStarted = false;
 
+    /**
+     * Returns web driver instance.
+     * The web driver type properties are defined with Config file and parameters.
+     * @return The web driver instance.
+     */
     public static WebDriver getDriver() {
         WebDriver driver;
         long threadId = Thread.currentThread().threadId();
@@ -83,6 +91,12 @@ public class WebDriverFactory {
         return driver;
     }
 
+    /**
+     * Returns local web driver by browser name and browser version.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version (optional).
+     * @return The web driver instance.
+     */
     public static WebDriver getLocalWebDriver(String browserName, String browserVersion) {
         WebDriver driver;
 
@@ -95,6 +109,13 @@ public class WebDriverFactory {
         return driver;
     }
 
+    /**
+     * Returns local Docker web driver by browser name, browser version and thread count.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version.
+     * @param threadCount The maximal thread count.
+     * @return The local Docker web driver instance.
+     */
     private static WebDriver getLocalDockerWebDriver(String browserName, String browserVersion, int threadCount) {
 
         switch (browserName) {
@@ -107,6 +128,13 @@ public class WebDriverFactory {
         }
     }
 
+    /**
+     * Returns AWS EC2 remote web driver by browser name, browser version and thread count.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version.
+     * @param threadCount The maximal thread count.
+     * @return The remote web driver instance.
+     */
     private static WebDriver getAWSDockerDriver(String browserName, String browserVersion, int threadCount) {
             long serverId = loadBalancer.getThreadServerId();
             String ec2InstanceIp = loadBalancer.getServerPublicIp(
@@ -130,6 +158,11 @@ public class WebDriverFactory {
         return getPlaywrightDriver(browserName, config.getHeadless(), false);
     }
 
+    /**
+     * Returns local Playwright web driver by browser name.
+     * @param browserName The browser name.
+     * @return The Playwright web driver instance.
+     */
     private static WebDriver getPlaywrightDriver(
             String browserName, boolean headless, boolean accessibilityTest) {
         Playwright playwright = Playwright.create();
@@ -156,6 +189,13 @@ public class WebDriverFactory {
         }
     }
 
+    /**
+     * Returns remote web driver by browser name and browser version.
+     * @param remoteHost The remote host URL.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version (optional).
+     * @return The remote web driver instance.
+     */
     private static WebDriver getRemoteWebDriver(String remoteHost, String browserName, String browserVersion) {
         WebDriver driver = null;
         Capabilities options;
@@ -182,6 +222,12 @@ public class WebDriverFactory {
         return driver;
     }
 
+    /**
+     * Returns AWS Device Farm web driver by browser name and browser version.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version (optional).
+     * @return The AWS Device Farm web driver instance.
+     */
     private static WebDriver getAWSDeviceFarmWebDriver(String browserName, String browserVersion) {
         WebDriver driver = null;
         URL testGridUrl;
@@ -216,6 +262,11 @@ public class WebDriverFactory {
         return driver;
     }
 
+    /**
+     * Returns Appium web driver by emulator name.
+     * @param emulatorName The emulator name.
+     * @return The Appium web driver instance.
+     */
     private static WebDriver getAppiumWebDriver(String emulatorName) {
         try {
             String deviceName = AppiumManager.getDeviceName(emulatorName);

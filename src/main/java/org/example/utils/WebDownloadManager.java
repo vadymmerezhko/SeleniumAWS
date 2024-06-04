@@ -4,8 +4,16 @@ import java.io.FileOutputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
 
+/**
+ * Web download manager.
+ */
 public class WebDownloadManager {
 
+    /**
+     * Downloads file by its URL.
+     * @param fileUrl The file URL.
+     * @param downloadPath The download folder path.
+     */
     public static void download(String fileUrl, String downloadPath) {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(downloadPath);

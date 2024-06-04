@@ -11,24 +11,44 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+/**
+ * The Playwright page class.
+ */
 public class PlaywrightPage implements Page {
     private final PlaywrightPage parentPage;
     private final Page page;
 
+    /**
+     * The Playwright page constructor.
+     * @param page The Playwright page instance.
+     */
     public PlaywrightPage(Page page) {
         parentPage = null;
         this.page = page;
     }
 
+    /**
+     * The Playwright page constructor.
+     * @param parentPage The parent Playwright page instance.
+     * @param page The Playwright page instance.
+     */
     public PlaywrightPage(PlaywrightPage parentPage, Page page) {
         this.parentPage = parentPage;
         this.page = page;
     }
 
+    /**
+     * Returns wrapped Playwright page instance.
+     * @return The Playwright page instance.
+     */
     public Page getPage() {
         return page;
     }
 
+    /**
+     * Returns wrapped Playwright parent page instance.
+     * @return The Playwright parent page instance.
+     */
     public PlaywrightPage getParentPage() {
         return parentPage;
     }

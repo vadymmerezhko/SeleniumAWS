@@ -13,15 +13,26 @@ import java.rmi.server.UnicastRemoteObject;
 
 import static org.example.constants.Settings.*;
 
+/**
+ * RMI server implementation.
+ */
 public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     private static final String GET_EC2_PUBLIC_IP_COMMAND_LINE =
             "sudo curl http://169.254.169.254/latest/meta-data/public-ipv4";
     private static final int THREAD_COUNT = new Config(CONFIG_PROPERTIES_FILE_NAME).getThreadCount();
 
+    /**
+     * RMI server implementation constructor.
+     * @throws RemoteException in case of error.
+     */
     protected RmiServerImpl() throws RemoteException {
         super();
     }
 
+    /**
+     * RMI server implementation entry point.
+     * @param args The array of arguments.
+     */
     public static void main(String[] args) {
 
         for (int i = 1; i <= THREAD_COUNT; i++) {
@@ -33,6 +44,11 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
         }
     }
 
+    /**
+     * Invokes remote test method with input parameter in JSON format and returns JSON string value.
+     * @param methodInput The input parameter in JSON format.
+     * @return The output string in JSON format.
+     */
     @Override
     public String invokeTestServerMethod(String methodInput) throws RemoteException {
             long threadId = Thread.currentThread().threadId();

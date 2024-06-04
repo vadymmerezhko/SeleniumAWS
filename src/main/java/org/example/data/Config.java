@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * The configuration file class.
+ * See README.md fi;e for more details.
+ */
 public class Config {
     private static final String TESTNG_FILE_PROP_NAME = "testngFile";
     private static final String TREAD_COUNT_PROP_NAME = "threadCount";
@@ -27,38 +31,75 @@ public class Config {
     private final String filePath;
     private Properties configProperties;
 
+    /**
+     * Config class constructor by the config file path.
+     * @param filePath The config file path.
+     */
     public Config(String filePath) {
         this.filePath = filePath;
     }
 
+    /**
+     * Returns the TestNG file name.
+     * @return The TestNG file name.
+     */
     synchronized public String getTestngFile() {
         return getStringProperty(TESTNG_FILE_PROP_NAME);
     }
 
+    /**
+     * Returns the maximal thread count.
+     * @return The maximal tread count.
+     */
     synchronized public int getThreadCount() {
         return getIntegerProperty(TREAD_COUNT_PROP_NAME);
     }
 
+    /**
+     * Returns the test mode name.
+     * @return The test mode name.
+     */
     synchronized public String getTestMode() {
         return getStringProperty(TEST_MODE_PROP_NAME);
     }
 
+    /**
+     * Returns remote Selenium server URL.
+     * @return The remote host URL.
+     */
     synchronized public String getRemoteHost() {
         return getStringProperty(REMOTE_HOST);
     }
 
+    /**
+     * Returns the AWS access key.
+     * @return The AWS access key.
+     */
     synchronized public String getAccessKey() {
         return getStringProperty(ACCESS_KEY);
     }
 
+    /**
+     * Returns the AWS secret key.
+     * @return The AWS secret key.
+     */
     synchronized public String getSecretKey() {
         return getStringProperty(SECRET_KEY);
     }
 
+    /**
+     * Returns test start date.
+     * @return The test start date.
+     */
     synchronized public String getStartDate() {
         return getStringProperty(START_DATE);
     }
 
+    /**
+     * Returns Appium emulator name by its index.
+     * @param index The emulator index.
+     * @return The emulator name.
+     */
     synchronized public String getEmulator(int index) {
         String emulators = getStringProperty(EMULATORS);
         String[] emulatorsArray = emulators.split(VALUES_DELIMITER);
@@ -70,30 +111,37 @@ public class Config {
         return emulatorsArray[index];
     }
 
+    /**
+     * Returns the browser name.
+     * @return The browser name.
+     */
     synchronized public String getBrowserName() {
         String browser = getStringProperty(BROWSER_PROP_NAME);
         return getSubValue(browser, 0);
     }
 
+    /**
+     * Returns the browser version.
+     * @return The browser version.
+     */
     synchronized public String getBrowserVersion() {
         String browser = getStringProperty(BROWSER_PROP_NAME);
         return getSubValue(browser, 1);
     }
 
+    /**
+     * Returns OS name.
+     * @return The OS name.
+     */
     synchronized public String getOsName() {
         String browser = getStringProperty(OS_PROP_NAME);
         return getSubValue(browser, 0);
     }
 
-    synchronized public String getOsVersion() {
-        String browser = getStringProperty(OS_PROP_NAME);
-        String browserVersion = getSubValue(browser, 1);
-        if (browserVersion == null) {
-            throw new RuntimeException("Browser version is undefined.");
-        }
-        return browserVersion;
-    }
-
+    /**
+     * Returns true/false headless flag.
+     * @return The headless flag.
+     */
     synchronized public boolean getHeadless() {
         return getBooleanProperty(HEADLESS_PROP_NAME);
     }

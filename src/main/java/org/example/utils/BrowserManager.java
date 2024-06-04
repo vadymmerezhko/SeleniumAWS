@@ -7,6 +7,9 @@ import java.io.File;
 
 import static org.example.constants.Browsers.*;
 
+/**
+ * Browser manager class.
+ */
 public class BrowserManager {
 
     private BrowserManager() {}
@@ -19,6 +22,12 @@ public class BrowserManager {
     private static final String BROWSERS_DOWNLOAD_JSON_FILE_PATH = "src/main/resources/downloads/browsers.json";
     private static final String WEBDRIVERS_DOWNLOAD_JSON_FILE_PATH = "src/main/resources/downloads/webdrivers.json";
 
+    /**
+     * Downloads browser binary file.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version.
+     * @return The browser binary file path.
+     */
     public synchronized static String downloadBrowserBinary(String browserName, String browserVersion) {
         try {
             String downloadUrl = getBrowserDownloadUrl(browserName, browserVersion);
@@ -43,6 +52,12 @@ public class BrowserManager {
         }
     }
 
+    /**
+     * Downloads web driver binary file.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version.
+     * @return The web driver binary file path.
+     */
     public synchronized static String downloadWebDriverBinary(String browserName, String browserVersion) {
         try {
             String downloadUrl = getWebDriverDownloadUrl(browserName, browserVersion);

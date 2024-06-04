@@ -4,10 +4,20 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 
+/**
+ * SSH manager class.
+ */
 public class SshManager {
 
     private static final String SSH_TEMPLATE = "ssh -i %s %s@%s";
 
+    /**
+     * Runs SSH command.
+     * @param host The host name.
+     * @param user The user name.
+     * @param keyFile The key file.
+     * @param command The command line.
+     */
     public static void runCommand(String host, String user, String keyFile, String command) {
         String ssh = String.format(SSH_TEMPLATE, keyFile, user, host);
         System.out.printf("SSH: %s%n", ssh);
@@ -21,6 +31,7 @@ public class SshManager {
 
             while (in.ready()) {
                 String s = in.readLine();
+                System.out.println(s);
             }
             out.println("exit");
 

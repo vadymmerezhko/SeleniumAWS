@@ -1,8 +1,15 @@
 package org.example.utils;
 
 
-
+/**
+ * Waiter class.
+ */
 public class Waiter {
+
+    /**
+     * Waits for n seconds.
+     * @param seconds The number of seconds to wait.
+     */
     public static void waitSeconds(int seconds) {
         try {
             Thread.sleep(seconds * 1000L);
@@ -11,6 +18,10 @@ public class Waiter {
         }
     }
 
+    /**
+     * Waits for n milliseconds.
+     * @param milliSeconds The number of milliseconds to wait.
+     */
     public static void waitMilliSeconds(int milliSeconds) {
         try {
             Thread.sleep(milliSeconds);

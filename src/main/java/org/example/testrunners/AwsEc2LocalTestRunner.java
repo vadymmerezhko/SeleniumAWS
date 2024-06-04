@@ -1,12 +1,19 @@
-package org.example.aws_local;
+package org.example.testrunners;
 
 import org.example.utils.ServerManager;
 import org.testng.Assert;
 
 import static org.example.constants.Settings.NO_FAILURES;
 
+/**
+ * This class runs tests on AWS EC2 instance.
+ */
 public class AwsEc2LocalTestRunner {
 
+    /**
+     * AWS Test Runner entry point. This method is used to run tests on AWS EC2 instance.
+     * @param args The array of parameters. See README.md file for more details.
+     */
     public static void main(String[] args) {
 
         try {

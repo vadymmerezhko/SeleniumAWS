@@ -2,10 +2,18 @@ package org.example.driver.by;
 
 import org.openqa.selenium.By;
 
+/**
+ * The By locator parser class.
+ */
 public class ByParser {
     private static final String CSS_TEMPLATE = "css=%s";
     private static final String XPATH_TEMPLATE = "xpath=%s";
 
+    /**
+     * Returns selector type name.
+     * @param by The By locator instance.
+     * @return The locator type name.
+     */
     public static String getByType(By by) {
         String byString = by.toString();
         int delimiter1Index = byString.indexOf(".");
@@ -13,12 +21,22 @@ public class ByParser {
         return byString.substring(delimiter1Index + 1, delimiter2Index);
     }
 
+    /**
+     * Returns selector value.
+     * @param by The By locator instance.
+     * @return The locator value.
+     */
     public static String getByValue(By by) {
         String byString = by.toString();
         int delimiterIndex = byString.indexOf(":");
         return byString.substring(delimiterIndex + 1).trim();
     }
 
+    /**
+     * Convers By locator to string.
+     * @param by The By locator instance.
+     * @return The locator string value.
+     */
     public static String getLocatorString(By by) {
         String byType = ByParser.getByType(by);
         String byValue = ByParser.getByValue(by);

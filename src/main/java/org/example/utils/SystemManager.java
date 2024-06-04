@@ -4,17 +4,32 @@ import org.apache.maven.surefire.shared.lang3.SystemUtils;
 import org.example.constants.DataModel;
 import org.example.constants.Platforms;
 
+/**
+ * System manager class.
+ */
 public class SystemManager {
     private SystemManager() {}
 
+    /**
+     * Returns true for Windows platform, or false otherwise.
+     * @return true/false flag.
+     */
     public static boolean isWindows() {
         return SystemUtils.IS_OS_WINDOWS;
     }
 
+    /**
+     * Returns true for Linux platform, or false otherwise.
+     * @return true/false flag.
+     */
     public static boolean isLinux() {
         return SystemUtils.IS_OS_LINUX;
     }
 
+    /**
+     * Returns platform name.
+     * @return The platform name..
+     */
     public static String getPlatform() {
 
         if (SystemUtils.IS_OS_WINDOWS) {
@@ -31,6 +46,10 @@ public class SystemManager {
         }
     }
 
+    /**
+     * Returns CPU data model.
+     * @return The data model.
+     */
     public static String getDataModel() {
         String dataModel = System.getProperty("sun.arch.data.model");
 

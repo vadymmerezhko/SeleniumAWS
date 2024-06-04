@@ -9,10 +9,24 @@ import java.lang.reflect.Method;
 
 import static org.example.constants.Settings.*;
 
+/**
+ * Base test server class.
+ * Contains common functionality for all test classes.
+ */
  class BaseTestServer {
 
+    /**
+     * Base test server constructor.
+     */
     BaseTestServer() {}
 
+    /**
+     * Invokes remote method by its name with parameter class name and parameter JSON string.
+     * @param methodName The method name.
+     * @param paramClassName The parameter class name.
+     * @param paramJsonString The parameter JSON string value.
+     * @return The output JSON string value.
+     */
     public String invokeMethod(String methodName, String paramClassName, String paramJsonString) {
         try {
             Class<?> paramClass = Class.forName(paramClassName);
