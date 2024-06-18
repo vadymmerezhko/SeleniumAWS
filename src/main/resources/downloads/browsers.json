@@ -1,14 +1,14 @@
 {
   "chrome": {
     "windows64": {
-      "stable":  "https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.105/win64/chrome-win64.zip",
-      "beta": "https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.29/win64/chrome-win64.zip",
-      "canary": "https://storage.googleapis.com/chrome-for-testing-public/125.0.6403.0/win64/chrome-win64.zip"
+      "stable":  "https://storage.googleapis.com/chrome-for-testing-public/126.0.6478.61/win64/chrome-win64.zip",
+      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.4/win64/chrome-win64.zip",
+      "canary": "https://storage.googleapis.com/chrome-for-testing-public/128.0.6535.2/win64/chrome-win64.zip"
     },
     "linux64": {
-      "stable": "https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.105/linux64/chrome-linux64.zip",
-      "beta": "https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.29/linux64/chrome-linux64.zip",
-      "canary": "https://storage.googleapis.com/chrome-for-testing-public/125.0.6403.0/linux64/chrome-linux64.zip"
+      "stable": "https://storage.googleapis.com/chrome-for-testing-public/126.0.6478.61/linux64/chrome-linux64.zip",
+      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.4/linux64/chrome-linux64.zip",
+      "canary": "https://storage.googleapis.com/chrome-for-testing-public/128.0.6543.0/linux64/chrome-linux64.zip"
     }
   }
 }

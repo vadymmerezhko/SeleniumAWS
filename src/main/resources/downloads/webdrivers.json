@@ -1,30 +1,30 @@
 {
   "chrome": {
     "windows64": {
-      "stable": "https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.105/win64/chromedriver-win64.zip",
-      "beta": "https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.29/linux64/chromedriver-linux64.zip",
-      "canary": "https://storage.googleapis.com/chrome-for-testing-public/125.0.6403.0/win64/chromedriver-win64.zip"
+      "stable": "https://storage.googleapis.com/chrome-for-testing-public/126.0.6478.61/win64/chromedriver-win64.zip",
+      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.4/win64/chromedriver-win64.zip",
+      "canary": "https://storage.googleapis.com/chrome-for-testing-public/128.0.6535.2/win64/chromedriver-win64.zip"
     },
     "linux64": {
-      "stable": "https://storage.googleapis.com/chrome-for-testing-public/123.0.6312.105/linux64/chromedriver-linux64.zip",
-      "beta": "https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.29/linux64/chromedriver-linux64.zip",
-      "canary": "https://storage.googleapis.com/chrome-for-testing-public/125.0.6403.0/linux64/chromedriver-linux64.zip"
+      "stable": "https://storage.googleapis.com/chrome-for-testing-public/126.0.6478.61/linux64/chromedriver-linux64.zip",
+      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.4/linux64/chromedriver-linux64.zip",
+      "canary": "https://storage.googleapis.com/chrome-for-testing-public/128.0.6543.0/linux64/chrome-linux64.zip"
     }
   },
   "firefox": {
     "windows64": {
-      "stable": "https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-win64.zip"
+      "stable": "https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-win-aarch64.zip"
     },
     "linux64": {
-      "stable": "https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz"
+      "stable": "https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-linux-aarch64.tar.gz"
     }
   },
   "edge": {
     "windows64": {
-      "stable": "https://msedgedriver.azureedge.net/121.0.2277.83/edgedriver_win64.zip"
+      "stable": "https://msedgedriver.azureedge.net/126.0.2592.61/edgedriver_win64.zip"
     },
     "linux64": {
-      "stable": "https://msedgedriver.azureedge.net/121.0.2277.83/edgedriver_linux64.zip"
+      "stable": "https://msedgedriver.azureedge.net/126.0.2592.61/edgedriver_linux64.zip"
     }
   }
 }
