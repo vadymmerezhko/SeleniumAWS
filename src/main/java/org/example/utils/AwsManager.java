@@ -14,6 +14,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,9 +28,10 @@ import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
 /**
  * AWS manager class.
  */
+@Slf4j
 public class AwsManager {
-    static private final int WAIT_EC2_ID_TIMEOUT = 30;
-    static private final int WAIT_EC2_PUBLIC_IP_TIMEOUT = 30;
+    static private final int WAIT_EC2_ID_TIMEOUT = 60;
+    static private final int WAIT_EC2_PUBLIC_IP_TIMEOUT = 60;
     static private final int AWS_LAMBDA_RETRY_COUNT = 20;
     static private final String AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID";
     static private final String AWS_SECRET_ACCESS_KEY = "AWS_SECRET_ACCESS_KEY";
@@ -177,7 +179,7 @@ public class AwsManager {
                     if (tryCount == AWS_LAMBDA_RETRY_COUNT) {
                         throw e;
                     }
-                    System.out.printf("Retry %s for thread id %d%n", tryCount, Thread.currentThread().threadId());
+                    log.info("Retry {} for thread id {}", tryCount, Thread.currentThread().threadId());
                     tryCount++;
                 }
             }

@@ -1,5 +1,7 @@
 package org.example.utils;
 
+import org.example.enums.BrowserName;
+
 /**
  * Docker manager class.
  * Contains common Docker functionality.
@@ -63,7 +65,7 @@ public class DockerManager {
      * @param threadCount The thread count.
      * @return The result output string.
      */
-    public static String runSeleniumStandalone(String browserName, String browserVersion, int threadCount) {
+    public static String runSeleniumStandalone(BrowserName browserName, String browserVersion, int threadCount) {
         String shmSize = SystemManager.isWindows() ? "--shm-size=\"2g\"" : "";
 
         return CommandLineExecutor.runCommandLine(String.format(

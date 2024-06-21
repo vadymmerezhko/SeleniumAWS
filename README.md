@@ -144,6 +144,10 @@ mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCoun
 ```bash
 mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local" "-Dbrowser=chrome:stable"
 ```
+#### AWS Remote Selenium Server - Firefox
+```bash
+mvn test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=remote" "-Dbrowser=firefox:latest" "-DremoteHost=http://127.0.0.1:4444"
+```
 #### Local Playwright - Linux Firefox
 ```bash
 mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_playwright" "-Dbrowser=firefox"

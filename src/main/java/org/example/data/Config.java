@@ -1,5 +1,8 @@
 package org.example.data;
 
+import org.example.enums.BrowserName;
+import org.example.enums.TestMode;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -15,7 +18,6 @@ public class Config {
     private static final String TREAD_COUNT_PROP_NAME = "threadCount";
     private static final String TEST_MODE_PROP_NAME = "testMode";
     private static final String BROWSER_PROP_NAME = "browser";
-    private static final String OS_PROP_NAME = "os";
     private static final String HEADLESS_PROP_NAME = "headless";
     private static final String REMOTE_HOST = "remoteHost";
     private static final String EMULATORS = "emulators";
@@ -59,8 +61,8 @@ public class Config {
      * Returns the test mode name.
      * @return The test mode name.
      */
-    synchronized public String getTestMode() {
-        return getStringProperty(TEST_MODE_PROP_NAME);
+    synchronized public TestMode getTestMode() {
+        return TestMode.fromString(getStringProperty(TEST_MODE_PROP_NAME));
     }
 
     /**
@@ -115,9 +117,9 @@ public class Config {
      * Returns the browser name.
      * @return The browser name.
      */
-    synchronized public String getBrowserName() {
+    synchronized public BrowserName getBrowserName() {
         String browser = getStringProperty(BROWSER_PROP_NAME);
-        return getSubValue(browser, 0);
+        return BrowserName.fromString(getSubValue(browser, 0));
     }
 
     /**
@@ -127,15 +129,6 @@ public class Config {
     synchronized public String getBrowserVersion() {
         String browser = getStringProperty(BROWSER_PROP_NAME);
         return getSubValue(browser, 1);
-    }
-
-    /**
-     * Returns OS name.
-     * @return The OS name.
-     */
-    synchronized public String getOsName() {
-        String browser = getStringProperty(OS_PROP_NAME);
-        return getSubValue(browser, 0);
     }
 
     /**

@@ -3,6 +3,7 @@ package org.example.utils;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import io.appium.java_client.service.local.flags.GeneralServerFlag;
+import org.example.enums.BrowserName;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -52,8 +53,8 @@ public class AppiumManager {
      * @param emulatorName The emulator name.
      * @return The browser name.
      */
-    public static String getBrowserName(String emulatorName) {
-        return getStringProperty(emulatorName,"browserName");
+    public static BrowserName getBrowserName(String emulatorName) {
+        return BrowserName.fromString(getStringProperty(emulatorName,"browserName"));
     }
 
     /**

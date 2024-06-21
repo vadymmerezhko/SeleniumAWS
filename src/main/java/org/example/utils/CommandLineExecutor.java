@@ -1,5 +1,7 @@
 package org.example.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,6 +9,7 @@ import java.io.InputStreamReader;
 /**
  * Command line executor class.
  */
+@Slf4j
 public class CommandLineExecutor {
 
     /**
@@ -21,14 +24,16 @@ public class CommandLineExecutor {
             command = "cmd.exe /c" + command;
         }
 
-        Runtime rt = Runtime.getRuntime();
-        Process proc;
+        Runtime runtime = Runtime.getRuntime();
+        Process process;
+        log.info("Running command line: {}", command);
+
         try {
-            proc = rt.exec(command);
+            process = runtime.exec(command);
             BufferedReader stdInput = new BufferedReader(new
-                    InputStreamReader(proc.getInputStream()));
+                    InputStreamReader(process.getInputStream()));
             BufferedReader stdError = new BufferedReader(new
-                    InputStreamReader(proc.getErrorStream()));
+                    InputStreamReader(process.getErrorStream()));
 
             // Read the output from the command
             String s;

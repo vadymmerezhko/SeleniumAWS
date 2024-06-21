@@ -1,5 +1,6 @@
 package org.example.server;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.data.SignUpTestInput;
 import org.example.data.SignUpTestResult;
 import org.example.page.WebFormPage;
@@ -10,6 +11,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Test server implementation class.
  */
+@Slf4j
 public class TestServer extends BaseTestServer implements TestServerInterface {
     static private final ConcurrentMap<Long, Boolean> threadMap = new ConcurrentHashMap<>();
 
@@ -18,7 +20,7 @@ public class TestServer extends BaseTestServer implements TestServerInterface {
      */
     TestServer() {
         threadMap.put(Thread.currentThread().threadId(), true);
-        System.out.println("Thread count: " + threadMap.size());
+        log.info("Thread count: {}", threadMap.size());
     }
 
     /**
@@ -54,7 +56,7 @@ public class TestServer extends BaseTestServer implements TestServerInterface {
             webFormPage.pickDate(testInput.date());
             webFormPage.setRange(testInput.range());
 
-            System.out.println("Page URL: " + webFormPage.getURL());
+            log.info("Page URL: {}", webFormPage.getURL());
 
             return new SignUpTestResult(
                     webFormPage.getTextInputValue(),

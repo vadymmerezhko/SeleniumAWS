@@ -1,6 +1,8 @@
 package org.example.balancer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.constants.Settings;
+import org.example.enums.BrowserName;
 import org.example.utils.ServerManager;
 
 import java.util.*;
@@ -13,6 +15,7 @@ import static org.example.constants.Settings.AWS_EC2_USER_DATA_TEMPLATE;
 /**
  * This call performs load balancing of running test on AWS EC2 instances.
  */
+@Slf4j
 public class LoadBalancer {
 
     private final AtomicLong maxServersCount = new AtomicLong(0);
@@ -42,6 +45,7 @@ public class LoadBalancer {
      * @param serverId The AWS EC2 ID.
      */
     public synchronized void lockSever(long serverId) {
+        log.info("Load balancer locking server {}", serverId);
         serverLockMap.add(serverId);
 
         if (serverLockMap.size() == maxServersCount.get()) {
@@ -54,6 +58,7 @@ public class LoadBalancer {
      * @param serverId The AWS EC2 ID.
      */
     public void unlockSever(long serverId) {
+        log.info("Load balancer unlocking server {}", serverId);
         serverLockMap.remove(serverId);
     }
 
@@ -103,7 +108,7 @@ public class LoadBalancer {
      * @param browserVersion The browser version.
      * @return The AWS EC2 public IP.
      */
-    public synchronized String getServerPublicIp(long serverId, int threadCount, String browserName, String browserVersion) {
+    public synchronized String getServerPublicIp(long serverId, int threadCount, BrowserName browserName, String browserVersion) {
         String userData = String.format(AWS_EC2_USER_DATA_TEMPLATE, threadCount, browserName, browserVersion);
         String encodedUserData = Base64.getEncoder().encodeToString(userData.getBytes());
 
@@ -117,7 +122,7 @@ public class LoadBalancer {
                         Settings.SECURITY_GROUP_NAME,
                         encodedUserData);
             } catch (Exception e) {
-                System.out.printf("Cannot create all servers:%n%s%n", e.getMessage());
+                log.error("Cannot create all servers:\n{}", e.getMessage());
                 System.exit(-1);
             }
         }

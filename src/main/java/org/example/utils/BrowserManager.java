@@ -1,15 +1,18 @@
 package org.example.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.example.enums.BrowserName;
+import org.example.enums.DataModel;
+import org.example.enums.Platform;
 import org.json.JSONObject;
 
 import java.io.File;
 
-import static org.example.constants.Browsers.*;
-
 /**
  * Browser manager class.
  */
+@Slf4j
 public class BrowserManager {
 
     private BrowserManager() {}
@@ -28,7 +31,7 @@ public class BrowserManager {
      * @param browserVersion The browser version.
      * @return The browser binary file path.
      */
-    public synchronized static String downloadBrowserBinary(String browserName, String browserVersion) {
+    public synchronized static String downloadBrowserBinary(BrowserName browserName, String browserVersion) {
         try {
             String downloadUrl = getBrowserDownloadUrl(browserName, browserVersion);
             String zipFileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
@@ -36,7 +39,7 @@ public class BrowserManager {
             String browserBinaryFilePath = getBrowserBinaryFilePath(browserName, browserFolderPath, zipFileName);
 
             if (!new File(browserBinaryFilePath).exists()) {
-                System.out.printf("Downloading %s:%s browser binary files...%n", browserName, browserVersion);
+                log.info("Downloading {}:{} browser binary files...", browserName, browserVersion);
                 createDownloadBinFolder();
                 FileManager.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
                 WebDownloadManager.download(downloadUrl, DOWNLOAD_BROWSER_ZIP_FILE_PATH);
@@ -58,7 +61,7 @@ public class BrowserManager {
      * @param browserVersion The browser version.
      * @return The web driver binary file path.
      */
-    public synchronized static String downloadWebDriverBinary(String browserName, String browserVersion) {
+    public synchronized static String downloadWebDriverBinary(BrowserName browserName, String browserVersion) {
         try {
             String downloadUrl = getWebDriverDownloadUrl(browserName, browserVersion);
             String zipFileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
@@ -66,7 +69,7 @@ public class BrowserManager {
             String webDriverBinaryFilePath = getWebDriversBinaryPath(browserName, webDriverFolderPath, zipFileName);
 
             if (!new File(webDriverBinaryFilePath).exists()) {
-                System.out.printf("Downloading %s:%s WebDriver binary file...%n", browserName, browserVersion);
+                log.info("Downloading {}:{} WebDriver binary file...", browserName, browserVersion);
                 createDownloadBinFolder();
                 FileManager.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
                 WebDownloadManager.download(downloadUrl, DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
@@ -99,25 +102,25 @@ public class BrowserManager {
         }
     }
 
-    private static String getBrowserDownloadUrl(String browserName, String browserVersion) {
+    private static String getBrowserDownloadUrl(BrowserName browserName, String browserVersion) {
         return getWebDriverDownloadUrl(browserName, browserVersion, BROWSERS_DOWNLOAD_JSON_FILE_PATH);
     }
 
-    private static String getWebDriverDownloadUrl(String browserName, String browserVersion) {
+    private static String getWebDriverDownloadUrl(BrowserName browserName, String browserVersion) {
         return getWebDriverDownloadUrl(browserName, browserVersion, WEBDRIVERS_DOWNLOAD_JSON_FILE_PATH);
     }
 
-    private static String getWebDriverDownloadUrl(String browserName, String browserVersion, String jsonFilePath) {
-        String platform = SystemManager.getPlatform();
-        String dataModel = SystemManager.getDataModel();
+    private static String getWebDriverDownloadUrl(BrowserName browserName, String browserVersion, String jsonFilePath) {
+        Platform platform = SystemManager.getPlatform();
+        DataModel dataModel = SystemManager.getDataModel();
 
         JSONObject browsers = new JSONObject(FileManager.readFile(jsonFilePath));
-        JSONObject browser = browsers.getJSONObject(browserName);
-        JSONObject platformDataModel = browser.getJSONObject(platform + dataModel);
+        JSONObject browser = browsers.getJSONObject(browserName.toString());
+        JSONObject platformDataModel = browser.getJSONObject(platform.toString() + dataModel.toString());
         return platformDataModel.getString(browserVersion);
     }
 
-    private static String getBrowserBinaryFilePath(String browserName, String browserFolderPath, String zipFileName) {
+    private static String getBrowserBinaryFilePath(BrowserName browserName, String browserFolderPath, String zipFileName) {
         String browserFolderName = FilenameUtils.removeExtension(zipFileName);
         String browserFileName;
 
@@ -130,7 +133,7 @@ public class BrowserManager {
         return String.format("%s/%s/%s", browserFolderPath, browserFolderName, browserFileName);
     }
 
-    private static String getWebDriversBinaryPath(String browserName, String browserFolderPath, String zipFileName) {
+    private static String getWebDriversBinaryPath(BrowserName browserName, String browserFolderPath, String zipFileName) {
         String webDriverFolderName =  zipFileName.split("\\.")[0];
         String webDriverFileName;
 

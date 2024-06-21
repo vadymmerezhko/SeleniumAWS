@@ -1,8 +1,12 @@
 package org.example.utils;
 
 import org.apache.maven.surefire.shared.lang3.SystemUtils;
-import org.example.constants.DataModel;
-import org.example.constants.Platforms;
+import org.example.enums.DataModel;
+import org.example.enums.Platform;
+
+import static org.example.enums.DataModel.BIT32;
+import static org.example.enums.DataModel.BIT64;
+import static org.example.enums.Platform.*;
 
 /**
  * System manager class.
@@ -30,16 +34,16 @@ public class SystemManager {
      * Returns platform name.
      * @return The platform name..
      */
-    public static String getPlatform() {
+    public static Platform getPlatform() {
 
         if (SystemUtils.IS_OS_WINDOWS) {
-            return Platforms.WINDOWS;
+            return WINDOWS;
         }
         else if (SystemUtils.IS_OS_LINUX) {
-            return Platforms.LINUX;
+            return LINUX;
         }
         else if (SystemUtils.IS_OS_MAC) {
-            return Platforms.MAC;
+            return MAC;
         }
         else {
             throw new RuntimeException("This OS is not supported: " + System.getProperty("os.name"));
@@ -50,15 +54,15 @@ public class SystemManager {
      * Returns CPU data model.
      * @return The data model.
      */
-    public static String getDataModel() {
+    public static DataModel getDataModel() {
         String dataModel = System.getProperty("sun.arch.data.model");
 
         switch (dataModel) {
             case "32" -> {
-                return DataModel.BIT32;
+                return BIT32;
             }
             case "64" -> {
-                return DataModel.BIT64;
+                return BIT64;
             }
             default -> throw new RuntimeException("Unsupported data model: " + dataModel);
         }

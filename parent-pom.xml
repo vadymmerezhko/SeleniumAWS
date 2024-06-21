@@ -24,7 +24,7 @@
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-surefire-plugin</artifactId>
-      <version>3.1.2</version>
+      <version>3.3.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.testng/testng -->
     <dependency>
@@ -36,7 +36,13 @@
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-java</artifactId>
-      <version>4.17.0</version>
+      <version>4.21.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
+    <dependency>
+      <groupId>io.github.bonigarcia</groupId>
+      <artifactId>webdrivermanager</artifactId>
+      <version>5.8.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/io.appium/java-client -->
     <dependency>
@@ -44,16 +50,17 @@
       <artifactId>java-client</artifactId>
       <version>9.1.0</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ec2 -->
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-ec2</artifactId>
-      <version>1.12.566</version>
+      <version>1.12.744</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-devicefarm -->
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-devicefarm</artifactId>
-      <version>1.12.583</version>
+      <version>1.12.744</version>
     </dependency>
     <dependency>
       <groupId>software.amazon.awssdk</groupId>

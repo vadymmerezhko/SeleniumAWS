@@ -1,5 +1,6 @@
 package org.example.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -11,6 +12,7 @@ import java.nio.file.Paths;
  * File manager class.
  * Contains common file methods.
  */
+@Slf4j
 public class FileManager {
 
     /**
@@ -55,7 +57,7 @@ public class FileManager {
 
         if (file.exists()) {
             if (file.delete()) {
-                System.out.printf("Deleted the file: %s%n", filePath);
+                log.info("Deleted the file: {}", filePath);
             } else {
                 throw new RuntimeException("Cannot delete file: " + filePath);
             }
@@ -70,7 +72,7 @@ public class FileManager {
         File directory = new File(dirPath);
         try {
             FileUtils.deleteDirectory(directory);
-            System.out.printf("Deleted the directory: %s%n", dirPath);
+            log.info("Deleted the directory: {}", dirPath);
         }
         catch (IOException e) {
             throw new RuntimeException(String.format(

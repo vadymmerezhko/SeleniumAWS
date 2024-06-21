@@ -5,8 +5,6 @@ import org.example.data.Config;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
-import static org.example.constants.TestModes.AWS_LAMBDA;
-import static org.example.constants.TestModes.AWS_RMI;
 
 /**
  * Test server manager class.

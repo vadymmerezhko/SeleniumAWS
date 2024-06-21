@@ -22,7 +22,7 @@ public class Settings {
     public static final int AWS_URL_EXPIRES_SECONDS = 60 * 15;
     public static final int RMI_SERVER_BASE_PORT = 4200;
     public static final int REMOTE_WEB_DRIVER_PORT = 4444;
-    public static final int SERVER_WAIT_TIMEOUT_SECONDS = 180;
+    public static final int SERVER_WAIT_TIMEOUT_SECONDS = 120;
     public static final String RMI_SERVER_USER_DATA_TEMPLATE =
             "#!/bin/bash\n" +
             "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +

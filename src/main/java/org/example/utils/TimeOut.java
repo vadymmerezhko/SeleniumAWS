@@ -1,8 +1,11 @@
 package org.example.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Timeout utils class.
  */
+@Slf4j
 public class TimeOut {
     int timeoutSeconds;
 
@@ -17,13 +20,15 @@ public class TimeOut {
 
         /**
          * Runs timeout timer thread.
-         * Throws timeout exception when timeout period expires.
+         * Calls system exit when timeout period expires.
          */
         public void run() {
-            Waiter.waitSeconds(1);
-
-            if ((System.currentTimeMillis() - startMilliSeconds) / 1000 >= timeoutSeconds) {
-                throw new TimeOutException(timeoutSeconds + " seconds timeout exception!");
+            while (true) {
+                if ((System.currentTimeMillis() - startMilliSeconds) / 1000 >= timeoutSeconds) {
+                    log.error("System exit after timeout {} seconds.", timeoutSeconds);
+                    System.exit(1);
+                }
+                Waiter.waitSeconds(1);
             }
         }
     }
