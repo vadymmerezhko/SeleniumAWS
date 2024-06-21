@@ -3,9 +3,9 @@ package org.example.enums;
 public enum BrowserName {
 
     CHROME("chrome"),
-    FIREFOX("firefox"),
-    EDGE("edge"),
     CHROMIUM("chromium"),
+    EDGE("edge"),
+    FIREFOX("firefox"),
     SAFARI("safari"),
     WEBKIT("webkit");
 

@@ -8,31 +8,31 @@ Test suite path:
 ```bash
 -DtestSuite=<test suite path>
 ```
-Thread count:
+Thread count (from 1 to 32):
 ```bash
 -DthreadCount=<trtead count>
 ```
-Test mode:
+Test mode (local, local_auto, local_appium, remote, local_docker, local_docker_auto, aws_docker, aws_device_farm, local_playwright, aws_lambda, aws_rmi, local_accessibility):
 ```bash
 -DtestMode=<test mode>
 ```
-Browser name:
+Browser name (chrome, chromium, firefox, edge, safari, webkit):
 ```bash
 -Dbrowser=<browser name>
 ```
-Browser name and version:
+Browser name and version (latest, latest-1, dev, stable, beta, canary):
 ```bash
 -Dbrowser=<browser name>:<browser version>
 ```
-Headless:
+Headless (true, false):
 ```bash
 -Dheadless=true
 ```
-Non-headless:
+Non-headless (true/false):
 ```bash
 -Dheadless=false
 ```
-Remote host:
+Remote host (like http://127.0.0.1:4444):
 ```bash
 -DremoteHost=<remote host URL>
 ```
@@ -41,31 +41,43 @@ Remote host example:
 -DremoteHost=http://localhost:4444
 ```
 ### Test modes
-Local:
+Local (for chrome:stable, chrome:beta, chrome:canary, firefox:stable, edge:stable):
 ```bash
 -DtestMode=local
 ```
-Local Docker:
+Local Auto (for installed chrome, firefox, edge, safari):
+```bash
+-DtestMode=local_auto
+```
+Local Docker (for chrome:version, edge:version, firefox:version,
+for versions: latest, latest-1, latest-n, 124.0, beta, dev):
 ```bash
 -DtestMode=local_docker
 ```
-Local Playwright:
+Local Docker Auto (for chrome:version, chromium:version, edge:<version>, firefox:<version>, safari:version,
+for versions: latest, latest-1, latest-n, 124.0, beta, dev):
+```bash
+-DtestMode=local_docker_auto
+```
+Local Playwright (for chromium, firefox, webkit):
 ```bash
 -DtestMode=local_playwright
 ```
-Local Playwright accessibility:
+Local Playwright accessibility (for chromium only):
 ```bash
 -DtestMode=local_accessibility
 ```
-AWS Docker:
+AWS Docker (for chrome:version, edge:version, firefox:version,
+for versions: latest, latest-1, latest-n, 124.0, beta, dev):
 ```bash
 -DtestMode=aws_docker
 ```
-AWS Device farm:
+AWS Device farm (for chrome:version, edge:version, firefox:latest on Windows,
+for versions: latest, latest-1, latest-n):
 ```bash
 -DtestMode=aws_device_farm
 ```
-Remote (Selenium Grid):
+Remote (Selenium Grid for chrome, edge, firefox, safari):
 ```bash
 -DtestMode=remote
 ```
@@ -73,7 +85,7 @@ Local Appium:
 ```bash
 -DtestMode=local_appium";
 ```
-AWS Lambda:
+AWS Lambda (for Playwright firefox only):
 ```bash
 -DtestMode=aws_lambda
 ```
@@ -98,6 +110,10 @@ Local Docker mode Chrome latest:
 ```bash
 -Dbrowser=chrome:latest
 ```
+Local Docker mode Chrome latest - 1:
+```bash
+-Dbrowser=chrome:latest-1
+```
 Local Docker mode Chrome 112:
 ```bash
 -Dbrowser=chrome:112.0
@@ -109,6 +125,10 @@ Local mode Firefox stable:
 Local Docker mode Firefox latest:
 ```bash
 -Dbrowser=chrome:latest
+```
+Local Docker Auto mode Safari latest:
+```bash
+-Dbrowser=safari:latest
 ```
 Local mode Edge stable:
 ```bash
@@ -122,7 +142,7 @@ Local Playwright mode Chromium:
 ```bash
 -Dbrowser=firefox:chromium
 ```
-Local Playwright mode WebKit (Safari):
+Local Playwright mode WebKit:
 ```bash
 -Dbrowser=firefox:webkit
 ```
@@ -130,25 +150,29 @@ Local Playwright mode WebKit (Safari):
 #### Local Run - Chrome stable
 ```bash
 mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local" "-Dbrowser=firefox:stable"
-```      
+```    
+#### Local Run Auto - Firefox
+```bash
+mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_auto" "-Dbrowser=firefox"
+```    
 #### AWS Local Docker - Chrome latest
 TODO: Disabled till Maven exec plugin vulnerability is fixed.
 ```bash
 mvn -f aws-local-pom.xml clean compile exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
-```      
-#### Local Docker - Linux Firefox
+```
+#### Local Docker - Firefox latest
 ```bash
 mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker" "-Dbrowser=firefox:latest"
 ```
-#### Local WebDriver - Linux Chrome
+#### Local Docker Auto - Safari latest
 ```bash
-mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local" "-Dbrowser=chrome:stable"
+mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker_auto" "-Dbrowser=safari:latest"
 ```
 #### AWS Remote Selenium Server - Firefox
 ```bash
 mvn test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=remote" "-Dbrowser=firefox:latest" "-DremoteHost=http://127.0.0.1:4444"
 ```
-#### Local Playwright - Linux Firefox
+#### Local Playwright - Firefox
 ```bash
 mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_playwright" "-Dbrowser=firefox"
 ```
@@ -156,7 +180,7 @@ mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCoun
 ```bash
 mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=5" "-DtestMode=aws_device_farm" "-Dbrowser=edge:latest"
 ```
-#### AWS Remote Docker - Linux Chrome
+#### AWS Remote Docker - Chrome latest
 ```bash
 mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
 ```

@@ -81,6 +81,8 @@ public class WebDriverFactory {
                         browserName, config.getBrowserVersion(), threadCount));
                 case LOCAL_DOCKER -> driver = new RobustWebDriver(getLocalDockerWebDriver(
                         browserName, config.getBrowserVersion(), threadCount));
+                case LOCAL_DOCKER_AUTO -> driver = new RobustWebDriver(getLocalDockerAutoWebDriver(
+                        browserName, config.getBrowserVersion()));
                 case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, browserVersion));
                 case LOCAL_AUTO ->  driver = new RobustWebDriver(getLocalAutoWebDriver(browserName));
                 case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver(browserName);
@@ -156,6 +158,36 @@ public class WebDriverFactory {
             }
             default -> throw new RuntimeException("Unsupported Docker browser: " + browserName);
         }
+    }
+
+    /**
+     * Returns local Docker auto web driver by browser name, browser version and thread count.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version.
+     * @return The local Docker web driver instance.
+     */
+    private static WebDriver getLocalDockerAutoWebDriver(BrowserName browserName, String browserVersion) {
+        WebDriverManager webDriverManager;
+        String arguments = "--disable-gpu,--no-sandbox";
+
+        if (!WebDriverManager.isDockerAvailable()) {
+            throw new RuntimeException("Docker is not available.");
+        }
+
+        if (config.getHeadless()) {
+            arguments += ",--headless";
+        }
+
+        switch (browserName) {
+            case CHROME -> webDriverManager = WebDriverManager.chromedriver().browserInDocker();
+            case FIREFOX -> webDriverManager = WebDriverManager.firefoxdriver().browserInDocker();
+            case EDGE -> webDriverManager = WebDriverManager.edgedriver().browserInDocker();
+            case SAFARI -> webDriverManager = WebDriverManager.safaridriver().browserInDocker();
+            default -> throw new RuntimeException("Unsupported auto Docker browser: " + browserName);
+        }
+        return webDriverManager.dockerDefaultArgs(arguments)
+                .browserVersion(browserVersion)
+                .create();
     }
 
     /**

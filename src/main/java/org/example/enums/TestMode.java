@@ -4,6 +4,7 @@ public enum TestMode {
     LOCAL("local"),
     LOCAL_AUTO("local_auto"),
     LOCAL_DOCKER("local_docker"),
+    LOCAL_DOCKER_AUTO("local_docker_auto"),
     LOCAL_PLAYWRIGHT("local_playwright"),
     LOCAL_ACCESSIBILITY("local_accessibility"),
     AWS_DOCKER("aws_docker"),
