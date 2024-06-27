@@ -30,8 +30,8 @@ import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
  */
 @Slf4j
 public class AwsManager {
-    static private final int WAIT_EC2_ID_TIMEOUT = 60;
-    static private final int WAIT_EC2_PUBLIC_IP_TIMEOUT = 60;
+    static private final int WAIT_EC2_ID_TIMEOUT = 120;
+    static private final int WAIT_EC2_PUBLIC_IP_TIMEOUT = 120;
     static private final int AWS_LAMBDA_RETRY_COUNT = 20;
     static private final String AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID";
     static private final String AWS_SECRET_ACCESS_KEY = "AWS_SECRET_ACCESS_KEY";

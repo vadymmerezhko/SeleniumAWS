@@ -14,16 +14,18 @@ import java.util.Properties;
  * See README.md fi;e for more details.
  */
 public class Config {
-    private static final String TESTNG_FILE_PROP_NAME = "testngFile";
-    private static final String TREAD_COUNT_PROP_NAME = "threadCount";
-    private static final String TEST_MODE_PROP_NAME = "testMode";
-    private static final String BROWSER_PROP_NAME = "browser";
-    private static final String HEADLESS_PROP_NAME = "headless";
+    private static final String TESTNG_FILE = "testngFile";
+    private static final String TREAD_COUNT = "threadCount";
+    private static final String TEST_MODE = "testMode";
+    private static final String BROWSER = "browser";
+    private static final String HEADLESS = "headless";
     private static final String REMOTE_HOST = "remoteHost";
     private static final String EMULATORS = "emulators";
     private static final String ACCESS_KEY = "accessKey";
     private static final String SECRET_KEY = "secretKey";
     private static final String START_DATE = "startDate";
+    private static final String SCREENSHOT_ON_FAIL = "screenshotOnFail";
+    private static final String DEBUG_FAIL = "debugFail";
     private static final String VALUES_DELIMITER = ":";
 
     private static final Map<String, String> stringPropertyMap = new HashMap<>();
@@ -46,7 +48,7 @@ public class Config {
      * @return The TestNG file name.
      */
     synchronized public String getTestngFile() {
-        return getStringProperty(TESTNG_FILE_PROP_NAME);
+        return getStringProperty(TESTNG_FILE);
     }
 
     /**
@@ -54,7 +56,7 @@ public class Config {
      * @return The maximal tread count.
      */
     synchronized public int getThreadCount() {
-        return getIntegerProperty(TREAD_COUNT_PROP_NAME);
+        return getIntegerProperty(TREAD_COUNT);
     }
 
     /**
@@ -62,7 +64,7 @@ public class Config {
      * @return The test mode name.
      */
     synchronized public TestMode getTestMode() {
-        return TestMode.fromString(getStringProperty(TEST_MODE_PROP_NAME));
+        return TestMode.fromString(getStringProperty(TEST_MODE));
     }
 
     /**
@@ -118,7 +120,7 @@ public class Config {
      * @return The browser name.
      */
     synchronized public BrowserName getBrowserName() {
-        String browser = getStringProperty(BROWSER_PROP_NAME);
+        String browser = getStringProperty(BROWSER);
         return BrowserName.fromString(getSubValue(browser, 0));
     }
 
@@ -127,7 +129,7 @@ public class Config {
      * @return The browser version.
      */
     synchronized public String getBrowserVersion() {
-        String browser = getStringProperty(BROWSER_PROP_NAME);
+        String browser = getStringProperty(BROWSER);
         return getSubValue(browser, 1);
     }
 
@@ -136,7 +138,23 @@ public class Config {
      * @return The headless flag.
      */
     synchronized public boolean getHeadless() {
-        return getBooleanProperty(HEADLESS_PROP_NAME);
+        return getBooleanProperty(HEADLESS);
+    }
+
+    /**
+     * Returns true/false screenshot on fail flag.
+     * @return The headless flag.
+     */
+    synchronized public boolean getScreenshotOnFail() {
+        return getBooleanProperty(SCREENSHOT_ON_FAIL);
+    }
+
+    /**
+     * Returns true/false debug fail flag.
+     * @return The headless flag.
+     */
+    synchronized public boolean getDebugFail() {
+        return getBooleanProperty(DEBUG_FAIL);
     }
 
     private String getStringProperty(String propertyName) {

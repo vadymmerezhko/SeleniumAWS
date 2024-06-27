@@ -4,9 +4,9 @@ import org.testng.annotations.*;
 
 public class Selenium1Test extends BaseTest {
 
-    @Test(description = "This method validates the sign up functionality", retryAnalyzer = RetryAnalyzer.class)
+    @Test(description = "This method validates the sign up functionality", invocationCount = 1, retryAnalyzer = RetryAnalyzer.class)
     public void signUp1() {
-        signUp();
+        failSignUp();
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
@@ -19,9 +19,9 @@ public class Selenium1Test extends BaseTest {
         signUp();
     }
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
+    @Test(description = "This method validates the sign up functionality", invocationCount = 1, retryAnalyzer = RetryAnalyzer.class)
     public void signUp4() {
-        signUp();
+        failSignUp();
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)

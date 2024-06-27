@@ -15,6 +15,8 @@ import org.example.enums.TestMode;
 import org.example.utils.*;
 import org.example.driver.playwright.PlaywrightDriver;
 import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -32,6 +34,7 @@ import software.amazon.awssdk.services.devicefarm.DeviceFarmClient;
 import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlRequest;
 import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlResponse;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -106,12 +109,26 @@ public class WebDriverFactory {
     }
 
     /**
+     * Takes screenshot and saves it by the file path.
+     * @param destinationFilePath The destination file path.
+     */
+    public static void takeScreenshot(String destinationFilePath) {
+        long threadId = Thread.currentThread().threadId();
+
+        if (driverMap.containsKey(threadId)) {
+            WebDriver driver = driverMap.get(threadId);
+            File file = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+            FileManager.moveFile(file.getPath(), destinationFilePath);
+        }
+    }
+
+    /**
      * Returns local web driver by browser name and browser version.
      * @param browserName The browser name.
      * @param browserVersion The browser version (optional).
      * @return The web driver instance.
      */
-    public static WebDriver getLocalWebDriver(BrowserName browserName, String browserVersion) {
+    private static WebDriver getLocalWebDriver(BrowserName browserName, String browserVersion) {
         WebDriver driver;
 
         switch (browserName) {
@@ -128,7 +145,7 @@ public class WebDriverFactory {
      * @param browserName The browser name.
      * @return The web driver instance.
      */
-    public static WebDriver getLocalAutoWebDriver(BrowserName browserName) {
+    private static WebDriver getLocalAutoWebDriver(BrowserName browserName) {
         WebDriver driver;
 
         switch (browserName) {
