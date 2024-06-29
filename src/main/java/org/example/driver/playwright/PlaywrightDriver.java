@@ -24,14 +24,6 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
     private boolean accessibilityTestEnabled = false;
 
     /**
-     * Sets enabled accessibility test true/false flag.
-     * @param enabled The enabled flag.
-     */
-    public void setAccessibilityTestEnabled(boolean enabled) {
-        accessibilityTestEnabled = enabled;
-    }
-
-    /**
      * Playwright driver constructor by Playwright browser instance.
      * @param browser The browser instance.
      */
@@ -46,6 +38,14 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
     public PlaywrightDriver(PlaywrightPage playwrightPage) {
         this.playwrightPage = playwrightPage;
         page = playwrightPage.getPage();
+    }
+
+    /**
+     * Sets enabled accessibility test true/false flag.
+     * @param enabled The enabled flag.
+     */
+    public void setAccessibilityTestEnabled(boolean enabled) {
+        accessibilityTestEnabled = enabled;
     }
 
     /**

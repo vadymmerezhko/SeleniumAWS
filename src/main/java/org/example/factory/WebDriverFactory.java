@@ -108,10 +108,8 @@ public class WebDriverFactory {
             driver = driverMap.get(threadId);
             driver.manage().deleteAllCookies();
 
-            if (testMethod != LOCAL_PLAYWRIGHT && testMethod != LOCAL_ACCESSIBILITY) {
-                driver.manage().window().setSize(new Dimension(
-                        config.getBrowseWidth(), config.getBrowseHeight()));
-            }
+            driver.manage().window().setSize(new Dimension(
+                    config.getBrowseWidth(), config.getBrowseHeight()));
 
             if (config.getVideoOnFail()) {
                 startVideoRecording();

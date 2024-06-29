@@ -124,9 +124,7 @@ public class PlaywrightManage implements Options {
      */
     @Override
     public WebDriver.Window window() {
-        String methodName = this.getClass().getEnclosingMethod().getName();
-        MethodManager.throwMethodNotImplementedException(methodName);
-        return null;
+        return new PlaywrightWindow(page);
     }
 
     /**
