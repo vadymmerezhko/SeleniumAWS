@@ -1,11 +1,15 @@
 package org.example.driver.playwright;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.ViewportSize;
 import org.example.utils.MethodManager;
+import org.json.JSONObject;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
+
+import java.util.LinkedHashMap;
 
 public class PlaywrightWindow implements WebDriver.Window {
 
@@ -32,13 +36,16 @@ public class PlaywrightWindow implements WebDriver.Window {
 
     @Override
     public Point getPosition() {
-        MethodManager.throwMethodNotImplementedException("Window.getPosition()");
-        return null;
+        LinkedHashMap<String, Integer> position =
+                (LinkedHashMap<String, Integer>)page.evaluate(
+                "() => { return { x: window.screenX, y: window.screenY }; }");
+        return new Point(position.get("x"), position.get("y"));
     }
 
     @Override
     public void setPosition(Point targetPosition) {
-        MethodManager.throwMethodNotImplementedException("Window.setPosition(Point targetPosition)");
+        page.evaluate(String.format("() => { window.move(%d, %d); }",
+                targetPosition.x, targetPosition.y));
     }
 
     @Override
