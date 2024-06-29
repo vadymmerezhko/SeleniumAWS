@@ -2,50 +2,55 @@ package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Timeout utils class.
  */
 @Slf4j
 public class TimeOut {
-    int timeoutSeconds;
-
-    static class TimeThread extends Thread {
-        private final long startMilliSeconds;
-        private final int timeoutSeconds;
-
-        TimeThread(int timeoutSeconds) {
-            this.timeoutSeconds = timeoutSeconds;
-            startMilliSeconds = System.currentTimeMillis();
-        }
-
-        /**
-         * Runs timeout timer thread.
-         * Calls system exit when timeout period expires.
-         */
-        public void run() {
-            while (true) {
-                if ((System.currentTimeMillis() - startMilliSeconds) / 1000 >= timeoutSeconds) {
-                    log.error("System exit after timeout {} seconds.", timeoutSeconds);
-                    System.exit(1);
-                }
-                Waiter.waitSeconds(1);
-            }
-        }
-    }
+    private final int timeoutSeconds;
+    private final String name;
+    private final AtomicBoolean isExpired = new AtomicBoolean(false);
 
     /**
      * Timeout constructor.
-     * @param seconds The timeout seconds.
+     * @param  name The timeout name.
+     * @param timeoutSeconds The timeout seconds.
      */
-    public TimeOut(int seconds) {
-        timeoutSeconds = seconds;
+    public TimeOut(String name, int timeoutSeconds) {
+        this.name = name;
+        this.timeoutSeconds = timeoutSeconds;
     }
 
     /**
-     * Starts the timeout timer.
+     * Runs timeout timer thread till the timeout expires.
      */
     public void start() {
-        TimeThread timeThread = new TimeThread(timeoutSeconds);
-        timeThread.start();
+        long startMilliSeconds = System.currentTimeMillis();
+        Thread thread = new Thread(() -> {
+            while ((System.currentTimeMillis() - startMilliSeconds) / 1000 < timeoutSeconds) {
+                Waiter.waitSeconds(1);
+            }
+            isExpired.set(true);
+        });
+        thread.start();
+    }
+
+    /**
+     * Returns true if the timeout is expired or false otherwise;
+     * @return The expired flag.
+     */
+    public boolean getIsExpired() {
+        return isExpired.get();
+    }
+
+    /**
+     * Throws timeout exception if timeout expires.
+     */
+    public void checkExpired() {
+        if (getIsExpired()) {
+            throw new TimeOutException(String.format("%s timeout expired.", name));
+        }
     }
 }

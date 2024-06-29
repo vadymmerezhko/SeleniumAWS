@@ -24,17 +24,23 @@ import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
 public class BaseTest {
 
     static private final String SCREENSHOTS_FOLDER_PATH = "./screenshots";
+    static private final String VIDEOS_FOLDER_PATH = "./videos";
     static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
 
 
     @BeforeSuite
     public void beforeSuite() {
-        FileManager.deleteDirectory(SCREENSHOTS_FOLDER_PATH);
+        FileManager.deleteFolder(SCREENSHOTS_FOLDER_PATH);
+        FileManager.deleteFolder(VIDEOS_FOLDER_PATH);
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void beforeMethod() {
+    public void beforeMethod(ITestResult result) {
         LoadBalancer.getInstance().incrementServerThreadCount();
+
+        if (config.getVideoOnFail()) {
+            enableVideoRecording(result);
+        }
     }
 
     @AfterMethod
@@ -43,6 +49,15 @@ public class BaseTest {
 
         if (config.getScreenshotOnFail() && result.getStatus() == ITestResult.FAILURE) {
             takeScreenshot(result);
+        }
+
+        if (config.getVideoOnFail()) {
+            WebDriverFactory.stopVideoRecording();
+
+            if (result.getStatus() == ITestResult.FAILURE) {
+                WebDriverFactory.createVideoFile();
+            }
+            WebDriverFactory.deletesVideoFrames();
         }
     }
 
@@ -103,5 +118,16 @@ public class BaseTest {
                 SCREENSHOTS_FOLDER_PATH, status, browserName, browserVersion, methodName, timeStamp);
 
         WebDriverFactory.takeScreenshot(filePath);
+    }
+
+    private static void enableVideoRecording(ITestResult result) {
+        String browserName = config.getBrowserName().toString();
+        String browserVersion = config.getBrowserVersion();
+        String methodName = result.getMethod().getMethodName();
+        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.SS.SSS").format(new Date());
+        String filePath = String.format("%s/failure.%s.%s.%s.%s.mp4",
+                VIDEOS_FOLDER_PATH, browserName, browserVersion, methodName, timeStamp);
+
+        WebDriverFactory.enableVideoRecording(filePath);
     }
 }

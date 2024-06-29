@@ -25,6 +25,7 @@ public class Config {
     private static final String SECRET_KEY = "secretKey";
     private static final String START_DATE = "startDate";
     private static final String SCREENSHOT_ON_FAIL = "screenshotOnFail";
+    private static final String VIDEO_ON_FAIL = "videoOnFail";
     private static final String DEBUG_FAIL = "debugFail";
     private static final String VALUES_DELIMITER = ":";
 
@@ -142,11 +143,19 @@ public class Config {
     }
 
     /**
-     * Returns true/false screenshot on fail flag.
+     * Returns true/false take screenshot on fail flag.
      * @return The headless flag.
      */
     synchronized public boolean getScreenshotOnFail() {
         return getBooleanProperty(SCREENSHOT_ON_FAIL);
+    }
+
+    /**
+     * Returns true/false record video on fail flag.
+     * @return The headless flag.
+     */
+    synchronized public boolean getVideoOnFail() {
+        return getBooleanProperty(VIDEO_ON_FAIL);
     }
 
     /**

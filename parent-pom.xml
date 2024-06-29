@@ -155,5 +155,17 @@
       <artifactId>aws-java-sdk-s3</artifactId>
       <version>1.12.700</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.bytedeco/javacv -->
+    <dependency>
+      <groupId>org.bytedeco</groupId>
+      <artifactId>javacv</artifactId>
+      <version>1.5.10</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.bytedeco/javacv-platform -->
+    <dependency>
+      <groupId>org.bytedeco</groupId>
+      <artifactId>javacv-platform</artifactId>
+      <version>1.5.10</version>
+    </dependency>
   </dependencies>
 </project>

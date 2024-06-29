@@ -163,12 +163,16 @@ public class ServerManager {
      * @param port The server port number.
      */
     public static synchronized void waitForServerAvailability(String serverIP, int port) {
-        TimeOut timeOut = new TimeOut(SERVER_WAIT_TIMEOUT_SECONDS);
+        TimeOut timeOut = new TimeOut(
+                String.format("Waits for server %s:%d availability", serverIP, port),
+                SERVER_WAIT_TIMEOUT_SECONDS);
         timeOut.start();
         log.info("Waiting for server availability: {}:{}", serverIP, port);
 
         while (true) {
             Waiter.waitSeconds(1);
+            timeOut.checkExpired();
+
             if (ServerManager.isAddressReachable(serverIP, port, 15000)) {
                 log.info("Server {}:{} is available.", serverIP, port);
                 break;
@@ -182,12 +186,15 @@ public class ServerManager {
      * @param port The server port number.
      */
     public static synchronized void waitForServerUnavailability(String serverIP, int port) {
-        TimeOut timeOut = new TimeOut(SERVER_WAIT_TIMEOUT_SECONDS);
+        TimeOut timeOut = new TimeOut(
+                String.format("Waits for server %s:%d unavailability", serverIP, port),
+                SERVER_WAIT_TIMEOUT_SECONDS);
         timeOut.start();
         log.info("Waiting for server unavailability: {}:{}", serverIP, port);
 
         while (true) {
             Waiter.waitSeconds(1);
+            timeOut.checkExpired();
             if (!ServerManager.isAddressReachable(serverIP, port, 15000)) {
                 log.info("Server {}:{} is unavailable.", serverIP, port);
                 break;

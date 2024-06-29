@@ -43,7 +43,7 @@ public class BrowserManager {
                 createDownloadBinFolder();
                 FileManager.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
                 WebDownloadManager.download(downloadUrl, DOWNLOAD_BROWSER_ZIP_FILE_PATH);
-                FileManager.deleteDirectory(browserFolderPath);
+                FileManager.deleteFolder(browserFolderPath);
                 ZipManager.unzip(DOWNLOAD_BROWSER_ZIP_FILE_PATH, browserFolderPath);
                 FileManager.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
             }
@@ -74,7 +74,7 @@ public class BrowserManager {
                 FileManager.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
                 WebDownloadManager.download(downloadUrl, DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
                 File webDriverBinaryFile = new File(webDriverBinaryFilePath);
-                FileManager.deleteDirectory(webDriverBinaryFile.getParent());
+                FileManager.deleteFolder(webDriverBinaryFile.getParent());
                 ZipManager.unzip(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH, webDriverFolderPath);
                 FileManager.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
 

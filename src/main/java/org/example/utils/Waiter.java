@@ -22,7 +22,7 @@ public class Waiter {
      * Waits for n milliseconds.
      * @param milliSeconds The number of milliseconds to wait.
      */
-    public static void waitMilliSeconds(int milliSeconds) {
+    public static void waitMilliSeconds(long milliSeconds) {
         try {
             Thread.sleep(milliSeconds);
         } catch (InterruptedException e) {

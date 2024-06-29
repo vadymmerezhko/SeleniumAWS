@@ -100,7 +100,7 @@ public class AwsManager {
     }
 
     /**
-     * Runs EC2 instance and waits till ID is availble.
+     * Runs EC2 instance and waits till ID is available.
      * @param ec2 The EC2 client.
      * @param threadCount The max thread count.
      * @param imageId The EC2 image ID.
@@ -112,11 +112,12 @@ public class AwsManager {
     public static String runEC2AndEWaitForId(AmazonEC2 ec2, int threadCount, String imageId,
                                              String keyPairName, String groupName, String userData) {
         String ec2InstanceId;
-        TimeOut timeOut = new TimeOut(WAIT_EC2_ID_TIMEOUT);
+        TimeOut timeOut = new TimeOut("Wait EC2 instance ID.", WAIT_EC2_ID_TIMEOUT);
         timeOut.start();
 
         do {
             Waiter.waitSeconds(1);
+            timeOut.checkExpired();
             ec2InstanceId = AwsManager.runEC2(ec2, threadCount, imageId, keyPairName, groupName, userData);
         } while (ec2InstanceId == null);
 
@@ -131,11 +132,14 @@ public class AwsManager {
      */
     public static String waitForEC2Ip(AmazonEC2 ec2Client, String ec2InstanceId) {
         String ec2InstanceIp;
-        TimeOut timeOut = new TimeOut(WAIT_EC2_PUBLIC_IP_TIMEOUT);
+        TimeOut timeOut = new TimeOut(
+                String.format("Wait for EC2 instance %s IP address", ec2InstanceId),
+                WAIT_EC2_PUBLIC_IP_TIMEOUT);
         timeOut.start();
 
         do {
             Waiter.waitSeconds(1);
+            timeOut.checkExpired();
             ec2InstanceIp = AwsManager.getEC2PublicIp(ec2Client, ec2InstanceId);
         } while (ec2InstanceIp == null);
 

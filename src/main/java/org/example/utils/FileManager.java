@@ -5,7 +5,6 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -21,7 +20,7 @@ public class FileManager {
      * @param fileName The target file name.
      * @param fileContent The file content.
      */
-    public static synchronized void createFile(String folderPath, String fileName, String fileContent) {
+    public static void createFile(String folderPath, String fileName, String fileContent) {
         try {
             Writer fileWriter = new FileWriter(String.format("%s/%s", folderPath, fileName), false);
             BufferedWriter br = new BufferedWriter(fileWriter);
@@ -52,7 +51,7 @@ public class FileManager {
      * Deletes file by its path.
      * @param filePath The file path.
      */
-    public static synchronized void deleteFile(String filePath) {
+    public static void deleteFile(String filePath) {
         File file = new File(filePath);
 
         if (file.exists()) {
@@ -66,17 +65,17 @@ public class FileManager {
 
     /**
      * Deltes file directory by its path.
-     * @param dirPath The directory path.
+     * @param folderPath The directory path.
      */
-    public static synchronized void deleteDirectory(String dirPath) {
-        File directory = new File(dirPath);
+    public static void deleteFolder(String folderPath) {
+        File directory = new File(folderPath);
         try {
             FileUtils.deleteDirectory(directory);
-            log.info("Deleted the directory: {}", dirPath);
+            log.info("Deleted the directory: {}", folderPath);
         }
         catch (IOException e) {
             throw new RuntimeException(String.format(
-                    "Cannot delete directory %s\n%s" , dirPath, e.getMessage()));
+                    "Cannot delete folder %s\n%s" , folderPath, e.getMessage()));
         }
     }
 
@@ -85,7 +84,7 @@ public class FileManager {
      * @param fromPath The source path.
      * @param toPath The target path.
      */
-    public static synchronized void moveFile(String fromPath, String toPath) {
+    public static void moveFile(String fromPath, String toPath) {
         try {
             FileUtils.moveFile(FileUtils.getFile(fromPath), FileUtils.getFile(toPath));
         }
@@ -93,14 +92,5 @@ public class FileManager {
             throw new RuntimeException(
                     String.format("Cannot move file %s to %s\n%s", fromPath, toPath, e.getMessage()));
         }
-    }
-
-    /**
-     * Returns current folder path.
-     * @return The current folder path.
-     */
-    public static String getCurrentFolder() {
-        Path currentRelativePath = Paths.get("");
-        return currentRelativePath.toAbsolutePath().toString();
     }
 }

@@ -39,11 +39,14 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import static org.example.constants.Settings.*;
 import static org.example.enums.BrowserName.*;
@@ -56,9 +59,16 @@ import static org.example.enums.TestMode.*;
 public class WebDriverFactory {
     static private final String SELENIUM_GRID_URL_TEMPLATE = "http://%S:4444";
     static private final String LOCALHOST = "localhost";
+    static private final String VIDEO_FRAMES_SUB_DIRECTORY_FORMAT = "%s/%d";
     static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
+    static private final ConcurrentMap<Long, Boolean> videoRecordingMap = new ConcurrentHashMap<>();
+    static private final ConcurrentMap<Long, String> videoFilePathMap = new ConcurrentHashMap<>();
+    static private final ConcurrentMap<Long, List<String>> videoFramesPathMap = new ConcurrentHashMap<>();
+    static private final ConcurrentMap<Long, Thread> videoRecordingThreadMap = new ConcurrentHashMap<>();
+    static private final AtomicLong frameIndex = new AtomicLong(0);
     static private final int ADB_EXEC_TIMEOUT_SECONDS = 180000;
+    static private final long VIDEO_FRAME_PERIOD_MILLISECONDS = 1000 / 24;
     private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
     private static boolean dockerSeleniumGridStarted = false;
 
@@ -104,21 +114,164 @@ public class WebDriverFactory {
         else {
             driver = driverMap.get(threadId);
             driver.manage().deleteAllCookies();
+
+            if (config.getVideoOnFail()) {
+                startVideoRecording();
+            }
         }
         return driver;
     }
 
     /**
      * Takes screenshot and saves it by the file path.
-     * @param destinationFilePath The destination file path.
+     * @param filePath The destination file path.
      */
-    public static void takeScreenshot(String destinationFilePath) {
+    public static void takeScreenshot(String filePath) {
         long threadId = Thread.currentThread().threadId();
+        takeScreenshot(threadId, filePath);
+    }
 
+    private static void takeScreenshot(long threadId, String filePath) {
         if (driverMap.containsKey(threadId)) {
             WebDriver driver = driverMap.get(threadId);
-            File file = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-            FileManager.moveFile(file.getPath(), destinationFilePath);
+            File file = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+            FileManager.moveFile(file.getPath(), filePath);
+        }
+    }
+
+    /**
+     * Enables video recording and saves it by the file path.
+     */
+    public static void enableVideoRecording(String videoFilePath) {
+        long threadId = Thread.currentThread().threadId();
+        File file = new File(videoFilePath);
+        String folderPath = file.getParent();
+        videoFilePathMap.put(threadId, videoFilePath);
+        videoRecordingMap.put(threadId, false);
+
+        Thread thread = new Thread(() -> {
+            while (!videoRecordingMap.get(threadId)) {
+                // Wait for video recording start.
+                Waiter.waitMilliSeconds(5);
+            }
+
+            if (!driverMap.containsKey(threadId)) {
+                return;
+            }
+            List<String> frames = new ArrayList<>();
+            videoFramesPathMap.put(threadId, frames);
+
+            while (videoRecordingMap.get(threadId)) {
+                String frameFilePath = String.format(
+                        VIDEO_FRAMES_SUB_DIRECTORY_FORMAT + "/frame_%d.png",
+                        folderPath, threadId, frameIndex.incrementAndGet());
+                long startMilliSeconds = System.currentTimeMillis();
+
+                takeScreenshot(threadId, frameFilePath);
+                frames.add(frameFilePath);
+                long screenshotDilay = System.currentTimeMillis() - startMilliSeconds;
+                //System.out.printf("Take screenshot delay: %d%n", screenshotDilay);
+
+                if (screenshotDilay < VIDEO_FRAME_PERIOD_MILLISECONDS) {
+                    Waiter.waitMilliSeconds(VIDEO_FRAME_PERIOD_MILLISECONDS - screenshotDilay);
+                }
+            }
+        });
+        videoRecordingThreadMap.put(threadId, thread);
+        thread.start();
+    }
+
+    /**
+     * Starts video recording.
+     */
+    public static void startVideoRecording() {
+        long threadId = Thread.currentThread().threadId();
+        videoRecordingMap.put(threadId, true);
+    }
+
+    /**
+     * Stops video recording and saves it by the file path.
+     */
+    public static void stopVideoRecording() {
+        long threadId = Thread.currentThread().threadId();
+        videoRecordingMap.put(threadId, false);
+        try {
+            if (videoRecordingThreadMap.containsKey(threadId)) {
+                // Wait till video recording thread to be finished.
+                videoRecordingThreadMap.get(threadId).join();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Returns video recording file path.
+     * @return The file path.
+     */
+    public static String getVideoFilePath() {
+        long threadId = Thread.currentThread().threadId();
+        return videoFilePathMap.get(threadId);
+    }
+
+    /**
+     * Returns the list of video frames paths for the current thread.
+     * @return The list of video frames paths.
+     */
+    public static List<String> getVideoFrames() {
+        long threadId = Thread.currentThread().threadId();
+        return videoFramesPathMap.get(threadId);
+    }
+
+    /**
+     * Creates video recording file.
+     * @return Returns the file path.
+     */
+    public static String createVideoFile() {
+        List<String> pngVideoFrames = new ArrayList<>(getVideoFrames());
+        String videoFilePath = getVideoFilePath();
+
+        if (!pngVideoFrames.isEmpty()) {
+            List<String> jpgVideoFrames = pngVideoFrames.stream()
+                    .map(ImageUtils::convertPngToJpg).collect(Collectors.toList());
+            VideoUtils.convertJPGtoMovie(jpgVideoFrames, videoFilePath);
+            deletesVideoFrames();
+        }
+        return videoFilePath;
+    }
+
+    /**
+     * Deletes all video frames for the current thread.
+     */
+    public static void deletesVideoFrames() {
+        long threadId = Thread.currentThread().threadId();
+        File videoFile = new File(videoFilePathMap.get(threadId));
+        String framesFolderPath = String.format("%s/%d", videoFile.getParent(), threadId);
+        System.out.printf("Deleting frames folder: %s%n", framesFolderPath);
+        FileManager.deleteFolder(framesFolderPath);
+    }
+
+    /**
+     * Closes all web drivers in parallel.
+     */
+    public static void closeAllDrivers() {
+        Set<Thread> threadSet = new HashSet<>();
+
+        try {
+            for (Long threadId : driverMap.keySet()) {
+                threadSet.add(closeDriverInParallel(threadId));
+            }
+            // Wait for closing all drivers.
+            for (Thread thread : threadSet) {
+                thread.join();
+            }
+        }
+        catch (Exception e) {
+            log.error("Cannot close all drivers:\n{}", e.getMessage());
+        }
+
+        if (config.getTestMode() == LOCAL_APPIUM) {
+            AppiumManager.stopAllAppiumServers();
         }
     }
 
@@ -461,27 +614,6 @@ public class WebDriverFactory {
         if (driverMap.containsKey(threadId)) {
             driverMap.get(threadId).quit();
             driverMap.remove(threadId);
-        }
-    }
-
-    public static void closeAllDrivers() {
-        Set<Thread> threadSet = new HashSet<>();
-
-        try {
-            for (Long threadId : driverMap.keySet()) {
-                threadSet.add(closeDriverInParallel(threadId));
-            }
-            // Wait for closing all drivers.
-            for (Thread thread : threadSet) {
-                thread.join();
-            }
-        }
-        catch (Exception e) {
-            log.error("Cannot close all drivers:\n{}", e.getMessage());
-        }
-
-        if (config.getTestMode() == LOCAL_APPIUM) {
-            AppiumManager.stopAllAppiumServers();
         }
     }
 
