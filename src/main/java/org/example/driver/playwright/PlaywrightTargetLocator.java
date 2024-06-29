@@ -127,8 +127,7 @@ public class PlaywrightTargetLocator implements TargetLocator {
      */
     @Override
     public WebDriver newWindow(WindowType typeHint) {
-        String methodName = this.getClass().getEnclosingMethod().getName();
-        MethodManager.throwMethodNotImplementedException(methodName);
+        MethodManager.throwMethodNotImplementedException("TargetLocator.newWindow(WindowType typeHint)");
         return null;
     }
 
@@ -138,8 +137,7 @@ public class PlaywrightTargetLocator implements TargetLocator {
      */
     @Override
     public WebDriver defaultContent() {
-        String methodName = this.getClass().getEnclosingMethod().getName();
-        MethodManager.throwMethodNotImplementedException(methodName);
+        MethodManager.throwMethodNotImplementedException("TargetLocator.defaultContent()");
         return null;
     }
 
@@ -149,8 +147,7 @@ public class PlaywrightTargetLocator implements TargetLocator {
      */
     @Override
     public WebElement activeElement() {
-        String methodName = this.getClass().getEnclosingMethod().getName();
-        MethodManager.throwMethodNotImplementedException(methodName);
+        MethodManager.throwMethodNotImplementedException("TargetLocator.activeElement()");
         return null;
     }
 
@@ -160,8 +157,7 @@ public class PlaywrightTargetLocator implements TargetLocator {
      */
     @Override
     public Alert alert() {
-        String methodName = this.getClass().getEnclosingMethod().getName();
-        MethodManager.throwMethodNotImplementedException(methodName);
+        MethodManager.throwMethodNotImplementedException("TargetLocator.alert()");
         return null;
     }
 }

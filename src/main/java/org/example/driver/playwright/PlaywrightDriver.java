@@ -165,8 +165,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public Set<String> getWindowHandles() {
-        String methodName = this.getClass().getEnclosingMethod().getName();
-        MethodManager.throwMethodNotImplementedException(methodName);
+        MethodManager.throwMethodNotImplementedException("WebDriver.getWindowHandles()");
         return null;
     }
 
@@ -176,8 +175,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public String getWindowHandle() {
-        String methodName = this.getClass().getEnclosingMethod().getName();
-        MethodManager.throwMethodNotImplementedException(methodName);
+        MethodManager.throwMethodNotImplementedException("WebDriver.getWindowHandle()");
         return null;
     }
 

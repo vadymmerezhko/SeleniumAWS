@@ -113,8 +113,7 @@ public class PlaywrightManage implements Options {
      */
     @Override
     public WebDriver.Timeouts timeouts() {
-        String methodName = this.getClass().getEnclosingMethod().getName();
-        MethodManager.throwMethodNotImplementedException(methodName);
+        MethodManager.throwMethodNotImplementedException("Manage.timeouts()");
         return null;
     }
 
@@ -133,8 +132,7 @@ public class PlaywrightManage implements Options {
      */
     @Override
     public Logs logs() {
-        String methodName = this.getClass().getEnclosingMethod().getName();
-        MethodManager.throwMethodNotImplementedException(methodName);
+        MethodManager.throwMethodNotImplementedException("Manage.logs()");
         return null;
     }
 }
