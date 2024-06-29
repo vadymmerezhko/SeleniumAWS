@@ -24,6 +24,10 @@ Browser name and version (latest, latest-1, dev, stable, beta, canary):
 ```bash
 -Dbrowser=<browser name>:<browser version>
 ```
+Browser size (width:height):
+```bash
+-DbrowserSize=<width>:<height>
+```
 Headless (true, false):
 ```bash
 -Dheadless=true
@@ -39,6 +43,18 @@ Remote host (like http://127.0.0.1:4444):
 Remote host example:
 ```bash
 -DremoteHost=http://localhost:4444
+```
+Take screenshot on fail (true/false):
+```bash
+-DscreenshotOnFail=true
+```
+Record video on fail (true/false):
+```bash
+-DvideoOnFail=false
+```
+Fail test for debug purpose (true/false):
+```bash
+-DdebugFail=false
 ```
 ### Test modes
 Local (for chrome:stable, chrome:beta, chrome:canary, firefox:stable, edge:stable):

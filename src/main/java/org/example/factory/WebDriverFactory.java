@@ -14,10 +14,7 @@ import org.example.enums.BrowserName;
 import org.example.enums.TestMode;
 import org.example.utils.*;
 import org.example.driver.playwright.PlaywrightDriver;
-import org.openqa.selenium.Capabilities;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
@@ -39,14 +36,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import static org.example.constants.Settings.*;
 import static org.example.enums.BrowserName.*;
@@ -59,16 +53,15 @@ import static org.example.enums.TestMode.*;
 public class WebDriverFactory {
     static private final String SELENIUM_GRID_URL_TEMPLATE = "http://%S:4444";
     static private final String LOCALHOST = "localhost";
-    static private final String VIDEO_FRAMES_SUB_DIRECTORY_FORMAT = "%s/%d";
     static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
     static private final ConcurrentMap<Long, Boolean> videoRecordingMap = new ConcurrentHashMap<>();
     static private final ConcurrentMap<Long, String> videoFilePathMap = new ConcurrentHashMap<>();
-    static private final ConcurrentMap<Long, List<String>> videoFramesPathMap = new ConcurrentHashMap<>();
     static private final ConcurrentMap<Long, Thread> videoRecordingThreadMap = new ConcurrentHashMap<>();
-    static private final AtomicLong frameIndex = new AtomicLong(0);
-    static private final int ADB_EXEC_TIMEOUT_SECONDS = 180000;
-    static private final long VIDEO_FRAME_PERIOD_MILLISECONDS = 1000 / 24;
+    static private final ConcurrentMap<Long, VideoRecorder> videoRecorderMap = new ConcurrentHashMap<>();
+    static private final int ADB_EXEC_TIMEOUT_MILLISECONDS = 180000;
+    static private final int VIDEO_RECORDING_RATE = 5;
+    static private final long VIDEO_FRAME_PERIOD_MILLISECONDS = 1000 / VIDEO_RECORDING_RATE;
     private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
     private static boolean dockerSeleniumGridStarted = false;
 
@@ -115,6 +108,11 @@ public class WebDriverFactory {
             driver = driverMap.get(threadId);
             driver.manage().deleteAllCookies();
 
+            if (testMethod != LOCAL_PLAYWRIGHT) {
+                driver.manage().window().setSize(new Dimension(
+                        config.getBrowseWidth(), config.getBrowseHeight()));
+            }
+
             if (config.getVideoOnFail()) {
                 startVideoRecording();
             }
@@ -139,36 +137,45 @@ public class WebDriverFactory {
         }
     }
 
+    private static byte[] takeScreenshot(long threadId) {
+        if (driverMap.containsKey(threadId)) {
+            WebDriver driver = driverMap.get(threadId);
+            return ((TakesScreenshot)driver).getScreenshotAs(OutputType.BYTES);
+        }
+        return null;
+    }
+
     /**
      * Enables video recording and saves it by the file path.
      */
     public static void enableVideoRecording(String videoFilePath) {
         long threadId = Thread.currentThread().threadId();
-        File file = new File(videoFilePath);
-        String folderPath = file.getParent();
         videoFilePathMap.put(threadId, videoFilePath);
         videoRecordingMap.put(threadId, false);
+        VideoRecorder videoRecorder = new VideoRecorder();
+        videoRecorder.setup(
+                videoFilePath,
+                config.getBrowseWidth(),
+                config.getBrowseHeight(),
+                VIDEO_RECORDING_RATE);
+        videoRecorderMap.put(threadId, videoRecorder);
 
         Thread thread = new Thread(() -> {
             while (!videoRecordingMap.get(threadId)) {
                 // Wait for video recording start.
-                Waiter.waitMilliSeconds(5);
+                Waiter.waitMilliSeconds(10);
             }
 
             if (!driverMap.containsKey(threadId)) {
                 return;
             }
-            List<String> frames = new ArrayList<>();
-            videoFramesPathMap.put(threadId, frames);
+            videoRecorder.start();
 
             while (videoRecordingMap.get(threadId)) {
-                String frameFilePath = String.format(
-                        VIDEO_FRAMES_SUB_DIRECTORY_FORMAT + "/frame_%d.png",
-                        folderPath, threadId, frameIndex.incrementAndGet());
                 long startMilliSeconds = System.currentTimeMillis();
 
-                takeScreenshot(threadId, frameFilePath);
-                frames.add(frameFilePath);
+                videoRecorder.record(takeScreenshot(threadId));
+
                 long screenshotDilay = System.currentTimeMillis() - startMilliSeconds;
                 //System.out.printf("Take screenshot delay: %d%n", screenshotDilay);
 
@@ -200,7 +207,9 @@ public class WebDriverFactory {
                 // Wait till video recording thread to be finished.
                 videoRecordingThreadMap.get(threadId).join();
             }
-        } catch (Exception e) {
+            videoRecorderMap.get(threadId).stop();
+        }
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -212,43 +221,6 @@ public class WebDriverFactory {
     public static String getVideoFilePath() {
         long threadId = Thread.currentThread().threadId();
         return videoFilePathMap.get(threadId);
-    }
-
-    /**
-     * Returns the list of video frames paths for the current thread.
-     * @return The list of video frames paths.
-     */
-    public static List<String> getVideoFrames() {
-        long threadId = Thread.currentThread().threadId();
-        return videoFramesPathMap.get(threadId);
-    }
-
-    /**
-     * Creates video recording file.
-     * @return Returns the file path.
-     */
-    public static String createVideoFile() {
-        List<String> pngVideoFrames = new ArrayList<>(getVideoFrames());
-        String videoFilePath = getVideoFilePath();
-
-        if (!pngVideoFrames.isEmpty()) {
-            List<String> jpgVideoFrames = pngVideoFrames.stream()
-                    .map(ImageUtils::convertPngToJpg).collect(Collectors.toList());
-            VideoUtils.convertJPGtoMovie(jpgVideoFrames, videoFilePath);
-            deletesVideoFrames();
-        }
-        return videoFilePath;
-    }
-
-    /**
-     * Deletes all video frames for the current thread.
-     */
-    public static void deletesVideoFrames() {
-        long threadId = Thread.currentThread().threadId();
-        File videoFile = new File(videoFilePathMap.get(threadId));
-        String framesFolderPath = String.format("%s/%d", videoFile.getParent(), threadId);
-        System.out.printf("Deleting frames folder: %s%n", framesFolderPath);
-        FileManager.deleteFolder(framesFolderPath);
     }
 
     /**
@@ -519,7 +491,7 @@ public class WebDriverFactory {
             options.setDeviceName(deviceName);
             options.setCapability(CapabilityType.BROWSER_NAME, browserName);
             options.setCapability("chromedriverExecutable", chromeDriverPath);
-            options.setCapability("adbExecTimeout", ADB_EXEC_TIMEOUT_SECONDS);
+            options.setCapability("adbExecTimeout", ADB_EXEC_TIMEOUT_MILLISECONDS);
             options.setCapability("noReset", "true");
             options.setCapability("maxInstances", config.getThreadCount());
 

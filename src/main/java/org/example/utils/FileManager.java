@@ -34,11 +34,27 @@ public class FileManager {
     }
 
     /**
+     * Creates folder.
+     * @param folderPath The target folder path.
+     */
+    public static void createFolder(String folderPath) {
+        try {
+            File folder = new File(folderPath);
+            if (!folder.mkdirs()) {
+                throw new RuntimeException(String.format("Cannot create folder %s", folderPath));
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * Reads and returns file content.
      * @param filePath The file path.
      * @return The file content.
      */
-    public static synchronized String readFile(String filePath) {
+    public static String readFile(String filePath) {
         try {
             return Files.readString(Paths.get(filePath));
         }

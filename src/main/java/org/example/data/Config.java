@@ -27,6 +27,7 @@ public class Config {
     private static final String SCREENSHOT_ON_FAIL = "screenshotOnFail";
     private static final String VIDEO_ON_FAIL = "videoOnFail";
     private static final String DEBUG_FAIL = "debugFail";
+    private static final String BROWSER_SIZE = "browserSize";
     private static final String VALUES_DELIMITER = ":";
 
     private static final Map<String, String> stringPropertyMap = new HashMap<>();
@@ -135,6 +136,32 @@ public class Config {
     }
 
     /**
+     * Returns the browser size.
+     * @return The browser size.
+     */
+    synchronized public String getBrowserSize() {
+        return getStringProperty(BROWSER_SIZE);
+    }
+
+    /**
+     * Returns the browser width.
+     * @return The browser width.
+     */
+    synchronized public int getBrowseWidth() {
+        String browserSize = getBrowserSize();
+        return getIntegerSubValue(browserSize, 0);
+    }
+
+    /**
+     * Returns the browser height.
+     * @return The browser height.
+     */
+    synchronized public int getBrowseHeight() {
+        String browserSize = getBrowserSize();
+        return getIntegerSubValue(browserSize, 1);
+    }
+
+    /**
      * Returns true/false headless flag.
      * @return The headless flag.
      */
@@ -212,6 +239,11 @@ public class Config {
             return null;
         }
         return subValues[index];
+    }
+
+    private int getIntegerSubValue(String value, int index) {
+        String subValue = getSubValue(value, index);
+        return Integer.parseInt(subValue);
     }
 
     private Properties getConfigProperties() {

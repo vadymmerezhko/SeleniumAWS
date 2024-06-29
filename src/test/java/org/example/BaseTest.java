@@ -22,7 +22,6 @@ import java.util.Date;
 import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
 
 public class BaseTest {
-
     static private final String SCREENSHOTS_FOLDER_PATH = "./screenshots";
     static private final String VIDEOS_FOLDER_PATH = "./videos";
     static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
@@ -32,6 +31,7 @@ public class BaseTest {
     public void beforeSuite() {
         FileManager.deleteFolder(SCREENSHOTS_FOLDER_PATH);
         FileManager.deleteFolder(VIDEOS_FOLDER_PATH);
+        FileManager.createFolder(VIDEOS_FOLDER_PATH);
     }
 
     @BeforeMethod(alwaysRun = true)
@@ -54,10 +54,9 @@ public class BaseTest {
         if (config.getVideoOnFail()) {
             WebDriverFactory.stopVideoRecording();
 
-            if (result.getStatus() == ITestResult.FAILURE) {
-                WebDriverFactory.createVideoFile();
+            if (!(result.getStatus() == ITestResult.FAILURE)) {
+                FileManager.deleteFile(WebDriverFactory.getVideoFilePath());
             }
-            WebDriverFactory.deletesVideoFrames();
         }
     }
 
