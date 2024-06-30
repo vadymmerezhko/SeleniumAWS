@@ -34,6 +34,9 @@ public class VideoRecorder {
         }
     }
 
+    /**
+     * Starts video recording.
+     */
     public void start() {
         try {
             recorder.start();
@@ -43,6 +46,10 @@ public class VideoRecorder {
         }
     }
 
+    /**
+     * Records video frame image bytes.
+     * @param imageBytes The image bytes.
+     */
     public void record(byte[] imageBytes) {
         try {
             ByteArrayInputStream stream = new ByteArrayInputStream(imageBytes);
@@ -55,13 +62,23 @@ public class VideoRecorder {
         }
     }
 
+    /**
+     * Stops video recording and creates video file.
+     */
     public void stop() {
         try {
             recorder.stop();
-            recorder.close();
         }
         catch (Exception e) {
             throw new RuntimeException("Video recorder stopping exception:\n", e);
+        }
+        finally {
+            try {
+                recorder.release();
+                recorder.close();
+            } catch (Exception e) {
+                throw new RuntimeException("Video recorder release or close exception:\n", e);
+            }
         }
     }
 }
