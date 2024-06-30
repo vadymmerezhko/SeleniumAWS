@@ -66,7 +66,7 @@ public class BaseTest {
 
         SignUpTestInput testInput = new SignUpTestInput(
                 "Selenium",
-                "Selenium\nWebDriver",
+                "Selenium WebDriver", // Multiline text cause failure on Safari.
                 "Two",
                 "Chicago",
                 currentFolderPath,
