@@ -1,6 +1,7 @@
 package org.example.driver.robust;
 
 import org.example.driver.waiter.RobustWebDriverWaiter;
+import org.example.factory.WebDriverFactory;
 import org.example.utils.Waiter;
 import org.openqa.selenium.*;
 
@@ -59,6 +60,7 @@ public class RobustWebElement implements WebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 element.click();
+                WebDriverFactory.setCurrentElement(element);
                 return;
             } catch (StaleElementReferenceException |
                      ElementNotInteractableException e) {
@@ -78,6 +80,7 @@ public class RobustWebElement implements WebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 element.submit();
+                WebDriverFactory.setCurrentElement(element);
                 return;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
@@ -97,6 +100,7 @@ public class RobustWebElement implements WebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 element.sendKeys(keysToSend);
+                WebDriverFactory.setCurrentElement(element);
                 return;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
@@ -115,6 +119,7 @@ public class RobustWebElement implements WebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 element.clear();
+                WebDriverFactory.setCurrentElement(element);
                 return;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
@@ -143,7 +148,9 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                return element.getAttribute(name);
+                String attribute = element.getAttribute(name);
+                WebDriverFactory.setCurrentElement(element);
+                return attribute;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -162,7 +169,9 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                return element.getDomProperty(name);
+                String domProperty = element.getDomProperty(name);
+                WebDriverFactory.setCurrentElement(element);
+                return domProperty;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -181,7 +190,9 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                return element.getDomAttribute(name);
+                String domAttribute = element.getDomAttribute(name);
+                WebDriverFactory.setCurrentElement(element);
+                return domAttribute;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -199,7 +210,9 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                return element.getAriaRole();
+                String arialRole = element.getAriaRole();
+                WebDriverFactory.setCurrentElement(element);
+                return arialRole;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -217,7 +230,9 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                return element.getAccessibleName();
+                String accessibleName = element.getAccessibleName();
+                WebDriverFactory.setCurrentElement(element);
+                return accessibleName;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -236,7 +251,9 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                return element.isSelected();
+                boolean isSelected = element.isSelected();
+                WebDriverFactory.setCurrentElement(element);
+                return isSelected;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -254,7 +271,9 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                return element.isEnabled();
+                boolean isEnabled = element.isEnabled();
+                WebDriverFactory.setCurrentElement(element);
+                return isEnabled;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -272,7 +291,9 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                return element.getText();
+                String text = element.getText();
+                WebDriverFactory.setCurrentElement(element);
+                return text;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();

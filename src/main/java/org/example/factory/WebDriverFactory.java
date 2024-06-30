@@ -59,6 +59,9 @@ public class WebDriverFactory {
     static private final ConcurrentMap<Long, String> videoFilePathMap = new ConcurrentHashMap<>();
     static private final ConcurrentMap<Long, Thread> videoRecordingThreadMap = new ConcurrentHashMap<>();
     static private final ConcurrentMap<Long, VideoRecorder> videoRecorderMap = new ConcurrentHashMap<>();
+    static private final ConcurrentMap<Long, WebElement> highlightElementMap = new ConcurrentHashMap<>();
+    static private final ConcurrentMap<Long, WebElement> currentElementMap = new ConcurrentHashMap<>();
+    static private final ConcurrentMap<Long, String> elementStyleMap = new ConcurrentHashMap<>();
     static private final int ADB_EXEC_TIMEOUT_MILLISECONDS = 180000;
     static private final int VIDEO_RECORDING_RATE = 5;
     static private final long VIDEO_FRAME_PERIOD_MILLISECONDS = 1000 / VIDEO_RECORDING_RATE;
@@ -125,6 +128,54 @@ public class WebDriverFactory {
     public static void takeScreenshot(String filePath) {
         long threadId = Thread.currentThread().threadId();
         takeScreenshot(threadId, filePath);
+    }
+
+    /**
+     * Sets the current web element for this thread.
+     * @param currentElement The current element.
+     */
+    public static void setCurrentElement(WebElement currentElement) {
+        long threadId = Thread.currentThread().threadId();
+        currentElementMap.put(threadId, currentElement);
+
+        if (config.getHighlightElement()) {
+            highlightElement(currentElement);
+        }
+
+        Waiter.waitMilliSeconds(config.getStepDelay());
+    }
+
+    private static void highlightElement(WebElement currentElement) {
+        long threadId = Thread.currentThread().threadId();
+        WebDriver driver = driverMap.get(threadId);
+
+        if (driver == null) {
+            return;
+        }
+
+        if (highlightElementMap.containsKey(threadId)) {
+            // Restore element style.
+            WebElement highlightElement = highlightElementMap.get(threadId);
+            String setStyleScript = "arguments[0].setAttribute('style', arguments[0]);";
+            String previousStyle = elementStyleMap.get(threadId);
+            try {
+                ((JavascriptExecutor) driver).executeScript(setStyleScript, highlightElement, previousStyle);
+            } catch (Exception e) {
+                // Ignore exception is previous element is not available.
+            }
+        }
+
+        String highlightScript = "arguments[0].style.border='3px solid red';";
+        // Save the current element style.
+        String elementStyle = currentElement.getAttribute("style");
+        elementStyleMap.put(threadId, elementStyle);
+        // Change current element border style.
+        try {
+            ((JavascriptExecutor) driver).executeScript(highlightScript, currentElement);
+        } catch (Exception e) {
+            // Ignore exception if element cannot be highlighted.
+        }
+        highlightElementMap.put(threadId, currentElement);
     }
 
     private static void takeScreenshot(long threadId, String filePath) {

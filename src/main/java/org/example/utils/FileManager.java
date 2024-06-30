@@ -20,7 +20,7 @@ public class FileManager {
      * @param fileName The target file name.
      * @param fileContent The file content.
      */
-    public static void createFile(String folderPath, String fileName, String fileContent) {
+    public static synchronized void createFile(String folderPath, String fileName, String fileContent) {
         try {
             Writer fileWriter = new FileWriter(String.format("%s/%s", folderPath, fileName), false);
             BufferedWriter br = new BufferedWriter(fileWriter);
@@ -37,7 +37,7 @@ public class FileManager {
      * Creates folder.
      * @param folderPath The target folder path.
      */
-    public static void createFolder(String folderPath) {
+    public static synchronized void createFolder(String folderPath) {
         try {
             File folder = new File(folderPath);
             if (!folder.mkdirs()) {
@@ -54,7 +54,7 @@ public class FileManager {
      * @param filePath The file path.
      * @return The file content.
      */
-    public static String readFile(String filePath) {
+    public static synchronized String readFile(String filePath) {
         try {
             return Files.readString(Paths.get(filePath));
         }
@@ -67,7 +67,7 @@ public class FileManager {
      * Deletes file by its path.
      * @param filePath The file path.
      */
-    public static void deleteFile(String filePath) {
+    public static synchronized void deleteFile(String filePath) {
         File file = new File(filePath);
 
         if (file.exists()) {
@@ -83,7 +83,7 @@ public class FileManager {
      * Deltes file directory by its path.
      * @param folderPath The directory path.
      */
-    public static void deleteFolder(String folderPath) {
+    public static synchronized void deleteFolder(String folderPath) {
         File directory = new File(folderPath);
         try {
             FileUtils.deleteDirectory(directory);
@@ -100,7 +100,7 @@ public class FileManager {
      * @param fromPath The source path.
      * @param toPath The target path.
      */
-    public static void moveFile(String fromPath, String toPath) {
+    public static synchronized void moveFile(String fromPath, String toPath) {
         try {
             FileUtils.moveFile(FileUtils.getFile(fromPath), FileUtils.getFile(toPath));
         }

@@ -27,6 +27,8 @@ public class Config {
     private static final String SCREENSHOT_ON_FAIL = "screenshotOnFail";
     private static final String VIDEO_ON_FAIL = "videoOnFail";
     private static final String DEBUG_FAIL = "debugFail";
+    private static final String HIGHLIGHT = "highlight";
+    private static final String STEP_DELAY = "stepDelay";
     private static final String BROWSER_SIZE = "browserSize";
     private static final String VALUES_DELIMITER = ":";
 
@@ -191,6 +193,22 @@ public class Config {
      */
     synchronized public boolean getDebugFail() {
         return getBooleanProperty(DEBUG_FAIL);
+    }
+
+    /**
+     * Returns true/false highlight element flag.
+     * @return The headless flag.
+     */
+    synchronized public boolean getHighlightElement() {
+        return getBooleanProperty(HIGHLIGHT);
+    }
+
+    /**
+     * Returns step delay milliseconds.
+     * @return The step delay.
+     */
+    synchronized public int getStepDelay() {
+        return getIntegerProperty(STEP_DELAY);
     }
 
     private String getStringProperty(String propertyName) {

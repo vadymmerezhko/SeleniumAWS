@@ -28,7 +28,7 @@ Browser size (width:height):
 ```bash
 -DbrowserSize=<width>:<height>
 ```
-Headless (true, false):
+Headless (true/false):
 ```bash
 -Dheadless=true
 ```
@@ -55,6 +55,14 @@ Record video on fail (true/false):
 Fail test for debug purpose (true/false):
 ```bash
 -DdebugFail=false
+```
+Highlight current element for debug purpose (true/false):
+```bash
+-Dhighlight=true
+```
+Step delay for debug purpose (milliseconds):
+```bash
+-DstepDelay=50
 ```
 ### Test modes
 Local (for chrome:stable, chrome:beta, chrome:canary, firefox:stable, edge:stable):
