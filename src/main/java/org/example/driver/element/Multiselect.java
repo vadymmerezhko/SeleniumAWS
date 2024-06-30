@@ -1,5 +1,6 @@
 package org.example.driver.element;
 
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -28,6 +29,7 @@ public class Multiselect extends BaseElement {
      * @param text The text of the option to select.
      */
     public void selectOptionText(String text) {
+        DataValidator.validateNotBlank(text, this.getClass().getSimpleName(), getElement());
         select.selectByVisibleText(text);
     }
 
@@ -36,6 +38,7 @@ public class Multiselect extends BaseElement {
      * @param text The text of the option to deselect.
      */
     public void deselectOptionText(String text) {
+        DataValidator.validateNotBlank(text, this.getClass().getSimpleName(), getElement());
         select.deselectByVisibleText(text);
     }
 
@@ -44,6 +47,7 @@ public class Multiselect extends BaseElement {
      * @param value The value of the option to select.
      */
     public void selectOptionValue(String value) {
+        DataValidator.validateNotBlank(value, this.getClass().getSimpleName(), getElement());
         select.selectByValue(value);
     }
 
@@ -52,6 +56,7 @@ public class Multiselect extends BaseElement {
      * @param value The value of the option to deselect.
      */
     public void deselectOptionValue(String value) {
+        DataValidator.validateNotBlank(value, this.getClass().getSimpleName(), getElement());
         select.deselectByValue(value);
     }
 

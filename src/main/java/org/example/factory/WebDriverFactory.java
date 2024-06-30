@@ -141,7 +141,6 @@ public class WebDriverFactory {
         if (config.getHighlightElement()) {
             highlightElement(currentElement);
         }
-
         Waiter.waitMilliSeconds(config.getStepDelay());
     }
 

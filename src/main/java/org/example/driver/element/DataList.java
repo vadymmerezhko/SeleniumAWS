@@ -1,5 +1,6 @@
 package org.example.driver.element;
 
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -21,6 +22,7 @@ public class DataList extends BaseTextElement {
      * @param text The text of the option to select.
      */
     public void selectOptionByText(String text) {
+        DataValidator.validateNotNull(text, this.getClass().getSimpleName(), getElement());
         enterText(text);
     }
 

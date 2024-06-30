@@ -1,6 +1,7 @@
 package org.example.driver.element;
 
 import org.example.driver.playwright.PlaywrightElement;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -23,6 +24,7 @@ public class DatePicker extends BaseElement {
      * @param date The date to pick.
      */
     public void pickDate(String date) {
+        DataValidator.validateMmDdYyyyDateValue(date, this.getClass().getSimpleName(), getElement());
         WebElement element = getElement();
         if (element instanceof PlaywrightElement) {
             ((PlaywrightElement)element).setValue(date);

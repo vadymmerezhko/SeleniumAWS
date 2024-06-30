@@ -1,6 +1,7 @@
 package org.example.driver.element;
 
 import org.example.driver.playwright.PlaywrightElement;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -19,10 +20,11 @@ public class RangeSlider extends BaseElement {
     }
 
     /**
-     * Sets range value.
+     * Sets range value from 0 to 10.
      * @param value The range value.
      */
     public void setValue(int value) {
+        DataValidator.validateRange(value, 0, 10, this.getClass().getSimpleName(), getElement());
         WebElement slider = getElement();
         if (slider instanceof PlaywrightElement) {
             ((PlaywrightElement)slider).setValue(Integer.toString(value));

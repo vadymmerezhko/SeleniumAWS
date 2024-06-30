@@ -1,5 +1,6 @@
 package org.example.driver.element;
 
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
@@ -21,6 +22,7 @@ public abstract class BaseTextElement extends BaseElement {
      * @param text The text to enter.
      */
     public void enterText(String text) {
+        DataValidator.validateNotNull(text, this.getClass().getSimpleName(), getElement());
         getElement().clear();
         getElement().sendKeys(text);
     }

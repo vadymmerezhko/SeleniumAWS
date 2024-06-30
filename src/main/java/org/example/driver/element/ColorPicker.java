@@ -2,6 +2,7 @@ package org.example.driver.element;
 
 import org.example.driver.playwright.PlaywrightElement;
 import org.example.driver.robust.RobustWebElement;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -23,6 +24,7 @@ public class ColorPicker extends BaseElement {
      * @param color The color value.
      */
     public void pickColor(String color) {
+        DataValidator.validateColorFormat(color, this.getClass().getSimpleName(), getElement());
         WebElement colorPicker = getElement();
         if (colorPicker instanceof PlaywrightElement) {
             ((PlaywrightElement)colorPicker).setValue(color);

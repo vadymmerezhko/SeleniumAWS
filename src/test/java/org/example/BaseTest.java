@@ -66,7 +66,7 @@ public class BaseTest {
 
         SignUpTestInput testInput = new SignUpTestInput(
                 "Selenium",
-                "Selenium WebDriver",
+                "Selenium\nWebDriver",
                 "Two",
                 "Chicago",
                 currentFolderPath,

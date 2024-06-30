@@ -1,12 +1,13 @@
 package org.example.driver.element;
 
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
 /**
  * The text input element class.
  */
-public class TextInput extends BaseTextElement {
+public class TextInput extends SingleLineTextInput {
 
     /**
      * The text input constructor by its locator.

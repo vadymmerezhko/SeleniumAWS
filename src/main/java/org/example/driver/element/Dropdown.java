@@ -1,6 +1,7 @@
 package org.example.driver.element;
 
 import org.example.driver.playwright.PlaywrightElement;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -23,6 +24,7 @@ public class Dropdown extends BaseElement {
      * @param text The text of the option to select.
      */
     public void selectOptionByText(String text) {
+        DataValidator.validateNotBlank(text, this.getClass().getSimpleName(), getElement());
         WebElement dropdown = getElement();
         if (dropdown instanceof PlaywrightElement) {
             click();
