@@ -37,8 +37,8 @@ jobs:
       #- name: Test - AWS Local Docker - Chrome latest
       #  run: mvn -f aws-local-pom.xml clean compile exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
 
-      - name: Test - Local Docker - Linux Firefox latest (video on fail)
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker" "-Dbrowser=firefox:latest" "-DvideoOnFail=true"
+      - name: Test - Local Docker - Linux Firefox latest
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker" "-Dbrowser=firefox:latest"
 
       - name: Test - Local Docker Auto - Linux Safari latest
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker_auto" "-Dbrowser=safari:latest"
