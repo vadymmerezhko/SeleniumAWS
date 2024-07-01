@@ -10,10 +10,12 @@ import org.example.server.TestServerManager;
 import org.example.utils.FileManager;
 import org.testng.Assert;
 import org.testng.ITestResult;
+import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -22,15 +24,13 @@ import java.util.Date;
 import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
 
 public class BaseTest {
-    static private final String SCREENSHOTS_FOLDER_PATH = "./screenshots";
-    static private final String VIDEOS_FOLDER_PATH = "./videos";
+    static private final String SCREENSHOTS_FOLDER_PATH = "./target/surefire-reports/screenshots";
+    static private final String VIDEOS_FOLDER_PATH = "./target/surefire-reports/videos";
     static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
 
 
     @BeforeSuite
     public void beforeSuite() {
-        FileManager.deleteFolder(SCREENSHOTS_FOLDER_PATH);
-        FileManager.deleteFolder(VIDEOS_FOLDER_PATH);
         FileManager.createFolder(VIDEOS_FOLDER_PATH);
     }
 
@@ -45,6 +45,7 @@ public class BaseTest {
 
     @AfterMethod
     public void afterMethod(ITestResult result) {
+        Reporter.setCurrentTestResult(result);
         LoadBalancer.getInstance().decrementServerThreadCount();
 
         if (config.getScreenshotOnFail() && result.getStatus() == ITestResult.FAILURE) {
@@ -54,8 +55,11 @@ public class BaseTest {
         if (config.getVideoOnFail()) {
             WebDriverFactory.stopVideoRecording();
 
-            if (!(result.getStatus() == ITestResult.FAILURE)) {
+            if (result.getStatus() != ITestResult.FAILURE) {
                 FileManager.deleteFile(WebDriverFactory.getVideoFilePath());
+            }
+            else {
+                addVideoLinkToTestReport();
             }
         }
     }
@@ -89,6 +93,8 @@ public class BaseTest {
     }
 
     private void signUp(SignUpTestInput testInput) {
+        Reporter.log("<b>SignUp test execution started.</b>");
+
         TestServerInterface testServer = TestServerManager.getTestServer();
         SignUpTestResult testResult = testServer.signUp(testInput);
 
@@ -105,6 +111,8 @@ public class BaseTest {
         Assert.assertEquals(testResult.color(), testInput.color());
         Assert.assertEquals(testResult.date(), testInput.date());
         Assert.assertEquals(testResult.range(), testInput.range());
+
+        Reporter.log("<b>SignUp test execution finished.</b>");
     }
 
     private static void takeScreenshot(ITestResult result) {
@@ -117,6 +125,10 @@ public class BaseTest {
                 SCREENSHOTS_FOLDER_PATH, status, browserName, browserVersion, methodName, timeStamp);
 
         WebDriverFactory.takeScreenshot(filePath);
+        File file = new File(filePath);
+        String relativePath = String.format("./screenshots/%s", file.getName());
+        Reporter.log(String.format("<br/><a href='%s'>Screenshot: %s</a>", relativePath, file.getName()));
+        Reporter.log(String.format("<br/><img src='%s' width='600', height='400'/>", relativePath));
     }
 
     private static void enableVideoRecording(ITestResult result) {
@@ -128,5 +140,14 @@ public class BaseTest {
                 VIDEOS_FOLDER_PATH, browserName, browserVersion, methodName, timeStamp);
 
         WebDriverFactory.enableVideoRecording(filePath);
+    }
+
+    private void addVideoLinkToTestReport() {
+        String filePath = WebDriverFactory.getVideoFilePath();
+        File file = new File(filePath);
+        String relativePath = String.format("./videos/%s", file.getName());
+        Reporter.log(String.format("<br/><a href='%s'>Video: %s</a>", relativePath, file.getName()));
+        Reporter.log(String.format("<br/><video width='600' height='400' controls>" +
+                "<source src='%s' type='video/mp4'></video>", relativePath));
     }
 }
