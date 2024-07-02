@@ -31,25 +31,25 @@ public class LocalTestRunner {
                 config.getBrowserName(),
                 config.getBrowserVersion());
 
-        if (SystemManager.isLinux()) {
+        if (SystemUtils.isLinux()) {
             runtTestCommandLine = String.format("sudo %s", runtTestCommandLine);
         }
 
-        String testOutput = CommandLineExecutor.runCommandLine(runtTestCommandLine);
+        String testOutput = CommandLineUtils.runCommandLine(runtTestCommandLine);
         String zipFileName = String.format(TEST_REPORT_ZIP_FILE_NAME_TEMPLATE, startDate);
         String zipFilePath = String.format("%s/%s", TARGET_FOLDER_PATH, zipFileName);
 
-        ZipManager.zipFolder(TEST_REPORT_FOLDER_PATH, zipFilePath);
-        AwsManager.uploadFileToS3(zipFilePath, TEST_REPORTS_AWS_BUCKET_NAME,
+        ZipFileUtils.zipFolder(TEST_REPORT_FOLDER_PATH, zipFilePath);
+        AwsUtils.uploadFileToS3(zipFilePath, TEST_REPORTS_AWS_BUCKET_NAME,
                 config.getAccessKey(), config.getSecretKey());
 
         String logFileName = String.format(TEST_REPORT_LOG_FILE_NAME_TEMPLATE, startDate);
-        FileManager.createFile(TARGET_FOLDER_PATH, logFileName, testOutput);
+        FileOperationUtils.createFile(TARGET_FOLDER_PATH, logFileName, testOutput);
         String logFilePath = String.format("%s/%s", TARGET_FOLDER_PATH, logFileName);
-        AwsManager.uploadFileToS3(logFilePath, TEST_REPORTS_AWS_BUCKET_NAME,
+        AwsUtils.uploadFileToS3(logFilePath, TEST_REPORTS_AWS_BUCKET_NAME,
                 config.getAccessKey(), config.getSecretKey());
 
-        DockerManager.stopAllContainers();
+        DockerUtils.stopAllContainers();
 
         if (!testOutput.contains(NO_FAILURES)) {
             Assert.fail(testOutput);

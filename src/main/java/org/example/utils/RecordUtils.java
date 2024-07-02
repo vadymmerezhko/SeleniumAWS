@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Record utils class.
  * Contains common methods to work with methods.
  */
-public class RecordUtils {
+public final class RecordUtils {
+
+    private RecordUtils() {}
 
     /**
      * Converts record to JSON string.

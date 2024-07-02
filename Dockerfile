@@ -22,6 +22,6 @@ COPY config.properties ./
 
 ENTRYPOINT [ "/usr/bin/java", "-cp", "./*", "com.amazonaws.services.lambda.runtime.api.client.AWSLambda" ]
 
-CMD [ "org.example.server.TestServerRequestHandler::handleRequest" ]
+CMD [ "org.example.servers.TestServerRequestHandler::handleRequest" ]
 
 

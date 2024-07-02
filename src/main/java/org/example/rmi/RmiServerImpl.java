@@ -2,10 +2,10 @@ package org.example.rmi;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.Config;
-import org.example.server.TestServerRequestHandler;
-import org.example.utils.CommandLineExecutor;
-import org.example.utils.ServerManager;
-import org.example.utils.Waiter;
+import org.example.servers.TestServerRequestHandler;
+import org.example.utils.CommandLineUtils;
+import org.example.utils.ServerUtils;
+import org.example.utils.WaiterUtils;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -42,7 +42,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
         }
 
         while (true) {
-            Waiter.waitSeconds(5);
+            WaiterUtils.waitSeconds(5);
         }
     }
 
@@ -65,8 +65,8 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
             String publicIp = getCurrentEc2PublicIp();
             log.info("RMI server port was detected: {}", publicIp);
 
-            String rmiServerName = ServerManager.getRmiServerName(index);
-            int rmiRegistryPort = ServerManager.getRmiServerPort(index);
+            String rmiServerName = ServerUtils.getRmiServerName(index);
+            int rmiRegistryPort = ServerUtils.getRmiServerPort(index);
             System.setProperty("java.rmi.server.hostname", publicIp);
             RmiServer server = new RmiServerImpl();
             Registry registry = LocateRegistry.createRegistry(rmiRegistryPort);
@@ -81,7 +81,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     }
 
     private static String getCurrentEc2PublicIp() {
-        String output = CommandLineExecutor.runCommandLine(GET_EC2_PUBLIC_IP_COMMAND_LINE);
+        String output = CommandLineUtils.runCommandLine(GET_EC2_PUBLIC_IP_COMMAND_LINE);
         return output.substring(0, output.indexOf("\n"));
     }
 }

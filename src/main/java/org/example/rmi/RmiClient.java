@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
-import static org.example.utils.ServerManager.*;
+import static org.example.utils.ServerUtils.*;
 
 /**
  * RMI client class.

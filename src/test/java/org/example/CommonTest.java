@@ -1,7 +1,7 @@
 package org.example;
 
-import org.example.factory.WebDriverFactory;
-import org.example.utils.ServerManager;
+import org.example.factories.WebDriverFactory;
+import org.example.utils.ServerUtils;
 import org.testng.annotations.AfterSuite;
 
 public class CommonTest {
@@ -9,7 +9,7 @@ public class CommonTest {
     @AfterSuite()
     public void afterSuite() {
         WebDriverFactory.closeAllDrivers();
-        ServerManager.terminateAllSeleniumServers();
-        ServerManager.terminateAwsRmiServer();
+        ServerUtils.terminateAllSeleniumServers();
+        ServerUtils.terminateAwsRmiServer();
     }
 }

@@ -1,19 +1,18 @@
 package org.example;
 
-import org.example.balancer.LoadBalancer;
+import org.example.balancers.LoadBalancer;
 import org.example.data.Config;
 import org.example.data.SignUpTestInput;
 import org.example.data.SignUpTestResult;
-import org.example.factory.WebDriverFactory;
-import org.example.server.TestServerInterface;
-import org.example.server.TestServerManager;
-import org.example.utils.FileManager;
+import org.example.factories.WebDriverFactory;
+import org.example.servers.TestServerInterface;
+import org.example.servers.TestServerManager;
+import org.example.utils.FileOperationUtils;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -28,11 +27,6 @@ public class BaseTest {
     static private final String VIDEOS_FOLDER_PATH = "./target/surefire-reports/videos";
     static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
 
-
-    @BeforeSuite
-    public void beforeSuite() {
-        FileManager.createFolder(VIDEOS_FOLDER_PATH);
-    }
 
     @BeforeMethod(alwaysRun = true)
     public void beforeMethod(ITestResult result) {
@@ -56,7 +50,7 @@ public class BaseTest {
             WebDriverFactory.stopVideoRecording();
 
             if (result.getStatus() != ITestResult.FAILURE) {
-                FileManager.deleteFile(WebDriverFactory.getVideoFilePath());
+                FileOperationUtils.deleteFile(WebDriverFactory.getVideoFilePath());
             }
             else {
                 addVideoLinkToTestReport();
@@ -138,6 +132,10 @@ public class BaseTest {
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.SS.SSS").format(new Date());
         String filePath = String.format("%s/failure.%s.%s.%s.%s.mp4",
                 VIDEOS_FOLDER_PATH, browserName, browserVersion, methodName, timeStamp);
+
+        if (!new File(VIDEOS_FOLDER_PATH).exists()) {
+            FileOperationUtils.createFolder(VIDEOS_FOLDER_PATH);
+        }
 
         WebDriverFactory.enableVideoRecording(filePath);
     }

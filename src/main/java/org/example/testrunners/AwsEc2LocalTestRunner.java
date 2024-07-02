@@ -1,6 +1,6 @@
 package org.example.testrunners;
 
-import org.example.utils.ServerManager;
+import org.example.utils.ServerUtils;
 import org.testng.Assert;
 
 import static org.example.constants.Settings.NO_FAILURES;
@@ -17,7 +17,7 @@ public class AwsEc2LocalTestRunner {
     public static void main(String[] args) {
 
         try {
-            String testOutput = ServerManager.createLocalRunServerAndRunTests();
+            String testOutput = ServerUtils.createLocalRunServerAndRunTests();
 
             if (!testOutput.contains(NO_FAILURES)) {
                 Assert.fail(testOutput);
