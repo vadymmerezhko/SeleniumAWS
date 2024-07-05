@@ -4,6 +4,7 @@ import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.options.BoundingBox;
 import org.example.drivers.selectors.ByParser;
+import org.example.drivers.wrappers.BaseWebElement;
 import org.example.utils.ScreenshotUtils;
 import org.openqa.selenium.*;
 
@@ -13,9 +14,8 @@ import java.util.stream.Collectors;
 /**
  * The Playwright - WebElement wrapper class.
  */
-public class PlaywrightElement implements WebElement {
+public class PlaywrightElement extends BaseWebElement {
 
-    private final PlaywrightDriver driver;
     private final Locator locator;
 
     /**
@@ -23,9 +23,10 @@ public class PlaywrightElement implements WebElement {
      * @param driver The Playwright driver instance.
      * @param locator The element locator.
      */
-    public PlaywrightElement(PlaywrightDriver driver, Locator locator) {
-        this.driver = driver;
+    public PlaywrightElement(By by, Locator locator, WebDriver driver) {
+        super(null, by, driver);
         this.locator = locator;
+        this.element = this;
     }
 
     /**
@@ -34,7 +35,7 @@ public class PlaywrightElement implements WebElement {
     @Override
     public void click() {
         locator.click();
-        driver.checkAccessibility();
+        ((PlaywrightDriver) driver).checkAccessibility();
     }
 
     /**
@@ -68,7 +69,6 @@ public class PlaywrightElement implements WebElement {
      */
     @Override
     public void sendKeys(CharSequence... keysToSend) {
-
         for (CharSequence keysToSendValue : keysToSend ) {
             String value = keysToSendValue.toString();
             try {
@@ -105,10 +105,13 @@ public class PlaywrightElement implements WebElement {
      */
     @Override
     public String getAttribute(String name) {
+        String value;
         if (name.equals("value")) {
-            return locator.inputValue();
+            value = locator.inputValue();
+        } else {
+            value = locator.getAttribute(name);
         }
-        return locator.getAttribute(name);
+        return value;
     }
 
     /**
@@ -117,11 +120,14 @@ public class PlaywrightElement implements WebElement {
      */
     @Override
     public boolean isSelected() {
+        boolean isSelected;
         if (getTagName().equals("option")) {
             String selected = getDomProperty("selected");
-            return selected.equals("true");
+            isSelected = selected.equals("true");
+        } else {
+            isSelected = locator.isChecked();
         }
-        return locator.isChecked();
+        return isSelected;
     }
 
     /**
@@ -158,7 +164,7 @@ public class PlaywrightElement implements WebElement {
             throw new RuntimeException(e);
         }
         return childLocators.stream()
-                .map(locator -> new PlaywrightElement(driver, locator))
+                .map(locator -> new PlaywrightElement(by, locator, driver))
                 .collect(Collectors.toList());
     }
 
@@ -172,7 +178,7 @@ public class PlaywrightElement implements WebElement {
         String locatorString = ByParser.getLocatorString(by);
         try {
             Locator childLocator = locator.locator(locatorString);
-            return new PlaywrightElement(driver, childLocator);
+            return new PlaywrightElement(by, childLocator, driver);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -272,5 +278,20 @@ public class PlaywrightElement implements WebElement {
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
         byte[] data = locator.screenshot();
         return ScreenshotUtils.convertScreenshotBytes(target, data);
+    }
+
+    @Override
+    public String getStyle(String propertyName) {
+        return (String) locator.evaluate(String.format(
+                "(element) => window.getComputedStyle(element).getPropertyValue('%s')",
+                propertyName));
+    }
+
+    @Override
+    public void setStyle(String propertyName, String propertyValue) {
+        String newStyle = String.format("%s: %s", propertyName, propertyValue);
+        locator.evaluate(String.format(
+                "(element,) => element.setAttribute('style', '%s')",
+                newStyle));
     }
 }

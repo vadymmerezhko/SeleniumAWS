@@ -24,8 +24,9 @@ public class RangeSlider extends BaseElement {
      * @param value The range value.
      */
     public void setValue(int value) {
-        DataValidationUtils.validateRange(value, 0, 10, this.getClass().getSimpleName(), getElement());
         WebElement slider = getElement();
+        DataValidationUtils.validateRange(value, 0, 10, this.getClass().getSimpleName());
+
         if (slider instanceof PlaywrightElement) {
             ((PlaywrightElement)slider).setValue(Integer.toString(value));
             return;

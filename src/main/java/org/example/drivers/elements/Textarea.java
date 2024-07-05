@@ -21,8 +21,8 @@ public class Textarea extends TextInput {
      * @param text The text to enter.
      */
     public void enterText(String text) {
-        DataValidationUtils.validateNotNull(text, this.getClass().getSimpleName(), getElement());
         getElement().clear();
+        DataValidationUtils.validateNotNull(text, this.getClass().getSimpleName());
         getElement().sendKeys(text);
     }
 }

@@ -24,8 +24,9 @@ public class ColorPicker extends BaseElement {
      * @param color The color value.
      */
     public void pickColor(String color) {
-        DataValidationUtils.validateColorFormat(color, this.getClass().getSimpleName(), getElement());
         WebElement colorPicker = getElement();
+        DataValidationUtils.validateColorFormat(color, this.getClass().getSimpleName());
+
         if (colorPicker instanceof PlaywrightElement) {
             ((PlaywrightElement)colorPicker).setValue(color);
             return;

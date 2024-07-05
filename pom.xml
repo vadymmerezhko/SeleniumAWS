@@ -37,6 +37,7 @@
             <!--suppress UnresolvedMavenProperty -->
             <suiteXmlFile>${testSuite}</suiteXmlFile>
           </suiteXmlFiles>
+          <!--<useSystemClassLoader>false</useSystemClassLoader>-->
         </configuration>
       </plugin>
     </plugins>

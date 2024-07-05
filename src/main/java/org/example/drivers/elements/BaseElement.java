@@ -1,16 +1,30 @@
 package org.example.drivers.elements;
 
-import org.example.factories.WebDriverFactory;
+import org.example.data.Config;
+import org.example.drivers.factories.WebDriverFactory;
+import org.example.drivers.wrappers.BaseWebElement;
+import org.example.utils.WaiterUtils;
 import org.openqa.selenium.*;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
 
 /**
  * Base web element class.
  */
 public abstract class BaseElement implements WebElement, WrapsElement {
+    private static final ConcurrentMap<Long, WebElement> handledElementMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Long, WebElement> highlightedElementMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Long, String> prevElementStyleMap = new ConcurrentHashMap<>();
+
+    static protected final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     private WebElement element = null;
     private final By by;
+    protected WebDriver driver;
+    protected long threadId;
 
     /**
      * Base element constructor by its locator.
@@ -18,6 +32,8 @@ public abstract class BaseElement implements WebElement, WrapsElement {
      */
     public BaseElement(By by) {
         this.by = by;
+        driver = WebDriverFactory.getDriver();
+        threadId = Thread.currentThread().threadId();
     }
 
     /**
@@ -235,8 +251,53 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     protected WebElement getElement() {
         if (element == null) {
             element = WebDriverFactory.getDriver().findElement(by);
+            handleElement();
             return element;
         }
         return element;
+    }
+
+    /**
+     * Handles web element after an action on it.
+     */
+    protected void handleElement() {
+        if (handledElementMap.isEmpty() || handledElementMap.get(threadId) != element) {
+            handledElementMap.put(threadId, element);
+
+            if (config.getHighlightElement()) {
+                highlightElement();
+            }
+            WaiterUtils.waitMilliSeconds(config.getStepDelay());
+        }
+    }
+
+    protected void highlightElement() {
+        if (highlightedElementMap.containsKey(threadId) &&
+                prevElementStyleMap.get(threadId) != null) {
+            // Restore element style.
+            try {
+                String style = prevElementStyleMap.get(threadId);
+                ((BaseWebElement) highlightedElementMap.get(threadId))
+                        .setStyle("border", style);
+            } catch (Exception e) {
+                // Ignore exception if not possible to restore style.
+            }
+        }
+        // Save the current element style.
+        String style = null;
+        try {
+            style = ((BaseWebElement) element).getStyle("border");
+        } catch (Exception e) {
+            // Ignore exception if style is not available.
+        }
+        prevElementStyleMap.put(threadId, style);
+
+        // Change current element border style.
+        highlightedElementMap.put(threadId, element);
+        try {
+            ((BaseWebElement) element).setStyle("border", "3px solid red");
+        } catch (Exception e) {
+            // Ignore exception is previous element is not available.
+        }
     }
 }

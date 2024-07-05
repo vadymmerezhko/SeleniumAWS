@@ -1,34 +1,22 @@
 package org.example.drivers.wrappers;
 
-import org.example.data.Config;
 import org.example.utils.WaiterUtils;
 import org.openqa.selenium.*;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
-
-import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
 
 /**
  * The robust web element class.
  * This class wraps WebElement and adds auto wait, retry on error
  * to make the WebElement more reliable.
  */
-public class RobustWebElement implements WebElement {
+public class RobustWebElement extends BaseWebElement {
     private static final int WAIT_FOR_ELEMENT_TIMEOUT_SEC = 15;
     private static final int RETRY_WAIT_MILLI_SEC = 100;
     private static final int RETRY_COUNT = 100;
-    private static final ConcurrentMap<Long, WebElement> handledElementMap = new ConcurrentHashMap<>();
-    private static final ConcurrentMap<Long, WebElement> highlightedElementMap = new ConcurrentHashMap<>();
-    private static final ConcurrentMap<Long, String> prevElementStyleMap = new ConcurrentHashMap<>();
-    static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
-    long threadId;
-    private WebElement element;
+
     private final RobustWebElement parent;
-    private final By by;
-    private final WebDriver driver;
     private final RobustWebDriverWaiter waiter;
 
     /**
@@ -44,12 +32,9 @@ public class RobustWebElement implements WebElement {
                             By by,
                             WebDriver driver,
                             RobustWebDriverWaiter waiter) {
-        this.element = element;
+        super(element, by, driver);
         this.parent = parent;
-        this.by = by;
-        this.driver = driver;
         this.waiter = waiter;
-        threadId = Thread.currentThread().threadId();
     }
 
     /**
@@ -69,7 +54,6 @@ public class RobustWebElement implements WebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 element.click();
-                handleElement(element);
                 return;
             } catch (StaleElementReferenceException |
                      ElementNotInteractableException e) {
@@ -89,7 +73,6 @@ public class RobustWebElement implements WebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 element.submit();
-                handleElement(element);
                 return;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
@@ -109,7 +92,6 @@ public class RobustWebElement implements WebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 element.sendKeys(keysToSend);
-                handleElement(element);
                 return;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
@@ -128,7 +110,6 @@ public class RobustWebElement implements WebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 element.clear();
-                handleElement(element);
                 return;
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
@@ -157,9 +138,7 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                String attribute = element.getAttribute(name);
-                handleElement(element);
-                return attribute;
+                return element.getAttribute(name);
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -178,9 +157,7 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                String domProperty = element.getDomProperty(name);
-                handleElement(element);
-                return domProperty;
+                return element.getDomProperty(name);
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -199,9 +176,7 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                String domAttribute = element.getDomAttribute(name);
-                handleElement(element);
-                return domAttribute;
+                return element.getDomAttribute(name);
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -219,9 +194,7 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                String arialRole = element.getAriaRole();
-                handleElement(element);
-                return arialRole;
+                return element.getAriaRole();
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -239,9 +212,7 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                String accessibleName = element.getAccessibleName();
-                handleElement(element);
-                return accessibleName;
+                return element.getAccessibleName();
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -260,9 +231,7 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                boolean isSelected = element.isSelected();
-                handleElement(element);
-                return isSelected;
+                return element.isSelected();
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -280,9 +249,7 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                boolean isEnabled = element.isEnabled();
-                handleElement(element);
-                return isEnabled;
+                return element.isEnabled();
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -300,9 +267,7 @@ public class RobustWebElement implements WebElement {
         Exception exception = null;
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
-                String text = element.getText();
-                handleElement(element);
-                return text;
+                return element.getText();
             } catch (StaleElementReferenceException | ElementNotInteractableException e) {
                 exception = e;
                 fixVisibleWebElement();
@@ -429,19 +394,20 @@ public class RobustWebElement implements WebElement {
         ((JavascriptExecutor)driver).executeScript(String.format("arguments[0].value='%s'", value), nativeElement);
     }
 
-    /**
-     * Handles web element after an action on it.
-     * @param element The web element.
-     */
-    public void handleElement(WebElement element) {
-        if (handledElementMap.isEmpty() || handledElementMap.get(threadId) != element) {
-            handledElementMap.put(threadId,element);
+    @Override
+    public String getStyle(String propertyName) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        return (String) js.executeScript(String.format(
+                "return window.getComputedStyle(arguments[0]).getPropertyValue('%s');",
+                propertyName),
+                element);
+    }
 
-            if (config.getHighlightElement()) {
-                highlightElement(element);
-            }
-            WaiterUtils.waitMilliSeconds(config.getStepDelay());
-        }
+    @Override
+    public void setStyle(String propertyName, String propertyValue) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        String newStyle = String.format("%s: %s", propertyName, propertyValue);
+        js.executeScript("arguments[0].setAttribute('style', arguments[1]);", element, newStyle);
     }
 
     private WebElement waitForChildElementPresence(By childBy) {
@@ -483,31 +449,6 @@ public class RobustWebElement implements WebElement {
         } else {
             parent.fixClickableWebElement();
             element = waitForChildElementPresence(by);
-        }
-    }
-
-    private void highlightElement(WebElement element) {
-
-        if (highlightedElementMap.containsKey(threadId)) {
-            // Restore element style.
-            String setStyleScript = "arguments[0].setAttribute('style', arguments[0]);";
-            try {
-                ((JavascriptExecutor) driver).executeScript(setStyleScript,
-                        highlightedElementMap.get(threadId),
-                        prevElementStyleMap.get(threadId));
-            } catch (Exception e) {
-                // Ignore exception is previous element is not available.
-            }
-        }
-        String highlightScript = "arguments[0].style.border='3px solid red';";
-        // Save the current element style.
-        prevElementStyleMap.put(threadId, element.getAttribute("style"));
-        highlightedElementMap.put(threadId, element);
-        // Change current element border style.
-        try {
-            ((JavascriptExecutor) driver).executeScript(highlightScript, element);
-        } catch (Exception e) {
-            // Ignore exception if element cannot be highlighted.
         }
     }
 }

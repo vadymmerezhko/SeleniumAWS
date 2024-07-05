@@ -29,7 +29,7 @@ public class Multiselect extends BaseElement {
      * @param text The text of the option to select.
      */
     public void selectOptionText(String text) {
-        DataValidationUtils.validateNotBlank(text, this.getClass().getSimpleName(), getElement());
+        DataValidationUtils.validateNotBlank(text, this.getClass().getSimpleName());
         select.selectByVisibleText(text);
     }
 
@@ -38,7 +38,7 @@ public class Multiselect extends BaseElement {
      * @param text The text of the option to deselect.
      */
     public void deselectOptionText(String text) {
-        DataValidationUtils.validateNotBlank(text, this.getClass().getSimpleName(), getElement());
+        DataValidationUtils.validateNotBlank(text, this.getClass().getSimpleName());
         select.deselectByVisibleText(text);
     }
 
@@ -47,7 +47,7 @@ public class Multiselect extends BaseElement {
      * @param value The value of the option to select.
      */
     public void selectOptionValue(String value) {
-        DataValidationUtils.validateNotBlank(value, this.getClass().getSimpleName(), getElement());
+        DataValidationUtils.validateNotBlank(value, this.getClass().getSimpleName());
         select.selectByValue(value);
     }
 
@@ -56,7 +56,7 @@ public class Multiselect extends BaseElement {
      * @param value The value of the option to deselect.
      */
     public void deselectOptionValue(String value) {
-        DataValidationUtils.validateNotBlank(value, this.getClass().getSimpleName(), getElement());
+        DataValidationUtils.validateNotBlank(value, this.getClass().getSimpleName());
         select.deselectByValue(value);
     }
 

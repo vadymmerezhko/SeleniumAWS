@@ -1,7 +1,5 @@
 package org.example.helpers;
 
-import org.bytedeco.ffmpeg.global.avcodec;
-import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -25,9 +23,7 @@ public class VideoRecorder {
             recorder = new FFmpegFrameRecorder(videoFilePath, width, height);
             converter = new Java2DFrameConverter();
             recorder.setFormat("mp4");
-            recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
-            recorder.setAudioCodec(avcodec.AV_CODEC_ID_AAC);
-            recorder.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
+            recorder.setVideoCodec(org.bytedeco.ffmpeg.global.avcodec.AV_CODEC_ID_H264);
             recorder.setFrameRate(rate);
         }
         catch (Exception e) {

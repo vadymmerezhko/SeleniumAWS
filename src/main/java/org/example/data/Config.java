@@ -120,6 +120,14 @@ public class Config {
     }
 
     /**
+     * Returns the browser name and version (optional).
+     * @return The browser name and version.
+     */
+    synchronized public String getBrowser() {
+        return getStringProperty(BROWSER);
+    }
+
+    /**
      * Returns the browser name.
      * @return The browser name.
      */
@@ -134,7 +142,21 @@ public class Config {
      */
     synchronized public String getBrowserVersion() {
         String browser = getStringProperty(BROWSER);
-        return getSubValue(browser, 1);
+        try {
+            return getSubValue(browser, 1);
+        } catch (Exception e) {
+            throw new RuntimeException(String.format(
+                    "The '%s' browser version is undefined.", browser));
+        }
+    }
+
+    /**
+     * Returns true if browser version is defined or false otherwise.
+     * @return The browser version.
+     */
+    synchronized public boolean isBrowserVersionDefined() {
+        String browser = getStringProperty(BROWSER);
+        return browser.split(VALUES_DELIMITER).length == 2;
     }
 
     /**
@@ -151,7 +173,12 @@ public class Config {
      */
     synchronized public int getBrowseWidth() {
         String browserSize = getBrowserSize();
-        return getIntegerSubValue(browserSize, 0);
+        try {
+            return getIntegerSubValue(browserSize, 0);
+        } catch (Exception e) {
+            throw new RuntimeException(String.format(
+                    "The browser width is undefined: %s", browserSize));
+        }
     }
 
     /**
@@ -160,7 +187,12 @@ public class Config {
      */
     synchronized public int getBrowseHeight() {
         String browserSize = getBrowserSize();
-        return getIntegerSubValue(browserSize, 1);
+        try {
+            return getIntegerSubValue(browserSize, 1);
+        } catch (Exception e) {
+            throw new RuntimeException(String.format(
+                    "The browser height is undefined: %s", browserSize));
+        }
     }
 
     /**
@@ -254,7 +286,8 @@ public class Config {
     private String getSubValue(String value, int index) {
         String[] subValues = value.split(VALUES_DELIMITER);
         if (subValues.length <= index) {
-            return null;
+            throw new RuntimeException(String.format(
+                    "Config value '%s' doesn't have the part %d.", value, index + 1));
         }
         return subValues[index];
     }

@@ -1,8 +1,6 @@
-package org.example.factories;
+package org.example.drivers.factories;
 
-import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.*;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -12,6 +10,7 @@ import org.example.data.Config;
 import org.example.drivers.wrappers.RobustWebDriver;
 import org.example.enums.BrowserName;
 import org.example.enums.TestMode;
+import org.example.helpers.TimeOut;
 import org.example.helpers.VideoRecorder;
 import org.example.utils.*;
 import org.example.drivers.playwright.PlaywrightDriver;
@@ -52,16 +51,16 @@ import static org.example.enums.TestMode.*;
  */
 @Slf4j
 public class WebDriverFactory {
-    static private final String SELENIUM_GRID_URL_TEMPLATE = "http://%S:4444";
+    static private final String SELENIUM_GRID_URL_TEMPLATE = "http://%s:4444";
     static private final String LOCALHOST = "localhost";
     static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
     static private final ConcurrentMap<Long, Boolean> videoRecordingMap = new ConcurrentHashMap<>();
     static private final ConcurrentMap<Long, String> videoFilePathMap = new ConcurrentHashMap<>();
     static private final ConcurrentMap<Long, Thread> videoRecordingThreadMap = new ConcurrentHashMap<>();
-    static private final ConcurrentMap<Long, VideoRecorder> videoRecorderMap = new ConcurrentHashMap<>();
     static private final int ADB_EXEC_TIMEOUT_MILLISECONDS = 180000;
-    static private final int VIDEO_RECORDING_RATE = 5;
+    static private final int VIDEO_RECORDING_RATE = 10;
+    static private final int REMOTE_SERVER_TIMEOUT_SECONDS = 15;
     static private final long VIDEO_FRAME_PERIOD_MILLISECONDS = 1000 / VIDEO_RECORDING_RATE;
     private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
     private static boolean dockerSeleniumGridStarted = false;
@@ -76,12 +75,10 @@ public class WebDriverFactory {
         long threadId = Thread.currentThread().threadId();
         TestMode testMethod = config.getTestMode();
         BrowserName browserName = config.getBrowserName();
-        String browserVersion = config.getBrowserVersion();
         int threadCount = config.getThreadCount();
 
         if (!driverMap.containsKey(threadId)) {
-
-            log.info("Creating {} web driver for {}:{} browser...", testMethod, browserName, browserVersion);
+            log.info("Creating {} web driver for {} browser...", testMethod, config.getBrowser());
 
             switch (testMethod) {
                 case AWS_DOCKER -> driver = new RobustWebDriver(getAWSDockerDriver(
@@ -90,8 +87,8 @@ public class WebDriverFactory {
                         browserName, config.getBrowserVersion(), threadCount));
                 case LOCAL_DOCKER_AUTO -> driver = new RobustWebDriver(getLocalDockerAutoWebDriver(
                         browserName, config.getBrowserVersion()));
-                case LOCAL ->  driver = new RobustWebDriver(getLocalWebDriver(browserName, browserVersion));
-                case LOCAL_AUTO ->  driver = new RobustWebDriver(getLocalAutoWebDriver(browserName));
+                case LOCAL -> driver = new RobustWebDriver(getLocalWebDriver(browserName, config.getBrowserVersion()));
+                case LOCAL_AUTO -> driver = new RobustWebDriver(getLocalAutoWebDriver(browserName));
                 case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver(browserName);
                 case REMOTE -> driver = new RobustWebDriver(getRemoteWebDriver(
                         config.getRemoteHost(), browserName, config.getBrowserVersion()));
@@ -104,17 +101,12 @@ public class WebDriverFactory {
                  default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
             }
             driverMap.put(threadId, driver);
-        }
-        else {
-            driver = driverMap.get(threadId);
-            driver.manage().deleteAllCookies();
 
             driver.manage().window().setSize(new Dimension(
                     config.getBrowseWidth(), config.getBrowseHeight()));
-
-            if (config.getVideoOnFail()) {
-                startVideoRecording();
-            }
+        }
+        else {
+            driver = driverMap.get(threadId);
         }
         return driver;
     }
@@ -148,43 +140,14 @@ public class WebDriverFactory {
      * Enables video recording and saves it by the file path.
      */
     public static void enableVideoRecording(String videoFilePath) {
-        long threadId = Thread.currentThread().threadId();
-        videoFilePathMap.put(threadId, videoFilePath);
-        videoRecordingMap.put(threadId, false);
-        VideoRecorder videoRecorder = new VideoRecorder();
-        videoRecorder.setup(
-                videoFilePath,
-                config.getBrowseWidth(),
-                config.getBrowseHeight(),
-                VIDEO_RECORDING_RATE);
-        videoRecorderMap.put(threadId, videoRecorder);
-
-        Thread thread = new Thread(() -> {
-            while (!videoRecordingMap.get(threadId)) {
-                // Wait for video recording start.
-                WaiterUtils.waitMilliSeconds(10);
-            }
-
-            if (!driverMap.containsKey(threadId)) {
-                return;
-            }
-            videoRecorder.start();
-
-            while (videoRecordingMap.get(threadId)) {
-                long startMilliSeconds = System.currentTimeMillis();
-
-                videoRecorder.record(takeScreenshot(threadId));
-
-                long screenshotDilay = System.currentTimeMillis() - startMilliSeconds;
-                //System.out.printf("Take screenshot delay: %d%n", screenshotDilay);
-
-                if (screenshotDilay < VIDEO_FRAME_PERIOD_MILLISECONDS) {
-                    WaiterUtils.waitMilliSeconds(VIDEO_FRAME_PERIOD_MILLISECONDS - screenshotDilay);
-                }
-            }
-        });
-        videoRecordingThreadMap.put(threadId, thread);
-        thread.start();
+        try {
+            long threadId = Thread.currentThread().threadId();
+            videoFilePathMap.put(threadId, videoFilePath);
+            videoRecordingMap.put(threadId, false);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -192,7 +155,44 @@ public class WebDriverFactory {
      */
     public static void startVideoRecording() {
         long threadId = Thread.currentThread().threadId();
+
+        VideoRecorder videoRecorder = new VideoRecorder();
+        videoRecorder.setup(
+                videoFilePathMap.get(threadId),
+                config.getBrowseWidth(),
+                config.getBrowseHeight(),
+                VIDEO_RECORDING_RATE);
         videoRecordingMap.put(threadId, true);
+
+        Thread thread = new Thread(() -> {
+            try {
+                videoRecorder.start();
+
+                while (videoRecordingMap.get(threadId)) {
+                    long startMilliSeconds = System.currentTimeMillis();
+                    byte[] imageBytes =  takeScreenshot(threadId);
+
+                    if (!driverMap.containsKey(threadId) || imageBytes == null) {
+                        WaiterUtils.waitMilliSeconds(5);
+                        continue;
+                    }
+                    videoRecorder.record(imageBytes);
+
+                    long screenshotDilay = System.currentTimeMillis() - startMilliSeconds;
+
+                    if (screenshotDilay < VIDEO_FRAME_PERIOD_MILLISECONDS) {
+                        WaiterUtils.waitMilliSeconds(VIDEO_FRAME_PERIOD_MILLISECONDS - screenshotDilay);
+                    }
+                }
+                videoRecorder.stop();
+            }
+            catch (Exception e) {
+                videoRecorder.stop();
+                throw new RuntimeException(e);
+            }
+        });
+        videoRecordingThreadMap.put(threadId, thread);
+        thread.start();
     }
 
     /**
@@ -206,7 +206,6 @@ public class WebDriverFactory {
                 // Wait till video recording thread to be finished.
                 videoRecordingThreadMap.get(threadId).join();
             }
-            videoRecorderMap.get(threadId).stop();
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -290,14 +289,20 @@ public class WebDriverFactory {
      * @return The local Docker web driver instance.
      */
     private static WebDriver getLocalDockerWebDriver(BrowserName browserName, String browserVersion, int threadCount) {
+        try {
+            switch (browserName) {
+                case CHROME, FIREFOX, EDGE -> {
+                    runSeleniumGridOnDocker(browserName, browserVersion, threadCount);
+                    String url = String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST);
 
-        switch (browserName) {
-            case CHROME, FIREFOX, EDGE -> {
-                runSeleniumGridOnDocker(browserName, browserVersion, threadCount);
-                return getRemoteWebDriver(String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST),
-                        browserName, browserVersion);
+                    // Waiting for remote WebDriver.
+                    return waitForRemoteDriver(browserName, browserVersion, url,
+                            REMOTE_SERVER_TIMEOUT_SECONDS, "Local Docker");
+                }
+                default -> throw new RuntimeException("Unsupported Docker browser: " + browserName);
             }
-            default -> throw new RuntimeException("Unsupported Docker browser: " + browserName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -339,22 +344,45 @@ public class WebDriverFactory {
      * @return The remote web driver instance.
      */
     private static WebDriver getAWSDockerDriver(BrowserName browserName, String browserVersion, int threadCount) {
-            long serverId = loadBalancer.getThreadServerId();
-            String ec2InstanceIp = loadBalancer.getServerPublicIp(
-                    serverId, threadCount, browserName, browserVersion);
-            try {
+        long serverId = loadBalancer.getThreadServerId();
+
+        switch (browserName) {
+            case CHROME, FIREFOX, EDGE -> {
+                String ec2InstanceIp = loadBalancer.getServerPublicIp(
+                        serverId, threadCount, browserName, browserVersion);
+
                 log.info("Waiting for AWS EC2 instance...");
                 ServerUtils.waitForServerAvailability(ec2InstanceIp, REMOTE_WEB_DRIVER_PORT);
-            }
-            catch (Exception e) {
-                log.error("Wait Selenium Grid error!");
-                loadBalancer.lockSever(serverId);
-                return getDriver();
-            }
+                String url = String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp);
 
-        return getRemoteWebDriver(
-                String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp),
-                browserName, config.getBrowserVersion());
+                // Waiting for remote WebDriver.
+                return waitForRemoteDriver(browserName, browserVersion, url,
+                        REMOTE_SERVER_TIMEOUT_SECONDS, "AWS Docker");
+            }
+            default -> throw new RuntimeException("Unsupported Docker browser: " + browserName);
+        }
+    }
+
+    private static WebDriver waitForRemoteDriver(
+            BrowserName browserName,
+            String browserVersion,
+            String url,
+            int timeoutSeconds,
+            String type) {
+        TimeOut timeOut = new TimeOut(String.format(
+                "%s remote WebDriver wait", type), timeoutSeconds);
+
+        while (!timeOut.getIsExpired()) {
+            try {
+                return getRemoteWebDriver(url, browserName, browserVersion);
+            } catch (Exception e) {
+                // Ignore exception.
+                WaiterUtils.waitSeconds(1);
+            }
+        }
+        throw new RuntimeException(String.format(
+                "Cannot start %s:%s %s WebDriver on %s.",
+                browserName, browserVersion, type, url));
     }
 
     private static WebDriver getPlaywrightDriver(BrowserName browserName) {
@@ -378,12 +406,13 @@ public class WebDriverFactory {
                 case WEBKIT -> browserType = playwright.webkit();
                 default -> throw new RuntimeException("Unsupported Playwright browser: " + browserName);
             }
-
             Browser browser = browserType.launch(
                     new BrowserType.LaunchOptions()
                     .setHeadless(headless)
                     .setSlowMo(0));
-            PlaywrightDriver driver = new PlaywrightDriver(browser);
+            BrowserContext context = browser.newContext();
+            Page page = context.newPage();
+            PlaywrightDriver driver = new PlaywrightDriver(browser, page);
             driver.setAccessibilityTestEnabled(accessibilityTest);
             return driver;
         }
@@ -520,7 +549,8 @@ public class WebDriverFactory {
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
         options.addArguments("--no-sandbox"); // bypass OS security model
         options.addArguments("--disable-extensions"); // disabling extensions
-        options.addArguments("disable-infobars"); // disabling infobars
+        options.addArguments("--disable-infobars"); // disabling infobars
+        options.setCapability("acceptInsecureCerts", true);
 
         if (config.getHeadless()) {
             options.addArguments("--headless"); // headless only
@@ -543,7 +573,8 @@ public class WebDriverFactory {
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
         options.addArguments("--no-sandbox"); // bypass OS security model
         options.addArguments("--disable-extensions"); // disabling extensions
-        options.addArguments("disable-infobars"); // disabling infobars
+        options.addArguments("--disable-infobars"); // disabling infobars
+        options.setCapability("acceptInsecureCerts", true);
 
         if (config.getHeadless()) {
             options.addArguments("--headless"); // headless only
@@ -566,7 +597,8 @@ public class WebDriverFactory {
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
         options.addArguments("--no-sandbox"); // bypass OS security model
         options.addArguments("--disable-extensions"); // disabling extensions
-        options.addArguments("disable-infobars"); // disabling infobars
+        options.addArguments("--disable-infobars"); // disabling infobars
+        options.setCapability("acceptInsecureCerts", true);
         options.setExperimentalOption("excludeSwitches", List.of("disable-popup-blocking"));
 
         if (config.getHeadless()) {

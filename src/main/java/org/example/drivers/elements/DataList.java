@@ -22,7 +22,8 @@ public class DataList extends BaseTextElement {
      * @param text The text of the option to select.
      */
     public void selectOptionByText(String text) {
-        DataValidationUtils.validateNotNull(text, this.getClass().getSimpleName(), getElement());
+        getElement();
+        DataValidationUtils.validateNotNull(text, this.getClass().getSimpleName());
         enterText(text);
     }
 

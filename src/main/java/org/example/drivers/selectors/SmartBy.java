@@ -1,6 +1,6 @@
 package org.example.drivers.selectors;
 
-import org.example.factories.WebDriverFactory;
+import org.example.drivers.factories.WebDriverFactory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;

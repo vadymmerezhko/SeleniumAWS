@@ -5,6 +5,7 @@ import com.deque.html.axecore.results.AxeResults;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.ScreenshotType;
 import org.example.drivers.selectors.ByParser;
 import org.example.utils.MethodUtils;
 import org.example.utils.ScreenshotUtils;
@@ -20,15 +21,18 @@ import java.util.stream.Collectors;
 public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScreenshot {
     private Browser browser;
     private PlaywrightPage playwrightPage;
-    private Page page;
+    private final Page page;
     private boolean accessibilityTestEnabled = false;
+    private boolean isPageOpen = false;
 
     /**
      * Playwright driver constructor by Playwright browser instance.
      * @param browser The browser instance.
+     * @param page The current web page.
      */
-    public PlaywrightDriver(Browser browser) {
+    public PlaywrightDriver(Browser browser, Page page) {
         this.browser = browser;
+        this.page = page;
     }
 
     /**
@@ -68,11 +72,9 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public void get(String url) {
-        if (page == null) {
-            page = browser.newPage();
-        }
         page.navigate(url);
         page.waitForLoadState();
+        isPageOpen = true;
         checkAccessibility();
     }
 
@@ -110,7 +112,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
             throw new RuntimeException(e);
         }
         return locators.stream()
-                .map(locator -> new PlaywrightElement(this, locator))
+                .map(locator -> new PlaywrightElement(by, locator, this))
                 .collect(Collectors.toList());
     }
 
@@ -124,7 +126,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         String locatorString = ByParser.getLocatorString(by);
         try {
             Locator locator = page.locator(locatorString);
-            return new PlaywrightElement(this, locator);
+            return new PlaywrightElement(by, locator,this);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -237,7 +239,19 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
-        byte[] data = page.screenshot();
-        return ScreenshotUtils.convertScreenshotBytes(target, data);
+        if (page == null || !isPageOpen) {
+            return null;
+        }
+        try {
+            byte[] data = page.screenshot(new Page.ScreenshotOptions().setType(ScreenshotType.JPEG));
+            return ScreenshotUtils.convertScreenshotBytes(target, data);
+        }
+        catch (Exception e) {
+            if (e.getMessage().contains("Object doesn't exist:")) {
+                // Workaround to fix Playwright issue.
+                return null;
+            }
+            throw new RuntimeException(e);
+        }
     }
 }

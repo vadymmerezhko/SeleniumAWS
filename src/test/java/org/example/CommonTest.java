@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.factories.WebDriverFactory;
+import org.example.drivers.factories.WebDriverFactory;
 import org.example.utils.ServerUtils;
 import org.testng.annotations.AfterSuite;
 

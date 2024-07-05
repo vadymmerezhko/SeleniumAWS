@@ -4,7 +4,7 @@ import org.example.balancers.LoadBalancer;
 import org.example.data.Config;
 import org.example.data.SignUpTestInput;
 import org.example.data.SignUpTestResult;
-import org.example.factories.WebDriverFactory;
+import org.example.drivers.factories.WebDriverFactory;
 import org.example.servers.TestServerInterface;
 import org.example.servers.TestServerManager;
 import org.example.utils.FileOperationUtils;
@@ -13,6 +13,7 @@ import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -25,15 +26,28 @@ import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
 public class BaseTest {
     static private final String SCREENSHOTS_FOLDER_PATH = "./target/surefire-reports/screenshots";
     static private final String VIDEOS_FOLDER_PATH = "./target/surefire-reports/videos";
+    static private final String DEFAULT_BROWSER_VERSION = "default";
     static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
 
+    @BeforeSuite
+    public void beforeSuite() {
+        FileOperationUtils.deleteFolder(VIDEOS_FOLDER_PATH);
+        FileOperationUtils.deleteFolder(SCREENSHOTS_FOLDER_PATH);
+    }
 
     @BeforeMethod(alwaysRun = true)
     public void beforeMethod(ITestResult result) {
         LoadBalancer.getInstance().incrementServerThreadCount();
+        WebDriverFactory.getDriver().manage().deleteAllCookies();
+        WebDriverFactory.getDriver().navigate().refresh();
 
-        if (config.getVideoOnFail()) {
-            enableVideoRecording(result);
+        try {
+            if (config.getVideoOnFail()) {
+                startVideoRecording(result.getMethod().getMethodName());
+            }
+        }
+           catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -42,26 +56,29 @@ public class BaseTest {
         Reporter.setCurrentTestResult(result);
         LoadBalancer.getInstance().decrementServerThreadCount();
 
-        if (config.getScreenshotOnFail() && result.getStatus() == ITestResult.FAILURE) {
-            takeScreenshot(result);
+        try {
+            if (config.getScreenshotOnFail() && result.getStatus() == ITestResult.FAILURE) {
+                takeScreenshot(result);
+            }
+
+            if (config.getVideoOnFail()) {
+                WebDriverFactory.stopVideoRecording();
+
+                if (result.getStatus() != ITestResult.FAILURE) {
+                    FileOperationUtils.deleteFile(WebDriverFactory.getVideoFilePath());
+                } else {
+                    addVideoLinkToTestReport();
+                }
+            }
         }
-
-        if (config.getVideoOnFail()) {
-            WebDriverFactory.stopVideoRecording();
-
-            if (result.getStatus() != ITestResult.FAILURE) {
-                FileOperationUtils.deleteFile(WebDriverFactory.getVideoFilePath());
-            }
-            else {
-                addVideoLinkToTestReport();
-            }
+        catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     protected void signUp() {
         Path currentRelativePath = Paths.get("pom.xml");
         String currentFolderPath = currentRelativePath.toAbsolutePath().toString();
-
         SignUpTestInput testInput = new SignUpTestInput(
                 "Selenium",
                 "Selenium WebDriver", // Multiline text cause failure on Safari.
@@ -112,7 +129,8 @@ public class BaseTest {
     private static void takeScreenshot(ITestResult result) {
         String status = result.isSuccess() ? "success" : "failure";
         String browserName = config.getBrowserName().toString();
-        String browserVersion = config.getBrowserVersion();
+        String browserVersion = config.isBrowserVersionDefined() ?
+                config.getBrowserVersion() : DEFAULT_BROWSER_VERSION;
         String methodName = result.getMethod().getMethodName();
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.SS.SSS").format(new Date());
         String filePath = String.format("%s/%s.%s.%s.%s.%s.png",
@@ -125,19 +143,17 @@ public class BaseTest {
         Reporter.log(String.format("<br/><img src='%s' width='600', height='400'/>", relativePath));
     }
 
-    private static void enableVideoRecording(ITestResult result) {
+    private static void startVideoRecording(String methodName) {
         String browserName = config.getBrowserName().toString();
-        String browserVersion = config.getBrowserVersion();
-        String methodName = result.getMethod().getMethodName();
+        String browserVersion = config.isBrowserVersionDefined() ?
+                config.getBrowserVersion() : DEFAULT_BROWSER_VERSION;
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.SS.SSS").format(new Date());
         String filePath = String.format("%s/failure.%s.%s.%s.%s.mp4",
                 VIDEOS_FOLDER_PATH, browserName, browserVersion, methodName, timeStamp);
 
-        if (!new File(VIDEOS_FOLDER_PATH).exists()) {
-            FileOperationUtils.createFolder(VIDEOS_FOLDER_PATH);
-        }
-
+        FileOperationUtils.createFolder(VIDEOS_FOLDER_PATH);
         WebDriverFactory.enableVideoRecording(filePath);
+        WebDriverFactory.startVideoRecording();
     }
 
     private void addVideoLinkToTestReport() {

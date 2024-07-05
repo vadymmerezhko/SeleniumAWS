@@ -21,7 +21,8 @@ public abstract class SingleLineTextInput extends BaseTextElement {
      * @param text The text to enter.
      */
     public void enterText(String text) {
-        DataValidationUtils.validateNotMultiline(text, this.getClass().getSimpleName(), getElement());
+        getElement();
+        DataValidationUtils.validateNotMultiline(text, this.getClass().getSimpleName());
         super.enterText(text);
     }
 }

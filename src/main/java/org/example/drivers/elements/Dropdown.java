@@ -24,8 +24,8 @@ public class Dropdown extends BaseElement {
      * @param text The text of the option to select.
      */
     public void selectOptionByText(String text) {
-        DataValidationUtils.validateNotBlank(text, this.getClass().getSimpleName(), getElement());
         WebElement dropdown = getElement();
+        DataValidationUtils.validateNotBlank(text, this.getClass().getSimpleName());
         if (dropdown instanceof PlaywrightElement) {
             click();
             ((PlaywrightElement)dropdown).selectOptionByText(text);

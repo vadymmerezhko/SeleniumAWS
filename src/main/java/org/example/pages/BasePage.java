@@ -1,6 +1,6 @@
 package org.example.pages;
 
-import org.example.factories.WebDriverFactory;
+import org.example.drivers.factories.WebDriverFactory;
 import org.openqa.selenium.*;
 
 /**

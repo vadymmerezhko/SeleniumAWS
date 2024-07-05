@@ -42,8 +42,10 @@ public final class FileOperationUtils {
     public static synchronized void createFolder(String folderPath) {
         try {
             File folder = new File(folderPath);
-            if (!folder.mkdirs()) {
-                throw new RuntimeException(String.format("Cannot create folder %s", folderPath));
+            if (!folder.exists()) {
+                if (!folder.mkdirs()) {
+                    throw new RuntimeException(String.format("Cannot create folder %s", folderPath));
+                }
             }
         }
         catch (Exception e) {
