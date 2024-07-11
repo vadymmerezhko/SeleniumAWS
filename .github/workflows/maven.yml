@@ -39,10 +39,10 @@ jobs:
 
       - name: Test - Local Docker - Linux Firefox latest
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker" "-Dbrowser=firefox:latest"
-      - name: Test Report - Local Docker - Linux Firefox latest
-        uses: actions/upload-artifact@v2
+      - name: Upload Test Report - Local Docker - Linux Firefox latest
+        uses: actions/upload-artifact@v4
         with:
-          name: surefire-reports-first
+          name: Test Report - Local Docker - Linux Firefox latest
           path: target/surefire-reports/
 
       - name: Test - Local Docker Auto - Linux Safari latest
