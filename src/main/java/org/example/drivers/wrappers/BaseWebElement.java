@@ -2,10 +2,11 @@ package org.example.drivers.wrappers;
 
 import org.openqa.selenium.*;
 
+
 public abstract class BaseWebElement implements WebElement {
 
     protected WebElement element;
-    protected final By by;
+    protected By by;
     protected final WebDriver driver;
 
     public BaseWebElement(WebElement element,
@@ -16,7 +17,10 @@ public abstract class BaseWebElement implements WebElement {
         this.driver = driver;
     }
 
-    abstract public String getStyle(String propertyName);
-
-    abstract public void setStyle(String propertyName, String propertyValue);
+    /**
+     * Returns web element selector By.
+     */
+    public By getBy() {
+        return by;
+    }
 }

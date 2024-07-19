@@ -1,5 +1,6 @@
 package org.example.drivers.elements;
 
+import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 
@@ -9,11 +10,12 @@ import org.openqa.selenium.By;
 public class Textarea extends TextInput {
 
     /**
-     * The textarea element constructor by its locator.
-     * @param by The textarea locator.
+     * The textarea element constructor by its page and selector.
+     * @param page The element page.
+     * @param by The element selector.
      */
-    public Textarea(By by) {
-        super(by);
+    public Textarea(BasePage page, By by) {
+        super(page, by);
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.example.drivers.elements;
 
+import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -10,11 +11,12 @@ import org.openqa.selenium.Keys;
 public abstract class BaseTextElement extends BaseElement {
 
     /**
-     * Base text element constructor by its locator.
-     * @param by The element locator.
+     * Base text element constructor by its page and selector.
+     * @param page The element page.
+     * @param by The element selector.
      */
-    public BaseTextElement(By by) {
-        super(by);
+    public BaseTextElement(BasePage page, By by) {
+        super(page, by);
     }
 
     /**
@@ -22,8 +24,8 @@ public abstract class BaseTextElement extends BaseElement {
      * @param text The text to enter.
      */
     public void enterText(String text) {
-        getElement().clear();
         DataValidationUtils.validateNotNull(text, this.getClass().getSimpleName());
+        getElement().clear();
         getElement().sendKeys(text);
     }
 

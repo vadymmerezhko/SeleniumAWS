@@ -2,6 +2,7 @@ package org.example.drivers.elements;
 
 import org.example.drivers.playwright.PlaywrightElement;
 import org.example.drivers.wrappers.RobustWebElement;
+import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -12,11 +13,12 @@ import org.openqa.selenium.WebElement;
 public class ColorPicker extends BaseElement {
 
     /**
-     * The color picker element constructor by its locator.
-     * @param by The color picker locator.
+     * The color picker element constructor by its page and selector.
+     * @param page The element page.
+     * @param by The element selector.
      */
-    public ColorPicker(By by) {
-        super(by);
+    public ColorPicker(BasePage page, By by) {
+        super(page, by);
     }
 
     /**

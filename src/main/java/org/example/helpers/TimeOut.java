@@ -43,7 +43,7 @@ public class TimeOut {
      * Returns true if the timeout is expired or false otherwise;
      * @return The expired flag.
      */
-    public boolean getIsExpired() {
+    public boolean getExpired() {
         return isExpired.get();
     }
 
@@ -51,7 +51,7 @@ public class TimeOut {
      * Throws timeout exception if timeout expires.
      */
     public void checkExpired() {
-        if (getIsExpired()) {
+        if (getExpired()) {
             throw new TimeOutException(String.format("%s timeout expired.", name));
         }
     }

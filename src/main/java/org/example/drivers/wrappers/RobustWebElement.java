@@ -1,10 +1,13 @@
 package org.example.drivers.wrappers;
 
+import org.example.data.Config;
 import org.example.utils.WaiterUtils;
 import org.openqa.selenium.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
 
 /**
  * The robust web element class.
@@ -12,6 +15,7 @@ import java.util.stream.Collectors;
  * to make the WebElement more reliable.
  */
 public class RobustWebElement extends BaseWebElement {
+    static protected final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     private static final int WAIT_FOR_ELEMENT_TIMEOUT_SEC = 15;
     private static final int RETRY_WAIT_MILLI_SEC = 100;
     private static final int RETRY_COUNT = 100;
@@ -55,10 +59,9 @@ public class RobustWebElement extends BaseWebElement {
             try {
                 element.click();
                 return;
-            } catch (StaleElementReferenceException |
-                     ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixClickableWebElement();
+                fixClickableWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -74,9 +77,9 @@ public class RobustWebElement extends BaseWebElement {
             try {
                 element.submit();
                 return;
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixClickableWebElement();
+                fixClickableWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -93,9 +96,9 @@ public class RobustWebElement extends BaseWebElement {
             try {
                 element.sendKeys(keysToSend);
                 return;
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixClickableWebElement();
+                fixClickableWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -111,9 +114,9 @@ public class RobustWebElement extends BaseWebElement {
             try {
                 element.clear();
                 return;
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixClickableWebElement();
+                fixClickableWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -139,9 +142,9 @@ public class RobustWebElement extends BaseWebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 return element.getAttribute(name);
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixVisibleWebElement();
+                fixVisibleWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -158,9 +161,9 @@ public class RobustWebElement extends BaseWebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 return element.getDomProperty(name);
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixVisibleWebElement();
+                fixVisibleWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -177,9 +180,9 @@ public class RobustWebElement extends BaseWebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 return element.getDomAttribute(name);
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixVisibleWebElement();
+                fixVisibleWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -195,9 +198,9 @@ public class RobustWebElement extends BaseWebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 return element.getAriaRole();
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixVisibleWebElement();
+                fixVisibleWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -213,9 +216,9 @@ public class RobustWebElement extends BaseWebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 return element.getAccessibleName();
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixVisibleWebElement();
+                fixVisibleWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -232,9 +235,9 @@ public class RobustWebElement extends BaseWebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 return element.isSelected();
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixVisibleWebElement();
+                fixVisibleWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -250,9 +253,9 @@ public class RobustWebElement extends BaseWebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 return element.isEnabled();
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixVisibleWebElement();
+                fixVisibleWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -268,9 +271,9 @@ public class RobustWebElement extends BaseWebElement {
         for (int i = 0; i < RETRY_COUNT; i++) {
             try {
                 return element.getText();
-            } catch (StaleElementReferenceException | ElementNotInteractableException e) {
+            } catch (Exception e) {
                 exception = e;
-                fixVisibleWebElement();
+                fixVisibleWebElement(e);
             }
         }
         throw new RuntimeException(exception);
@@ -377,7 +380,7 @@ public class RobustWebElement extends BaseWebElement {
         }
         catch (StaleElementReferenceException |
                ElementNotInteractableException |
-               java.util.NoSuchElementException e) {
+               NoSuchElementException e) {
             // Ignore exception;
         }
     }
@@ -392,22 +395,6 @@ public class RobustWebElement extends BaseWebElement {
             nativeElement = ((RobustWebElement) element).getNativeElement();
         }
         ((JavascriptExecutor)driver).executeScript(String.format("arguments[0].value='%s'", value), nativeElement);
-    }
-
-    @Override
-    public String getStyle(String propertyName) {
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        return (String) js.executeScript(String.format(
-                "return window.getComputedStyle(arguments[0]).getPropertyValue('%s');",
-                propertyName),
-                element);
-    }
-
-    @Override
-    public void setStyle(String propertyName, String propertyValue) {
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        String newStyle = String.format("%s: %s", propertyName, propertyValue);
-        js.executeScript("arguments[0].setAttribute('style', arguments[1]);", element, newStyle);
     }
 
     private WebElement waitForChildElementPresence(By childBy) {
@@ -430,25 +417,37 @@ public class RobustWebElement extends BaseWebElement {
         }
     }
 
-    private void fixClickableWebElement() {
+    private void fixClickableWebElement(Exception exception) {
         WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLI_SEC);
-        if (parent == null) {
-            scrollToElement();
-            element = waiter.waitForElementToBeClickableBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
-        } else {
-            parent.fixClickableWebElement();
-            element = parent.findElement(by);
+
+        if (exception instanceof StaleElementReferenceException ||
+            exception instanceof ElementNotInteractableException ||
+            exception instanceof NoSuchElementException) {
+
+            if (parent == null) {
+                scrollToElement();
+                element = waiter.waitForElementToBeClickableBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
+            } else {
+                parent.fixClickableWebElement(exception);
+                element = parent.findElement(by);
+            }
         }
     }
 
-    private void fixVisibleWebElement() {
+    private void fixVisibleWebElement(Exception exception) {
         WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLI_SEC);
-        if (parent == null) {
-            scrollToElement();
-            element = waiter.waitForElementVisibilityBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
-        } else {
-            parent.fixClickableWebElement();
-            element = waitForChildElementPresence(by);
+
+        if (exception instanceof StaleElementReferenceException ||
+            exception instanceof ElementNotInteractableException ||
+            exception instanceof NoSuchElementException) {
+
+            if (parent == null) {
+                scrollToElement();
+                element = waiter.waitForElementVisibilityBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
+            } else {
+                parent.fixClickableWebElement(exception);
+                element = waitForChildElementPresence(by);
+            }
         }
     }
 }

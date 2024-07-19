@@ -7,10 +7,11 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.ScreenshotType;
 import org.example.drivers.selectors.ByParser;
-import org.example.utils.MethodUtils;
+import org.example.utils.ClassUtils;
 import org.example.utils.ScreenshotUtils;
 import org.openqa.selenium.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -167,7 +168,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public Set<String> getWindowHandles() {
-        MethodUtils.throwMethodNotImplementedException("WebDriver.getWindowHandles()");
+        ClassUtils.throwMethodNotImplementedException("WebDriver.getWindowHandles()");
         return null;
     }
 
@@ -177,7 +178,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public String getWindowHandle() {
-        MethodUtils.throwMethodNotImplementedException("WebDriver.getWindowHandle()");
+        ClassUtils.throwMethodNotImplementedException("WebDriver.getWindowHandle()");
         return null;
     }
 
@@ -216,18 +217,33 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public Object executeScript(String script, Object... args) {
-        return page.evaluateHandle(script, args);
+        int length = args.length;
+        List<Object> params = new ArrayList<>();
+
+        for (Object arg : args) {
+            if (arg instanceof PlaywrightElement) {
+                params.add(((PlaywrightElement) arg).getLocator());
+            } else {
+                params.add(arg);
+            }
+        }
+
+        if (length == 1 && params.get(0) instanceof Locator) {
+            return ((Locator) params.get(0)).evaluate(script);
+        }
+
+        return page.evaluate(script, params);
     }
 
     /**
-     * Executes asynchronous JavaScript code.
+     * Executes synchronous JavaScript code.
      * @param script The JavaScript code.
      * @param args The list of arguments.
      * @return The JavaScript return object.
      */
     @Override
     public Object executeAsyncScript(String script, Object... args) {
-        return page.evaluate(script, args);
+        return executeScript(script, args);
     }
 
     /**

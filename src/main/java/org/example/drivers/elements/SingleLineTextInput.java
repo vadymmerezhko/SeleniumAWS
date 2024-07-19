@@ -1,5 +1,6 @@
 package org.example.drivers.elements;
 
+import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 
@@ -9,11 +10,12 @@ import org.openqa.selenium.By;
 public abstract class SingleLineTextInput extends BaseTextElement {
 
     /**
-     * The single line text input constructor by its locator.
-     * @param by The text input locator.
+     * The single line text input constructor by its page and selector.
+     * @param page The element page.
+     * @param by The element selector.
      */
-    public SingleLineTextInput(By by) {
-        super(by);
+    public SingleLineTextInput(BasePage page, By by) {
+        super(page, by);
     }
 
     /**

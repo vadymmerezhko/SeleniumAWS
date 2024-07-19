@@ -2,7 +2,11 @@ package org.example.drivers.elements;
 
 import org.example.data.Config;
 import org.example.drivers.factories.WebDriverFactory;
-import org.example.drivers.wrappers.BaseWebElement;
+import org.example.drivers.selectors.ByAI;
+import org.example.drivers.wrappers.RobustWebElement;
+import org.example.pages.BasePage;
+import org.example.utils.ClassUtils;
+import org.example.utils.WebUtils;
 import org.example.utils.WaiterUtils;
 import org.openqa.selenium.*;
 
@@ -11,26 +15,30 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
+import static org.example.constants.Settings.PAGE_OBJECT_FOLDER_PATH;
 
 /**
  * Base web element class.
  */
 public abstract class BaseElement implements WebElement, WrapsElement {
     private static final ConcurrentMap<Long, WebElement> handledElementMap = new ConcurrentHashMap<>();
-    private static final ConcurrentMap<Long, WebElement> highlightedElementMap = new ConcurrentHashMap<>();
-    private static final ConcurrentMap<Long, String> prevElementStyleMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, String> elementSelectorMap = new ConcurrentHashMap<>();
 
     static protected final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     private WebElement element = null;
-    private final By by;
+    protected By by;
+    protected final BasePage page;
     protected WebDriver driver;
+    protected String elementName;
     protected long threadId;
 
     /**
-     * Base element constructor by its locator.
-     * @param by The element locator.
+     * Base element constructor by its page and selector.
+     * @param page The element page.
+     * @param by The element selector.
      */
-    public BaseElement(By by) {
+    public BaseElement(BasePage page, By by) {
+        this.page = page;
         this.by = by;
         driver = WebDriverFactory.getDriver();
         threadId = Thread.currentThread().threadId();
@@ -248,13 +256,34 @@ public abstract class BaseElement implements WebElement, WrapsElement {
         return getElement().getScreenshotAs(target);
     }
 
+    /**
+     * Returns WebElement instance.
+     * @return The WebElement instance.
+     */
     protected WebElement getElement() {
-        if (element == null) {
-            element = WebDriverFactory.getDriver().findElement(by);
-            handleElement();
+        try {
+            if (element == null) {
+                if (by instanceof ByAI byAI) {
+                    setElementName();
+
+                    if (byAI.getBy() == null && config.getDebugMode()) {
+                        setElementSelector(byAI);
+                    }
+                }
+                element = WebDriverFactory.getDriver().findElement(by);
+                handleElement();
+                return element;
+            }
             return element;
         }
-        return element;
+        catch (NoSuchElementException e) {
+            if (config.getDebugMode()) {
+                fixElementSelector();
+            } else {
+                throw e;
+            }
+        }
+        return null;
     }
 
     /**
@@ -271,33 +300,79 @@ public abstract class BaseElement implements WebElement, WrapsElement {
         }
     }
 
+    /**
+     * Highlights the element.
+     */
     protected void highlightElement() {
-        if (highlightedElementMap.containsKey(threadId) &&
-                prevElementStyleMap.get(threadId) != null) {
-            // Restore element style.
-            try {
-                String style = prevElementStyleMap.get(threadId);
-                ((BaseWebElement) highlightedElementMap.get(threadId))
-                        .setStyle("border", style);
-            } catch (Exception e) {
-                // Ignore exception if not possible to restore style.
+        WebElement webElement = element;
+
+        if (element instanceof RobustWebElement) {
+            webElement = ((RobustWebElement)element).getNativeElement();
+        }
+
+        WebUtils.highlightElement(webElement);
+    }
+
+    private void setElementName() {
+        elementName = String.format("%s.%s",
+                page.getClass().getSimpleName(),
+                ClassUtils.getClassFieldName(page, this));
+    }
+
+    private void setElementSelector(ByAI byAI) {
+        String text = byAI.getText();
+        boolean readFromFile = false;
+
+        try {
+            byAI.setElementName(elementName);
+            String selector;
+
+            if (elementSelectorMap.containsKey(elementName)) {
+                selector = elementSelectorMap.get(elementName);
+            } else {
+                selector = WebUtils.readElementSelectorFromFile(PAGE_OBJECT_FOLDER_PATH, elementName);
+                readFromFile = selector != null;
+            }
+            if (selector == null) {
+                WebElement element = WebUtils.selectWebElement(elementName);
+                selector = WebUtils.getElementSelectorByAllMeans(elementName, element, text);
+            }
+            if (selector == null) {
+                throw new RuntimeException(String.format(
+                        "'%s' element selector is NULL (not detected).", elementName));
+            }
+            By bySelector = WebUtils.convertSelectorTemplateToBy(selector, text);
+            byAI.setBy(bySelector);
+            String selectorTemplate = WebUtils.getSelectorTemplate(selector, text);
+            elementSelectorMap.put(elementName, selectorTemplate);
+
+            if (!readFromFile) {
+                WebUtils.saveElementSelectorToFile(PAGE_OBJECT_FOLDER_PATH, elementName, selectorTemplate);
             }
         }
-        // Save the current element style.
-        String style = null;
-        try {
-            style = ((BaseWebElement) element).getStyle("border");
-        } catch (Exception e) {
-            // Ignore exception if style is not available.
+        catch (Throwable e) {
+            throw new RuntimeException(String.format(
+                    "Can not set element selector:\n%s", e.getMessage()));
         }
-        prevElementStyleMap.put(threadId, style);
+    }
 
-        // Change current element border style.
-        highlightedElementMap.put(threadId, element);
-        try {
-            ((BaseWebElement) element).setStyle("border", "3px solid red");
-        } catch (Exception e) {
-            // Ignore exception is previous element is not available.
+    private void fixElementSelector() {
+
+        if (by instanceof ByAI byAI) {
+            String elementName = byAI.getElementName();
+            String text = byAI.getText();
+            WebElement webElement = WebUtils.selectWebElement(byAI.getElementName());
+            String selector = WebUtils.getElementSelectorByAllMeans(
+                    elementName, webElement, text);
+            if (selector == null) {
+                return;
+            }
+            element = webElement;
+            By bySelector = WebUtils.convertSelectorTemplateToBy(selector, text);
+            byAI.setBy(bySelector);
+            String selectorTemplate = WebUtils.getSelectorTemplate(selector, text);
+            WebUtils.saveElementSelectorToFile(
+                    PAGE_OBJECT_FOLDER_PATH, elementName, selectorTemplate);
         }
     }
 }

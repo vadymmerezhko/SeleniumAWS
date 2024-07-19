@@ -1,5 +1,6 @@
 package org.example.drivers.elements;
 
+import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -10,11 +11,12 @@ import org.openqa.selenium.WebElement;
 public class DataList extends BaseTextElement {
 
     /**
-     * The data list element constructor by its locator.
-     * @param by The data list locator.
+     * The data list element constructor by its page and selector.
+     * @param page The element page.
+     * @param by The element selector.
      */
-    public DataList(By by) {
-        super(by);
+    public DataList(BasePage page, By by) {
+        super(page, by);
     }
 
     /**

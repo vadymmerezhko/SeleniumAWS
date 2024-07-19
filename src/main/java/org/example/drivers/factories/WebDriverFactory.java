@@ -372,7 +372,7 @@ public class WebDriverFactory {
         TimeOut timeOut = new TimeOut(String.format(
                 "%s remote WebDriver wait", type), timeoutSeconds);
 
-        while (!timeOut.getIsExpired()) {
+        while (!timeOut.getExpired()) {
             try {
                 return getRemoteWebDriver(url, browserName, browserVersion);
             } catch (Exception e) {

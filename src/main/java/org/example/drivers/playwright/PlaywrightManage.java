@@ -1,7 +1,7 @@
 package org.example.drivers.playwright;
 
 import com.microsoft.playwright.Page;
-import org.example.utils.MethodUtils;
+import org.example.utils.ClassUtils;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriver.Options;
@@ -113,7 +113,7 @@ public class PlaywrightManage implements Options {
      */
     @Override
     public WebDriver.Timeouts timeouts() {
-        MethodUtils.throwMethodNotImplementedException("Manage.timeouts()");
+        ClassUtils.throwMethodNotImplementedException("Manage.timeouts()");
         return null;
     }
 
@@ -132,7 +132,7 @@ public class PlaywrightManage implements Options {
      */
     @Override
     public Logs logs() {
-        MethodUtils.throwMethodNotImplementedException("Manage.logs()");
+        ClassUtils.throwMethodNotImplementedException("Manage.logs()");
         return null;
     }
 }

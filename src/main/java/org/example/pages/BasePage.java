@@ -3,19 +3,29 @@ package org.example.pages;
 import org.example.drivers.factories.WebDriverFactory;
 import org.openqa.selenium.*;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 /**
  * Base page class.
  * Contains common functionality for all page classes.
  */
 public abstract class BasePage {
 
+    private static final ConcurrentMap<String, BasePage> pagesMap = new ConcurrentHashMap<>();
+
     protected WebDriver driver;
+
+    public static BasePage getPage(String className) {
+        return pagesMap.get(className);
+    }
 
     /**
      * Base page constructor.
      */
     BasePage() {
         driver = WebDriverFactory.getDriver();
+        pagesMap.put(getClass().getSimpleName(), this);
     }
 
     /**

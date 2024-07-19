@@ -2,7 +2,7 @@ package org.example.drivers.playwright;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.ViewportSize;
-import org.example.utils.MethodUtils;
+import org.example.utils.ClassUtils;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
@@ -48,16 +48,16 @@ public class PlaywrightWindow implements WebDriver.Window {
 
     @Override
     public void maximize() {
-        MethodUtils.throwMethodNotImplementedException("Window.maximize()");
+        ClassUtils.throwMethodNotImplementedException("Window.maximize()");
     }
 
     @Override
     public void minimize() {
-        MethodUtils.throwMethodNotImplementedException("Window.minimize()");
+        ClassUtils.throwMethodNotImplementedException("Window.minimize()");
     }
 
     @Override
     public void fullscreen() {
-        MethodUtils.throwMethodNotImplementedException("Window.fullscreen()");
+        ClassUtils.throwMethodNotImplementedException("Window.fullscreen()");
     }
 }

@@ -1,5 +1,6 @@
 package org.example.drivers.elements;
 
+import org.example.pages.BasePage;
 import org.openqa.selenium.By;
 
 /**
@@ -8,10 +9,11 @@ import org.openqa.selenium.By;
 public class Password extends SingleLineTextInput {
 
     /**
-     * The password elemnt constructor by its locator.
-     * @param by The password element locator.
+     * The password elemnt constructor by its page and selector.
+     * @param page The element page.
+     * @param by The element selector.
      */
-    public Password(By by) {
-        super(by);
+    public Password(BasePage page, By by) {
+        super(page, by);
     }
 }

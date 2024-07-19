@@ -1,5 +1,6 @@
 package org.example.drivers.elements;
 
+import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -16,11 +17,12 @@ public class Multiselect extends BaseElement {
     private final Select select;
 
     /**
-     * The multiselect element constructor by its locator.
-     * @param by The element locator.
+     * The multiselect element constructor by its page and selector.
+     * @param page The element page.
+     * @param by The element selector.
      */
-    public Multiselect(By by) {
-        super(by);
+    public Multiselect(BasePage page, By by) {
+        super(page, by);
         select = new Select(getElement());
     }
 

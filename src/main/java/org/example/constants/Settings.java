@@ -50,4 +50,7 @@ public class Settings {
     static public final String TEST_REPORT_ZIP_FILE_NAME_TEMPLATE = "test_report_%s.zip";
     static public final String TEST_REPORT_LOG_FILE_NAME_TEMPLATE = "test_output_%s.log";
     static public final String NO_FAILURES = "Failures: 0, Errors: 0";
+    static public final String OPEN_AI_API_KEY_NAME = "OPEN_AI_API_KEY";
+    static public final String OPEN_AI_API_URL = "https://api.openai.com/v1/chat/completions";
+    public static final String PAGE_OBJECT_FOLDER_PATH = "./src/test/resources/pages";
 }

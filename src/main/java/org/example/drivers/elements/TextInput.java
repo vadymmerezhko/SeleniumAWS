@@ -1,5 +1,6 @@
 package org.example.drivers.elements;
 
+import org.example.pages.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
@@ -9,11 +10,12 @@ import org.openqa.selenium.Keys;
 public class TextInput extends SingleLineTextInput {
 
     /**
-     * The text input constructor by its locator.
-     * @param by The text input locator.
+     * The text input constructor by its page and selector.
+     * @param page The element page.
+     * @param by The element selector.
      */
-    public TextInput(By by) {
-        super(by);
+    public TextInput(BasePage page, By by) {
+        super(page, by);
     }
 
     /**

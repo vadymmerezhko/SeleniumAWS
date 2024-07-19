@@ -29,9 +29,25 @@ public final class FileOperationUtils {
             br.write(fileContent);
             br.close();
         }
-        catch (IOException e) {
-            throw new RuntimeException(String.format("Cannot create %s/%s file:\n",
-                    folderPath, fileName) + e.getMessage());
+        catch (Exception e) {
+            throw new RuntimeException(String.format("Cannot create %s/%s file.",
+                    folderPath, fileName), e);
+        }
+    }
+
+    /**
+     * Creates file.
+     * @param filePath The target folder path.
+     * @param fileContent The file content.
+     */
+    public static synchronized void createFile(String filePath, String fileContent) {
+        try {
+            File file = new File(filePath);
+            createFile(file.getParent(), file.getName(), fileContent);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(String.format("Cannot create %s file:\n",
+                    filePath), e);
         }
     }
 
@@ -112,5 +128,14 @@ public final class FileOperationUtils {
             throw new RuntimeException(
                     String.format("Cannot move file %s to %s\n%s", fromPath, toPath, e.getMessage()));
         }
+    }
+
+    /**
+     * Returns true if file exists or false otherwise.
+     * @param filePath The file path.
+     * @return The true/false flag.
+     */
+    public static boolean fileExists(String filePath) {
+        return new File(filePath).exists();
     }
 }

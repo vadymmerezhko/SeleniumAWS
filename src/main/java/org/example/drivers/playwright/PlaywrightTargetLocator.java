@@ -4,7 +4,7 @@ import com.microsoft.playwright.Frame;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.BoundingBox;
-import org.example.utils.MethodUtils;
+import org.example.utils.ClassUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.WebDriver.TargetLocator;
 
@@ -127,7 +127,7 @@ public class PlaywrightTargetLocator implements TargetLocator {
      */
     @Override
     public WebDriver newWindow(WindowType typeHint) {
-        MethodUtils.throwMethodNotImplementedException("TargetLocator.newWindow(WindowType typeHint)");
+        ClassUtils.throwMethodNotImplementedException("TargetLocator.newWindow(WindowType typeHint)");
         return null;
     }
 
@@ -137,7 +137,7 @@ public class PlaywrightTargetLocator implements TargetLocator {
      */
     @Override
     public WebDriver defaultContent() {
-        MethodUtils.throwMethodNotImplementedException("TargetLocator.defaultContent()");
+        ClassUtils.throwMethodNotImplementedException("TargetLocator.defaultContent()");
         return null;
     }
 
@@ -147,7 +147,7 @@ public class PlaywrightTargetLocator implements TargetLocator {
      */
     @Override
     public WebElement activeElement() {
-        MethodUtils.throwMethodNotImplementedException("TargetLocator.activeElement()");
+        ClassUtils.throwMethodNotImplementedException("TargetLocator.activeElement()");
         return null;
     }
 
@@ -157,7 +157,7 @@ public class PlaywrightTargetLocator implements TargetLocator {
      */
     @Override
     public Alert alert() {
-        MethodUtils.throwMethodNotImplementedException("TargetLocator.alert()");
+        ClassUtils.throwMethodNotImplementedException("TargetLocator.alert()");
         return null;
     }
 }

@@ -27,6 +27,7 @@ public class Config {
     private static final String SCREENSHOT_ON_FAIL = "screenshotOnFail";
     private static final String VIDEO_ON_FAIL = "videoOnFail";
     private static final String DEBUG_FAIL = "debugFail";
+    private static final String DEBUG_MODE = "debugMode";
     private static final String HIGHLIGHT = "highlight";
     private static final String STEP_DELAY = "stepDelay";
     private static final String BROWSER_SIZE = "browserSize";
@@ -205,7 +206,7 @@ public class Config {
 
     /**
      * Returns true/false take screenshot on fail flag.
-     * @return The headless flag.
+     * @return The screenshot on fail flag.
      */
     synchronized public boolean getScreenshotOnFail() {
         return getBooleanProperty(SCREENSHOT_ON_FAIL);
@@ -213,7 +214,7 @@ public class Config {
 
     /**
      * Returns true/false record video on fail flag.
-     * @return The headless flag.
+     * @return The video on fail flag.
      */
     synchronized public boolean getVideoOnFail() {
         return getBooleanProperty(VIDEO_ON_FAIL);
@@ -221,10 +222,18 @@ public class Config {
 
     /**
      * Returns true/false debug fail flag.
-     * @return The headless flag.
+     * @return The debug fail flag.
      */
     synchronized public boolean getDebugFail() {
         return getBooleanProperty(DEBUG_FAIL);
+    }
+
+    /**
+     * Returns true/false debug mode flag.
+     * @return The debug mode flag.
+     */
+    synchronized public boolean getDebugMode() {
+        return getBooleanProperty(DEBUG_MODE);
     }
 
     /**

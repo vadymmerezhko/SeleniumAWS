@@ -30,6 +30,14 @@ public class PlaywrightElement extends BaseWebElement {
     }
 
     /**
+     * Returns element locator.
+     * @return The element locator.
+     */
+    public Locator getLocator() {
+        return locator;
+    }
+
+    /**
      * Clicks the web element.
      */
     @Override
@@ -278,20 +286,5 @@ public class PlaywrightElement extends BaseWebElement {
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
         byte[] data = locator.screenshot();
         return ScreenshotUtils.convertScreenshotBytes(target, data);
-    }
-
-    @Override
-    public String getStyle(String propertyName) {
-        return (String) locator.evaluate(String.format(
-                "(element) => window.getComputedStyle(element).getPropertyValue('%s')",
-                propertyName));
-    }
-
-    @Override
-    public void setStyle(String propertyName, String propertyValue) {
-        String newStyle = String.format("%s: %s", propertyName, propertyValue);
-        locator.evaluate(String.format(
-                "(element,) => element.setAttribute('style', '%s')",
-                newStyle));
     }
 }

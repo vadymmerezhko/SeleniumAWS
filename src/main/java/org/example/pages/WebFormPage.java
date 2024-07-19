@@ -1,6 +1,6 @@
 package org.example.pages;
 
-import org.example.drivers.selectors.SmartBy;
+import org.example.drivers.selectors.ByAI;
 import org.example.drivers.elements.*;
 
 /**
@@ -8,20 +8,19 @@ import org.example.drivers.elements.*;
  */
 public class WebFormPage extends BasePage {
 
-    private final TextInput textInput = new TextInput(SmartBy.inputLabelTextContains("Text input"));
-    public final Password password = new Password(SmartBy.inputLabelTextContains("Password"));
-    private final Textarea textarea = new Textarea(SmartBy.textareaLabelTextContains("Textarea"));
-    private final Dropdown dropdown = new Dropdown(SmartBy.selectLabelTextContains("Dropdown (select)"));
-    private final FileInput fileInput = new FileInput(SmartBy.inputLabelTextContains("File input"));
-    private final DataList dataList = new DataList(SmartBy.inputLabelTextContains("Dropdown (datalist)"));
-    private final Checkbox checkbox1 = new Checkbox(SmartBy.checkboxLabelTextContains("Checked checkbox"));
-    private final Checkbox checkbox2 = new Checkbox(SmartBy.checkboxLabelTextContains("Default checkbox"));
-    private final Radiobutton radiobutton1 = new Radiobutton(SmartBy.radiobuttonLabelTextContains("Checked radio"));
-    private final Radiobutton radiobutton2 = new Radiobutton(SmartBy.radiobuttonLabelTextContains("Default radio"));
-    private final ColorPicker colorPicker = new ColorPicker(SmartBy.inputLabelTextContains("Color picker"));
-    private final DatePicker datePicker = new DatePicker(SmartBy.inputLabelTextContains("Date picker"));
-
-    private final RangeSlider rangeSlider = new RangeSlider(SmartBy.inputLabelTextContains("Example range"));
+    private final TextInput textInput = new TextInput(this, new ByAI("Text input"));
+    private final Password password = new Password(this, new ByAI());
+    private final Textarea textarea = new Textarea(this, new ByAI());
+    private final Dropdown dropdown = new Dropdown(this, new ByAI("3"));
+    private final FileInput fileInput = new FileInput(this, new ByAI());
+    private final DataList dataList = new DataList(this, new ByAI());
+    private final Checkbox checkbox1 = new Checkbox(this, new ByAI());
+    private final Checkbox checkbox2 = new Checkbox(this, new ByAI());
+    private final Radiobutton radiobutton1 = new Radiobutton(this, new ByAI());
+    private final Radiobutton radiobutton2 = new Radiobutton(this, new ByAI());
+    private final ColorPicker colorPicker = new ColorPicker(this, new ByAI());
+    private final DatePicker datePicker = new DatePicker(this, new ByAI());
+    private final RangeSlider rangeSlider = new RangeSlider(this, new ByAI());
 
     /**
      * Enters text to text input.
