@@ -13,10 +13,14 @@ on:
     branches:
       - "main"
       - "dev"
+      - "feature/**"
+      - "fix/**"
   pull_request:
     branches:
       - "main"
       - "dev"
+      - "feature/**"
+      - "fix/**"
   workflow_dispatch:
 
 env:
