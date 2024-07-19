@@ -10,9 +10,18 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"
+      - "dev"
+      - "feature**"
+      - "fix**"
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "main"
+      - "dev"
+      - "feature**"
+      - "fix**"
+  workflow_dispatch:
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
