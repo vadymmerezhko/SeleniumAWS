@@ -73,4 +73,13 @@ public class ByAI extends By {
         }
         return by.findElements(context);
     }
+
+    /**
+     * Converts ByAI object to string.
+     * @return The string.
+     */
+    @Override
+    public String toString() {
+        return by.toString();
+    }
 }
