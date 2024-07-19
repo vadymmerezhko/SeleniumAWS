@@ -13,10 +13,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.awt.Point;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -358,6 +355,7 @@ public class WebUtils {
     public static String getElementSelectorByAllMeans(String elementName, WebElement element, String text ) {
         try {
             String selector = WebUtils.getElementSelector(element, text);
+            String format = "'%s' element selector";
 
             if (selector == null) {
                 selector = WebUtils.getSelectorWithAI(element, text);
@@ -368,12 +366,24 @@ public class WebUtils {
                         null);
             }
             for (int i = 0; i <= SELECTOR_EDIT_RETRY_COUNT; i++) {
-                String format = i == 0 ?
-                        "'%s' element selector" :
-                        "Invalid '%s' element selector";
+                if (i > 0) {
+                    if (!WebUtils.isValidElementSelectorFormat(selector)) {
+                        format = "Invalid '%s' element selector format";
+                        }
+                    else {
+                        if (WebUtils.numberOfElementsFoundBySelector(selector, text) > 1) {
+                            format = "More than one '%s' element is found by selector";
+                        } else if (WebUtils.numberOfElementsFoundBySelector(selector, text) == 1) {
+                            format = "Wrong '%s' element is found by selector";
+                        } else if (WebUtils.numberOfElementsFoundBySelector(selector, text) == 0) {
+                            format = "No '%s' element is found by selector";
+                        }
+                    }
+                }
                 selector = WebUtils.showPrompt(String.format(
                         format, elementName), selector);
-                // Validate element selector.
+                selector = replaceDoubleQuotesWithSingleQuotes(selector);
+
                 if (WebUtils.isSelectorValidAndUnique(element, text, selector)) {
                     return selector;
                 }
@@ -515,14 +525,14 @@ public class WebUtils {
     }
 
     /**
-     * Returns true if selector is unique and finds only one element.
+     * Returns number elements found by selector.
      * @param selector The selector.
      * @param text The text (optional - can be NULL).
      * @return The tru/false flag.
      */
-    public static boolean isSelectorUnique(String selector, String text) {
+    public static int numberOfElementsFoundBySelector(String selector, String text) {
          By by = convertSelectorTemplateToBy(selector, text);
-         return WebDriverFactory.getDriver().findElements(by).size() == 1;
+         return WebDriverFactory.getDriver().findElements(by).size();
     }
 
     /**
@@ -683,6 +693,46 @@ public class WebUtils {
     }
 
     /**
+     * Reads asynchronously all element selector from JSON file
+     * to "element name-selector" map.
+     * If no files or they are empty then empty map is returned.
+     * @param folderPath The folder path.
+     * @param elementSelectorMap The element name - selector map.
+     */
+    public static void readAllElementSelectorsFromFiles(
+            String folderPath, Map<String, String> elementSelectorMap) {
+        Set<String> fileNames = FileOperationUtils.getFileNamesInFolder(folderPath);
+
+        Thread thread = new Thread(() -> {
+            try {
+                for (String fileName : fileNames) {
+                    if (FileOperationUtils.getFileExtension(fileName).equals("json")) {
+                        String filePath = String.format("%s/%s", folderPath, fileName);
+                        String pageName = FileOperationUtils.getFileNameWithoutExtension(fileName);
+                        String fileContent = FileOperationUtils.readFile(filePath);
+
+                        if (fileContent.trim().isEmpty()) {
+                            continue;
+                        }
+                        JSONObject json = new JSONObject(fileContent);
+
+                        for (String fieldName : json.keySet()) {
+                            String selector = replaceDoubleQuotesWithSingleQuotes(
+                                    json.get(fieldName).toString());
+                            String elementName = String.format("%s.%s", pageName, fieldName);
+                            elementSelectorMap.put(elementName, selector);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(String.format(
+                        "Cannot read all web page files from: %s", folderPath), e);
+            }
+        });
+        thread.start();
+    }
+
+    /**
      * Returns if selector is unique and points the target web elemnt.
      * @param element The element.
      * @param text The text.
@@ -707,11 +757,35 @@ public class WebUtils {
         }
     }
 
+    /**
+     * Returns true for XPATH format or false otherwise.
+     * @param selector The element selector.
+     * @return The true/false flag.
+     */
     public static boolean isXpath(String selector) {
         if (selector == null) {
             throw new RuntimeException("Selector string is NULL.");
         }
         return selector.trim().startsWith("//");
+    }
+
+    /**
+     * Validates the XPATH or CSS selector format.
+     * @param selector The element selector.
+     * @return The true if format is valid or false otherwise.
+     */
+    public static boolean isValidElementSelectorFormat(String selector) {
+        if (selector == null || selector.trim().isEmpty()) {
+            return false;
+        }
+        try {
+            By by = convertSelectorTemplateToBy(selector, "");
+            WebDriverFactory.getDriver().findElements(by);
+            return true;
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 
     private static synchronized void initializeKeyBoardListener() {
@@ -1054,4 +1128,11 @@ public class WebUtils {
                 .replace("\"", "\\\"")
                 .replace("\n", "\\n");
     }
+
+    private static String replaceDoubleQuotesWithSingleQuotes(String selector) {
+        return selector.replace("\\\"", "#ESCAPED_QUOTE#")
+                .replace("\"", "'")
+                .replace("#ESCAPED_QUOTE#", "\"");
+    }
+
 }

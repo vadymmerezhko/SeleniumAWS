@@ -11,6 +11,7 @@ import org.example.utils.WaiterUtils;
 import org.openqa.selenium.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -31,6 +32,10 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     protected WebDriver driver;
     protected String elementName;
     protected long threadId;
+
+    public static Map<String, String> getElementSelectorMap() {
+        return elementSelectorMap;
+    }
 
     /**
      * Base element constructor by its page and selector.
@@ -321,7 +326,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
 
     private void setElementSelector(ByAI byAI) {
         String text = byAI.getText();
-        boolean readFromFile = false;
+        boolean isReadFromFile;
 
         try {
             byAI.setElementName(elementName);
@@ -329,9 +334,10 @@ public abstract class BaseElement implements WebElement, WrapsElement {
 
             if (elementSelectorMap.containsKey(elementName)) {
                 selector = elementSelectorMap.get(elementName);
+                isReadFromFile = selector != null;
             } else {
                 selector = WebUtils.readElementSelectorFromFile(PAGE_OBJECT_FOLDER_PATH, elementName);
-                readFromFile = selector != null;
+                isReadFromFile = selector != null;
             }
             if (selector == null) {
                 WebElement element = WebUtils.selectWebElement(elementName);
@@ -344,9 +350,9 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             By bySelector = WebUtils.convertSelectorTemplateToBy(selector, text);
             byAI.setBy(bySelector);
             String selectorTemplate = WebUtils.getSelectorTemplate(selector, text);
-            elementSelectorMap.put(elementName, selectorTemplate);
 
-            if (!readFromFile) {
+            if (!isReadFromFile) {
+                elementSelectorMap.put(elementName, selectorTemplate);
                 WebUtils.saveElementSelectorToFile(PAGE_OBJECT_FOLDER_PATH, elementName, selectorTemplate);
             }
         }

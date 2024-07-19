@@ -4,10 +4,12 @@ import org.example.balancers.LoadBalancer;
 import org.example.data.Config;
 import org.example.data.SignUpTestInput;
 import org.example.data.SignUpTestResult;
+import org.example.drivers.elements.BaseElement;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.servers.TestServerInterface;
 import org.example.servers.TestServerManager;
 import org.example.utils.FileOperationUtils;
+import org.example.utils.WebUtils;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.Reporter;
@@ -22,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
+import static org.example.constants.Settings.PAGE_OBJECT_FOLDER_PATH;
 
 public class BaseTest {
     static private final String SCREENSHOTS_FOLDER_PATH = "./target/surefire-reports/screenshots";
@@ -31,6 +34,9 @@ public class BaseTest {
 
     @BeforeSuite
     public void beforeSuite() {
+        WebUtils.readAllElementSelectorsFromFiles(
+                PAGE_OBJECT_FOLDER_PATH,
+                BaseElement.getElementSelectorMap());
         FileOperationUtils.deleteFolder(VIDEOS_FOLDER_PATH);
         FileOperationUtils.deleteFolder(SCREENSHOTS_FOLDER_PATH);
     }
