@@ -1021,6 +1021,16 @@ public class WebUtils {
                 }
             }
         }
+
+        for (String attributeName : attributes.keySet()) {
+            if (attributeName.startsWith("data-")) {
+                elementXpath = String.format(format, element.getTagName(), attributeName, text);
+
+                if (isSelectorValidAndUnique(element, text, elementXpath)) {
+                    return elementXpath;
+                }
+            }
+        }
         return null;
     }
 
