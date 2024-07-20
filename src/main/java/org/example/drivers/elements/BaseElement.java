@@ -271,7 +271,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
                 if (by instanceof ByAI byAI) {
                     setElementName();
 
-                    if (byAI.getBy() == null && config.getDebugMode()) {
+                    if (byAI.getBy() == null) {
                         setElementSelector(byAI);
                     }
                 }
@@ -340,8 +340,10 @@ public abstract class BaseElement implements WebElement, WrapsElement {
                 isReadFromFile = selector != null;
             }
             if (selector == null) {
-                WebElement element = WebUtils.selectWebElement(elementName);
-                selector = WebUtils.getElementSelectorByAllMeans(elementName, element, text);
+                if (config.getDebugMode()) {
+                    WebElement element = WebUtils.selectWebElement(elementName);
+                    selector = WebUtils.getElementSelectorByAllMeans(elementName, element, text);
+                }
             }
             if (selector == null) {
                 throw new RuntimeException(String.format(

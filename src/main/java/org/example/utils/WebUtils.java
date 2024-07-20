@@ -385,7 +385,7 @@ public class WebUtils {
                 selector = replaceDoubleQuotesWithSingleQuotes(selector);
 
                 if (WebUtils.isSelectorValidAndUnique(element, text, selector)) {
-                    return selector;
+                    return selector.trim();
                 }
             }
             return null;
@@ -448,6 +448,10 @@ public class WebUtils {
 
         if (xpathSelector == null) {
             xpathSelector = getElementXpathSelectorByChildText(element, text, true);
+        }
+
+        if (xpathSelector == null) {
+            xpathSelector = getElementXpathSelectorByIndex(element);
         }
         return xpathSelector;
     }
@@ -748,13 +752,25 @@ public class WebUtils {
             if (elements.size() != 1) {
                 return false;
             }
-            WebElement foundElement = elements.get(0);
-            return element.getTagName().equals(foundElement.getTagName()) &&
-                    element.getRect().equals(foundElement.getRect());
+            return compareWebElements(element, elements.get(0));
         }
         catch (Exception e) {
             return false;
         }
+    }
+
+    /**
+     * Returns true if two elements have the same tags, size and location.
+     * @param element1 The element 1.
+     * @param element2 The element 2.
+     * @return The true if equals or false otherwise.
+     */
+    public static boolean compareWebElements(WebElement element1, WebElement element2) {
+        if (element1 == element2) {
+            return true;
+        }
+        return element1.getTagName().equals(element2.getTagName()) &&
+                element1.getRect().equals(element2.getRect());
     }
 
     /**
@@ -766,7 +782,8 @@ public class WebUtils {
         if (selector == null) {
             throw new RuntimeException("Selector string is NULL.");
         }
-        return selector.trim().startsWith("//");
+        selector = selector.trim();
+        return selector.startsWith("//") || selector.startsWith("(//");
     }
 
     /**
@@ -1077,6 +1094,31 @@ public class WebUtils {
 
         if (isSelectorValidAndUnique(element, text, elementXpath)) {
             return elementXpath;
+        }
+        return null;
+    }
+
+    private static String getElementXpathSelectorByIndex(WebElement element) {
+        WebDriver driver = WebDriverFactory.getDriver();
+        String combinedSelector = getCombinedElementSelector(element, false, false);
+
+        if (isSelectorValidAndUnique(element, null, combinedSelector)) {
+            return combinedSelector;
+        }
+        By by = convertSelectorTemplateToBy(combinedSelector, null);
+        List<WebElement> foundElements = driver.findElements(by);
+        int size = foundElements.size();
+
+        for (int i = 1; i <= size; i++) {
+            String selectorByIndex = String.format("(%s)[%d]", combinedSelector, i);
+            by = convertSelectorTemplateToBy(selectorByIndex, null);
+            foundElements = driver.findElements(by);
+
+            if (foundElements.size() == 1) {
+                if (compareWebElements(element, foundElements.get(0))) {
+                    return selectorByIndex;
+                }
+            }
         }
         return null;
     }
