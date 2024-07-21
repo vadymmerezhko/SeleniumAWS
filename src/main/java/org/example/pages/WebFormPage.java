@@ -8,7 +8,7 @@ import org.example.drivers.elements.*;
  */
 public class WebFormPage extends BasePage {
 
-    private final TextInput textInput = new TextInput(this, new ByAI("Text input"));
+    private final TextInput textInput = new TextInput(this, new ByAI());
     private final Password password = new Password(this, new ByAI());
     private final Textarea textarea = new Textarea(this, new ByAI());
     private final Dropdown dropdown = new Dropdown(this, new ByAI("3"));

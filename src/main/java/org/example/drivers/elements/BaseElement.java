@@ -281,7 +281,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             }
             return element;
         }
-        catch (NoSuchElementException e) {
+        catch (NoSuchElementException | InvalidSelectorException e) {
             if (config.getDebugMode()) {
                 fixElementSelector();
             } else {
@@ -326,7 +326,8 @@ public abstract class BaseElement implements WebElement, WrapsElement {
 
     private void setElementSelector(ByAI byAI) {
         String text = byAI.getText();
-        boolean isReadFromFile;
+        boolean isSelectorUpdated = false;
+        boolean isReadFromFile = true;
 
         try {
             byAI.setElementName(elementName);
@@ -334,15 +335,15 @@ public abstract class BaseElement implements WebElement, WrapsElement {
 
             if (elementSelectorMap.containsKey(elementName)) {
                 selector = elementSelectorMap.get(elementName);
-                isReadFromFile = selector != null;
             } else {
                 selector = WebUtils.readElementSelectorFromFile(PAGE_OBJECT_FOLDER_PATH, elementName);
-                isReadFromFile = selector != null;
+                isSelectorUpdated = true;
             }
             if (selector == null) {
                 if (config.getDebugMode()) {
-                    WebElement element = WebUtils.selectWebElement(elementName);
-                    selector = WebUtils.getElementSelectorByAllMeans(elementName, element, text);
+                    selector = WebUtils.selectElementAndGetSelector(elementName, text);
+                    isSelectorUpdated = true;
+                    isReadFromFile = false;
                 }
             }
             if (selector == null) {
@@ -353,8 +354,11 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             byAI.setBy(bySelector);
             String selectorTemplate = WebUtils.getSelectorTemplate(selector, text);
 
-            if (!isReadFromFile) {
+            if (isSelectorUpdated) {
                 elementSelectorMap.put(elementName, selectorTemplate);
+            }
+
+            if (!isReadFromFile) {
                 WebUtils.saveElementSelectorToFile(PAGE_OBJECT_FOLDER_PATH, elementName, selectorTemplate);
             }
         }
@@ -369,18 +373,21 @@ public abstract class BaseElement implements WebElement, WrapsElement {
         if (by instanceof ByAI byAI) {
             String elementName = byAI.getElementName();
             String text = byAI.getText();
-            WebElement webElement = WebUtils.selectWebElement(byAI.getElementName());
-            String selector = WebUtils.getElementSelectorByAllMeans(
-                    elementName, webElement, text);
+            String selector = WebUtils.selectElementAndGetSelector(elementName, text);
             if (selector == null) {
                 return;
             }
-            element = webElement;
+            try {
+                element = WebUtils.getElementBySelector(selector, text);
+            } catch (Exception e) {
+                // Ignore exception
+            }
             By bySelector = WebUtils.convertSelectorTemplateToBy(selector, text);
             byAI.setBy(bySelector);
             String selectorTemplate = WebUtils.getSelectorTemplate(selector, text);
             WebUtils.saveElementSelectorToFile(
                     PAGE_OBJECT_FOLDER_PATH, elementName, selectorTemplate);
+            elementSelectorMap.put(elementName, selector);
         }
     }
 }
