@@ -1,12 +1,13 @@
 package org.example.utils;
 
-import org.example.pages.BasePage;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 
 /**
  * The method manger class.
  */
+@Slf4j
 public final class ClassUtils {
     private ClassUtils() {}
 
@@ -27,9 +28,10 @@ public final class ClassUtils {
     public static String getClassFieldName(Object parentObject, Object fieldObject) {
 
         if (parentObject == null || fieldObject == null) {
+            log.debug("Field name is null for parent object {} and field object {}.",
+                    parentObject, fieldObject);
             return null;
         }
-
         try {
             Field[] fields = parentObject.getClass().getDeclaredFields();
 
@@ -38,7 +40,9 @@ public final class ClassUtils {
                 Object fieldReference = field.get(parentObject);
 
                 if (fieldReference == fieldObject) {
-                    return field.getName();
+                    String fieldName=  field.getName();
+                    log.debug("Field name is {} for parent object {} and field object {}.",
+                            fieldName, parentObject, fieldObject);
                 }
             }
         } catch (Exception e) {
