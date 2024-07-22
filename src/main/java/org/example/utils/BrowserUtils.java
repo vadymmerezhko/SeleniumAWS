@@ -41,11 +41,11 @@ public final class BrowserUtils {
             if (!new File(browserBinaryFilePath).exists()) {
                 log.info("Downloading {}:{} browser binary files...", browserName, browserVersion);
                 createDownloadBinFolder();
-                FileOperationUtils.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
+                FileSystemUtils.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
                 WebDownloadUtils.download(downloadUrl, DOWNLOAD_BROWSER_ZIP_FILE_PATH);
-                FileOperationUtils.deleteFolder(browserFolderPath);
+                FileSystemUtils.deleteFolder(browserFolderPath);
                 ZipFileUtils.unzip(DOWNLOAD_BROWSER_ZIP_FILE_PATH, browserFolderPath);
-                FileOperationUtils.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
+                FileSystemUtils.deleteFile(DOWNLOAD_BROWSER_ZIP_FILE_PATH);
             }
             return browserBinaryFilePath;
         }
@@ -71,18 +71,18 @@ public final class BrowserUtils {
             if (!new File(webDriverBinaryFilePath).exists()) {
                 log.info("Downloading {}:{} WebDriver binary file...", browserName, browserVersion);
                 createDownloadBinFolder();
-                FileOperationUtils.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
+                FileSystemUtils.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
                 WebDownloadUtils.download(downloadUrl, DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
                 File webDriverBinaryFile = new File(webDriverBinaryFilePath);
-                FileOperationUtils.deleteFolder(webDriverBinaryFile.getParent());
+                FileSystemUtils.deleteFolder(webDriverBinaryFile.getParent());
                 ZipFileUtils.unzip(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH, webDriverFolderPath);
-                FileOperationUtils.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
+                FileSystemUtils.deleteFile(DOWNLOAD_WEBDRIVER_ZIP_FILE_PATH);
 
                 // Workaround for Chrome WebDriver zip files up to the version 114.
                 if (!webDriverBinaryFile.exists()) {
                     String webDriverFileName = webDriverBinaryFile.getName();
                     String parentFolderFilePath = String.format("%s/%s", webDriverFolderPath, webDriverFileName);
-                    FileOperationUtils.moveFile(parentFolderFilePath, webDriverBinaryFilePath);
+                    FileSystemUtils.moveFile(parentFolderFilePath, webDriverBinaryFilePath);
                 }
             }
             return webDriverBinaryFilePath;
@@ -114,7 +114,7 @@ public final class BrowserUtils {
         Platform platform = SystemUtils.getPlatform();
         DataModel dataModel = SystemUtils.getDataModel();
 
-        JSONObject browsers = new JSONObject(FileOperationUtils.readFile(jsonFilePath));
+        JSONObject browsers = new JSONObject(FileSystemUtils.readFile(jsonFilePath));
         JSONObject browser = browsers.getJSONObject(browserName.toString());
         JSONObject platformDataModel = browser.getJSONObject(platform.toString() + dataModel.toString());
         return platformDataModel.getString(browserVersion);

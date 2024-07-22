@@ -124,7 +124,7 @@ public class WebDriverFactory {
         if (driverMap.containsKey(threadId)) {
             WebDriver driver = driverMap.get(threadId);
             File file = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
-            FileOperationUtils.moveFile(file.getPath(), filePath);
+            FileSystemUtils.moveFile(file.getPath(), filePath);
         }
     }
 

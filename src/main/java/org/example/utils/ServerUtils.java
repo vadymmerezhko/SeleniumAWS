@@ -248,8 +248,8 @@ public final class ServerUtils {
             String testLogFileName = String.format(TEST_REPORT_LOG_FILE_NAME_TEMPLATE, startDate);
             String logFilePath = AwsUtils.downloadFileFromS3(testLogFileName, ".",
                     TEST_REPORTS_AWS_BUCKET_NAME, accessKey, secretKey);
-            String testOutput = FileOperationUtils.readFile(logFilePath);
-            FileOperationUtils.deleteFile(logFilePath);
+            String testOutput = FileSystemUtils.readFile(logFilePath);
+            FileSystemUtils.deleteFile(logFilePath);
             return testOutput;
         }
         catch (Exception e) {
