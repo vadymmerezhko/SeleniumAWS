@@ -1,4 +1,4 @@
-## SeleniumAWS
+## SeleniumAWS 1.1.0
 ### Command line parameters
 TestNG file name:
 ```bash
@@ -117,6 +117,10 @@ AWS RMI:
 ```bash
 -DtestMode=aws_rmi
 ```
+AWS RMI (for local run only):
+```bash
+-DdebugMode=true
+```
 #### Browser names:
 Local mode Chrome stable:
 ```bash
@@ -217,4 +221,10 @@ mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCoun
 TODO: Disabled till Maven exec plugin vulnerability is fixed.
 ```bash
 mvn clean test "-DtestSuite=./src/test/resources/testng1.xml" "-DthreadCount=4" "-DtestMode=aws_rmi" "-Dbrowser=chrome:latest"
+```
+#### Local Docker - Firefox latest
+Runs tests in debug mode. User can define and fix element selectors at runtime.
+Use only headed mode and only one thread. 
+```bash
+mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=local" "-Dbrowser=firefox:stable" "-Dheadless=false" "-DdebugMode=true"
 ```
