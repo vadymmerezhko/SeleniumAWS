@@ -7,7 +7,7 @@ import org.openqa.selenium.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
+import static org.example.constants.Settings.*;
 
 /**
  * The robust web element class.
@@ -17,8 +17,6 @@ import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
 public class RobustWebElement extends BaseWebElement {
     static protected final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     private static final int WAIT_FOR_ELEMENT_TIMEOUT_SEC = 15;
-    private static final int RETRY_WAIT_MILLI_SEC = 100;
-    private static final int RETRY_COUNT = 100;
 
     private final RobustWebElement parent;
     private final RobustWebDriverWaiter waiter;

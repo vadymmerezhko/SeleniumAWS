@@ -1,19 +1,25 @@
 package org.example.drivers.wrappers;
 
+import lombok.extern.slf4j.Slf4j;
+import org.example.data.Config;
+import org.example.utils.WaiterUtils;
 import org.openqa.selenium.*;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.example.constants.Settings.*;
+
 /**
  * The robust WebDriver wrapper class.
  * This class wapps WebDriver, adds auto wait and retry on error
  * to make WebDriver more reliable.
  */
+@Slf4j
 public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScreenshot {
+    static protected final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
     private static final int PAGE_LOAD_TIMEOUT_SEC = 15;
-
     private final WebDriver driver;
     private final RobustWebDriverWaiter waiter;
 
@@ -24,6 +30,7 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
     public RobustWebDriver(WebDriver driver) {
         this.driver = driver;
         waiter = new RobustWebDriverWaiter(driver);
+        log.debug("RobustWebDriver object is created by WebDriver.");
     }
 
     /**
@@ -34,6 +41,7 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
     public void get(String url) {
         driver.get(url);
         waiter.waitForPageLoad(PAGE_LOAD_TIMEOUT_SEC);
+        log.debug("Web page {} is open.", url);
     }
 
     /**
@@ -42,7 +50,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public String getCurrentUrl() {
-        return driver.getCurrentUrl();
+        String url = driver.getCurrentUrl();
+        log.debug("The current page url is: {}.", url);
+        return url;
     }
 
     /**
@@ -51,7 +61,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public String getTitle() {
-        return driver.getTitle();
+        String title = driver.getTitle();
+        log.debug("The current page title is: {}.", title);
+        return title;
     }
 
     /**
@@ -62,9 +74,12 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
     @Override
     public List<WebElement> findElements(By by) {
         List<WebElement> elements = driver.findElements(by);
-        return elements.stream().map(element ->
+        List<WebElement> robustElements = elements.stream().map(element ->
                 new RobustWebElement(element, null, by, driver, waiter))
                 .collect(Collectors.toList());
+        log.debug("{} web elements are found by selector{}:\n{}.",
+                robustElements.size(), by, robustElements);
+        return robustElements;
     }
 
     /**
@@ -74,14 +89,23 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public WebElement findElement(By by) {
-        try {
-            return new RobustWebElement(
-                    driver.findElement(by), null, by, driver, waiter);
+        for (int i = 1; i <= RETRY_COUNT; i++) {
+            try {
+                WebElement element = new RobustWebElement(
+                        driver.findElement(by), null, by, driver, waiter);
+                log.debug("Web element {} is found by selector {}.", element, by);
+                return element;
+            }
+            catch (NoSuchElementException e) {
+                if (i == RETRY_COUNT || config.getDebugMode()) {
+                    throw e;
+                }
+            }
+            WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLI_SEC);
+            log.debug("Retry {} to find WebElement by selector {}", i, by);
         }
-        catch (NoSuchElementException e) {
-            return new RobustWebElement(
-                    driver.findElement(by), null, by, driver, waiter);
-        }
+        log.debug("null WebElement is found by selector {}.", by);
+        return null;
     }
 
     /**
@@ -90,7 +114,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public String getPageSource() {
-        return driver.getPageSource();
+        String pageSource = driver.getPageSource();
+        log.debug("Current page source is:]\n{}", pageSource);
+        return pageSource;
     }
 
     /**
@@ -98,7 +124,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public void close() {
+        String title = getTitle();
         driver.close();
+        log.debug("Browser window {} is closed.", title);
     }
 
     /**
@@ -108,6 +136,7 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
     public void quit() {
         if (driver != null) {
             driver.quit();
+            log.debug("Browser quit.");
         }
     }
 
@@ -117,7 +146,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public Set<String> getWindowHandles() {
-        return driver.getWindowHandles();
+        Set<String>  windowHandles = driver.getWindowHandles();
+        log.debug("Current browser window handles are:\n{}", windowHandles);
+        return windowHandles;
     }
 
     /**
@@ -126,7 +157,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public String getWindowHandle() {
-        return driver.getWindowHandle();
+        String windowHandle = driver.getWindowHandle();
+        log.debug("Current browser window handle is: {}", windowHandle);
+        return windowHandle;
     }
 
     /**
@@ -135,7 +168,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public TargetLocator switchTo() {
-        return driver.switchTo();
+        TargetLocator targetLocator = driver.switchTo();
+        log.debug("Target locator is: {}.", targetLocator);
+        return targetLocator;
     }
 
     /**
@@ -144,7 +179,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public Navigation navigate() {
-        return driver.navigate();
+        Navigation navigation = driver.navigate();
+        log.debug("Navigation is: {}.", navigation);
+        return navigation;
     }
 
     /**
@@ -153,7 +190,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public Options manage() {
-        return driver.manage();
+        Options options = driver.manage();
+        log.debug("Options are: {}.", options);
+        return options;
     }
 
     /**
@@ -164,7 +203,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public Object executeScript(String script, Object... args) {
-        return ((JavascriptExecutor)driver).executeScript(script, args);
+        Object result = ((JavascriptExecutor)driver).executeScript(script, args);
+        log.debug("JavaScript executor result: {}.\nScript:\n{}", result, script);
+        return result;
     }
 
     /**
@@ -175,7 +216,9 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public Object executeAsyncScript(String script, Object... args) {
-        return ((JavascriptExecutor)driver).executeAsyncScript(script, args);
+        Object result = ((JavascriptExecutor)driver).executeAsyncScript(script, args);
+        log.debug("JavaScript asynchronous executor result: {}.\nScript:\n{}", result, script);
+        return result;
     }
 
     /**
@@ -187,6 +230,8 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
      */
     @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
-        return ((TakesScreenshot)driver).getScreenshotAs(target);
+        X screenshot = ((TakesScreenshot)driver).getScreenshotAs(target);
+        log.debug("Screenshot is taken: {}", screenshot);
+        return screenshot;
     }
 }
