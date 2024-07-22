@@ -387,9 +387,11 @@ public class WebUtils {
 
                 if (WebUtils.isSelectorValidAndUnique(element, text, selector)) {
                     selector = selector.trim();
-                    format = String.format(formatFormat, String.format(
-                            "Valid %s element selector", elementName));
-                    selector = showPrompt(format, selector);
+                    selector = showPrompt(String.format(
+                            "Valid %s element selector.\n" +
+                            "Click OK to accept it or update it.\n" +
+                            "Click CANCEL to terminate the test",
+                            elementName), selector);
 
                     if (selector.isEmpty()) {
                         // Terminate all tests when user clicks Cancel button.
