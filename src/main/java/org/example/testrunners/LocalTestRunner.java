@@ -44,7 +44,7 @@ public class LocalTestRunner {
                 config.getAccessKey(), config.getSecretKey());
 
         String logFileName = String.format(TEST_REPORT_LOG_FILE_NAME_TEMPLATE, startDate);
-        FileOperationUtils.createFile(TARGET_FOLDER_PATH, logFileName, testOutput);
+        FileSystemUtils.createFile(TARGET_FOLDER_PATH, logFileName, testOutput);
         String logFilePath = String.format("%s/%s", TARGET_FOLDER_PATH, logFileName);
         AwsUtils.uploadFileToS3(logFilePath, TEST_REPORTS_AWS_BUCKET_NAME,
                 config.getAccessKey(), config.getSecretKey());

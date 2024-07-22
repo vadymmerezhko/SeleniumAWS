@@ -139,7 +139,7 @@ public final class AppiumUtils {
 
     private static String getStringProperty(String emulatorName, String propertyName) {
         try {
-            JSONObject mobileDevices = new JSONObject(FileOperationUtils.readFile(MOBILE_DEVICE_JSON_PATH));
+            JSONObject mobileDevices = new JSONObject(FileSystemUtils.readFile(MOBILE_DEVICE_JSON_PATH));
             JSONObject emulator = mobileDevices.getJSONObject(emulatorName);
             return emulator.getString(propertyName);
         }

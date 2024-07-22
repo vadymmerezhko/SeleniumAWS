@@ -253,7 +253,7 @@ public final class AwsUtils {
             byte[] data = s3Object.getObjectContent().readAllBytes();
             String fileContent = new String(data);
 
-            FileOperationUtils.createFile(targetFolderPath, fileName, fileContent);
+            FileSystemUtils.createFile(targetFolderPath, fileName, fileContent);
             File file = new File(String.format("%s/%s", targetFolderPath, fileName));
             return file.getPath();
         }

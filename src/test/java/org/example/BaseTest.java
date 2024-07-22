@@ -8,7 +8,7 @@ import org.example.drivers.elements.BaseElement;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.servers.TestServerInterface;
 import org.example.servers.TestServerManager;
-import org.example.utils.FileOperationUtils;
+import org.example.utils.FileSystemUtils;
 import org.example.utils.WebUtils;
 import org.testng.Assert;
 import org.testng.ITestResult;
@@ -37,8 +37,8 @@ public class BaseTest {
         WebUtils.readAllElementSelectorsFromFiles(
                 PAGE_OBJECT_FOLDER_PATH,
                 BaseElement.getElementSelectorMap());
-        FileOperationUtils.deleteFolder(VIDEOS_FOLDER_PATH);
-        FileOperationUtils.deleteFolder(SCREENSHOTS_FOLDER_PATH);
+        FileSystemUtils.deleteFolder(VIDEOS_FOLDER_PATH);
+        FileSystemUtils.deleteFolder(SCREENSHOTS_FOLDER_PATH);
     }
 
     @BeforeMethod(alwaysRun = true)
@@ -71,7 +71,7 @@ public class BaseTest {
                 WebDriverFactory.stopVideoRecording();
 
                 if (result.getStatus() != ITestResult.FAILURE) {
-                    FileOperationUtils.deleteFile(WebDriverFactory.getVideoFilePath());
+                    FileSystemUtils.deleteFile(WebDriverFactory.getVideoFilePath());
                 } else {
                     addVideoLinkToTestReport();
                 }
@@ -157,7 +157,7 @@ public class BaseTest {
         String filePath = String.format("%s/failure.%s.%s.%s.%s.mp4",
                 VIDEOS_FOLDER_PATH, browserName, browserVersion, methodName, timeStamp);
 
-        FileOperationUtils.createFolder(VIDEOS_FOLDER_PATH);
+        FileSystemUtils.createFolder(VIDEOS_FOLDER_PATH);
         WebDriverFactory.enableVideoRecording(filePath);
         WebDriverFactory.startVideoRecording();
     }

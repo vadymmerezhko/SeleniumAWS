@@ -14,9 +14,9 @@ import java.util.Set;
  * Contains common file methods.
  */
 @Slf4j
-public final class FileOperationUtils {
+public final class FileSystemUtils {
 
-    private FileOperationUtils() {}
+    private FileSystemUtils() {}
 
     /**
      * Creates file.
@@ -30,6 +30,7 @@ public final class FileOperationUtils {
             BufferedWriter br = new BufferedWriter(fileWriter);
             br.write(fileContent);
             br.close();
+            log.debug("File {} is created in folder {} with content: {}", fileName, folderPath, fileContent);
         }
         catch (Exception e) {
             throw new RuntimeException(String.format("Cannot create %s/%s file.",
@@ -62,8 +63,10 @@ public final class FileOperationUtils {
             File folder = new File(folderPath);
             if (!folder.exists()) {
                 if (!folder.mkdirs()) {
-                    throw new RuntimeException(String.format("Cannot create folder %s", folderPath));
+                    throw new RuntimeException(String.format(
+                            "Cannot create folder %s", folderPath));
                 }
+                log.debug("Folder {} is created.", folderPath);
             }
         }
         catch (Exception e) {
@@ -78,10 +81,13 @@ public final class FileOperationUtils {
      */
     public static synchronized String readFile(String filePath) {
         try {
-            return Files.readString(Paths.get(filePath));
+            String fileContent = Files.readString(Paths.get(filePath));
+            log.debug("File {} is read with content: {}", filePath, fileContent);
+            return fileContent;
         }
         catch (IOException e) {
-            throw new RuntimeException(String.format("Cannot read from file %s\n%s", filePath, e.getMessage()));
+            throw new RuntimeException(String.format(
+                    "Cannot read from file %s\n%s", filePath, e.getMessage()));
         }
     }
 
@@ -94,7 +100,7 @@ public final class FileOperationUtils {
 
         if (file.exists()) {
             if (file.delete()) {
-                log.info("Deleted the file: {}", filePath);
+                log.debug("File: {} is deleted.", filePath);
             } else {
                 throw new RuntimeException("Cannot delete file: " + filePath);
             }
@@ -109,7 +115,7 @@ public final class FileOperationUtils {
         File directory = new File(folderPath);
         try {
             FileUtils.deleteDirectory(directory);
-            log.info("Deleted the directory: {}", folderPath);
+            log.info("Folder {} is deleted.", folderPath);
         }
         catch (IOException e) {
             throw new RuntimeException(String.format(
@@ -125,6 +131,7 @@ public final class FileOperationUtils {
     public static synchronized void moveFile(String fromPath, String toPath) {
         try {
             FileUtils.moveFile(FileUtils.getFile(fromPath), FileUtils.getFile(toPath));
+            log.debug("File: {} is moved to {}.", fromPath, toPath);
         }
         catch (Exception e) {
             throw new RuntimeException(
@@ -138,7 +145,9 @@ public final class FileOperationUtils {
      * @return The true/false flag.
      */
     public static boolean fileExists(String filePath) {
-        return new File(filePath).exists();
+        boolean exists = new File(filePath).exists();
+        log.debug("File: {} is exist={}", filePath, exists);
+        return exists;
     }
 
     /**
@@ -175,6 +184,7 @@ public final class FileOperationUtils {
                     "Cannot get file names from the folder: %s",
                     folderPath), e);
         }
+        log.debug("File names in folder {} are: {}", folderPath, fileNames);
         return fileNames;
     }
 
@@ -184,13 +194,14 @@ public final class FileOperationUtils {
      * @return The file extension, or an empty string if no extension found.
      */
     public static String getFileExtension(String fileName) {
+        String extension = "";
         try {
             // Check file name format.
             fileName = new File(fileName).getName();
             int dotIndex = fileName.lastIndexOf('.');
 
             if (dotIndex != -1) {
-                return fileName.substring(dotIndex + 1).toLowerCase();
+                extension = fileName.substring(dotIndex + 1).toLowerCase();
             }
         }
         catch (Exception e) {
@@ -198,7 +209,8 @@ public final class FileOperationUtils {
                     "Cannot get file extension form the file name: %s",
                     fileName), e);
         }
-        return "";
+        log.debug("File {} extension is {}.", fileName, extension);
+        return extension;
     }
 
     /**
@@ -208,7 +220,16 @@ public final class FileOperationUtils {
      */
     public static String getFileNameWithoutExtension(String fileName) {
         try {
-            return fileName.substring(0, fileName.lastIndexOf(getFileExtension(fileName)) - 1);
+            // Check file name format.
+            fileName = new File(fileName).getName();
+            int dotIndex = fileName.lastIndexOf('.');
+            String nameNoExtension = fileName;
+
+            if (dotIndex != -1) {
+                nameNoExtension = fileName.substring(0, dotIndex);
+            }
+            log.debug("File {} name without extension is {}.", fileName, nameNoExtension);
+            return nameNoExtension;
         }
         catch (Exception e) {
             throw new RuntimeException(String.format(

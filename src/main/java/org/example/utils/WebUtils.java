@@ -717,14 +717,14 @@ public class WebUtils {
             JSONObject json;
             filePath = String.format("%s/%s", folderPath, fileName);
 
-            if (FileOperationUtils.fileExists(filePath)) {
-                String jsonString = FileOperationUtils.readFile(filePath);
+            if (FileSystemUtils.fileExists(filePath)) {
+                String jsonString = FileSystemUtils.readFile(filePath);
                 json = new JSONObject(jsonString);
             } else {
                 json = new JSONObject();
             }
             json.put(fieldName, selector);
-            FileOperationUtils.createFile(filePath, json.toString());
+            FileSystemUtils.createFile(filePath, json.toString());
             log.debug("Element {} selector {} is saved to file {}.",
                     elementName, selector, filePath);
         }
@@ -756,8 +756,8 @@ public class WebUtils {
             JSONObject json;
             filePath = String.format("%s/%s", folderPath, fileName);
 
-            if (FileOperationUtils.fileExists(filePath)) {
-                String jsonString = FileOperationUtils.readFile(filePath);
+            if (FileSystemUtils.fileExists(filePath)) {
+                String jsonString = FileSystemUtils.readFile(filePath);
 
                 if (jsonString.trim().isEmpty()) {
                     return null;
@@ -797,17 +797,17 @@ public class WebUtils {
      */
     public static void readAllElementSelectorsFromFiles(
             String folderPath, Map<String, String> elementSelectorMap) {
-        Set<String> fileNames = FileOperationUtils.getFileNamesInFolder(folderPath);
+        Set<String> fileNames = FileSystemUtils.getFileNamesInFolder(folderPath);
 
         Thread thread = new Thread(() -> {
             try {
                 log.debug("Asynchronous page object element selectors reading began.");
 
                 for (String fileName : fileNames) {
-                    if (FileOperationUtils.getFileExtension(fileName).equals("json")) {
+                    if (FileSystemUtils.getFileExtension(fileName).equals("json")) {
                         String filePath = String.format("%s/%s", folderPath, fileName);
-                        String pageName = FileOperationUtils.getFileNameWithoutExtension(fileName);
-                        String fileContent = FileOperationUtils.readFile(filePath);
+                        String pageName = FileSystemUtils.getFileNameWithoutExtension(fileName);
+                        String fileContent = FileSystemUtils.readFile(filePath);
 
                         if (fileContent.trim().isEmpty()) {
                             continue;
