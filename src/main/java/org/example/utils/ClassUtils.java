@@ -40,9 +40,10 @@ public final class ClassUtils {
                 Object fieldReference = field.get(parentObject);
 
                 if (fieldReference == fieldObject) {
-                    String fieldName=  field.getName();
+                    String fieldName = field.getName();
                     log.debug("Field name is {} for parent object {} and field object {}.",
                             fieldName, parentObject, fieldObject);
+                    return fieldName;
                 }
             }
         } catch (Exception e) {
