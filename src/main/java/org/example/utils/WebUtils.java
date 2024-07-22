@@ -567,7 +567,8 @@ public class WebUtils {
      * @return The selector template.
      */
     public static String getSelectorTemplate(String selector, String text) {
-        String template = selector.replace(String.format("'%s'", text), "'%s'");
+        String template = selector.replace(String.format("'%s'", text), "'%s'")
+                        .replace(String.format("\"%s\"", text), "'%s'");
         log.debug("Element selector {} with text '{}' is: {}",
                 selector, text, selector);
         return template;
@@ -580,10 +581,12 @@ public class WebUtils {
      * @return The By selector.
      */
      public static By convertSelectorTemplateToBy(String selector, String text) {
-        if (text != null && selector.contains("%s")) {
+        if (text != null) {
             // Replace text placeholder with actual text (if any).
             // It can be more than one replacement.
-            selector = selector.replace("'%s'", String.format("'%s'", text));
+            String jsSelector =  escapeJS(text);
+            selector = selector.replace("'%s'", String.format("'%s'", jsSelector))
+                    .replace("\"%s\"", String.format("'%s'", jsSelector));
         }
         if (isXpath(selector)) {
             By by = By.xpath(selector);
