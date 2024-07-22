@@ -397,7 +397,6 @@ public class WebUtils {
                         // Terminate all tests when user clicks Cancel button.
                         terminateAllTests();
                     }
-                    selector = replaceDoubleQuotesWithSingleQuotes(selector);
                 }
 
                 if (WebUtils.isSelectorValidAndUnique(element, text, selector)) {
@@ -417,15 +416,13 @@ public class WebUtils {
                 else if (WebUtils.numberOfElementsFoundBySelector(selector, text) == 0) {
                     format = String.format(formatFormat, "No '%s' element is found by selector.");
                 }
-
-                String previousSelector = replaceDoubleQuotesWithSingleQuotes(selector);
+                String previousSelector = selector;
                 selector = showPrompt(String.format(format, elementName), selector);
 
                 if (selector.isEmpty()) {
                     // Terminate all tests when user clicks Cancel button.
                     terminateAllTests();
                 }
-                selector = replaceDoubleQuotesWithSingleQuotes(selector);
 
                 if (selector.equals(previousSelector)) {
                     element = WebUtils.selectWebElement(elementName);
@@ -817,8 +814,7 @@ public class WebUtils {
                         JSONObject json = new JSONObject(fileContent);
 
                         for (String fieldName : json.keySet()) {
-                            String selector = replaceDoubleQuotesWithSingleQuotes(
-                                    json.get(fieldName).toString());
+                            String selector = json.get(fieldName).toString();
                             String elementName = String.format("%s.%s", pageName, fieldName);
                             elementSelectorMap.put(elementName, selector);
                             log.debug("Element {} selector {} is asynchronously read from file {}",
@@ -1367,15 +1363,6 @@ public class WebUtils {
                 .replace("\n", "\\n");
         log.debug("JS {} after escape: {}.", json, escapedJson);
         return escapedJson;
-    }
-
-    private static String replaceDoubleQuotesWithSingleQuotes(String selector) {
-        String updatedSelector = selector.replace("\\\"", "#ESCAPED_QUOTE#")
-                .replace("\"", "'")
-                .replace("#ESCAPED_QUOTE#", "\"");
-        log.debug("Selector {} was updated - double quotes replaced with single quotes: {}.",
-                selector, updatedSelector);
-        return updatedSelector;
     }
 
     private static void terminateAllTests() {
