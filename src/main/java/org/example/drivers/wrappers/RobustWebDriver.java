@@ -101,7 +101,7 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
                     throw e;
                 }
             }
-            WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLI_SEC);
+            WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLISECONDS);
             log.debug("Retry {} to find WebElement by selector {}", i, by);
         }
         log.debug("null WebElement is found by selector {}.", by);

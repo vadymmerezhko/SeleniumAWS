@@ -1,6 +1,7 @@
 package org.example.drivers.wrappers;
 
 import org.example.data.Config;
+import org.example.utils.ClassUtils;
 import org.example.utils.WaiterUtils;
 import org.openqa.selenium.*;
 
@@ -22,7 +23,7 @@ public class RobustWebElement extends BaseWebElement {
     private final RobustWebDriverWaiter waiter;
 
     /**
-     * The robust WebElemnt constructor.
+     * The robust WebElement constructor.
      * @param element The wrapped WebElement instance.
      * @param parent The parent robust element (if any).
      * @param by The element locator.
@@ -52,17 +53,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public void click() {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                element.click();
-                return;
-            } catch (Exception e) {
-                exception = e;
-                fixClickableWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        ClassUtils.performRunnableMethod(
+                element::click,
+                this::fixClickableWebElement,
+                "click",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -70,17 +66,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public void submit() {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                element.submit();
-                return;
-            } catch (Exception e) {
-                exception = e;
-                fixClickableWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        ClassUtils.performRunnableMethod(
+                element::submit,
+                this::fixClickableWebElement,
+                "submit",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -89,17 +80,13 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public void sendKeys(CharSequence... keysToSend) {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                element.sendKeys(keysToSend);
-                return;
-            } catch (Exception e) {
-                exception = e;
-                fixClickableWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        ClassUtils.performConsumerMethod(
+                element::sendKeys,
+                keysToSend,
+                this::fixClickableWebElement,
+                "sendKeys",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -107,17 +94,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public void clear() {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                element.clear();
-                return;
-            } catch (Exception e) {
-                exception = e;
-                fixClickableWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        ClassUtils.performRunnableMethod(
+                element::clear,
+                this::fixClickableWebElement,
+                "clear",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -126,7 +108,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public String getTagName() {
-        return element.getTagName();
+        return ClassUtils.performSupplierMethod(
+                element::getTagName,
+                this::fixClickableWebElement,
+                "getTagName",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -136,16 +123,13 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public String getAttribute(String name) {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                return element.getAttribute(name);
-            } catch (Exception e) {
-                exception = e;
-                fixVisibleWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        return ClassUtils.performFunctionMethod(
+                element::getAttribute,
+                name,
+                this::fixVisibleWebElement,
+                "getAttribute",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -155,16 +139,13 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public String getDomProperty(String name) {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                return element.getDomProperty(name);
-            } catch (Exception e) {
-                exception = e;
-                fixVisibleWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        return ClassUtils.performFunctionMethod(
+                element::getDomProperty,
+                name,
+                this::fixVisibleWebElement,
+                "getDomProperty",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -174,16 +155,13 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public String getDomAttribute(String name) {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                return element.getDomAttribute(name);
-            } catch (Exception e) {
-                exception = e;
-                fixVisibleWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        return ClassUtils.performFunctionMethod(
+                element::getDomAttribute,
+                name,
+                this::fixVisibleWebElement,
+                "getDomAttribute",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -192,16 +170,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public String getAriaRole() {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                return element.getAriaRole();
-            } catch (Exception e) {
-                exception = e;
-                fixVisibleWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        return ClassUtils.performSupplierMethod(
+                element::getAriaRole,
+                this::fixVisibleWebElement,
+                "getAriaRole",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -210,18 +184,13 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public String getAccessibleName() {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                return element.getAccessibleName();
-            } catch (Exception e) {
-                exception = e;
-                fixVisibleWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        return ClassUtils.performSupplierMethod(
+                element::getAccessibleName,
+                this::fixVisibleWebElement,
+                "getAccessibleName",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
-
 
     /**
      * Returns true/false selected flag.
@@ -229,16 +198,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public boolean isSelected() {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                return element.isSelected();
-            } catch (Exception e) {
-                exception = e;
-                fixVisibleWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        return ClassUtils.performSupplierMethod(
+                element::isSelected,
+                this::fixVisibleWebElement,
+                "isSelected",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -247,16 +212,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public boolean isEnabled() {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                return element.isEnabled();
-            } catch (Exception e) {
-                exception = e;
-                fixVisibleWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        return ClassUtils.performSupplierMethod(
+                element::isEnabled,
+                this::fixVisibleWebElement,
+                "isEnabled",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -265,16 +226,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public String getText() {
-        Exception exception = null;
-        for (int i = 0; i < RETRY_COUNT; i++) {
-            try {
-                return element.getText();
-            } catch (Exception e) {
-                exception = e;
-                fixVisibleWebElement(e);
-            }
-        }
-        throw new RuntimeException(exception);
+        return ClassUtils.performSupplierMethod(
+                element::getText,
+                this::fixVisibleWebElement,
+                "getText",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -305,7 +262,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public boolean isDisplayed() {
-        return element.isDisplayed();
+        return ClassUtils.performSupplierMethod(
+                element::isDisplayed,
+                null,
+                "isDisplayed",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -314,7 +276,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public Point getLocation() {
-        return element.getLocation();
+        return ClassUtils.performSupplierMethod(
+                element::getLocation,
+                this::fixVisibleWebElement,
+                "getLocation",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -323,7 +290,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public Dimension getSize() {
-        return element.getSize();
+        return ClassUtils.performSupplierMethod(
+                element::getSize,
+                this::fixVisibleWebElement,
+                "getSize",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -332,7 +304,12 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public Rectangle getRect() {
-        return element.getRect();
+        return ClassUtils.performSupplierMethod(
+                element::getRect,
+                this::fixVisibleWebElement,
+                "getRect",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -342,7 +319,13 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public String getCssValue(String propertyName) {
-        return element.getCssValue(propertyName);
+        return ClassUtils.performFunctionMethod(
+                element::getCssValue,
+                propertyName,
+                this::fixVisibleWebElement,
+                "getCssValue",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -350,7 +333,12 @@ public class RobustWebElement extends BaseWebElement {
      * @return The shadow root.
      */
     public SearchContext getShadowRoot() {
-        return element.getShadowRoot();
+        return ClassUtils.performSupplierMethod(
+                element::getShadowRoot,
+                this::fixVisibleWebElement,
+                "getShadowRoot",
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
     }
 
     /**
@@ -362,13 +350,19 @@ public class RobustWebElement extends BaseWebElement {
      */
         @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
-        return element.getScreenshotAs(target);
+            return ClassUtils.performFunctionMethod(
+                    element::getScreenshotAs,
+                    target,
+                    this::fixVisibleWebElement,
+                    "getScreenshotAs",
+                    RETRY_COUNT,
+                    RETRY_WAIT_MILLISECONDS);
     }
 
     /**
      * Scrolls page to web element.
      */
-    protected void scrollToElement() {
+    public void scrollToElement() {
         WebElement nativeElement = element;
         if (element instanceof RobustWebElement) {
             nativeElement = ((RobustWebElement) element).getNativeElement();
@@ -401,7 +395,7 @@ public class RobustWebElement extends BaseWebElement {
         }
         catch (NoSuchElementException e) {
             for (int i = 0; i < RETRY_COUNT; i++) {
-                WaiterUtils.waitSeconds(RETRY_WAIT_MILLI_SEC);
+                WaiterUtils.waitSeconds(RETRY_WAIT_MILLISECONDS);
                 List<WebElement> elements = element.findElements(childBy);
                 if (!elements.isEmpty()) {
                     if (elements.size() > 1) {
@@ -416,7 +410,7 @@ public class RobustWebElement extends BaseWebElement {
     }
 
     private void fixClickableWebElement(Exception exception) {
-        WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLI_SEC);
+        WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLISECONDS);
 
         if (exception instanceof StaleElementReferenceException ||
             exception instanceof ElementNotInteractableException ||
@@ -433,7 +427,7 @@ public class RobustWebElement extends BaseWebElement {
     }
 
     private void fixVisibleWebElement(Exception exception) {
-        WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLI_SEC);
+        WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLISECONDS);
 
         if (exception instanceof StaleElementReferenceException ||
             exception instanceof ElementNotInteractableException ||

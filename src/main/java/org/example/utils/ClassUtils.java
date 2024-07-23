@@ -1,8 +1,12 @@
 package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.WebDriverException;
 
 import java.lang.reflect.Field;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * The method manger class.
@@ -51,5 +55,159 @@ public final class ClassUtils {
                     "Cannot get class field name.\n%s", e.getMessage()));
         }
         return null;
+    }
+
+    /**
+     * Performs runnable method action with retries after exception.
+     * This method doesn't have parameters and return void.
+     * If all reties caused exception then it throws the last exception.
+     * @param action The action to perform.
+     * @param fix The fix method that has Exception parameter.
+     *            Optional - can be null.
+     * @param methodName - The method name for logging.
+     * @param retryCount - The number of reties.
+     * @param waitMilliseconds - The wait milliseconds before next try.
+     */
+    public static void performRunnableMethod(
+            Runnable action,
+            Consumer<Exception> fix,
+            String methodName,
+            int retryCount,
+            int waitMilliseconds) {
+        Exception lastException = null;
+
+        for (int i = 1; i <= retryCount; i++) {
+            try {
+                action.run();
+                return;
+            }
+            catch (WebDriverException e) {
+                if (fix != null) {
+                    fix.accept(e);
+                }
+                WaiterUtils.waitSeconds(waitMilliseconds);
+                log.debug("Runnable Method '{}' retry: {}.", methodName, i);
+                lastException = e;
+            }
+        }
+        throw new RuntimeException(String.format(
+                "Failed to run runnable method '%s' after %d retries.",
+                methodName, retryCount), lastException);
+    }
+
+    /**
+     * Performs consumer method action with retries after exception.
+     * This method has P parameter and return void.
+     * If all reties caused exception then it throws the last exception.
+     * @param action The action to perform.
+     * @param parameter The method parameter.
+     * @param fix The fix method that has Exception parameter.
+     *            Optional - can be null.
+     * @param methodName - The method name for logging.
+     * @param retryCount - The number of reties.
+     * @param waitMilliseconds - The wait milliseconds before next try.
+     */
+    public static <P> void performConsumerMethod(
+            Consumer<P> action,
+            P parameter,
+            Consumer<Exception> fix,
+            String methodName,
+            int retryCount,
+            int waitMilliseconds) {
+        Exception lastException = null;
+
+        for (int i = 1; i <= retryCount; i++) {
+            try {
+                action.accept(parameter);
+                return;
+            }
+            catch (WebDriverException e) {
+                if (fix != null) {
+                    fix.accept(e);
+                }
+                WaiterUtils.waitSeconds(waitMilliseconds);
+                log.debug("Consumer method '{}' retry: {}.", methodName, i);
+                lastException = e;
+            }
+        }
+        throw new RuntimeException(String.format(
+                "Failed to run consumer method '%s' after %d retries.",
+                methodName, retryCount), lastException);
+    }
+
+    /**
+     * Performs supplier method action with retries after exception.
+     * This method doesn't have parameters and returns R value.
+     * If all reties caused exception then it throws the last exception.
+     * @param action The action to perform.
+     * @param fix The fix method that has Exception parameter.
+     *            Optional - can be null.
+     * @param methodName - The method name for logging.
+     * @param retryCount - The number of reties.
+     * @param waitMilliseconds - The wait milliseconds before next try.
+     */
+    public static <R> R performSupplierMethod(
+            Supplier<R> action,
+            Consumer<Exception> fix,
+            String methodName,
+            int retryCount,
+            int waitMilliseconds) {
+        Exception lastException = null;
+
+        for (int i = 1; i <= retryCount; i++) {
+            try {
+                return action.get();
+            }
+            catch (WebDriverException e) {
+                if (fix != null) {
+                    fix.accept(e);
+                }
+                WaiterUtils.waitSeconds(waitMilliseconds);
+                log.debug("Supplier method '{}' retry: {}.", methodName, i);
+                lastException = e;
+            }
+        }
+        throw new RuntimeException(String.format(
+                "Failed to run supplier method '%s' after %d retries.",
+                methodName, retryCount), lastException);
+    }
+
+    /**
+     * Performs function method action with retries after exception.
+     * This method has P parameter and returns R value.
+     * If all reties caused exception then it throws the last exception.
+     * @param action The action to perform.
+     * @param parameter The method parameter.
+     * @param fix The fix method that has Exception parameter.
+     *            Optional - can be null.
+     * @param methodName - The method name for logging.
+     * @param retryCount - The number of reties.
+     * @param waitMilliseconds - The wait milliseconds before next try.
+     */
+    public static <P, R> R performFunctionMethod(
+            Function<P, R> action,
+            P parameter,
+            Consumer<Exception> fix,
+            String methodName,
+            int retryCount,
+            int waitMilliseconds) {
+        Exception lastException = null;
+
+        for (int i = 1; i <= retryCount; i++) {
+            try {
+                return action.apply(parameter);
+            }
+            catch (WebDriverException e) {
+                if (fix != null) {
+                    fix.accept(e);
+                }
+                WaiterUtils.waitSeconds(waitMilliseconds);
+                log.debug("Function method '{}' retry: {}.", methodName, i);
+                lastException = e;
+            }
+        }
+        throw new RuntimeException(String.format(
+                "Failed to run function method '%s' after %d retries.",
+                methodName, retryCount), lastException);
     }
 }
