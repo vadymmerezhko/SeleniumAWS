@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
-import static org.example.constants.Settings.PAGE_OBJECT_FOLDER_PATH;
-
 /**
  * Base web element class.
  */
@@ -25,7 +22,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     private static final ConcurrentMap<Long, WebElement> handledElementMap = new ConcurrentHashMap<>();
     private static final ConcurrentMap<String, String> elementSelectorMap = new ConcurrentHashMap<>();
 
-    static protected final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
+    static protected final Config config = Config.getInstance();
     private WebElement element = null;
     protected By by;
     protected final BasePage page;
@@ -36,6 +33,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     public static Map<String, String> getElementSelectorMap() {
         return elementSelectorMap;
     }
+
 
     /**
      * Base element constructor by its page and selector.
@@ -336,7 +334,8 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             if (elementSelectorMap.containsKey(elementName)) {
                 selector = elementSelectorMap.get(elementName);
             } else {
-                selector = WebUtils.readElementSelectorFromFile(PAGE_OBJECT_FOLDER_PATH, elementName);
+                selector = WebUtils.readElementSelectorFromFile(
+                        config.getPagesFolderPath(), elementName);
                 isSelectorUpdated = true;
             }
             if (selector == null) {
@@ -359,7 +358,8 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             }
 
             if (!isReadFromFile) {
-                WebUtils.saveElementSelectorToFile(PAGE_OBJECT_FOLDER_PATH, elementName, selectorTemplate);
+                WebUtils.saveElementSelectorToFile(
+                        config.getPagesFolderPath(), elementName, selectorTemplate);
             }
         }
         catch (Throwable e) {
@@ -386,7 +386,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             byAI.setBy(bySelector);
             String selectorTemplate = WebUtils.getSelectorTemplate(selector, text);
             WebUtils.saveElementSelectorToFile(
-                    PAGE_OBJECT_FOLDER_PATH, elementName, selectorTemplate);
+                    config.getPagesFolderPath(), elementName, selectorTemplate);
             elementSelectorMap.put(elementName, selector);
         }
     }

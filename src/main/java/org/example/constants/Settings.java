@@ -48,11 +48,10 @@ public class Settings {
     public static final String TEST_REPORTS_AWS_BUCKET_NAME = "selenium-aws-test-bucket";
     public static final String RMI_SERVER_NAME = "RmiTestServer";
     public static final String REQUEST_HANDLER_ERROR_MSG = "Request handler error";
-    public static final String CONFIG_PROPERTIES_FILE_NAME = "config.properties";
+    public static final String CONFIG_PROPERTIES_FILE_PATH = "config.properties";
     static public final String TEST_REPORT_ZIP_FILE_NAME_TEMPLATE = "test_report_%s.zip";
     static public final String TEST_REPORT_LOG_FILE_NAME_TEMPLATE = "test_output_%s.log";
     static public final String NO_FAILURES = "Failures: 0, Errors: 0";
     static public final String OPEN_AI_API_KEY_NAME = "OPEN_AI_API_KEY";
     static public final String OPEN_AI_API_URL = "https://api.openai.com/v1/chat/completions";
-    public static final String PAGE_OBJECT_FOLDER_PATH = "./src/test/resources/pages";
 }

@@ -1,9 +1,9 @@
-package org.example;
+package org.example.e2e;
 
 import org.example.testng.RetryAnalyzer;
 import org.testng.annotations.Test;
 
-public class Selenium11Test extends BaseTest {
+public class Selenium10Test extends CommonTest {
 
     @Test(description = "This method validates the sign up functionality", retryAnalyzer = RetryAnalyzer.class)
     public void signUp1() {

@@ -21,7 +21,7 @@ public class LocalTestRunner {
      * @param params The array of parameters. See README.md for more details.
      */
     public static void main(String[] params) {
-        Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
+        Config config = Config.getInstance();
         String startDate = config.getStartDate();
         String runtTestCommandLine = String.format(
                 RUN_TESTS_COMMAND_TEMPLATE,

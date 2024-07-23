@@ -16,7 +16,7 @@ import static org.example.constants.Settings.*;
  * to make the WebElement more reliable.
  */
 public class RobustWebElement extends BaseWebElement {
-    static protected final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
+    static protected final Config config = Config.getInstance();
     private static final int WAIT_FOR_ELEMENT_TIMEOUT_SEC = 15;
 
     private final RobustWebElement parent;

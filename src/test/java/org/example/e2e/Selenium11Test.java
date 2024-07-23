@@ -1,12 +1,13 @@
-package org.example;
+package org.example.e2e;
+
 import org.example.testng.RetryAnalyzer;
-import org.testng.annotations.*;
+import org.testng.annotations.Test;
 
-public class Selenium1Test extends BaseTest {
+public class Selenium11Test extends CommonTest {
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 1, retryAnalyzer = RetryAnalyzer.class)
+    @Test(description = "This method validates the sign up functionality", retryAnalyzer = RetryAnalyzer.class)
     public void signUp1() {
-        failSignUp();
+        signUp();
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
@@ -19,9 +20,9 @@ public class Selenium1Test extends BaseTest {
         signUp();
     }
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 1, retryAnalyzer = RetryAnalyzer.class)
+    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
     public void signUp4() {
-        failSignUp();
+        signUp();
     }
 
     @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)

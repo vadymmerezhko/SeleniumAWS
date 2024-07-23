@@ -2,8 +2,8 @@
 <suite name="Suite" parallel="methods">
     <test name="Test">
         <classes>
-            <class name="org.example.Selenium3Test"/>
-            <class name="org.example.CommonTest"/>
+            <class name="org.example.e2e.Selenium3Test"/>
+            <class name="org.example.e2e.CommonTest"/>
         </classes>
     </test> <!-- Test -->
 </suite> <!-- Suite -->

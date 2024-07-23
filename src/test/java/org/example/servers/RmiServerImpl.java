@@ -1,8 +1,8 @@
-package org.example.rmi;
+package org.example.servers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.Config;
-import org.example.servers.TestServerRequestHandler;
+import org.example.rmi.RmiServer;
 import org.example.utils.CommandLineUtils;
 import org.example.utils.ServerUtils;
 import org.example.utils.WaiterUtils;
@@ -12,8 +12,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-import static org.example.constants.Settings.*;
-
 /**
  * RMI server implementation.
  */
@@ -21,7 +19,7 @@ import static org.example.constants.Settings.*;
 public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     private static final String GET_EC2_PUBLIC_IP_COMMAND_LINE =
             "sudo curl http://169.254.169.254/latest/meta-data/public-ipv4";
-    private static final int THREAD_COUNT = new Config(CONFIG_PROPERTIES_FILE_NAME).getThreadCount();
+    private static final int THREAD_COUNT = Config.getInstance().getThreadCount();
 
     /**
      * RMI server implementation constructor.

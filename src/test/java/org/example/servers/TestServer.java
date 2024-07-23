@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.data.SignUpTestInput;
 import org.example.data.SignUpTestResult;
 import org.example.pages.WebFormPage;
+import org.example.tests.BaseTestServer;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -56,7 +57,7 @@ public class TestServer extends BaseTestServer implements TestServerInterface {
             webFormPage.pickDate(testInput.date());
             webFormPage.setRange(testInput.range());
 
-            log.info("Page URL: {}", webFormPage.getURL());
+            //log.info("Page URL: {}", webFormPage.getURL());
 
             return new SignUpTestResult(
                     webFormPage.getTextInputValue(),
