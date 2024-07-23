@@ -31,16 +31,16 @@ public class WebUtils {
     private static final String HIGHLIGHT_BORDER_STYLE = "3px solid red";
     private static final List<String> reliableAttributes = Arrays.asList(
             "id", "name", "type", "class", "alt", "placeholder", "title",
-            "accesskey", "tabindex", "value", "myprop", "list", "label");
-
+            "accesskey", "tabindex", "value", "myprop", "list", "label",
+            "aria-label", "aria-labelledby", "aria-describedby", "aria-owns");
     private static final List<String> textAttributes = Arrays.asList(
-            "alt", "placeholder", "title", "value", "label");
+            "alt", "placeholder", "title", "value", "label", "aria-label",
+            "aria-labelledby", "aria-describedby", "aria-owns");
     static private final String OPEN_AI_REQUEST_FORMAT =
             "{\"model\": \"gpt-3.5-turbo\"," +
             "\"messages\": [{" +
             "\"role\": \"user\"," +
             "\"content\": \"%s\"}]}";
-
     static private final String ELEMENT_CSS_SELECTOR_AI_PROMPT_FORMAT =
             "You are a web automation assistant. Given the following HTML page source and " +
             "an HTML element snippet, extract either a CSS selector or an XPath selector for " +
