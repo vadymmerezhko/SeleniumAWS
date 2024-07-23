@@ -17,16 +17,13 @@ public class FileSystemUtilsTest {
         Path tempDir = Files.createTempDirectory("testDir");
         String fileName = "testFile.txt";
         String content = "Hello TestNG";
-
         // Execute
         FileSystemUtils.createFile(tempDir.toString(), fileName, content);
-
         // Verify
         Path file = tempDir.resolve(fileName);
         Assert.assertTrue(Files.exists(file), "File should exist");
         String fileContent = Files.readString(file);
         Assert.assertEquals(fileContent, content, "Content should match");
-
         // Cleanup
         Files.deleteIfExists(file);
         Files.deleteIfExists(tempDir);
@@ -40,16 +37,13 @@ public class FileSystemUtilsTest {
         String content = "Hello TestNG";
         String filePath = String.format("%s/%s", tempDir.toString(), fileName);
         File file = new File(filePath);
-
         // Execute
         FileSystemUtils.createFile(file.getPath(), content);
-
         // Verify
         Path path = tempDir.resolve(fileName);
         Assert.assertTrue(Files.exists(path), "File should exist");
         String fileContent = Files.readString(path);
         Assert.assertEquals(fileContent, content, "Content should match");
-
         // Cleanup
         Files.deleteIfExists(path);
         Files.deleteIfExists(tempDir);
@@ -99,13 +93,10 @@ public class FileSystemUtilsTest {
         Path tempFile = Files.createTempFile("testRead", ".txt");
         String expectedContent = "Read test content";
         Files.writeString(tempFile, expectedContent);
-
         // Execute
         String actualContent = FileSystemUtils.readFile(tempFile.toString());
-
         // Verify
         Assert.assertEquals(actualContent, expectedContent, "The content read should match the content written");
-
         // Cleanup
         Files.deleteIfExists(tempFile);
     }
@@ -124,10 +115,8 @@ public class FileSystemUtilsTest {
     public void testDeleteFile() throws IOException {
         // Prepare
         Path tempFile = Files.createTempFile("testDelete", ".txt");
-
         // Execute
         FileSystemUtils.deleteFile(tempFile.toString());
-
         // Verify
         Assert.assertFalse(Files.exists(tempFile), "File should be deleted");
     }
@@ -142,15 +131,12 @@ public class FileSystemUtilsTest {
         FileSystemUtils.deleteFile("");
     }
 
-
     @Test
     public void testFileExists() throws IOException {
         // Prepare
         Path tempFile = Files.createTempFile("testExists", ".txt");
-
         // Execute & Verify
         Assert.assertTrue(FileSystemUtils.fileExists(tempFile.toString()), "File should exist");
-
         // Cleanup
         Files.deleteIfExists(tempFile);
     }
