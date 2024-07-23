@@ -21,7 +21,7 @@ import static org.example.constants.Settings.*;
 public final class ServerUtils {
     private static String AWS_RMI_SERVER_INSTANCE_ID;
     private static String AWS_RMI_SERVER_INSTANCE_IP;
-    private static final int THREAD_COUNT = new Config(CONFIG_PROPERTIES_FILE_NAME).getThreadCount();
+    private static final int THREAD_COUNT = Config.getInstance().getThreadCount();
     private final static LoadBalancer loadBalancer = LoadBalancer.getInstance();
 
     private ServerUtils() {}
@@ -95,7 +95,7 @@ public final class ServerUtils {
     public static synchronized String createRmiServer() {
         if (AWS_RMI_SERVER_INSTANCE_IP == null) {
             try {
-                Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
+                Config config = Config.getInstance();
                 String userData = String.format(RMI_SERVER_USER_DATA_TEMPLATE,
                         config.getThreadCount(),
                         config.getBrowserName(),
@@ -220,7 +220,7 @@ public final class ServerUtils {
      */
     public static synchronized String createLocalRunServerAndRunTests() {
         try {
-            Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
+            Config config = Config.getInstance();
             String startDate = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new java.util.Date());
             String accessKey = AwsUtils.getAwsAccessKey();
             String secretKey = AwsUtils.getAwsSecretKey();

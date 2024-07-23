@@ -1,4 +1,4 @@
-package org.example.unit.tests;
+package org.example.unit;
 
 import org.example.utils.FileSystemUtils;
 import org.testng.Assert;

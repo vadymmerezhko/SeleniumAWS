@@ -2,11 +2,12 @@ package org.example.servers;
 
 import org.example.data.SignUpTestInput;
 import org.example.data.SignUpTestResult;
+import org.example.tests.BaseTestServer;
 
 /**
- * RMI test server implementation class.
+ * AWS Lambda test server implementation class.
  */
-class RmiTestServer extends BaseTestServer implements TestServerInterface{
+public class LambdaTestServer extends BaseTestServer implements TestServerInterface {
 
     /**
      * Sign up method implementation with JSON string input and output.
@@ -15,6 +16,6 @@ class RmiTestServer extends BaseTestServer implements TestServerInterface{
      */
     @Override
     public SignUpTestResult signUp(SignUpTestInput testInput) {
-        return (SignUpTestResult) invokeRemoteMethod("signUp", testInput, SignUpTestResult.class);
+        return (SignUpTestResult) invokeLambdaFunction("signUp", testInput, SignUpTestResult.class);
     }
 }

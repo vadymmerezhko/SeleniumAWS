@@ -1,4 +1,4 @@
-package org.example.servers;
+package org.example.tests;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.MethodInput;
@@ -8,19 +8,16 @@ import org.example.utils.RecordUtils;
 
 import java.lang.reflect.Method;
 
-import static org.example.constants.Settings.*;
+import static org.example.constants.Settings.AWS_LAMBDA_FUNCTION_ARN;
+import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
+
 
 /**
  * Base test server class.
  * Contains common functionality for all test classes.
  */
 @Slf4j
- class BaseTestServer {
-
-    /**
-     * Base test server constructor.
-     */
-    BaseTestServer() {}
+ public class BaseTestServer {
 
     /**
      * Invokes remote method by its name with parameter class name and parameter JSON string.

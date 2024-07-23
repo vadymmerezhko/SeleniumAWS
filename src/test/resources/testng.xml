@@ -2,19 +2,19 @@
 <suite name="Suite" parallel="methods">
     <test name="Test">
         <classes>
-            <class name="org.example.Selenium1Test"/>
-            <class name="org.example.Selenium2Test"/>
-            <class name="org.example.Selenium3Test"/>
-            <class name="org.example.Selenium4Test"/>
-            <class name="org.example.Selenium5Test"/>
-            <class name="org.example.Selenium6Test"/>
-            <class name="org.example.Selenium7Test"/>
-            <class name="org.example.Selenium8Test"/>
-            <class name="org.example.Selenium9Test"/>
-            <class name="org.example.Selenium10Test"/>
-            <class name="org.example.Selenium11Test"/>
-            <class name="org.example.Selenium12Test"/>
-            <class name="org.example.CommonTest"/>
+            <class name="org.example.e2e.Selenium1Test"/>
+            <class name="org.example.e2e.Selenium2Test"/>
+            <class name="org.example.e2e.Selenium3Test"/>
+            <class name="org.example.e2e.Selenium4Test"/>
+            <class name="org.example.e2e.Selenium5Test"/>
+            <class name="org.example.e2e.Selenium6Test"/>
+            <class name="org.example.e2e.Selenium7Test"/>
+            <class name="org.example.e2e.Selenium8Test"/>
+            <class name="org.example.e2e.Selenium9Test"/>
+            <class name="org.example.e2e.Selenium10Test"/>
+            <class name="org.example.e2e.Selenium11Test"/>
+            <class name="org.example.e2e.Selenium12Test"/>
+            <class name="org.example.e2e.CommonTest"/>
         </classes>
     </test> <!-- Test -->
 </suite> <!-- Suite -->

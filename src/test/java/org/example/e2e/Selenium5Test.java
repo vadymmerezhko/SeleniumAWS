@@ -1,30 +1,26 @@
-package org.example;
+package org.example.e2e;
 import org.example.testng.RetryAnalyzer;
 import org.testng.annotations.*;
 
-public class Selenium2Test extends BaseTest {
+public class Selenium5Test extends CommonTest {
 
-    @Test(description="This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp1()
-    {
+    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
+    public void signUp1() {
         signUp();
     }
 
-    @Test(description="This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp2()
-    {
+    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
+    public void signUp2() {
         signUp();
     }
 
-    @Test(description="This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp3()
-    {
+    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
+    public void signUp3() {
         signUp();
     }
 
-    @Test(description="This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp4()
-    {
+    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
+    public void signUp4() {
         signUp();
     }
 

@@ -3,17 +3,13 @@ package org.example.data;
 import org.example.enums.BrowserName;
 import org.example.enums.TestMode;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_PATH;
 
 /**
  * The configuration file class.
  * See README.md fi;e for more details.
  */
-public class Config {
+public class Config extends BaseConfig {
     private static final String TESTNG_FILE = "testngFile";
     private static final String TREAD_COUNT = "threadCount";
     private static final String TEST_MODE = "testMode";
@@ -26,26 +22,22 @@ public class Config {
     private static final String START_DATE = "startDate";
     private static final String SCREENSHOT_ON_FAIL = "screenshotOnFail";
     private static final String VIDEO_ON_FAIL = "videoOnFail";
-    private static final String DEBUG_FAIL = "debugFail";
     private static final String DEBUG_MODE = "debugMode";
     private static final String HIGHLIGHT = "highlight";
     private static final String STEP_DELAY = "stepDelay";
     private static final String BROWSER_SIZE = "browserSize";
-    private static final String VALUES_DELIMITER = ":";
+    private static final String PAGES_FOLDER_PATH = "pagesFolderPath";
 
-    private static final Map<String, String> stringPropertyMap = new HashMap<>();
-    private static final Map<String, Integer> integerPropertyMap = new HashMap<>();
-    private static final Map<String, Boolean> booleanPropertyMap = new HashMap<>();
-
-    private final String filePath;
-    private Properties configProperties;
+    public static Config getInstance() {
+        return new Config(CONFIG_PROPERTIES_FILE_PATH);
+    }
 
     /**
      * Config class constructor by the config file path.
      * @param filePath The config file path.
      */
-    public Config(String filePath) {
-        this.filePath = filePath;
+    private Config(String filePath) {
+        super(filePath);
     }
 
     /**
@@ -221,14 +213,6 @@ public class Config {
     }
 
     /**
-     * Returns true/false debug fail flag.
-     * @return The debug fail flag.
-     */
-    synchronized public boolean getDebugFail() {
-        return getBooleanProperty(DEBUG_FAIL);
-    }
-
-    /**
      * Returns true/false debug mode flag.
      * @return The debug mode flag.
      */
@@ -252,69 +236,11 @@ public class Config {
         return getIntegerProperty(STEP_DELAY);
     }
 
-    private String getStringProperty(String propertyName) {
-        if (!stringPropertyMap.containsKey(propertyName)) {
-            String propertyValue = System.getProperty(propertyName);
-
-            if (propertyValue == null) {
-                propertyValue = System.getenv(propertyName);
-            }
-
-            if (propertyValue == null) {
-                propertyValue = getConfigProperties().getProperty(propertyName);
-            }
-
-            if (propertyValue == null) {
-                throw new RuntimeException(String.format(
-                        "configuration property '%s' is undefined.", propertyName));
-            }
-            stringPropertyMap.put(propertyName, propertyValue);
-            return propertyValue;
-        }
-        return stringPropertyMap.get(propertyName);
-    }
-
-    private int getIntegerProperty(String propertyName) {
-        if (!integerPropertyMap.containsKey(propertyName)) {
-            int integerValue = Integer.parseInt(getStringProperty(propertyName));
-            integerPropertyMap.put(propertyName, integerValue);
-            return integerValue;
-        }
-        return integerPropertyMap.get(propertyName);
-    }
-
-    private boolean getBooleanProperty(String propertyName) {
-        if (!booleanPropertyMap.containsKey(propertyName)) {
-            boolean booleanValue = Boolean.parseBoolean(getStringProperty(propertyName));
-            booleanPropertyMap.put(propertyName, booleanValue);
-            return booleanValue;
-        }
-        return booleanPropertyMap.get(propertyName);
-    }
-
-    private String getSubValue(String value, int index) {
-        String[] subValues = value.split(VALUES_DELIMITER);
-        if (subValues.length <= index) {
-            throw new RuntimeException(String.format(
-                    "Config value '%s' doesn't have the part %d.", value, index + 1));
-        }
-        return subValues[index];
-    }
-
-    private int getIntegerSubValue(String value, int index) {
-        String subValue = getSubValue(value, index);
-        return Integer.parseInt(subValue);
-    }
-
-    private Properties getConfigProperties() {
-        if (configProperties == null) {
-            configProperties = new Properties();
-            try {
-                configProperties.load(new FileInputStream(filePath));
-            } catch (IOException e) {
-                throw new RuntimeException("Cannot initialize config properties file:\n" + e.getMessage());
-            }
-        }
-        return configProperties;
+    /**
+     * Returns page objects folder path.
+     * @return The AWS secret key.
+     */
+    synchronized public String getPagesFolderPath() {
+        return getStringProperty(PAGES_FOLDER_PATH);
     }
 }

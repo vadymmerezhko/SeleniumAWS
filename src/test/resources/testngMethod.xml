@@ -2,12 +2,12 @@
 <suite name="Suite" parallel="methods">
     <test name="Test">
         <classes>
-            <class name="org.example.Selenium1Test">
+            <class name="org.example.e2e.Selenium1Test">
                 <methods>
                     <include name="signUp1" />
                 </methods>
             </class>
-            <class name="org.example.CommonTest"/>
+            <class name="org.example.e2e.CommonTest"/>
         </classes>
     </test> <!-- Test -->
 </suite> <!-- Suite -->

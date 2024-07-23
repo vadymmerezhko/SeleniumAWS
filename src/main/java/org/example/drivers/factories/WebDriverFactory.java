@@ -53,7 +53,7 @@ import static org.example.enums.TestMode.*;
 public class WebDriverFactory {
     static private final String SELENIUM_GRID_URL_TEMPLATE = "http://%s:4444";
     static private final String LOCALHOST = "localhost";
-    static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
+    static private final Config config = Config.getInstance();
     static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
     static private final ConcurrentMap<Long, Boolean> videoRecordingMap = new ConcurrentHashMap<>();
     static private final ConcurrentMap<Long, String> videoFilePathMap = new ConcurrentHashMap<>();

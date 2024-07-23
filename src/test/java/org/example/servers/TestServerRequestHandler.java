@@ -6,14 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.data.MethodInput;
 import org.example.utils.RecordUtils;
 
-import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
 
 /**
  * Test server request handler class.
  */
 @Slf4j
 public class TestServerRequestHandler implements RequestHandler<String, String> {
-    private static final String REQUEST_HANDLER_ERROR_MSG_TMP = REQUEST_HANDLER_ERROR_MSG + ":\n%s";
+    private static final String REQUEST_HANDLER_ERROR_MSG_TMP = "Request handler error:\n%s";
 
     /**
      * Handles RMI request with JSON input string and context parameters.

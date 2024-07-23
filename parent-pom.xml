@@ -4,14 +4,13 @@
 
   <groupId>org.example</groupId>
   <artifactId>SeleniumTestNGParentPom</artifactId>
-  <version>1.1.1</version>
+  <version>1.2.0</version>
   <packaging>pom</packaging>
 
   <name>SeleniumTestNGParentPom</name>
   <url>http://maven.apache.org</url>
 
   <properties>
-    <roject.version>1.1.1</roject.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>21</java.version>
     <maven.compiler.source>21</maven.compiler.source>
@@ -37,13 +36,13 @@
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-java</artifactId>
-      <version>4.23.0</version>
+      <version>4.22.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
     <dependency>
       <groupId>io.github.bonigarcia</groupId>
       <artifactId>webdrivermanager</artifactId>
-      <version>5.9.1</version>
+      <version>5.8.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/io.appium/java-client -->
     <dependency>
@@ -61,7 +60,7 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-devicefarm</artifactId>
-      <version>1.12.484</version>
+      <version>1.12.744</version>
     </dependency>
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
@@ -179,12 +178,6 @@
       <groupId>com.github.kwhat</groupId>
       <artifactId>jnativehook</artifactId>
       <version>2.2.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.18.32</version>
-      <scope>compile</scope>
     </dependency>
   </dependencies>
 </project>

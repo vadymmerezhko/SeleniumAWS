@@ -5,11 +5,12 @@
   <parent>
     <groupId>org.example</groupId>
     <artifactId>SeleniumTestNGParentPom</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
     <relativePath>./parent-pom.xml</relativePath>
   </parent>
 
   <artifactId>SeleniumTestNG</artifactId>
+  <version>1.2.0</version>
   <packaging>jar</packaging>
 
   <name>SeleniumTestNG</name>
@@ -34,18 +35,6 @@
           </suiteXmlFiles>
           <!--<useSystemClassLoader>false</useSystemClassLoader>-->
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.owasp</groupId>
-        <artifactId>dependency-check-maven</artifactId>
-        <version>10.0.3</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

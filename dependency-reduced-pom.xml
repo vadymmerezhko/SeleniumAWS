@@ -18,7 +18,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>org.example.rmi.RmiServerImpl</mainClass>
+                  <mainClass>org.example.servers.RmiServerImpl</mainClass>
                 </transformer>
               </transformers>
             </configuration>

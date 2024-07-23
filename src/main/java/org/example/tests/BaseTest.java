@@ -1,16 +1,11 @@
-package org.example;
+package org.example.tests;
 
 import org.example.balancers.LoadBalancer;
 import org.example.data.Config;
-import org.example.data.SignUpTestInput;
-import org.example.data.SignUpTestResult;
 import org.example.drivers.elements.BaseElement;
 import org.example.drivers.factories.WebDriverFactory;
-import org.example.servers.TestServerInterface;
-import org.example.servers.TestServerManager;
 import org.example.utils.FileSystemUtils;
 import org.example.utils.WebUtils;
-import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
@@ -18,24 +13,19 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_NAME;
-import static org.example.constants.Settings.PAGE_OBJECT_FOLDER_PATH;
-
-public class BaseTest {
+public abstract class BaseTest {
     static private final String SCREENSHOTS_FOLDER_PATH = "./target/surefire-reports/screenshots";
     static private final String VIDEOS_FOLDER_PATH = "./target/surefire-reports/videos";
     static private final String DEFAULT_BROWSER_VERSION = "default";
-    static private final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
+    static private final Config config = Config.getInstance();
 
     @BeforeSuite
     public void beforeSuite() {
         WebUtils.readAllElementSelectorsFromFiles(
-                PAGE_OBJECT_FOLDER_PATH,
+                config.getPagesFolderPath(),
                 BaseElement.getElementSelectorMap());
         FileSystemUtils.deleteFolder(VIDEOS_FOLDER_PATH);
         FileSystemUtils.deleteFolder(SCREENSHOTS_FOLDER_PATH);
@@ -80,56 +70,6 @@ public class BaseTest {
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    protected void signUp() {
-        Path currentRelativePath = Paths.get("pom.xml");
-        String currentFolderPath = currentRelativePath.toAbsolutePath().toString();
-        SignUpTestInput testInput = new SignUpTestInput(
-                "Selenium",
-                "Selenium WebDriver", // Multiline text cause failure on Safari.
-                "Two",
-                "Chicago",
-                currentFolderPath,
-                false,
-                true,
-                false,
-                true,
-                "#0088ff",
-                "05/23/1970",
-                2);
-
-        signUp(testInput);
-    }
-
-    protected void failSignUp() {
-        signUp();
-        if (config.getDebugFail()) {
-            Assert.fail("Test is failed for debug purpose.");
-        }
-    }
-
-    private void signUp(SignUpTestInput testInput) {
-        Reporter.log("<b>SignUp test execution started.</b>");
-
-        TestServerInterface testServer = TestServerManager.getTestServer();
-        SignUpTestResult testResult = testServer.signUp(testInput);
-
-        Assert.assertEquals(testResult.textInput(), testInput.textInput());
-        Assert.assertEquals(testResult.textareaInput(), testInput.textareaInput());
-        Assert.assertEquals(testResult.dropdownSelectedOption(), testInput.dropdownSelectedOption());
-        Assert.assertEquals(testResult.dataListSelectOption(), testInput.dataListSelectOption());
-        // TODO: Fix file path for remote run.
-        //Assert.assertTrue((testResult.filePath().contains("pom.xml")));
-        //TODO: fix checkbox value for Android
-        Assert.assertEquals(testResult.checkbox1Value(), testInput.checkbox1Value());
-        Assert.assertEquals(testResult.radiobutton1Value(), testInput.radiobutton1Value());
-        Assert.assertEquals(testResult.radiobutton2Value(), testInput.radiobutton2Value());
-        Assert.assertEquals(testResult.color(), testInput.color());
-        Assert.assertEquals(testResult.date(), testInput.date());
-        Assert.assertEquals(testResult.range(), testInput.range());
-
-        Reporter.log("<b>SignUp test execution finished.</b>");
     }
 
     private static void takeScreenshot(ITestResult result) {

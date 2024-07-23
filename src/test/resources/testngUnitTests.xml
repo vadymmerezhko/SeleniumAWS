@@ -2,7 +2,7 @@
 <suite name="Suite" parallel="methods">
     <test name="Test">
         <classes>
-            <class name="org.example.unit.tests.FileSystemUtilsTest"/>
+            <class name="org.example.unit.FileSystemUtilsTest"/>
         </classes>
     </test> <!-- Test -->
 </suite> <!-- Suite -->

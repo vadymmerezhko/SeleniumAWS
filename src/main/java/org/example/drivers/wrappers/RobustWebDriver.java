@@ -18,7 +18,7 @@ import static org.example.constants.Settings.*;
  */
 @Slf4j
 public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScreenshot {
-    static protected final Config config = new Config(CONFIG_PROPERTIES_FILE_NAME);
+    static protected final Config config = Config.getInstance();
     private static final int PAGE_LOAD_TIMEOUT_SEC = 15;
     private final WebDriver driver;
     private final RobustWebDriverWaiter waiter;
