@@ -44,7 +44,7 @@ jobs:
 
 
       - name: Unit Tests
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngUnitTests.xml"
+        run: mvn test "-DtestSuite=./src/test/resources/testngUnitTests.xml"
         continue-on-error: true
 
       # TODO: Uncomment when Maven exec plugin vulnerability is fixed.

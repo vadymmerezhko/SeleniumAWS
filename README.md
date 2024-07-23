@@ -1,4 +1,4 @@
-## SeleniumAWS 1.1.0
+## SeleniumAWS 1.2.0
 ### Command line parameters
 TestNG file name:
 ```bash
@@ -227,4 +227,8 @@ Runs tests in debug mode. User can define and fix element selectors at runtime.
 Use only headed mode and only one thread. 
 ```bash
 mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=local" "-Dbrowser=firefox:stable" "-Dheadless=false" "-DdebugMode=true"
+```
+#### Unit Tests
+```bash
+mvn clean test "-DtestSuite=./src/test/resources/testngUnitTests.xml"
 ```
