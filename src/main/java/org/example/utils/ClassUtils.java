@@ -1,7 +1,6 @@
 package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.WebDriverException;
 
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
@@ -13,6 +12,9 @@ import java.util.function.Supplier;
  */
 @Slf4j
 public final class ClassUtils {
+    private static final int MAX_RETRY_COUNT = 100;
+    private static final int MAX_WAIT_MILLISECONDS = 60 * 1000;
+
     private ClassUtils() {}
 
     /**
@@ -20,6 +22,8 @@ public final class ClassUtils {
      * @param methodName The method name.
      */
     public static void throwMethodNotImplementedException(String methodName) {
+        DataValidationUtils.validateNotBlank(methodName, "methodName");
+
         throw new RuntimeException(String.format("Method %s is not implemented.", methodName));
     }
 
@@ -30,6 +34,8 @@ public final class ClassUtils {
      * @return The field object or null.
      */
     public static String getClassFieldName(Object parentObject, Object fieldObject) {
+        DataValidationUtils.validateNotNull(parentObject, "parentObject");
+        DataValidationUtils.validateNotNull(fieldObject, "fieldObject");
 
         if (parentObject == null || fieldObject == null) {
             log.debug("Field name is null for parent object {} and field object {}.",
@@ -74,6 +80,12 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
+        DataValidationUtils.validateNotNull(action ,"action");
+        DataValidationUtils.validateNotBlank(methodName, "methodName");
+        DataValidationUtils.validateNotMultiline(methodName, "methodName");
+        DataValidationUtils.validateRange(retryCount, 0, MAX_RETRY_COUNT, "retryCount");
+        DataValidationUtils.validateRange(waitMilliseconds, 0, MAX_WAIT_MILLISECONDS, "waitMilliseconds");
+
         Exception lastException = null;
 
         for (int i = 1; i <= retryCount; i++) {
@@ -81,11 +93,11 @@ public final class ClassUtils {
                 action.run();
                 return;
             }
-            catch (WebDriverException e) {
+            catch (Exception e) {
                 if (fix != null) {
                     fix.accept(e);
                 }
-                WaiterUtils.waitSeconds(waitMilliseconds);
+                WaiterUtils.waitMilliSeconds(waitMilliseconds);
                 log.debug("Runnable Method '{}' retry: {}.", methodName, i);
                 lastException = e;
             }
@@ -114,6 +126,13 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
+        DataValidationUtils.validateNotNull(action ,"action");
+        DataValidationUtils.validateNotNull(parameter, "parameter");
+        DataValidationUtils.validateNotBlank(methodName, "methodName");
+        DataValidationUtils.validateNotMultiline(methodName, "methodName");
+        DataValidationUtils.validateRange(retryCount, 0, MAX_RETRY_COUNT, "retryCount");
+        DataValidationUtils.validateRange(waitMilliseconds, 0, MAX_WAIT_MILLISECONDS, "waitMilliseconds");
+
         Exception lastException = null;
 
         for (int i = 1; i <= retryCount; i++) {
@@ -121,11 +140,11 @@ public final class ClassUtils {
                 action.accept(parameter);
                 return;
             }
-            catch (WebDriverException e) {
+            catch (Exception e) {
                 if (fix != null) {
                     fix.accept(e);
                 }
-                WaiterUtils.waitSeconds(waitMilliseconds);
+                WaiterUtils.waitMilliSeconds(waitMilliseconds);
                 log.debug("Consumer method '{}' retry: {}.", methodName, i);
                 lastException = e;
             }
@@ -152,17 +171,23 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
+        DataValidationUtils.validateNotNull(action ,"action");
+        DataValidationUtils.validateNotBlank(methodName, "methodName");
+        DataValidationUtils.validateNotMultiline(methodName, "methodName");
+        DataValidationUtils.validateRange(retryCount, 0, MAX_RETRY_COUNT, "retryCount");
+        DataValidationUtils.validateRange(waitMilliseconds, 0, MAX_WAIT_MILLISECONDS, "waitMilliseconds");
+
         Exception lastException = null;
 
         for (int i = 1; i <= retryCount; i++) {
             try {
                 return action.get();
             }
-            catch (WebDriverException e) {
+            catch (Exception e) {
                 if (fix != null) {
                     fix.accept(e);
                 }
-                WaiterUtils.waitSeconds(waitMilliseconds);
+                WaiterUtils.waitMilliSeconds(waitMilliseconds);
                 log.debug("Supplier method '{}' retry: {}.", methodName, i);
                 lastException = e;
             }
@@ -191,17 +216,24 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
+        DataValidationUtils.validateNotNull(action ,"action");
+        DataValidationUtils.validateNotNull(parameter, "parameter");
+        DataValidationUtils.validateNotBlank(methodName, "methodName");
+        DataValidationUtils.validateNotMultiline(methodName, "methodName");
+        DataValidationUtils.validateRange(retryCount, 0, MAX_RETRY_COUNT, "retryCount");
+        DataValidationUtils.validateRange(waitMilliseconds, 0, MAX_WAIT_MILLISECONDS, "waitMilliseconds");
+
         Exception lastException = null;
 
         for (int i = 1; i <= retryCount; i++) {
             try {
                 return action.apply(parameter);
             }
-            catch (WebDriverException e) {
+            catch (Exception e) {
                 if (fix != null) {
                     fix.accept(e);
                 }
-                WaiterUtils.waitSeconds(waitMilliseconds);
+                WaiterUtils.waitMilliSeconds(waitMilliseconds);
                 log.debug("Function method '{}' retry: {}.", methodName, i);
                 lastException = e;
             }

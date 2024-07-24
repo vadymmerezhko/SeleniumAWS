@@ -13,7 +13,7 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param dataName The data name.
      */
-    public static void validateNotNull(String value, String dataName) {
+    public static void validateNotNull(Object value, String dataName) {
         if (value == null) {
             handleError(String.format("%s has NULL value.", dataName));
         }
