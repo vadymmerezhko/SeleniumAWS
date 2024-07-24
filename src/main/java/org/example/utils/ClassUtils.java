@@ -74,25 +74,8 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
-        Exception lastException = null;
 
-        for (int i = 1; i <= retryCount; i++) {
-            try {
-                action.run();
-                return;
-            }
-            catch (WebDriverException e) {
-                if (fix != null) {
-                    fix.accept(e);
-                }
-                WaiterUtils.waitSeconds(waitMilliseconds);
-                log.debug("Runnable Method '{}' retry: {}.", methodName, i);
-                lastException = e;
-            }
-        }
-        throw new RuntimeException(String.format(
-                "Failed to run runnable method '%s' after %d retries.",
-                methodName, retryCount), lastException);
+        performMethod(action, null, fix, methodName, retryCount, waitMilliseconds);
     }
 
     /**
@@ -114,25 +97,8 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
-        Exception lastException = null;
 
-        for (int i = 1; i <= retryCount; i++) {
-            try {
-                action.accept(parameter);
-                return;
-            }
-            catch (WebDriverException e) {
-                if (fix != null) {
-                    fix.accept(e);
-                }
-                WaiterUtils.waitSeconds(waitMilliseconds);
-                log.debug("Consumer method '{}' retry: {}.", methodName, i);
-                lastException = e;
-            }
-        }
-        throw new RuntimeException(String.format(
-                "Failed to run consumer method '%s' after %d retries.",
-                methodName, retryCount), lastException);
+        performMethod(action, parameter, fix, methodName, retryCount, waitMilliseconds);
     }
 
     /**
@@ -152,24 +118,8 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
-        Exception lastException = null;
 
-        for (int i = 1; i <= retryCount; i++) {
-            try {
-                return action.get();
-            }
-            catch (WebDriverException e) {
-                if (fix != null) {
-                    fix.accept(e);
-                }
-                WaiterUtils.waitSeconds(waitMilliseconds);
-                log.debug("Supplier method '{}' retry: {}.", methodName, i);
-                lastException = e;
-            }
-        }
-        throw new RuntimeException(String.format(
-                "Failed to run supplier method '%s' after %d retries.",
-                methodName, retryCount), lastException);
+        return performMethod(action, null, fix, methodName, retryCount, waitMilliseconds);
     }
 
     /**
@@ -191,23 +141,47 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
+
+        return performMethod(action, parameter, fix, methodName, retryCount, waitMilliseconds);
+    }
+
+    private static <P, R> R performMethod(
+            Object action,
+            P parameter,
+            Consumer<Exception> fix,
+            String methodName,
+            int retryCount,
+            int waitMilliseconds) {
         Exception lastException = null;
 
         for (int i = 1; i <= retryCount; i++) {
             try {
-                return action.apply(parameter);
+                if (action instanceof Runnable) {
+                    ((Runnable) action).run();
+                    return null;
+                }
+                else if (action instanceof Consumer<?>) {
+                    ((Consumer<P>) action).accept(parameter);
+                    return null;
+                }
+                else if (action instanceof Supplier<?>) {
+                    return ((Supplier<R>) action).get();
+                }
+                else if (action instanceof Function<?,?>) {
+                    return ((Function<P,R>) (action)).apply(parameter);
+                }
             }
             catch (WebDriverException e) {
                 if (fix != null) {
                     fix.accept(e);
                 }
                 WaiterUtils.waitSeconds(waitMilliseconds);
-                log.debug("Function method '{}' retry: {}.", methodName, i);
+                log.debug("Method '{}' retry: {}.", methodName, i);
                 lastException = e;
             }
         }
         throw new RuntimeException(String.format(
-                "Failed to run function method '%s' after %d retries.",
+                "Failed to run method '%s' after %d retries.",
                 methodName, retryCount), lastException);
     }
 }

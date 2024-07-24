@@ -23,8 +23,8 @@ public class Settings {
     public static final int RMI_SERVER_BASE_PORT = 4200;
     public static final int REMOTE_WEB_DRIVER_PORT = 4444;
     public static final int SERVER_WAIT_TIMEOUT_SECONDS = 120;
-    public static final int RETRY_WAIT_MILLISECONDS = 100;
-    public static final int RETRY_COUNT = 100;
+    public static final int RETRY_WAIT_MILLISECONDS = 200;
+    public static final int RETRY_COUNT = 10;
     public static final String RMI_SERVER_USER_DATA_TEMPLATE =
             "#!/bin/bash\n" +
             "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +
