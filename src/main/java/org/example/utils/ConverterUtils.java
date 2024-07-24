@@ -11,20 +11,6 @@ public class ConverterUtils {
     private ConverterUtils() {}
 
     /**
-     * Converts remote output to JSON string.
-     * @param remoteOutput The remote output string.
-     * @return The JSON string.
-     */
-    public static String convertRemoteOutputToJsonString(String remoteOutput) {
-        DataValidationUtils.validateNotBlank(remoteOutput, "remoteOutput");
-
-        String result = escapeJavaScriptExceptSingleQuotes(
-                remoteOutput.substring(1, remoteOutput.length() - 1));
-        log.debug("RMI output '{}' converted to JSON string: {}", remoteOutput, result);
-        return result;
-    }
-
-    /**
      * Escapes JavaScript string excluding double quotes.
      * @param javaScript The JavaScript string.
      * @return The escaped JavaScript string.
