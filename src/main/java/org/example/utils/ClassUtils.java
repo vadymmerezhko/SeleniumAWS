@@ -23,7 +23,6 @@ public final class ClassUtils {
      */
     public static void throwMethodNotImplementedException(String methodName) {
         DataValidationUtils.validateNotBlank(methodName, "methodName");
-
         throw new RuntimeException(String.format("Method %s is not implemented.", methodName));
     }
 
