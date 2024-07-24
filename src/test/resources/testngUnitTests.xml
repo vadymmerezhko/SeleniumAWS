@@ -3,6 +3,11 @@
     <test name="Test">
         <classes>
             <class name="org.example.unit.FileSystemUtilsTest"/>
+            <class name="org.example.unit.ZipFileUtilsTest"/>
+            <class name="org.example.unit.SystemUtilsTest"/>
+            <class name="org.example.unit.ClassUtilsTest"/>
+            <class name="org.example.unit.DataValidationUtilsTest"/>
+            <class name="org.example.unit.ConverterUtilsTest"/>
         </classes>
     </test> <!-- Test -->
 </suite> <!-- Suite -->

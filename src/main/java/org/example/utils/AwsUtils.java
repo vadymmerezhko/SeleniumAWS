@@ -168,7 +168,7 @@ public final class AwsUtils {
     public static String invokeLambdaFunction(String functionName, String inputJsonString) {
         try {
             AWSLambda client = getAwsLambdaClient();
-            String lambdaInput = ConverterUtils.convertJsonStringToRemoteInput(inputJsonString);
+            String lambdaInput = ConverterUtils.escapeJavaScriptExceptSingleQuotes(inputJsonString);
             InvokeRequest request = new InvokeRequest()
                     .withFunctionName(functionName)
                     .withPayload(lambdaInput);
@@ -203,8 +203,7 @@ public final class AwsUtils {
             if (lambdaOutputJsonString.contains(REQUEST_HANDLER_ERROR_MSG)) {
                 return lambdaOutputJsonString;
             }
-            return ConverterUtils.convertRemoteOutputToJsonString(
-                    ConverterUtils.convertRemoteOutputToJsonString(lambdaOutputJsonString));
+            return ConverterUtils.convertRemoteOutputToJsonString(lambdaOutputJsonString);
         }
         catch (Exception e) {
             throw new RuntimeException(e);

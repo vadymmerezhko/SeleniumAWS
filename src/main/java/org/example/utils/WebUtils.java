@@ -268,7 +268,7 @@ public class WebUtils {
         try {
             WebDriver driver = WebDriverFactory.getDriver();
             JavascriptExecutor js = (JavascriptExecutor) driver;
-            js.executeScript(String.format("alert('%s');", escapeJS(text)));
+            js.executeScript(String.format("alert('%s');", ConverterUtils.escapeJavaScriptExcludeDoubleQuote(text)));
 
             WebDriverWait wait = new WebDriverWait(driver,
                     Duration.ofSeconds(SHOW_POPUP_TIMEOUT_SECONDS));
@@ -311,7 +311,7 @@ public class WebUtils {
         String script = String.format(
                 "var result = prompt('%s:', '%s');" +
                 "document.getElementById('prompt-result').value = result;",
-                escapeJS(text), escapeJS(defaultValue));
+                ConverterUtils.escapeJavaScriptExcludeDoubleQuote(text), ConverterUtils.escapeJavaScriptExcludeDoubleQuote(defaultValue));
         jsExecutor.executeScript(script);
 
         // Wait for the alert (prompt) to be present
@@ -538,7 +538,7 @@ public class WebUtils {
 
             selector = HttpUtils.sendHttpRequest(
                     OPEN_AI_API_URL,
-                    String.format(OPEN_AI_REQUEST_FORMAT, escapeJSON(prompt)),
+                    String.format(OPEN_AI_REQUEST_FORMAT, ConverterUtils.escapeJavaScriptExceptSingleQuotes(prompt)),
                     System.getenv(OPEN_AI_API_KEY_NAME));
 
             if (selector == null || selector.trim().isEmpty()) {
@@ -584,7 +584,7 @@ public class WebUtils {
         if (text != null) {
             // Replace text placeholder with actual text (if any).
             // It can be more than one replacement.
-            String jsSelector =  escapeJS(text);
+            String jsSelector =  ConverterUtils.escapeJavaScriptExcludeDoubleQuote(text);
             selector = selector.replace("'%s'", String.format("'%s'", jsSelector))
                     .replace("\"%s\"", String.format("'%s'", jsSelector));
         }
@@ -1350,22 +1350,6 @@ public class WebUtils {
                 }
             }
         };
-    }
-
-    private static String escapeJS(String script) {
-        String escapedScript = script.replace("\\", "\\\\")
-                .replace("'", "\\'")
-                .replace("\n", "\\n");
-        log.debug("JS {} after escape: {}.", script, escapedScript);
-        return escapedScript;
-    }
-
-    private static String escapeJSON(String json) {
-        String escapedJson = json.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n");
-        log.debug("JS {} after escape: {}.", json, escapedJson);
-        return escapedJson;
     }
 
     private static void terminateAllTests() {
