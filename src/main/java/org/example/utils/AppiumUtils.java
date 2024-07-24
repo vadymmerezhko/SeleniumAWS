@@ -73,7 +73,7 @@ public final class AppiumUtils {
      * @param deviceName The device name.
      */
     public static void startEmulator(String deviceName) {
-        CommandLineUtils.runCommandLine("emulator -avd " + deviceName);
+        SystemUtils.runCommandLine("emulator -avd " + deviceName);
     }
 
     /**
@@ -134,7 +134,7 @@ public final class AppiumUtils {
     public static void stopAllEmulators() {
         String killCommandLine =
                 SystemUtils.isWindows() ? "taskkill /f /t /im qemu-system-x86_64.exe" : "pkill qemu-system-x86_64";
-        CommandLineUtils.runCommandLine(killCommandLine);
+        SystemUtils.runCommandLine(killCommandLine);
     }
 
     private static String getStringProperty(String emulatorName, String propertyName) {

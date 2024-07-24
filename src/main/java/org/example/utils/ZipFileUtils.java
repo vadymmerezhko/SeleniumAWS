@@ -1,58 +1,101 @@
 package org.example.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.AesKeyStrength;
+import net.lingala.zip4j.model.enums.CompressionMethod;
+import net.lingala.zip4j.model.enums.EncryptionMethod;
 
 import java.io.File;
 
 /**
  * Zip manager class.
  */
+@Slf4j
 public final class ZipFileUtils {
 
     private ZipFileUtils() {}
 
     /**
      * Unzips zipped file.
-     * @param source The zipped file path.
-     * @param destination The unzipped file path.
+     * @param zipFilePath The zipped file path.
+     * @param folderPath The unzipped file path.
      */
-    public static void unzip(String source, String destination) {
-        unzip(source, destination, null);
+    public static void unzip(String zipFilePath, String folderPath) {
+        DataValidationUtils.validateFilePath(zipFilePath, "zipFilePath");
+        DataValidationUtils.validateFilePath(folderPath, "folderPath");
+
+        unzip(zipFilePath, folderPath, null);
     }
 
     /**
      * Unzips zipped file protected with password.
-     * @param source The zipped file path.
-     * @param destination The unzipped file path.
+     * @param zipFilePath The zipped file path.
+     * @param folderPath The unzipped file path.
      * @param password The password.
      */
-    public static void unzip(String source, String destination, String password) {
+    public static void unzip(String zipFilePath, String folderPath, String password) {
+        DataValidationUtils.validateFilePath(zipFilePath, "zipFilePath");
+        DataValidationUtils.validateFolderPath(folderPath, "folderPath");
+
         try {
-            ZipFile zipFile = new ZipFile(source);
+            ZipFile zipFile = new ZipFile(zipFilePath);
             if (zipFile.isEncrypted()) {
                 zipFile.setPassword(password.toCharArray());
             }
-            zipFile.extractAll(destination);
+            zipFile.extractAll(folderPath);
             zipFile.close();
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(String.format(
+                    "Cannot unzip file %s to folder %s.",
+                    zipFilePath, folderPath), e);
         }
     }
 
     /**
      * Zips file folder.
-     * @param folderSource The folder path.
-     * @param destination The destination path.
+     * @param folderPath The folder path.
+     * @param zipFilePath The destination path.
      */
-    public static void zipFolder(String folderSource, String destination) {
+    public static void zip(String folderPath, String zipFilePath) {
+        zip(folderPath, zipFilePath, null);
+    }
+
+    /**
+     * Zips folder with password.
+     * @param folderPath The folder path.
+     * @param zipFilePath The zip file.
+     * @param password The password.
+     */
+    public static void zip(String folderPath, String zipFilePath, String password) {
+        DataValidationUtils.validateFolderPath(folderPath, "folderPath");
+        DataValidationUtils.validateFilePath(zipFilePath, "zipFilePath");
+
         try {
-            ZipFile zipFile = new ZipFile(destination);
-            zipFile.addFolder(new File(folderSource));
+            ZipFile zipFile;
+
+            if (password != null) {
+                zipFile = new ZipFile(zipFilePath, password.toCharArray());
+                ZipParameters parameters = new ZipParameters();
+                parameters.setEncryptFiles(true);
+                parameters.setEncryptionMethod(EncryptionMethod.AES);
+                parameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
+                parameters.setCompressionMethod(CompressionMethod.DEFLATE);
+                zipFile.addFolder(new File(folderPath), parameters);
+            } else {
+                zipFile = new ZipFile(zipFilePath);
+                zipFile.addFolder(new File(folderPath));
+            }
             zipFile.close();
+            log.debug("Folder {} successfully zipped to {}.",
+                    folderPath, zipFilePath);
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(String.format(
+                    "Cannot zip folder %s to zip file %s.",
+                    folderPath, zipFilePath), e);
         }
     }
 }

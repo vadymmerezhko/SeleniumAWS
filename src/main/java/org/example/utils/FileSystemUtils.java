@@ -26,6 +26,10 @@ public final class FileSystemUtils {
      */
     public static synchronized void createFile(String folderPath, String fileName, String fileContent) {
         try {
+            DataValidationUtils.validateFolderPath(folderPath, "folderPath");
+            DataValidationUtils.validateFilePath(fileName, "fileName");
+            DataValidationUtils.validateNotNull(fileContent, "fileContent");
+
             Writer fileWriter = new FileWriter(String.format("%s/%s", folderPath, fileName), false);
             BufferedWriter br = new BufferedWriter(fileWriter);
             br.write(fileContent);
@@ -44,6 +48,9 @@ public final class FileSystemUtils {
      * @param fileContent The file content.
      */
     public static synchronized void createFile(String filePath, String fileContent) {
+        DataValidationUtils.validateFilePath(filePath, "filePath");
+        DataValidationUtils.validateNotNull(fileContent, "fileContent");
+
         try {
             File file = new File(filePath);
             createFile(file.getParent(), file.getName(), fileContent);
@@ -59,6 +66,8 @@ public final class FileSystemUtils {
      * @param folderPath The target folder path.
      */
     public static synchronized void createFolder(String folderPath) {
+        DataValidationUtils.validateFolderPath(folderPath, "folderPath");
+
         try {
             File folder = new File(folderPath);
             if (!folder.exists()) {
@@ -70,7 +79,8 @@ public final class FileSystemUtils {
             }
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(String.format(
+                    "Cannot create folder %s.", folderPath), e);
         }
     }
 
@@ -80,6 +90,8 @@ public final class FileSystemUtils {
      * @return The file content.
      */
     public static synchronized String readFile(String filePath) {
+        DataValidationUtils.validateFilePath(filePath, "filePath");
+
         try {
             String fileContent = Files.readString(Paths.get(filePath));
             log.debug("File {} is read with content: {}", filePath, fileContent);
@@ -87,7 +99,7 @@ public final class FileSystemUtils {
         }
         catch (IOException e) {
             throw new RuntimeException(String.format(
-                    "Cannot read from file %s\n%s", filePath, e.getMessage()));
+                    "Cannot read from file %s.", filePath), e);
         }
     }
 
@@ -96,14 +108,21 @@ public final class FileSystemUtils {
      * @param filePath The file path.
      */
     public static synchronized void deleteFile(String filePath) {
-        File file = new File(filePath);
+        DataValidationUtils.validateFilePath(filePath, "filePath");
+        try {
+            // Validate file path.
+            Paths.get(filePath);
+            File file = new File(filePath);
 
-        if (file.exists()) {
-            if (file.delete()) {
-                log.debug("File: {} is deleted.", filePath);
-            } else {
-                throw new RuntimeException("Cannot delete file: " + filePath);
+            if (file.exists()) {
+                if (file.delete()) {
+                    log.debug("File: {} is deleted or was not present.", filePath);
+                } else {
+                    throw new RuntimeException("Cannot delete file: " + filePath);
+                }
             }
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot delete file: " + filePath, e);
         }
     }
 
@@ -112,6 +131,8 @@ public final class FileSystemUtils {
      * @param folderPath The directory path.
      */
     public static synchronized void deleteFolder(String folderPath) {
+        DataValidationUtils.validateFolderPath(folderPath, "folderPath");
+
         File directory = new File(folderPath);
         try {
             FileUtils.deleteDirectory(directory);
@@ -119,7 +140,7 @@ public final class FileSystemUtils {
         }
         catch (IOException e) {
             throw new RuntimeException(String.format(
-                    "Cannot delete folder %s\n%s" , folderPath, e.getMessage()));
+                    "Cannot delete folder %s." , folderPath), e);
         }
     }
 
@@ -129,13 +150,17 @@ public final class FileSystemUtils {
      * @param toPath The target path.
      */
     public static synchronized void moveFile(String fromPath, String toPath) {
+        DataValidationUtils.validateFilePath(fromPath, "fromPath");
+        DataValidationUtils.validateFilePath(toPath, "toPath");
+
         try {
             FileUtils.moveFile(FileUtils.getFile(fromPath), FileUtils.getFile(toPath));
             log.debug("File: {} is moved to {}.", fromPath, toPath);
         }
         catch (Exception e) {
             throw new RuntimeException(
-                    String.format("Cannot move file %s to %s\n%s", fromPath, toPath, e.getMessage()));
+                    String.format("Cannot move file %s to %s.",
+                            fromPath, toPath), e);
         }
     }
 
@@ -145,8 +170,10 @@ public final class FileSystemUtils {
      * @return The true/false flag.
      */
     public static boolean fileExists(String filePath) {
+        DataValidationUtils.validateFolderPath(filePath, "filePath");
+
         boolean exists = new File(filePath).exists();
-        log.debug("File: {} is exist={}", filePath, exists);
+        log.debug("File: {} exists: {}", filePath, exists);
         return exists;
     }
 
@@ -156,6 +183,7 @@ public final class FileSystemUtils {
      * @return The set of file names.
      */
     public static Set<String> getFileNamesInFolder(String folderPath) {
+        DataValidationUtils.validateFolderPath(folderPath, "folderPath");
         Set<String> fileNames = new HashSet<>();
 
         try {
@@ -194,6 +222,8 @@ public final class FileSystemUtils {
      * @return The file extension, or an empty string if no extension found.
      */
     public static String getFileExtension(String fileName) {
+        DataValidationUtils.validateFilePath(fileName, "fileName");
+
         String extension = "";
         try {
             // Check file name format.
@@ -219,6 +249,8 @@ public final class FileSystemUtils {
      * @return The file name without extension.
      */
     public static String getFileNameWithoutExtension(String fileName) {
+        DataValidationUtils.validateFilePath(fileName, "fileName");
+
         try {
             // Check file name format.
             fileName = new File(fileName).getName();

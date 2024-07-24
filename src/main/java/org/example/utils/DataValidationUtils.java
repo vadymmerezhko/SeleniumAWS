@@ -2,6 +2,8 @@ package org.example.utils;
 
 import org.example.exceptions.DataValidationException;
 
+import java.nio.file.Paths;
+
 public final class DataValidationUtils {
 
     private DataValidationUtils() {}
@@ -11,7 +13,7 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param dataName The data name.
      */
-    public static void validateNotNull(String value, String dataName) {
+    public static void validateNotNull(Object value, String dataName) {
         if (value == null) {
             handleError(String.format("%s has NULL value.", dataName));
         }
@@ -88,6 +90,34 @@ public final class DataValidationUtils {
         if (value < from || value > to) {
             handleError(String.format("%s has invalid [%d:%d] range value: %d",
                     dataName, from, to, value));
+        }
+    }
+
+    /**
+     * Validates file path.
+     * Throws exception if path is invalid.
+     * @param filePath Yhe file  path.
+     */
+    public static void validateFilePath(String filePath, String dataName) {
+        validateNotBlank(filePath, dataName);
+        try {
+            Paths.get(filePath);
+        } catch (Exception e){
+            handleError(String.format("Invalid file path: %s", filePath));
+        }
+    }
+
+    /**
+     * Validates file path.
+     * Throws exception if path is invalid.
+     * @param folderPath Yhe file  path.
+     */
+    public static void validateFolderPath(String folderPath, String dataName) {
+        validateNotNull(folderPath, dataName);
+        try {
+            Paths.get(folderPath);
+        } catch (Exception e){
+            handleError(String.format("Invalid folder path: %s", folderPath));
         }
     }
 

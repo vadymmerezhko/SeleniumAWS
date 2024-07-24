@@ -1,7 +1,6 @@
 package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.WebDriverException;
 
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
@@ -171,7 +170,7 @@ public final class ClassUtils {
                     return ((Function<P,R>) (action)).apply(parameter);
                 }
             }
-            catch (WebDriverException e) {
+            catch (Exception e) {
                 if (fix != null) {
                     fix.accept(e);
                 }
