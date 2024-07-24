@@ -35,7 +35,7 @@ public class LocalTestRunner {
             runtTestCommandLine = String.format("sudo %s", runtTestCommandLine);
         }
 
-        String testOutput = CommandLineUtils.runCommandLine(runtTestCommandLine);
+        String testOutput = SystemUtils.runCommandLine(runtTestCommandLine);
         String zipFileName = String.format(TEST_REPORT_ZIP_FILE_NAME_TEMPLATE, startDate);
         String zipFilePath = String.format("%s/%s", TARGET_FOLDER_PATH, zipFileName);
 

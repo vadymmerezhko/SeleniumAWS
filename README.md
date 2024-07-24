@@ -1,4 +1,4 @@
-## SeleniumAWS 1.5.0
+## SeleniumAWS 1.6.0
 ### Command line parameters
 TestNG file name:
 ```bash

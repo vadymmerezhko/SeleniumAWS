@@ -3,8 +3,8 @@ package org.example.servers;
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.Config;
 import org.example.rmi.RmiServer;
-import org.example.utils.CommandLineUtils;
 import org.example.utils.ServerUtils;
+import org.example.utils.SystemUtils;
 import org.example.utils.WaiterUtils;
 
 import java.rmi.RemoteException;
@@ -79,7 +79,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
     }
 
     private static String getCurrentEc2PublicIp() {
-        String output = CommandLineUtils.runCommandLine(GET_EC2_PUBLIC_IP_COMMAND_LINE);
+        String output = SystemUtils.runCommandLine(GET_EC2_PUBLIC_IP_COMMAND_LINE);
         return output.substring(0, output.indexOf("\n"));
     }
 }
