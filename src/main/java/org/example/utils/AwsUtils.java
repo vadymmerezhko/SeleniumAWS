@@ -203,7 +203,8 @@ public final class AwsUtils {
             if (lambdaOutputJsonString.contains(REQUEST_HANDLER_ERROR_MSG)) {
                 return lambdaOutputJsonString;
             }
-            return ConverterUtils.convertRemoteOutputToJsonString(lambdaOutputJsonString);
+            return ConverterUtils.escapeJavaScriptExceptSingleQuotes(
+                    lambdaOutputJsonString.substring(1, lambdaOutputJsonString.length() - 1));
         }
         catch (Exception e) {
             throw new RuntimeException(e);

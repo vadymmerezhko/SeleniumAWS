@@ -5,21 +5,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class ConverterUtilsTest {
-
-    @Test
-    public void testConvertRemoteOutputToJsonString() {
-        String remoteOutput = "\"{\\\"key\\\":\\\"John's book\\\"}\"";
-        String expected = "{\\\\\\\"key\\\\\\\":\\\\\\\"John's book\\\\\\\"}";
-        String actual = ConverterUtils.convertRemoteOutputToJsonString(remoteOutput);
-        Assert.assertEquals(actual, expected, "The conversion from remote output to " +
-                "JSON string did not work as expected.");
-    }
-
-    @Test(expectedExceptions = RuntimeException.class)
-    public void testConvertRemoteOutputToJsonStringWithNullInput() {
-        ConverterUtils.convertRemoteOutputToJsonString(null);
-    }
-
     @Test
     public void testEscapeJavaScriptExcludeDoubleQuote() {
         String javaScript = "var x = \"John\\'s book\"; // Example code";

@@ -30,7 +30,9 @@ public class RmiClient {
             if (methodInput.contains(REQUEST_HANDLER_ERROR_MSG)) {
                 return methodOutput;
             }
-            return ConverterUtils.convertRemoteOutputToJsonString(methodOutput);
+            return ConverterUtils.escapeJavaScriptExceptSingleQuotes(
+                    methodOutput.substring(1, methodOutput.length() - 1));
+
         }
         catch (Exception e) {
             throw new RuntimeException(e);
