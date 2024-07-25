@@ -9,6 +9,7 @@
             <class name="org.example.unit.DataValidationUtilsTest"/>
             <class name="org.example.unit.ConverterUtilsTest"/>
             <class name="org.example.unit.RecordUtilsTest"/>
+            <class name="org.example.unit.WaiterUtilsTest"/>
             <class name="org.example.unit.TimeOutTest"/>
         </classes>
     </test> <!-- Test -->
