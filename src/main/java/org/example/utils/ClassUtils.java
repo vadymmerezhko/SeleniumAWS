@@ -12,6 +12,9 @@ import java.util.function.Supplier;
  */
 @Slf4j
 public final class ClassUtils {
+    private  static final int MAX_RETRY_COUNT = 100;
+    private  static final int MAX_WAIT_MILLISECONDS = 60 * 1000;
+
     private ClassUtils() {}
 
     /**
@@ -19,6 +22,7 @@ public final class ClassUtils {
      * @param methodName The method name.
      */
     public static void throwMethodNotImplementedException(String methodName) {
+        DataValidationUtils.validateNotBlank(methodName, "methodName");
         throw new RuntimeException(String.format("Method %s is not implemented.", methodName));
     }
 
@@ -29,6 +33,8 @@ public final class ClassUtils {
      * @return The field object or null.
      */
     public static String getClassFieldName(Object parentObject, Object fieldObject) {
+        DataValidationUtils.validateNotNull(parentObject, "parentObject");
+        DataValidationUtils.validateNotNull(fieldObject, "fieldObject");
 
         if (parentObject == null || fieldObject == null) {
             log.debug("Field name is null for parent object {} and field object {}.",
@@ -64,8 +70,8 @@ public final class ClassUtils {
      * @param fix The fix method that has Exception parameter.
      *            Optional - can be null.
      * @param methodName - The method name for logging.
-     * @param retryCount - The number of reties.
-     * @param waitMilliseconds - The wait milliseconds before next try.
+     * @param retryCount - The number of reties from 1 to 100.
+     * @param waitMilliseconds - The wait milliseconds from 0 to 1 60000.
      */
     public static void performRunnableMethod(
             Runnable action,
@@ -73,7 +79,6 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
-
         performMethod(action, null, fix, methodName, retryCount, waitMilliseconds);
     }
 
@@ -86,8 +91,8 @@ public final class ClassUtils {
      * @param fix The fix method that has Exception parameter.
      *            Optional - can be null.
      * @param methodName - The method name for logging.
-     * @param retryCount - The number of reties.
-     * @param waitMilliseconds - The wait milliseconds before next try.
+     * @param retryCount - The number of reties from 1 to 100.
+     * @param waitMilliseconds - The wait milliseconds from 0 to 1 60000.
      */
     public static <P> void performConsumerMethod(
             Consumer<P> action,
@@ -96,7 +101,7 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
-
+        DataValidationUtils.validateNotNull(parameter, "parameter");
         performMethod(action, parameter, fix, methodName, retryCount, waitMilliseconds);
     }
 
@@ -108,8 +113,9 @@ public final class ClassUtils {
      * @param fix The fix method that has Exception parameter.
      *            Optional - can be null.
      * @param methodName - The method name for logging.
-     * @param retryCount - The number of reties.
-     * @param waitMilliseconds - The wait milliseconds before next try.
+     * @param retryCount - The number of reties from 1 to 100.
+     * @param waitMilliseconds - The wait milliseconds before next try
+     *                         from 0 to 1 60000.
      */
     public static <R> R performSupplierMethod(
             Supplier<R> action,
@@ -117,7 +123,6 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
-
         return performMethod(action, null, fix, methodName, retryCount, waitMilliseconds);
     }
 
@@ -130,8 +135,8 @@ public final class ClassUtils {
      * @param fix The fix method that has Exception parameter.
      *            Optional - can be null.
      * @param methodName - The method name for logging.
-     * @param retryCount - The number of reties.
-     * @param waitMilliseconds - The wait milliseconds before next try.
+     * @param retryCount - The number of reties from 1 to 100.
+     * @param waitMilliseconds - The wait milliseconds from 0 to 1 60000.
      */
     public static <P, R> R performFunctionMethod(
             Function<P, R> action,
@@ -140,7 +145,7 @@ public final class ClassUtils {
             String methodName,
             int retryCount,
             int waitMilliseconds) {
-
+        DataValidationUtils.validateNotNull(parameter, "parameter");
         return performMethod(action, parameter, fix, methodName, retryCount, waitMilliseconds);
     }
 
@@ -152,6 +157,11 @@ public final class ClassUtils {
             int retryCount,
             int waitMilliseconds) {
         Exception lastException = null;
+
+        DataValidationUtils.validateNotNull(action, "action");
+        DataValidationUtils.validateNotBlank(methodName, "methodName");
+        DataValidationUtils.validateRange(retryCount, 1, MAX_RETRY_COUNT, "retryCount");
+        DataValidationUtils.validateRange(waitMilliseconds,0, MAX_WAIT_MILLISECONDS, "waitMilliseconds");
 
         for (int i = 1; i <= retryCount; i++) {
             try {
