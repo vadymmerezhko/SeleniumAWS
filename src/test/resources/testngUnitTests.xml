@@ -8,6 +8,7 @@
             <class name="org.example.unit.ClassUtilsTest"/>
             <class name="org.example.unit.DataValidationUtilsTest"/>
             <class name="org.example.unit.ConverterUtilsTest"/>
+            <class name="org.example.unit.WaiterUtilsTest"/>
         </classes>
     </test> <!-- Test -->
 </suite> <!-- Suite -->

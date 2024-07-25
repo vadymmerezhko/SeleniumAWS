@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.example</groupId>
     <artifactId>SeleniumTestNGParentPom</artifactId>
-    <version>1.8.2</version>
+    <version>1.8.4</version>
     <relativePath>./parent-pom.xml</relativePath>
   </parent>
 
   <artifactId>SeleniumTestNG</artifactId>
-  <version>1.8.2</version>
+  <version>1.8.4</version>
   <packaging>jar</packaging>
 
   <name>SeleniumTestNG</name>
