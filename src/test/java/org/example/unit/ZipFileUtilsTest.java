@@ -1,5 +1,7 @@
 package org.example.unit;
 
+import org.example.exceptions.SmartRuntimeException;
+import org.example.exceptions.SmartValidationException;
 import org.example.utils.ZipFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -26,7 +28,7 @@ public class ZipFileUtilsTest {
         Assert.assertTrue(Files.exists(unzippedFolder.resolve("file.txt")));
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testUnzipInvalidPath() {
         // Pass invalid paths
         ZipFileUtils.unzip("does_not_exist.zip", "invalid_unzip_path");
@@ -49,7 +51,7 @@ public class ZipFileUtilsTest {
         Assert.assertTrue(Files.exists(unzippedFolder.resolve("file.txt")));
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testUnzipWithWrongPassword() throws IOException {
         // Assuming there is a valid zip file at "src/test/resources/test.zip"
         Path zippedFile = Files.createTempFile("test", ".zip");
@@ -80,7 +82,7 @@ public class ZipFileUtilsTest {
         Assert.assertTrue(Files.exists(resultingZip) && Files.size(resultingZip) > 0);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testZipFolderInvalid() {
         // Test zipping a non-existing folder
         ZipFileUtils.zip("non_existent_folder", "result.zip");

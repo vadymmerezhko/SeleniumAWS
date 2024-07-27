@@ -1,5 +1,7 @@
 package org.example.unit;
 
+import org.example.exceptions.SmartRuntimeException;
+import org.example.exceptions.SmartValidationException;
 import org.example.utils.FileSystemUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -49,39 +51,39 @@ public class FileSystemUtilsTest {
         Files.deleteIfExists(tempDir);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testCreateFileByFilePathWrongPath() {
         FileSystemUtils.createFile("wrong*", "Some content");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testCreateFileByFilePathNullPath() {
         FileSystemUtils.createFile(null, "Some content");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testCreateFileWrongFolderPath() {
         FileSystemUtils.createFile("wrong>", "test.txt", "Some content");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testCreateFileNullFolderPath() {
         FileSystemUtils.createFile(null, "test.txt", "Some content");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testCreateFileWrongFileName() throws IOException {
         Path tempDir = Files.createTempDirectory("testDir");
         FileSystemUtils.createFile(tempDir.toString(), "wrong*", "Some content");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testCreateFileBlankFileName() throws IOException {
         Path tempDir = Files.createTempDirectory("testDir");
         FileSystemUtils.createFile(tempDir.toString(), "", "Some content");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testCreateFileNullContent() throws IOException {
         Path tempDir = Files.createTempDirectory("testDir");
         FileSystemUtils.createFile(tempDir.toString(), "test.txt", null);
@@ -101,12 +103,12 @@ public class FileSystemUtilsTest {
         Files.deleteIfExists(tempFile);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testReadFileWrongFilePath() {
         FileSystemUtils.readFile("wrong*");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testReadFileBlankFilePath() {
         FileSystemUtils.readFile(" ");
     }
@@ -121,12 +123,12 @@ public class FileSystemUtilsTest {
         Assert.assertFalse(Files.exists(tempFile), "File should be deleted");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testDeleteFileWrongFilePath() {
         FileSystemUtils.deleteFile("wrong*");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testDeleteFileBlankFilePath() {
         FileSystemUtils.deleteFile("");
     }
@@ -141,12 +143,12 @@ public class FileSystemUtilsTest {
         Files.deleteIfExists(tempFile);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testFileWrongFilePathExists() {
         FileSystemUtils.fileExists("wrong*");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testFileBlankFilePathExists() {
         FileSystemUtils.fileExists(" ");
     }

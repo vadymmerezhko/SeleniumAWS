@@ -1,6 +1,7 @@
 package org.example.unit;
 
 import org.example.enums.Platform;
+import org.example.exceptions.SmartValidationException;
 import org.example.utils.SystemUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -31,12 +32,12 @@ public class SystemUtilsTest {
         Assert.assertTrue(output.contains("Hello"));
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testRunCommandLineNullInvalid() {
         SystemUtils.runCommandLine(null);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testRunCommandLineBlankInvalid() {
         SystemUtils.runCommandLine("   ");
     }

@@ -206,7 +206,7 @@ public final class ClassUtils {
                     if (fix != null) {
                         fix.accept(e);
                     }
-                    WaiterUtils.waitSeconds(waitMilliseconds);
+                    WaiterUtils.waitMilliSeconds(waitMilliseconds);
                     log.debug("Method '{}' retry: {}.", methodName, i);
                     lastException = e;
                 }

@@ -1,5 +1,6 @@
 package org.example.unit;
 
+import org.example.exceptions.SmartValidationException;
 import org.example.utils.ConverterUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -23,12 +24,12 @@ public class ConverterUtilsTest {
                 "JavaScript was not properly escaped when excluding single quotes.");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testEscapeJavaScriptExcludeDoubleQuoteNullInput() {
         ConverterUtils.escapeJavaScriptExcludeDoubleQuote(null);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testEscapeJavaScriptExceptSingleQuotesNullInput() {
         ConverterUtils.escapeJavaScriptExceptSingleQuotes(null);
     }

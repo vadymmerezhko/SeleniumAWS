@@ -2,6 +2,7 @@ package org.example.unit;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
+import org.example.exceptions.SmartValidationException;
 import org.example.utils.ClassUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -32,17 +33,17 @@ public class ClassUtilsTest {
         Assert.assertNull(ClassUtils.getClassFieldName(testClass, new Object()));
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testThrowMethodNotImplementedException() {
         ClassUtils.throwMethodNotImplementedException("someMethod");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testThrowMethodNotImplementedExceptionWithEmptyName() {
         ClassUtils.throwMethodNotImplementedException("");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testThrowMethodNotImplementedExceptionWithNullName() {
         ClassUtils.throwMethodNotImplementedException(null);
     }
@@ -71,7 +72,7 @@ public class ClassUtilsTest {
         Assert.assertEquals(attemptCounter.get(), 3);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testPerformRunnableMethodFailure() {
         Runnable action = () -> {
             throw new SmartRuntimeException("Fail every time");
@@ -103,7 +104,7 @@ public class ClassUtilsTest {
         Assert.assertEquals(attemptCounter.get(), 3);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testPerformConsumerMethodFailure() {
         Consumer<String> action = (s) -> {
             throw new SmartRuntimeException("Fail every time");
@@ -137,7 +138,7 @@ public class ClassUtilsTest {
         Assert.assertEquals(attemptCounter.get(), 3);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testPerformSupplierMethodFailure() {
         Supplier<String> action = () -> {
             throw new SmartRuntimeException("Fail every time");
@@ -171,7 +172,7 @@ public class ClassUtilsTest {
         Assert.assertEquals(attemptCounter.get(), 3);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testPerformFunctionMethodFailure() {
         Function<String, String> action = (s) -> {
             throw new SmartRuntimeException("Fail every time");

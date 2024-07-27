@@ -1,5 +1,6 @@
 package org.example.unit;
 
+import org.example.exceptions.SmartValidationException;
 import org.example.utils.WaiterUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -24,12 +25,12 @@ public class WaiterUtilsTest {
         Assert.assertTrue((endTime - startTime) >= waitTime, "Did not wait for at least " + waitTime + " milliseconds.");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testWaitSecondsNegative() {
         WaiterUtils.waitSeconds(-1);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testWaitMilliSecondsNegative() {
      WaiterUtils.waitMilliSeconds(-1);
     }

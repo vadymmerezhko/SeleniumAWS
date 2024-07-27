@@ -1,5 +1,7 @@
 package org.example.unit;
 
+import org.example.exceptions.SmartRuntimeException;
+import org.example.exceptions.SmartValidationException;
 import org.example.utils.RecordUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -16,7 +18,7 @@ public class RecordUtilsTest {
         Assert.assertEquals(actualJson, expectedJson, "The JSON output is not as expected.");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testRecordToStringWithNullRecord() {
         RecordUtils.recordToString(null);
     }
@@ -30,24 +32,24 @@ public class RecordUtilsTest {
         Assert.assertEquals(actualRecord.age, expectedRecord.age, "Age does not match.");
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToRecordWithInvalidJson() {
         String invalidJson = "invalid json string";
         RecordUtils.stringToRecord(invalidJson, ExampleRecord.class);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToRecordWithNullJsonString() {
         RecordUtils.stringToRecord(null, ExampleRecord.class);
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToRecordWithWrongRecordClass() {
         String jsonString = "{\"name\":\"Jane Doe\",\"age\":25}";
         RecordUtils.stringToRecord(jsonString, this.getClass());
     }
 
-    @Test(expectedExceptions = RuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToRecordWithNullRecordClass() {
         String validJson = "{\"name\":\"John Doe\",\"age\":30}";
         RecordUtils.stringToRecord(validJson, null);
