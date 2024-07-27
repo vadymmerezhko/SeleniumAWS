@@ -1,14 +1,12 @@
 {
   "chrome": {
     "windows64": {
-      "stable":  "https://storage.googleapis.com/chrome-for-testing-public/126.0.6478.61/win64/chrome-win64.zip",
-      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.4/win64/chrome-win64.zip",
-      "canary": "https://storage.googleapis.com/chrome-for-testing-public/128.0.6535.2/win64/chrome-win64.zip"
+      "stable":  "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.72/win64/chrome-win64.zip",
+      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.57/win64/chrome-win64.zip",
     },
     "linux64": {
-      "stable": "https://storage.googleapis.com/chrome-for-testing-public/126.0.6478.61/linux64/chrome-linux64.zip",
-      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.4/linux64/chrome-linux64.zip",
-      "canary": "https://storage.googleapis.com/chrome-for-testing-public/128.0.6543.0/linux64/chrome-linux64.zip"
+      "stable": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.72/linux64/chrome-linux64.zip",
+      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.57/linux64/chrome-linux64.zip",
     }
   }
 }
