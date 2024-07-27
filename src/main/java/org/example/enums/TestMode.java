@@ -1,5 +1,7 @@
 package org.example.enums;
 
+import org.example.exceptions.SmartRuntimeException;
+
 public enum TestMode {
     LOCAL("local"),
     LOCAL_AUTO("local_auto"),
@@ -30,7 +32,7 @@ public enum TestMode {
                 return value;
             }
         }
-        throw new RuntimeException(String.format(
+        throw new SmartRuntimeException(String.format(
                 "Cannot convert '%s' to TestMode enum item.", name));
     }
 }

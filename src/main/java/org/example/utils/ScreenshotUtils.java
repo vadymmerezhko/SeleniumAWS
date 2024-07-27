@@ -1,5 +1,6 @@
 package org.example.utils;
 
+import org.example.exceptions.SmartRuntimeException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebDriverException;
 
@@ -41,6 +42,6 @@ public final class ScreenshotUtils {
                 throw new WebDriverException(var4);
             }
         }
-        throw new RuntimeException(String.format("Wrong screenshot type: %s", target));
+        throw new SmartRuntimeException(String.format("Wrong screenshot type: %s", target));
     }
 }

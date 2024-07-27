@@ -3,6 +3,7 @@ package org.example.balancers;
 import lombok.extern.slf4j.Slf4j;
 import org.example.constants.Settings;
 import org.example.enums.BrowserName;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ServerUtils;
 
 import java.util.*;
@@ -49,7 +50,7 @@ public class LoadBalancer {
         serverLockMap.add(serverId);
 
         if (serverLockMap.size() == maxServersCount.get()) {
-            throw new RuntimeException("All Selenium Servers are locked!");
+            throw new SmartRuntimeException("All Selenium Servers are locked!");
         }
     }
 

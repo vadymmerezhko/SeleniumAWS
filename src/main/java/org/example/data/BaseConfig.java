@@ -1,5 +1,7 @@
 package org.example.data;
 
+import org.example.exceptions.SmartRuntimeException;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,7 +38,7 @@ public abstract class BaseConfig {
             }
 
             if (propertyValue == null) {
-                throw new RuntimeException(String.format(
+                throw new SmartRuntimeException(String.format(
                         "configuration property '%s' is undefined.", propertyName));
             }
             stringPropertyMap.put(propertyName, propertyValue);
@@ -66,7 +68,7 @@ public abstract class BaseConfig {
     protected String getSubValue(String value, int index) {
         String[] subValues = value.split(VALUES_DELIMITER);
         if (subValues.length <= index) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Config value '%s' doesn't have the part %d.", value, index + 1));
         }
         return subValues[index];
@@ -83,7 +85,8 @@ public abstract class BaseConfig {
             try {
                 configProperties.load(new FileInputStream(filePath));
             } catch (IOException e) {
-                throw new RuntimeException("Cannot initialize config properties file:\n" + e.getMessage());
+                throw new SmartRuntimeException(
+                        "Cannot initialize config properties file.", e);
             }
         }
         return configProperties;

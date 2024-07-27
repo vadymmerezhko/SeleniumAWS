@@ -4,6 +4,7 @@ import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import io.appium.java_client.service.local.flags.GeneralServerFlag;
 import org.example.enums.BrowserName;
+import org.example.exceptions.SmartRuntimeException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -107,7 +108,7 @@ public final class AppiumUtils {
             return appiumService.getUrl();
         }
         catch (Exception e) {
-            throw new RuntimeException("Cannot start Appium server.\n" + e.getMessage());
+            throw new SmartRuntimeException("Cannot start Appium server.", e);
         }
     }
 
@@ -144,8 +145,8 @@ public final class AppiumUtils {
             return emulator.getString(propertyName);
         }
         catch (Exception e) {
-            throw new RuntimeException(
-                    String.format("Cannot get mobile device property: %s\n%s", propertyName, e.getMessage()));
+            throw new SmartRuntimeException(String.format(
+                    "Cannot get mobile device property: %s.", propertyName), e);
         }
     }
 }

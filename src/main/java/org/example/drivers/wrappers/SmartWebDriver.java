@@ -12,25 +12,25 @@ import java.util.stream.Collectors;
 import static org.example.constants.Settings.*;
 
 /**
- * The robust WebDriver wrapper class.
+ * Smart WebDriver wrapper class.
  * This class wapps WebDriver, adds auto wait and retry on error
  * to make WebDriver more reliable.
  */
 @Slf4j
-public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScreenshot {
+public class SmartWebDriver implements WebDriver, JavascriptExecutor, TakesScreenshot {
     static protected final Config config = Config.getInstance();
     private static final int PAGE_LOAD_TIMEOUT_SEC = 15;
     private final WebDriver driver;
-    private final RobustWebDriverWaiter waiter;
+    private final SmartWebDriverWaiter waiter;
 
     /**
-     * Robust WebDriver constructor.
+     * Smart WebDriver constructor.
      * @param driver The wrapped WebDriver instance.
      */
-    public RobustWebDriver(WebDriver driver) {
+    public SmartWebDriver(WebDriver driver) {
         this.driver = driver;
-        waiter = new RobustWebDriverWaiter(driver);
-        log.debug("RobustWebDriver object is created by WebDriver.");
+        waiter = new SmartWebDriverWaiter(driver);
+        log.debug("SmartWebDriver object is created by WebDriver.");
     }
 
     /**
@@ -74,12 +74,12 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
     @Override
     public List<WebElement> findElements(By by) {
         List<WebElement> elements = driver.findElements(by);
-        List<WebElement> robustElements = elements.stream().map(element ->
-                new RobustWebElement(element, null, by, driver, waiter))
+        List<WebElement> smartElements = elements.stream().map(element ->
+                new SmartWebElement(element, null, by, driver, waiter))
                 .collect(Collectors.toList());
         log.debug("{} web elements are found by selector{}:\n{}.",
-                robustElements.size(), by, robustElements);
-        return robustElements;
+                smartElements.size(), by, smartElements);
+        return smartElements;
     }
 
     /**
@@ -91,7 +91,7 @@ public class RobustWebDriver implements WebDriver, JavascriptExecutor, TakesScre
     public WebElement findElement(By by) {
         for (int i = 1; i <= RETRY_COUNT; i++) {
             try {
-                WebElement element = new RobustWebElement(
+                WebElement element = new SmartWebElement(
                         driver.findElement(by), null, by, driver, waiter);
                 log.debug("Web element {} is found by selector {}.", element, by);
                 return element;

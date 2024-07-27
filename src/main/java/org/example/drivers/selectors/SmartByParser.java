@@ -1,11 +1,12 @@
 package org.example.drivers.selectors;
 
+import org.example.exceptions.SmartRuntimeException;
 import org.openqa.selenium.By;
 
 /**
  * The By locator parser class.
  */
-public class ByParser {
+public class SmartByParser {
     private static final String CSS_TEMPLATE = "css=%s";
     private static final String XPATH_TEMPLATE = "xpath=%s";
 
@@ -38,18 +39,18 @@ public class ByParser {
      * @return The locator string value.
      */
     public static String getLocatorString(By by) {
-        String byType = ByParser.getByType(by);
-        String byValue = ByParser.getByValue(by);
+        String byType = SmartByParser.getByType(by);
+        String byValue = SmartByParser.getByValue(by);
 
         return switch (byType) {
-            case ByTypes.CSS, ByTypes.TAG_NAME -> String.format(CSS_TEMPLATE, byValue);
-            case ByTypes.XPATH -> String.format(XPATH_TEMPLATE, byValue);
-            case ByTypes.ID -> String.format("#%s", byValue);
-            case ByTypes.CLASS_NAME -> String.format(".%s]", byValue);
-            case ByTypes.NAME -> String.format("*[name='%s']", byValue);
-            case ByTypes.LINK_TEXT -> String.format("//a[text()='%s']", byValue);
-            case ByTypes.PARTIAL_LINK_TEXT -> String.format("//a[contains(.,'%s')]", byValue);
-            default -> throw new RuntimeException(String.format("Wrong locator type: %s", byType));
+            case SmartByTypes.CSS, SmartByTypes.TAG_NAME -> String.format(CSS_TEMPLATE, byValue);
+            case SmartByTypes.XPATH -> String.format(XPATH_TEMPLATE, byValue);
+            case SmartByTypes.ID -> String.format("#%s", byValue);
+            case SmartByTypes.CLASS_NAME -> String.format(".%s]", byValue);
+            case SmartByTypes.NAME -> String.format("*[name='%s']", byValue);
+            case SmartByTypes.LINK_TEXT -> String.format("//a[text()='%s']", byValue);
+            case SmartByTypes.PARTIAL_LINK_TEXT -> String.format("//a[contains(.,'%s')]", byValue);
+            default -> throw new SmartRuntimeException(String.format("Wrong locator type: %s", byType));
         };
     }
 }

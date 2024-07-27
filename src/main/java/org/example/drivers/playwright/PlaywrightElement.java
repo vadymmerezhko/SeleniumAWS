@@ -3,8 +3,9 @@ package org.example.drivers.playwright;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.options.BoundingBox;
-import org.example.drivers.selectors.ByParser;
-import org.example.drivers.wrappers.BaseWebElement;
+import org.example.drivers.selectors.SmartByParser;
+import org.example.drivers.wrappers.BaseSmartWebElement;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ScreenshotUtils;
 import org.openqa.selenium.*;
 
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * The Playwright - WebElement wrapper class.
  */
-public class PlaywrightElement extends BaseWebElement {
+public class PlaywrightElement extends BaseSmartWebElement {
 
     private final Locator locator;
 
@@ -82,7 +83,7 @@ public class PlaywrightElement extends BaseWebElement {
             try {
                 locator.pressSequentially(value);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new SmartRuntimeException(e);
             }
         }
     }
@@ -163,7 +164,7 @@ public class PlaywrightElement extends BaseWebElement {
      */
     @Override
     public List<WebElement> findElements(By by) {
-        String locatorString = ByParser.getLocatorString(by);
+        String locatorString = SmartByParser.getLocatorString(by);
         List<Locator> childLocators;
         try {
             childLocators = locator.locator(locatorString).all();
@@ -183,7 +184,7 @@ public class PlaywrightElement extends BaseWebElement {
      */
     @Override
     public WebElement findElement(By by) {
-        String locatorString = ByParser.getLocatorString(by);
+        String locatorString = SmartByParser.getLocatorString(by);
         try {
             Locator childLocator = locator.locator(locatorString);
             return new PlaywrightElement(by, childLocator, driver);

@@ -2,6 +2,7 @@ package org.example.utils;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.exceptions.SmartRuntimeException;
 
 /**
  * Waiter class.
@@ -22,7 +23,7 @@ public final class WaiterUtils {
             Thread.sleep(seconds * 1000L);
             log.debug("Wait for {} seconds finished.", seconds);
         } catch (Throwable e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Wait for %d seconds failed.", seconds), e);
         }
     }
@@ -37,7 +38,7 @@ public final class WaiterUtils {
             Thread.sleep(milliSeconds);
             log.debug("Wait to {} milliseconds.", milliSeconds);
         } catch (Throwable e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Wait for %d milliseconds failed.", milliSeconds), e);
         }
     }

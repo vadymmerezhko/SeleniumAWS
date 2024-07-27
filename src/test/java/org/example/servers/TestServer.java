@@ -3,6 +3,7 @@ package org.example.servers;
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.SignUpTestInput;
 import org.example.data.SignUpTestResult;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.pages.WebFormPage;
 import org.example.tests.BaseTestServer;
 
@@ -74,7 +75,7 @@ public class TestServer extends BaseTestServer implements TestServerInterface {
                     webFormPage.getRange());
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Sign up filed.", e);
         }
     }
 }

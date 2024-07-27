@@ -1,6 +1,7 @@
 package org.example.unit;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ClassUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -51,7 +52,7 @@ public class ClassUtilsTest {
         AtomicInteger attemptCounter = new AtomicInteger(0);
         Runnable action = () -> {
             if (attemptCounter.incrementAndGet() < 3) {
-                throw new RuntimeException("Need more retries");
+                throw new SmartRuntimeException("Need more retries");
             }
         };
         ClassUtils.performRunnableMethod(action, null, "testAction", 5, 10);
@@ -63,7 +64,7 @@ public class ClassUtilsTest {
         AtomicInteger attemptCounter = new AtomicInteger(0);
         Runnable action = () -> {
             if (attemptCounter.incrementAndGet() < 3) {
-                throw new RuntimeException("Need more retries");
+                throw new SmartRuntimeException("Need more retries");
             }
         };
         ClassUtils.performRunnableMethod(action, fix, "testAction", 5, 10);
@@ -73,7 +74,7 @@ public class ClassUtilsTest {
     @Test(expectedExceptions = RuntimeException.class)
     public void testPerformRunnableMethodFailure() {
         Runnable action = () -> {
-            throw new RuntimeException("Fail every time");
+            throw new SmartRuntimeException("Fail every time");
         };
         ClassUtils.performRunnableMethod(action, null, "testAction", 2, 10);
     }
@@ -83,7 +84,7 @@ public class ClassUtilsTest {
         AtomicInteger attemptCounter = new AtomicInteger(0);
         Consumer<String> action = (s) -> {
             if (attemptCounter.incrementAndGet() < 3) {
-                throw new RuntimeException("Need more retries");
+                throw new SmartRuntimeException("Need more retries");
             }
         };
         ClassUtils.performConsumerMethod(action, "parameter",null, "testAction", 5, 10);
@@ -95,7 +96,7 @@ public class ClassUtilsTest {
         AtomicInteger attemptCounter = new AtomicInteger(0);
         Consumer<String> action = (s) -> {
             if (attemptCounter.incrementAndGet() < 3) {
-                throw new RuntimeException("Need more retries");
+                throw new SmartRuntimeException("Need more retries");
             }
         };
         ClassUtils.performConsumerMethod(action, "parameter", fix, "testAction", 5, 10);
@@ -105,7 +106,7 @@ public class ClassUtilsTest {
     @Test(expectedExceptions = RuntimeException.class)
     public void testPerformConsumerMethodFailure() {
         Consumer<String> action = (s) -> {
-            throw new RuntimeException("Fail every time");
+            throw new SmartRuntimeException("Fail every time");
         };
         ClassUtils.performConsumerMethod(action, "parameter",null, "testAction", 5, 10);
     }
@@ -115,7 +116,7 @@ public class ClassUtilsTest {
         AtomicInteger attemptCounter = new AtomicInteger(0);
         Supplier<String> action = () -> {
             if (attemptCounter.incrementAndGet() < 3) {
-                throw new RuntimeException("Need more retries");
+                throw new SmartRuntimeException("Need more retries");
             }
             return "Some result";
         };
@@ -128,7 +129,7 @@ public class ClassUtilsTest {
         AtomicInteger attemptCounter = new AtomicInteger(0);
         Supplier<String> action = () -> {
             if (attemptCounter.incrementAndGet() < 3) {
-                throw new RuntimeException("Need more retries");
+                throw new SmartRuntimeException("Need more retries");
             }
             return "Some result";
         };
@@ -139,7 +140,7 @@ public class ClassUtilsTest {
     @Test(expectedExceptions = RuntimeException.class)
     public void testPerformSupplierMethodFailure() {
         Supplier<String> action = () -> {
-            throw new RuntimeException("Fail every time");
+            throw new SmartRuntimeException("Fail every time");
         };
         ClassUtils.performSupplierMethod(action, null, "testAction", 5, 10);
     }
@@ -149,7 +150,7 @@ public class ClassUtilsTest {
         AtomicInteger attemptCounter = new AtomicInteger(0);
         Function<String, String> action = (s) -> {
             if (attemptCounter.incrementAndGet() < 3) {
-                throw new RuntimeException("Need more retries");
+                throw new SmartRuntimeException("Need more retries");
             }
             return "Some result";
         };
@@ -162,7 +163,7 @@ public class ClassUtilsTest {
         AtomicInteger attemptCounter = new AtomicInteger(0);
         Function<String, String> action = (s) -> {
             if (attemptCounter.incrementAndGet() < 3) {
-                throw new RuntimeException("Need more retries");
+                throw new SmartRuntimeException("Need more retries");
             }
             return "Some result";
         };
@@ -173,7 +174,7 @@ public class ClassUtilsTest {
     @Test(expectedExceptions = RuntimeException.class)
     public void testPerformFunctionMethodFailure() {
         Function<String, String> action = (s) -> {
-            throw new RuntimeException("Fail every time");
+            throw new SmartRuntimeException("Fail every time");
         };
         ClassUtils.performFunctionMethod(action, "parameter", null, "testAction", 5, 10);
     }

@@ -3,6 +3,7 @@ package org.example.helpers;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
+import org.example.exceptions.SmartRuntimeException;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -27,7 +28,7 @@ public class VideoRecorder {
             recorder.setFrameRate(rate);
         }
         catch (Exception e) {
-            throw new RuntimeException("Video recorder setup exception:\n", e);
+            throw new SmartRuntimeException("Cannot setup video recorder.", e);
         }
     }
 
@@ -39,7 +40,7 @@ public class VideoRecorder {
             recorder.start();
         }
         catch (Exception e) {
-            throw new RuntimeException("Video recorder start exception:\n", e);
+            throw new SmartRuntimeException("Cannot start video recorder.", e);
         }
     }
 
@@ -55,7 +56,7 @@ public class VideoRecorder {
             recorder.record(frame);
         }
         catch (Exception e) {
-            throw new RuntimeException("Video frame recording exception:\n", e);
+            throw new SmartRuntimeException("Video recorder failed to record video frame.", e);
         }
     }
 
@@ -69,7 +70,7 @@ public class VideoRecorder {
             recorder.close();
         }
         catch (Exception e) {
-            throw new RuntimeException("Video recorder stopping exception:\n", e);
+            throw new SmartRuntimeException("Failed to stop video recorder.", e);
         }
     }
 }

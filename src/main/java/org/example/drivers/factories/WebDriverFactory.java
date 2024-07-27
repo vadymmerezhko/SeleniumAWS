@@ -7,9 +7,10 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.slf4j.Slf4j;
 import org.example.balancers.LoadBalancer;
 import org.example.data.Config;
-import org.example.drivers.wrappers.RobustWebDriver;
+import org.example.drivers.wrappers.SmartWebDriver;
 import org.example.enums.BrowserName;
 import org.example.enums.TestMode;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.helpers.TimeOut;
 import org.example.helpers.VideoRecorder;
 import org.example.utils.*;
@@ -81,24 +82,24 @@ public class WebDriverFactory {
             log.info("Creating {} web driver for {} browser...", testMethod, config.getBrowser());
 
             switch (testMethod) {
-                case AWS_DOCKER -> driver = new RobustWebDriver(getAWSDockerDriver(
+                case AWS_DOCKER -> driver = new SmartWebDriver(getAWSDockerDriver(
                         browserName, config.getBrowserVersion(), threadCount));
-                case LOCAL_DOCKER -> driver = new RobustWebDriver(getLocalDockerWebDriver(
+                case LOCAL_DOCKER -> driver = new SmartWebDriver(getLocalDockerWebDriver(
                         browserName, config.getBrowserVersion(), threadCount));
-                case LOCAL_DOCKER_AUTO -> driver = new RobustWebDriver(getLocalDockerAutoWebDriver(
+                case LOCAL_DOCKER_AUTO -> driver = new SmartWebDriver(getLocalDockerAutoWebDriver(
                         browserName, config.getBrowserVersion()));
-                case LOCAL -> driver = new RobustWebDriver(getLocalWebDriver(browserName, config.getBrowserVersion()));
-                case LOCAL_AUTO -> driver = new RobustWebDriver(getLocalAutoWebDriver(browserName));
+                case LOCAL -> driver = new SmartWebDriver(getLocalWebDriver(browserName, config.getBrowserVersion()));
+                case LOCAL_AUTO -> driver = new SmartWebDriver(getLocalAutoWebDriver(browserName));
                 case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver(browserName);
-                case REMOTE -> driver = new RobustWebDriver(getRemoteWebDriver(
+                case REMOTE -> driver = new SmartWebDriver(getRemoteWebDriver(
                         config.getRemoteHost(), browserName, config.getBrowserVersion()));
-                case AWS_DEVICE_FARM -> driver = new RobustWebDriver(getAWSDeviceFarmWebDriver(
+                case AWS_DEVICE_FARM -> driver = new SmartWebDriver(getAWSDeviceFarmWebDriver(
                         browserName, config.getBrowserVersion()));
-                case LOCAL_APPIUM -> driver = new RobustWebDriver(
+                case LOCAL_APPIUM -> driver = new SmartWebDriver(
                         getAppiumWebDriver(config.getEmulator((int)threadId % threadCount)));
                 case LOCAL_ACCESSIBILITY -> driver = getPlaywrightDriver(
                         CHROMIUM, config.getHeadless(), true);
-                 default -> throw new RuntimeException("Unsupported test mode: " + testMethod);
+                 default -> throw new SmartRuntimeException("Unsupported test mode: " + testMethod);
             }
             driverMap.put(threadId, driver);
 
@@ -146,7 +147,7 @@ public class WebDriverFactory {
             videoRecordingMap.put(threadId, false);
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException(e);
         }
     }
 
@@ -188,7 +189,7 @@ public class WebDriverFactory {
             }
             catch (Exception e) {
                 videoRecorder.stop();
-                throw new RuntimeException(e);
+                throw new SmartRuntimeException("Starting video recorder failed.", e);
             }
         });
         videoRecordingThreadMap.put(threadId, thread);
@@ -208,7 +209,7 @@ public class WebDriverFactory {
             }
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Stopping video recorder failed.", e);
         }
     }
 
@@ -258,7 +259,8 @@ public class WebDriverFactory {
             case CHROME -> driver = new ChromeDriver(getChromeOptions(browserVersion));
             case FIREFOX -> driver = new FirefoxDriver(getFirefoxOptions(browserVersion));
             case EDGE -> driver = new EdgeDriver(getEdgeOptions(browserVersion));
-            default -> throw new RuntimeException("Unsupported browser: " + browserName);
+            default -> throw new SmartRuntimeException(String.format(
+                    "Unsupported browser: %s", browserName));
         }
         return driver;
     }
@@ -276,7 +278,8 @@ public class WebDriverFactory {
             case FIREFOX -> driver = new FirefoxDriver(getFirefoxOptions(null));
             case EDGE -> driver = new EdgeDriver(getEdgeOptions(null));
             case SAFARI -> driver = new SafariDriver(getSafariOptions());
-            default -> throw new RuntimeException("Unsupported browser: " + browserName);
+            default -> throw new SmartRuntimeException(String.format(
+                    "Unsupported browser: %s", browserName));
         }
         return driver;
     }
@@ -299,10 +302,11 @@ public class WebDriverFactory {
                     return waitForRemoteDriver(browserName, browserVersion, url,
                             REMOTE_SERVER_TIMEOUT_SECONDS, "Local Docker");
                 }
-                default -> throw new RuntimeException("Unsupported Docker browser: " + browserName);
+                default -> throw new SmartRuntimeException(String.format(
+                        "Unsupported Docker browser: %s.", browserName));
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Cannot get local Docker WebDriver.");
         }
     }
 
@@ -317,19 +321,18 @@ public class WebDriverFactory {
         String arguments = "--disable-gpu,--no-sandbox";
 
         if (!WebDriverManager.isDockerAvailable()) {
-            throw new RuntimeException("Docker is not available.");
+            throw new SmartRuntimeException("Docker is not available.");
         }
-
         if (config.getHeadless()) {
             arguments += ",--headless";
         }
-
         switch (browserName) {
             case CHROME -> webDriverManager = WebDriverManager.chromedriver().browserInDocker();
             case FIREFOX -> webDriverManager = WebDriverManager.firefoxdriver().browserInDocker();
             case EDGE -> webDriverManager = WebDriverManager.edgedriver().browserInDocker();
             case SAFARI -> webDriverManager = WebDriverManager.safaridriver().browserInDocker();
-            default -> throw new RuntimeException("Unsupported auto Docker browser: " + browserName);
+            default -> throw new SmartRuntimeException(String.format(
+                    "Unsupported Docker browser: %s.", browserName));
         }
         return webDriverManager.dockerDefaultArgs(arguments)
                 .browserVersion(browserVersion)
@@ -359,8 +362,20 @@ public class WebDriverFactory {
                 return waitForRemoteDriver(browserName, browserVersion, url,
                         REMOTE_SERVER_TIMEOUT_SECONDS, "AWS Docker");
             }
-            default -> throw new RuntimeException("Unsupported Docker browser: " + browserName);
+            default -> throw new SmartRuntimeException(String.format(
+                    "Unsupported Docker browser: %s.", browserName));
         }
+    }
+
+    /**
+     * Terminates all browsers and servers.
+     */
+    public static void terminateAllBrowsersAndServers() {
+        log.info("Test was terminated by user in debug mode.");
+        WebDriverFactory.closeAllDrivers();
+        ServerUtils.terminateAllSeleniumServers();
+        ServerUtils.terminateAwsRmiServer();
+        System.exit(-1);
     }
 
     private static WebDriver waitForRemoteDriver(
@@ -380,7 +395,7 @@ public class WebDriverFactory {
                 WaiterUtils.waitSeconds(1);
             }
         }
-        throw new RuntimeException(String.format(
+        throw new SmartRuntimeException(String.format(
                 "Cannot start %s:%s %s WebDriver on %s.",
                 browserName, browserVersion, type, url));
     }
@@ -404,7 +419,8 @@ public class WebDriverFactory {
                 case CHROMIUM -> browserType = playwright.chromium();
                 case FIREFOX -> browserType = playwright.firefox();
                 case WEBKIT -> browserType = playwright.webkit();
-                default -> throw new RuntimeException("Unsupported Playwright browser: " + browserName);
+                default -> throw new SmartRuntimeException(String.format(
+                        "Unsupported Playwright browser: %s.", browserName));
             }
             Browser browser = browserType.launch(
                     new BrowserType.LaunchOptions()
@@ -417,7 +433,7 @@ public class WebDriverFactory {
             return driver;
         }
         catch (Exception e) {
-            throw new RuntimeException("Playwright driver exception:\n" + e.getMessage());
+            throw new SmartRuntimeException("Cannot get Playwright web driver.", e);
         }
     }
 
@@ -434,9 +450,8 @@ public class WebDriverFactory {
         try {
             uri = new URI(remoteHost);
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Cannot get remote WebDriver.", e);
         }
-
         // Wait for Selenium remote server.
         ServerUtils.waitForServerAvailability(uri.getHost(), uri.getPort());
 
@@ -444,13 +459,13 @@ public class WebDriverFactory {
             case CHROME -> options = getChromeOptions(browserVersion);
             case FIREFOX -> options = getFirefoxOptions(browserVersion);
             case EDGE -> options = getEdgeOptions(browserVersion);
-            default -> throw new RuntimeException("Unsupported browser: " + browserName);
+            default -> throw new SmartRuntimeException(String.format(
+                    "Unsupported browser: %s.", browserName));
         }
-
         try {
             return new RemoteWebDriver(uri.toURL(), options);
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Cannot get remote WebDriver.", e);
         }
     }
 
@@ -527,7 +542,7 @@ public class WebDriverFactory {
         }
         catch (Exception e) {
             AppiumUtils.stopAppiumServer();
-            throw new RuntimeException("Cannot get Appium WebDriver:\n" + e.getMessage());
+            throw new SmartRuntimeException("Cannot get Appium WebDriver.", e);
         }
     }
 

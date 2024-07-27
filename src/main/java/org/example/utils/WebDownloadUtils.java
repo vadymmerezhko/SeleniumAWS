@@ -1,5 +1,7 @@
 package org.example.utils;
 
+import org.example.exceptions.SmartRuntimeException;
+
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -27,7 +29,7 @@ public final class WebDownloadUtils {
             fileOutputStream.close();
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Download failed.", e);
         }
     }
 }

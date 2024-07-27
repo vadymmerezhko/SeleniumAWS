@@ -3,6 +3,7 @@ package org.example.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.example.exceptions.SmartRuntimeException;
 
 /**
  * Record utils class.
@@ -27,7 +28,7 @@ public final class RecordUtils {
             log.debug("Record object {} converted to JSON string: {}", record,jsonString);
             return jsonString;
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Failed to convert record to sting.", e);
         }
     }
 
@@ -48,7 +49,7 @@ public final class RecordUtils {
             return record;
         }
         catch (JsonProcessingException e) {
-            throw new RuntimeException (e.getMessage());
+            throw new SmartRuntimeException("Failed to convert string to record.", e);
         }
     }
 }

@@ -1,6 +1,7 @@
 package org.example.drivers.wrappers;
 
 import org.example.data.Config;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ClassUtils;
 import org.example.utils.WaiterUtils;
 import org.openqa.selenium.*;
@@ -11,30 +12,30 @@ import java.util.stream.Collectors;
 import static org.example.constants.Settings.*;
 
 /**
- * The robust web element class.
+ * Smart WebElement class.
  * This class wraps WebElement and adds auto wait, retry on error
  * to make the WebElement more reliable.
  */
-public class RobustWebElement extends BaseWebElement {
+public class SmartWebElement extends BaseSmartWebElement {
     static protected final Config config = Config.getInstance();
     private static final int WAIT_FOR_ELEMENT_TIMEOUT_SEC = 15;
 
-    private final RobustWebElement parent;
-    private final RobustWebDriverWaiter waiter;
+    private final SmartWebElement parent;
+    private final SmartWebDriverWaiter waiter;
 
     /**
-     * The robust WebElement constructor.
+     * Smart WebElement constructor.
      * @param element The wrapped WebElement instance.
-     * @param parent The parent robust element (if any).
+     * @param parent The parent smart element (if any).
      * @param by The element locator.
      * @param driver The WebDriver instance.
      * @param waiter The Waiter instance.
      */
-    public RobustWebElement(WebElement element,
-                            RobustWebElement parent,
-                            By by,
-                            WebDriver driver,
-                            RobustWebDriverWaiter waiter) {
+    public SmartWebElement(WebElement element,
+                           SmartWebElement parent,
+                           By by,
+                           WebDriver driver,
+                           SmartWebDriverWaiter waiter) {
         super(element, by, driver);
         this.parent = parent;
         this.waiter = waiter;
@@ -242,7 +243,7 @@ public class RobustWebElement extends BaseWebElement {
     @Override
     public List<WebElement> findElements(By childBy) {
         return element.findElements(childBy).stream().map(childElement ->
-                        new RobustWebElement(childElement, this, childBy, driver, waiter))
+                        new SmartWebElement(childElement, this, childBy, driver, waiter))
                 .collect(Collectors.toList());
     }
 
@@ -253,7 +254,7 @@ public class RobustWebElement extends BaseWebElement {
      */
     @Override
     public WebElement findElement(By childBy) {
-        return new RobustWebElement(element.findElement(childBy), this, childBy, driver, waiter);
+        return new SmartWebElement(element.findElement(childBy), this, childBy, driver, waiter);
     }
 
     /**
@@ -364,8 +365,8 @@ public class RobustWebElement extends BaseWebElement {
      */
     public void scrollToElement() {
         WebElement nativeElement = element;
-        if (element instanceof RobustWebElement) {
-            nativeElement = ((RobustWebElement) element).getNativeElement();
+        if (element instanceof SmartWebElement) {
+            nativeElement = ((SmartWebElement) element).getNativeElement();
         }
         try {
             ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", nativeElement);
@@ -383,8 +384,8 @@ public class RobustWebElement extends BaseWebElement {
      */
     public void setValue(String value) {
         WebElement nativeElement = element;
-        if (element instanceof RobustWebElement) {
-            nativeElement = ((RobustWebElement) element).getNativeElement();
+        if (element instanceof SmartWebElement) {
+            nativeElement = ((SmartWebElement) element).getNativeElement();
         }
         ((JavascriptExecutor)driver).executeScript(String.format("arguments[0].value='%s'", value), nativeElement);
     }
@@ -399,13 +400,14 @@ public class RobustWebElement extends BaseWebElement {
                 List<WebElement> elements = element.findElements(childBy);
                 if (!elements.isEmpty()) {
                     if (elements.size() > 1) {
-                        throw new RuntimeException(
-                                "More than one child element is found: " + childBy.toString());
+                        throw new SmartRuntimeException(String.format(
+                                "More than one child element is found by %s.", childBy));
                     }
                     return elements.get(0);
                 }
             }
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException(
+                    "Exception while waiting for child element presence.", e);
         }
     }
 

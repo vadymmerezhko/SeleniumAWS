@@ -1,22 +1,23 @@
 package org.example.drivers.selectors;
 
+import org.example.exceptions.SmartRuntimeException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
-public class ByAI extends By {
+public class SmartBy extends By {
     private By by;
     private final String text;
     private String elementName;
 
-    public ByAI() {
+    public SmartBy() {
         super();
         this.text = null;
     }
 
-    public ByAI(String keyword) {
+    public SmartBy(String keyword) {
         super();
         this.text = keyword;
     }
@@ -69,7 +70,7 @@ public class ByAI extends By {
     @Override
     public List<WebElement> findElements(SearchContext context) {
         if (by == null) {
-            throw new RuntimeException("By selector is NULL.");
+            throw new SmartRuntimeException("By selector is NULL.");
         }
         return by.findElements(context);
     }

@@ -1,5 +1,7 @@
 package org.example.enums;
 
+import org.example.exceptions.SmartRuntimeException;
+
 public enum Platform {
     WINDOWS("windows"),
     LINUX("linux"),
@@ -22,7 +24,7 @@ public enum Platform {
                 return value;
             }
         }
-        throw new RuntimeException(String.format(
+        throw new SmartRuntimeException(String.format(
                 "Cannot convert '%s' to Platform enum item.", name));
     }
 }

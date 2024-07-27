@@ -1,7 +1,7 @@
 package org.example.helpers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.exceptions.TimeOutException;
+import org.example.exceptions.SmartTimeOutException;
 import org.example.utils.WaiterUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,7 +52,7 @@ public class TimeOut {
      */
     public void checkExpired() {
         if (getExpired()) {
-            throw new TimeOutException(String.format("%s timeout expired.", name));
+            throw new SmartTimeOutException(String.format("%s timeout expired.", name));
         }
     }
 }

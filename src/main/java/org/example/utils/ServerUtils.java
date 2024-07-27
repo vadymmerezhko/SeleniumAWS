@@ -4,6 +4,7 @@ import com.amazonaws.services.ec2.AmazonEC2;
 import lombok.extern.slf4j.Slf4j;
 import org.example.balancers.LoadBalancer;
 import org.example.data.Config;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.helpers.TimeOut;
 
 import java.io.IOException;
@@ -253,7 +254,8 @@ public final class ServerUtils {
             return testOutput;
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException(
+                    "Failed to create local run server and to run tests", e);
         }
     }
 }

@@ -1,6 +1,7 @@
 package org.example.utils;
 
 import okhttp3.*;
+import org.example.exceptions.SmartRuntimeException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,7 +16,6 @@ public final class HttpUtils {
      */
     public static String sendHttpRequest(String url, String json, String apiKey) {
 
-        System.out.println("JSON:\n" + json);
         try {
             OkHttpClient client = new OkHttpClient();
             MediaType mediaType = MediaType.parse("application/json");
@@ -37,13 +37,12 @@ public final class HttpUtils {
                             String.format("Failed to get HTTP response.\n%s",
                                     response.body().string()) :
                             "Failed to get HTTP response";
-                    throw new RuntimeException(message);
+                    throw new SmartRuntimeException(message);
                 }
             }
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
-                    "Exception when sending Open AI request.\n%s", e.getMessage()));
+            throw new SmartRuntimeException("Exception when sending Open AI request.", e);
         }
         return null;
     }

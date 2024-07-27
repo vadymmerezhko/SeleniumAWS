@@ -1,5 +1,6 @@
 package org.example.rmi;
 
+import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ConverterUtils;
 
 import java.rmi.registry.LocateRegistry;
@@ -35,7 +36,7 @@ public class RmiClient {
 
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Cannot invoke method.", e);
         }
     }
 
@@ -51,7 +52,7 @@ public class RmiClient {
                 RMI_SERVER_MAP.put(threadId, (RmiServer) registry.lookup(rmiServerName));
             }
             catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new SmartRuntimeException("Cannot get RMI server.", e);
             }
         }
         return RMI_SERVER_MAP.get(threadId);

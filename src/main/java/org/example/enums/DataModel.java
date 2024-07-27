@@ -1,5 +1,7 @@
 package org.example.enums;
 
+import org.example.exceptions.SmartRuntimeException;
+
 public enum DataModel {
     BIT32("32"),
     BIT64("64");
@@ -21,7 +23,7 @@ public enum DataModel {
                 return value;
             }
         }
-        throw new RuntimeException(String.format(
+        throw new SmartRuntimeException(String.format(
                 "Cannot convert '%s' to DataModel enum item.", name));
     }
 }

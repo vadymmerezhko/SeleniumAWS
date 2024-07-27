@@ -2,6 +2,7 @@ package org.example.tests;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.MethodInput;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.rmi.RmiClient;
 import org.example.utils.AwsUtils;
 import org.example.utils.RecordUtils;
@@ -35,7 +36,7 @@ import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
             return RecordUtils.recordToString(testResult);
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Cannot invoke method.", e);
         }
     }
 
@@ -64,7 +65,7 @@ import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
 
     private void checkRequestHandlerError(String methodOutput) {
         if (methodOutput.contains(REQUEST_HANDLER_ERROR_MSG)) {
-            throw new RuntimeException(methodOutput);
+            throw new SmartRuntimeException(methodOutput);
         }
     }
 }

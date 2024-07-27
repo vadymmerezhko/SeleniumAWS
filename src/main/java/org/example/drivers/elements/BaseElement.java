@@ -2,8 +2,9 @@ package org.example.drivers.elements;
 
 import org.example.data.Config;
 import org.example.drivers.factories.WebDriverFactory;
-import org.example.drivers.selectors.ByAI;
-import org.example.drivers.wrappers.RobustWebElement;
+import org.example.drivers.selectors.SmartBy;
+import org.example.drivers.wrappers.SmartWebElement;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.pages.BasePage;
 import org.example.utils.ClassUtils;
 import org.example.utils.WebUtils;
@@ -266,11 +267,11 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     protected WebElement getElement() {
         try {
             if (element == null) {
-                if (by instanceof ByAI byAI) {
+                if (by instanceof SmartBy smartBy) {
                     setElementName();
 
-                    if (byAI.getBy() == null) {
-                        setElementSelector(byAI);
+                    if (smartBy.getBy() == null) {
+                        setElementSelector(smartBy);
                     }
                 }
                 element = WebDriverFactory.getDriver().findElement(by);
@@ -309,8 +310,8 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     protected void highlightElement() {
         WebElement webElement = element;
 
-        if (element instanceof RobustWebElement) {
-            webElement = ((RobustWebElement)element).getNativeElement();
+        if (element instanceof SmartWebElement) {
+            webElement = ((SmartWebElement)element).getNativeElement();
         }
 
         WebUtils.highlightElement(webElement);
@@ -322,13 +323,13 @@ public abstract class BaseElement implements WebElement, WrapsElement {
                 ClassUtils.getClassFieldName(page, this));
     }
 
-    private void setElementSelector(ByAI byAI) {
-        String text = byAI.getText();
+    private void setElementSelector(SmartBy smartBy) {
+        String text = smartBy.getText();
         boolean isSelectorUpdated = false;
         boolean isReadFromFile = true;
 
         try {
-            byAI.setElementName(elementName);
+            smartBy.setElementName(elementName);
             String selector;
 
             if (elementSelectorMap.containsKey(elementName)) {
@@ -346,11 +347,11 @@ public abstract class BaseElement implements WebElement, WrapsElement {
                 }
             }
             if (selector == null) {
-                throw new RuntimeException(String.format(
-                        "'%s' element selector is NULL (not detected).", elementName));
+                throw new SmartRuntimeException(String.format(
+                        "'%s' element selector is not detected.", elementName));
             }
             By bySelector = WebUtils.convertSelectorTemplateToBy(selector, text);
-            byAI.setBy(bySelector);
+            smartBy.setBy(bySelector);
             String selectorTemplate = WebUtils.getSelectorTemplate(selector, text);
 
             if (isSelectorUpdated) {
@@ -363,16 +364,15 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             }
         }
         catch (Throwable e) {
-            throw new RuntimeException(String.format(
-                    "Can not set element selector:\n%s", e.getMessage()));
+            throw new SmartRuntimeException("Can not set element selector.", e);
         }
     }
 
     private void fixElementSelector() {
 
-        if (by instanceof ByAI byAI) {
-            String elementName = byAI.getElementName();
-            String text = byAI.getText();
+        if (by instanceof SmartBy smartBy) {
+            String elementName = smartBy.getElementName();
+            String text = smartBy.getText();
             String selector = WebUtils.selectElementAndGetSelector(elementName, text);
             if (selector == null) {
                 return;
@@ -383,7 +383,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
                 // Ignore exception
             }
             By bySelector = WebUtils.convertSelectorTemplateToBy(selector, text);
-            byAI.setBy(bySelector);
+            smartBy.setBy(bySelector);
             String selectorTemplate = WebUtils.getSelectorTemplate(selector, text);
             WebUtils.saveElementSelectorToFile(
                     config.getPagesFolderPath(), elementName, selectorTemplate);

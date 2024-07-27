@@ -1,6 +1,6 @@
 package org.example.utils;
 
-import org.example.exceptions.DataValidationException;
+import org.example.exceptions.SmartValidationException;
 
 import java.nio.file.Paths;
 
@@ -124,6 +124,6 @@ public final class DataValidationUtils {
     private static void handleError(String errorMessage) {
         // Make wait to get time to highlight the failed element.
         WaiterUtils.waitMilliSeconds(500);
-        throw new DataValidationException(errorMessage);
+        throw new SmartValidationException(errorMessage);
     }
 }

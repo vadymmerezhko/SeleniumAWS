@@ -4,6 +4,7 @@ import org.example.balancers.LoadBalancer;
 import org.example.data.Config;
 import org.example.drivers.elements.BaseElement;
 import org.example.drivers.factories.WebDriverFactory;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.FileSystemUtils;
 import org.example.utils.WebUtils;
 import org.testng.ITestResult;
@@ -43,7 +44,7 @@ public abstract class BaseTest {
             }
         }
            catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("'Before' method failed.", e);
         }
     }
 
@@ -56,7 +57,6 @@ public abstract class BaseTest {
             if (config.getScreenshotOnFail() && result.getStatus() == ITestResult.FAILURE) {
                 takeScreenshot(result);
             }
-
             if (config.getVideoOnFail()) {
                 WebDriverFactory.stopVideoRecording();
 
@@ -68,7 +68,7 @@ public abstract class BaseTest {
             }
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("'After' method failed.", e);
         }
     }
 

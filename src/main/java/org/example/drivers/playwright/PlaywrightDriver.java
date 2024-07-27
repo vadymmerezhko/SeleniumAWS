@@ -6,7 +6,8 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.ScreenshotType;
-import org.example.drivers.selectors.ByParser;
+import org.example.drivers.selectors.SmartByParser;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ClassUtils;
 import org.example.utils.ScreenshotUtils;
 import org.openqa.selenium.*;
@@ -62,7 +63,9 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
             // Verify page accessibility.
             AxeResults accessibilityScanResults = new AxeBuilder(page).analyze();
             if (!accessibilityScanResults.getViolations().isEmpty()) {
-                throw new RuntimeException("Accessibility issues:\n" + accessibilityScanResults.getViolations());
+                throw new SmartRuntimeException(String.format(
+                        "Accessibility issues:\n%s",
+                        accessibilityScanResults.getViolations()));
             }
         }
     }
@@ -104,7 +107,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public List<WebElement> findElements(By by) {
-        String locatorString = ByParser.getLocatorString(by);
+        String locatorString = SmartByParser.getLocatorString(by);
         List<Locator> locators;
         try {
             locators = page.locator(locatorString).all();
@@ -124,7 +127,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public WebElement findElement(By by) {
-        String locatorString = ByParser.getLocatorString(by);
+        String locatorString = SmartByParser.getLocatorString(by);
         try {
             Locator locator = page.locator(locatorString);
             return new PlaywrightElement(by, locator,this);

@@ -15,6 +15,7 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import lombok.extern.slf4j.Slf4j;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.helpers.TimeOut;
 
 import java.io.File;
@@ -192,13 +193,13 @@ public final class AwsUtils {
             while (true);
 
             if (result.getFunctionError() != null) {
-                throw new RuntimeException("AWS Lambda error:\n" + result.getFunctionError());
+                throw new SmartRuntimeException(String.format(
+                        "AWS Lambda error: %s.", result.getFunctionError()));
             }
-
             if (result.getStatusCode() != 200) {
-                throw new RuntimeException("AWS Lambda status call: " + result.getStatusCode());
+                throw new SmartRuntimeException(String.format(
+                        "AWS Lambda status call: %s.", result.getStatusCode()));
             }
-
             String lambdaOutputJsonString = new String(result.getPayload().array());
             if (lambdaOutputJsonString.contains(REQUEST_HANDLER_ERROR_MSG)) {
                 return lambdaOutputJsonString;
@@ -207,7 +208,7 @@ public final class AwsUtils {
                     lambdaOutputJsonString.substring(1, lambdaOutputJsonString.length() - 1));
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Failed to invoke AWS Lambda function.", e);
         }
     }
 
@@ -227,11 +228,9 @@ public final class AwsUtils {
             s3.putObject(request);
         }
         catch (Exception e) {
-            throw new RuntimeException(
-                    String.format("Cannot upload file %s to AWS S3 bucket '%s'.\n%s",
-                            filePath,
-                            bucketName,
-                            e.getMessage()));
+            throw new SmartRuntimeException(String.format(
+                    "Failed to upload file %s to AWS S3 bucket '%s'.",
+                    filePath, bucketName), e);
         }
     }
 
@@ -258,11 +257,9 @@ public final class AwsUtils {
             return file.getPath();
         }
         catch (Exception e) {
-            throw new RuntimeException(
-                    String.format("Cannot download file %s from AWS S3 bucket '%s'.\n%s",
-                            fileName,
-                            bucketName,
-                            e.getMessage()));
+            throw new SmartRuntimeException(String.format(
+                    "Failed to download file %s from AWS S3 bucket '%s'.",
+                    fileName, bucketName), e);
         }
     }
 
@@ -317,8 +314,10 @@ public final class AwsUtils {
         else if (threadCount > 16 && threadCount <= 32) {
             return InstanceType.M58xlarge;
         }
-        throw new RuntimeException(
-                "Thread count should be positive and less than 32.\nWrong thread count : " + threadCount);
+        throw new SmartRuntimeException(String.format(
+                "Thread count should be positive and less than 32.\n" +
+                "Wrong thread count: %d.",
+                threadCount));
     }
 
     private static AmazonS3 getAwsS3Client(String accessKey, String secretKey) {
@@ -331,7 +330,7 @@ public final class AwsUtils {
                     .build();
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Failed to get AWS S3 client.", e);
         }
     }
 }

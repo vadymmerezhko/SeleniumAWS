@@ -1,8 +1,11 @@
 package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.exceptions.SmartRuntimeException;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -16,6 +19,18 @@ public final class ClassUtils {
     private  static final int MAX_WAIT_MILLISECONDS = 60 * 1000;
 
     private ClassUtils() {}
+    private static final ConcurrentMap<Long, String> methodMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Long, Object> parameterMap = new ConcurrentHashMap<>();
+
+    public static String getMethodName() {
+        long threadId = Thread.currentThread().threadId();
+        return methodMap.get(threadId);
+    }
+
+    public static <P> P getParameterValue() {
+        long threadId = Thread.currentThread().threadId();
+        return (P) parameterMap.get(threadId);
+    }
 
     /**
      * Throws "Method not implemented" exception by method name.
@@ -23,7 +38,7 @@ public final class ClassUtils {
      */
     public static void throwMethodNotImplementedException(String methodName) {
         DataValidationUtils.validateNotBlank(methodName, "methodName");
-        throw new RuntimeException(String.format("Method %s is not implemented.", methodName));
+        throw new SmartRuntimeException(String.format("Method %s is not implemented.", methodName));
     }
 
     /**
@@ -56,8 +71,7 @@ public final class ClassUtils {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException(String.format(
-                    "Cannot get class field name.\n%s", e.getMessage()));
+            throw new SmartRuntimeException("Cannot get class field name.", e);
         }
         return null;
     }
@@ -157,40 +171,53 @@ public final class ClassUtils {
             int retryCount,
             int waitMilliseconds) {
         Exception lastException = null;
+        long threadId = Thread.currentThread().threadId();
+
+        methodMap.put(threadId, methodName);
+        if (parameter != null) {
+            parameterMap.put(threadId, parameter);
+        }
 
         DataValidationUtils.validateNotNull(action, "action");
         DataValidationUtils.validateNotBlank(methodName, "methodName");
         DataValidationUtils.validateRange(retryCount, 1, MAX_RETRY_COUNT, "retryCount");
         DataValidationUtils.validateRange(waitMilliseconds,0, MAX_WAIT_MILLISECONDS, "waitMilliseconds");
 
-        for (int i = 1; i <= retryCount; i++) {
-            try {
-                if (action instanceof Runnable) {
-                    ((Runnable) action).run();
-                    return null;
-                }
-                else if (action instanceof Consumer<?>) {
-                    ((Consumer<P>) action).accept(parameter);
-                    return null;
-                }
-                else if (action instanceof Supplier<?>) {
-                    return ((Supplier<R>) action).get();
-                }
-                else if (action instanceof Function<?,?>) {
-                    return ((Function<P,R>) (action)).apply(parameter);
+        try {
+            for (int i = 1; i <= retryCount; i++) {
+                try {
+                    if (action instanceof Runnable) {
+                        ((Runnable) action).run();
+                        return null;
+                    } else if (action instanceof Consumer<?>) {
+                        ((Consumer<P>) action).accept(parameter);
+                        return null;
+                    } else if (action instanceof Supplier<?>) {
+                        R returnValue = ((Supplier<R>) action).get();
+                        log.debug("Method {} return value is {}", methodName, returnValue);
+                        return returnValue;
+                    } else if (action instanceof Function<?, ?>) {
+                        R returnValue = ((Function<P, R>) (action)).apply(parameter);
+                        log.debug("Method {} with parameter {} return value is {}",
+                                methodName, parameter, returnValue);
+                        return returnValue;
+                    }
+                } catch (Exception e) {
+                    if (fix != null) {
+                        fix.accept(e);
+                    }
+                    WaiterUtils.waitSeconds(waitMilliseconds);
+                    log.debug("Method '{}' retry: {}.", methodName, i);
+                    lastException = e;
                 }
             }
-            catch (Exception e) {
-                if (fix != null) {
-                    fix.accept(e);
-                }
-                WaiterUtils.waitSeconds(waitMilliseconds);
-                log.debug("Method '{}' retry: {}.", methodName, i);
-                lastException = e;
-            }
+            throw new SmartRuntimeException(String.format(
+                    "Failed to run method '%s' after %d retries.",
+                    methodName, retryCount), lastException);
         }
-        throw new RuntimeException(String.format(
-                "Failed to run method '%s' after %d retries.",
-                methodName, retryCount), lastException);
+        finally {
+            methodMap.remove(threadId);
+            parameterMap.remove(threadId);
+        }
     }
 }

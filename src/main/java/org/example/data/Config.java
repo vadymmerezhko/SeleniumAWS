@@ -2,6 +2,7 @@ package org.example.data;
 
 import org.example.enums.BrowserName;
 import org.example.enums.TestMode;
+import org.example.exceptions.SmartRuntimeException;
 
 import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_PATH;
 
@@ -106,7 +107,8 @@ public class Config extends BaseConfig {
         String[] emulatorsArray = emulators.split(VALUES_DELIMITER);
 
         if (emulatorsArray.length <= index) {
-            throw new RuntimeException("Wrong emulator index: " + index);
+            throw new SmartRuntimeException(String.format(
+                    "Wrong emulator index: %d.", index));
         }
 
         return emulatorsArray[index];
@@ -138,7 +140,7 @@ public class Config extends BaseConfig {
         try {
             return getSubValue(browser, 1);
         } catch (Exception e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "The '%s' browser version is undefined.", browser));
         }
     }
@@ -169,7 +171,7 @@ public class Config extends BaseConfig {
         try {
             return getIntegerSubValue(browserSize, 0);
         } catch (Exception e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "The browser width is undefined: %s", browserSize));
         }
     }
@@ -183,7 +185,7 @@ public class Config extends BaseConfig {
         try {
             return getIntegerSubValue(browserSize, 1);
         } catch (Exception e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "The browser height is undefined: %s", browserSize));
         }
     }

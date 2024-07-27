@@ -1,7 +1,7 @@
 package org.example.drivers.elements;
 
 import org.example.drivers.playwright.PlaywrightElement;
-import org.example.drivers.wrappers.RobustWebElement;
+import org.example.drivers.wrappers.SmartWebElement;
 import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
@@ -33,8 +33,8 @@ public class ColorPicker extends BaseElement {
             ((PlaywrightElement)colorPicker).setValue(color);
             return;
         }
-        else if (colorPicker instanceof RobustWebElement) {
-            ((RobustWebElement)colorPicker).setValue(color);
+        else if (colorPicker instanceof SmartWebElement) {
+            ((SmartWebElement)colorPicker).setValue(color);
             return;
         }
         colorPicker.sendKeys(color);

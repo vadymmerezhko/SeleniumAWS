@@ -3,6 +3,7 @@ package org.example.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.drivers.playwright.PlaywrightElement;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.helpers.GlobalKeyboardListener;
 import org.example.helpers.TimeOut;
 import org.json.JSONException;
@@ -130,8 +131,7 @@ public class WebUtils {
             }
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
-                    "Cannot get mouse point coordinates:\n%s", e.getMessage()));
+            throw new SmartRuntimeException("Cannot get mouse point coordinates.", e);
         }
     }
 
@@ -175,9 +175,9 @@ public class WebUtils {
             return style;
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
-                    "Cannot get web element style '%s':\n%s.",
-                    propertyName, e.getMessage()));
+            throw new SmartRuntimeException(String.format(
+                    "Cannot get web element style '%s'.",
+                    propertyName), e);
         }
     }
 
@@ -198,9 +198,9 @@ public class WebUtils {
                     element, propertyName, propertyValue);
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
-                    "Cannot set web element style '%s':\n%s.",
-                    propertyName, e.getMessage()));
+            throw new SmartRuntimeException(String.format(
+                    "Cannot set web element style %s = '%s'.",
+                    propertyName, propertyValue), e);
         }
     }
 
@@ -237,8 +237,8 @@ public class WebUtils {
             }
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
-                    "Cannot highlight web element:\n%s", e.getMessage()));
+            throw new SmartRuntimeException(String.format(
+                    "Cannot highlight web element %s.", element),  e);
         }
     }
 
@@ -280,8 +280,49 @@ public class WebUtils {
             log.debug("Alert pop-up is closed with text: {}", text);
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
-                    "Cannot show alert text '%s':\n%s", text, e.getMessage()));
+            throw new SmartRuntimeException(String.format(
+                    "Cannot show alert text '%s'.", text), e);
+        }
+    }
+
+    /**
+     * Shaows cpnfirm popup with text.
+     * @param text The text.
+     * @return true if user clicks Yes or false otherwise.
+     */
+    public static boolean showConfirm(String text) {
+        try {
+            WebDriver driver = WebDriverFactory.getDriver();
+            WebDriverWait wait = new WebDriverWait(driver,
+                    Duration.ofSeconds(SHOW_POPUP_TIMEOUT_SECONDS));
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            String script = "window.originalConfirm = window.confirm;" +
+                    "window.userClickedOnConfirm = '';" +  // Initialize a tracker variable
+                    "window.confirm = function(message) {" +
+                    "    var result = originalConfirm(message);" +
+                    "    window.userClickedOnConfirm = result ? 'OK' : 'Cancel';" +
+                    "    return result;" +
+                    "};";
+
+            js.executeScript(script);
+            js.executeScript(String.format("confirm('%s');",
+                    ConverterUtils.escapeJavaScriptExceptSingleQuotes(text)));
+            log.debug("Confirm popup is open with text: {}", text);
+            // Wait for the confirm popup is closed by user.
+            wait.until(ExpectedConditions.not(ExpectedConditions.alertIsPresent()));
+
+            String userChoice = (String) js.executeScript("return window.userClickedOnConfirm;");
+
+            if (userChoice.equals("OK")) {
+                log.debug("User clicked 'OK' button on confirm popup.");
+                return true;
+            } else {
+                log.debug("User clicked 'CANCEL' button on confirm popup.");
+                return false;
+            }
+        } catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot open confirm popup with text: %s", text), e);
         }
     }
 
@@ -311,7 +352,8 @@ public class WebUtils {
         String script = String.format(
                 "var result = prompt('%s:', '%s');" +
                 "document.getElementById('prompt-result').value = result;",
-                ConverterUtils.escapeJavaScriptExcludeDoubleQuote(text), ConverterUtils.escapeJavaScriptExcludeDoubleQuote(defaultValue));
+                ConverterUtils.escapeJavaScriptExcludeDoubleQuote(text),
+                ConverterUtils.escapeJavaScriptExcludeDoubleQuote(defaultValue));
         jsExecutor.executeScript(script);
 
         // Wait for the alert (prompt) to be present
@@ -325,7 +367,7 @@ public class WebUtils {
         // Retrieve the input value from the hidden input field
         String userInput = (String) jsExecutor.executeScript(
                 "return document.getElementById('prompt-result').value;");
-        log.debug("Prompt pop-up is open with text '{}' and user input '{}'", text, userInput);
+        log.debug("Prompt pop-up is open with text '{}' and user input: '{}'", text, userInput);
         return userInput;
     }
 
@@ -376,26 +418,28 @@ public class WebUtils {
             }
             if (selector == null) {
                 selector = WebUtils.showPrompt(
-                        String.format("Please enter '%s' element selector", elementName),
+                        String.format(
+                                "WEB ELEMENT\n\nPlease enter '%s' element selector",
+                                elementName),
                         null);
             }
             String formatFormat =
                     "%s\nEnter the selector or just click OK to select the element.\n" +
-                    "Click CANCEL to terminate the test";
+                    "Or click CANCEL to terminate the test.";
 
             while (true) {
 
                 if (WebUtils.isSelectorValidAndUnique(element, text, selector)) {
                     selector = selector.trim();
                     selector = showPrompt(String.format(
-                            "Valid %s element selector.\n" +
-                            "Click OK to accept it or update it.\n" +
-                            "Click CANCEL to terminate the test",
+                            "WEB ELEMENT\n\nValid %s element selector.\n" +
+                            "\nClick OK to accept it or update it.\n" +
+                            "OR click CANCEL to terminate the test",
                             elementName), selector);
 
                     if (selector.isEmpty()) {
                         // Terminate all tests when user clicks Cancel button.
-                        terminateAllTests();
+                        WebDriverFactory.terminateAllBrowsersAndServers();
                     }
                 }
 
@@ -405,23 +449,27 @@ public class WebUtils {
                     return selector;
                 }
                 else if (!WebUtils.isValidElementSelectorFormat(selector)) {
-                    format = String.format(formatFormat, "Invalid '%s' element selector format.");
+                    format = String.format(formatFormat,
+                            "WEB ELEMENT\n\nInvalid '%s' element selector format.");
                 }
                 else if (WebUtils.numberOfElementsFoundBySelector(selector, text) > 1) {
-                    format = String.format(formatFormat, "More than one '%s' element is found by selector.");
+                    format = String.format(formatFormat,
+                            "WEB ELEMENT\n\nMore than one '%s' element is found by selector.");
                 }
                 else if (WebUtils.numberOfElementsFoundBySelector(selector, text) == 1) {
-                    format = String.format(formatFormat, "Wrong '%s' element is found by selector.");
+                    format = String.format(formatFormat,
+                            "WEB ELEMENT\n\nWrong '%s' element is found by selector.");
                 }
                 else if (WebUtils.numberOfElementsFoundBySelector(selector, text) == 0) {
-                    format = String.format(formatFormat, "No '%s' element is found by selector.");
+                    format = String.format(formatFormat,
+                            "WEB ELEMENT\n\nNo '%s' element is found by selector.");
                 }
                 String previousSelector = selector;
                 selector = showPrompt(String.format(format, elementName), selector);
 
                 if (selector.isEmpty()) {
                     // Terminate all tests when user clicks Cancel button.
-                    terminateAllTests();
+                    WebDriverFactory.terminateAllBrowsersAndServers();
                 }
 
                 if (selector.equals(previousSelector)) {
@@ -431,8 +479,9 @@ public class WebUtils {
             }
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
-                    "Cannot get '%s' element selector by all means.", elementName), e);
+            throw new SmartRuntimeException(String.format(
+                    "Cannot get '%s' element selector by all means.",
+                    elementName), e);
         }
     }
 
@@ -504,10 +553,10 @@ public class WebUtils {
         int size = elements.size();
 
         if (size == 0) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "No element found by selector %s.", selector));
         } else if (size > 1) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "More than one element found by selector %s: %d", selector, size));
         }
         log.debug("Element {} found by its selector {}.", elements.get(0), selector);
@@ -622,7 +671,7 @@ public class WebUtils {
      */
     public static WebElement getParentElement(WebElement element) {
         if (element == null || element.getTagName().equals("body")) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Cannot get parent element of element '%s'", element));
         }
         WebElement parent = element.findElement(By.xpath(".."));
@@ -666,7 +715,7 @@ public class WebUtils {
         log.debug("Element {} selection by user started.", elementName);
 
         WebUtils.showAlert(String.format(
-                "Please select '%s' element and click left Ctrl.",
+                "WEB ELEMENT\n\nPlease select '%s' element and click left Ctrl.",
                 elementName));
         initializeKeyBoardListener();
         WebElement element = null;
@@ -693,7 +742,7 @@ public class WebUtils {
         }
 
         if (element == null) {
-            throw new RuntimeException("Web element is not found.");
+            throw new SmartRuntimeException("Web element is not found.");
         }
         WebUtils.unhighlightElement();
         log.debug("We element {} is selected by user.", element);
@@ -711,7 +760,7 @@ public class WebUtils {
             String[] nameParts = elementName.split("\\.");
 
             if (nameParts.length != 2) {
-                throw new RuntimeException(String.format(
+                throw new SmartRuntimeException(String.format(
                         "Invalid web element name: '%s'", elementName));
             }
             String fileName = String.format("%s.json", nameParts[0]);
@@ -731,7 +780,7 @@ public class WebUtils {
                     elementName, selector, filePath);
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Can not save web %s element selector to file: %s",
                     elementName, filePath), e);
         }
@@ -750,7 +799,7 @@ public class WebUtils {
             String[] nameParts = elementName.split("\\.");
 
             if (nameParts.length != 2) {
-                throw new RuntimeException(String.format(
+                throw new SmartRuntimeException(String.format(
                         "Invalid web element name: '%s'", elementName));
             }
             String fileName = String.format("%s.json", nameParts[0]);
@@ -784,7 +833,7 @@ public class WebUtils {
             }
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Can not read web %s element selector from file: %s",
                     elementName, filePath), e);
         }
@@ -827,7 +876,7 @@ public class WebUtils {
                     log.debug("Asynchronous page object element selectors reading finished.");
                 }
             } catch (Exception e) {
-                throw new RuntimeException(String.format(
+                throw new SmartRuntimeException(String.format(
                         "Cannot read all web page files from: %s", folderPath), e);
             }
         });
@@ -889,7 +938,7 @@ public class WebUtils {
      */
     public static boolean isXpath(String selector) {
         if (selector == null) {
-            throw new RuntimeException("Selector string is NULL.");
+            throw new SmartRuntimeException("Selector string is NULL.");
         }
         selector = selector.trim();
         boolean result = selector.startsWith("//") || selector.startsWith("(//");
@@ -1350,13 +1399,5 @@ public class WebUtils {
                 }
             }
         };
-    }
-
-    private static void terminateAllTests() {
-        log.info("Test was terminated by user in debug mode.");
-        WebDriverFactory.closeAllDrivers();
-        ServerUtils.terminateAllSeleniumServers();
-        ServerUtils.terminateAwsRmiServer();
-        System.exit(-1);
     }
 }

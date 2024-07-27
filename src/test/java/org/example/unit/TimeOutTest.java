@@ -1,7 +1,7 @@
 package org.example.unit;
 
 import org.example.helpers.TimeOut;
-import org.example.exceptions.TimeOutException;
+import org.example.exceptions.SmartTimeOutException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,7 +32,7 @@ public class TimeOutTest {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        Assert.assertThrows(TimeOutException.class, timeOut::checkExpired);
+        Assert.assertThrows(SmartTimeOutException.class, timeOut::checkExpired);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class TimeOutTest {
         // Do not wait for timeout to expire; check immediately
         try {
             timeOut.checkExpired();
-        } catch (TimeOutException e) {
+        } catch (SmartTimeOutException e) {
             throw new AssertionError("TimeOutException should not " +
                     "be thrown if timeout is not expired.");
         }

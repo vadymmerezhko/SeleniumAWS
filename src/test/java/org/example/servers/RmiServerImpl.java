@@ -2,6 +2,7 @@ package org.example.servers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.Config;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.rmi.RmiServer;
 import org.example.utils.ServerUtils;
 import org.example.utils.SystemUtils;
@@ -74,7 +75,7 @@ public class RmiServerImpl extends UnicastRemoteObject implements RmiServer {
                     rmiServerName, publicIp, rmiRegistryPort);
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException("Failed to register RMI server.", e);
         }
     }
 

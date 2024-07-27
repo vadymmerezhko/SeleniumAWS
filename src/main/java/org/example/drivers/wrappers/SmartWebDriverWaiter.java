@@ -8,18 +8,18 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 /**
- * Robust web driver waiter class.
+ * Smart web driver waiter class.
  */
-public class RobustWebDriverWaiter {
+public class SmartWebDriverWaiter {
 
     private final WebDriver driver;
     JavascriptExecutor js;
 
     /**
-     * Robust web driver waiter constructor.
+     * Smart WebDriver waiter constructor.
      * @param driver The web driver instance.
      */
-    public RobustWebDriverWaiter(WebDriver driver) {
+    public SmartWebDriverWaiter(WebDriver driver) {
         this.driver = driver;
         js = (JavascriptExecutor) driver;
     }

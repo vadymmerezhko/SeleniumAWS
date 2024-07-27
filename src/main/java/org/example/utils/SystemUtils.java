@@ -3,6 +3,7 @@ package org.example.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.example.enums.DataModel;
 import org.example.enums.Platform;
+import org.example.exceptions.SmartRuntimeException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,7 +58,8 @@ public final class SystemUtils {
             platform = MAC;
         }
         else {
-            throw new RuntimeException("This OS is not supported: " + System.getProperty("os.name"));
+            throw new SmartRuntimeException(String.format(
+                    "This OS is not supported: %s.", System.getProperty("os.name")));
         }
         log.debug("The platform: {}.", platform);
         return platform;
@@ -74,7 +76,8 @@ public final class SystemUtils {
         switch (dataModel) {
             case "32" -> result = BIT32;
             case "64" -> result = BIT64;
-            default -> throw new RuntimeException("Unsupported data model: " + dataModel);
+            default -> throw new SmartRuntimeException(String.format(
+                    "Unsupported data model: %s.", dataModel));
         }
         log.debug("Data model: {}.", result);
         return result;
@@ -115,8 +118,8 @@ public final class SystemUtils {
                 log.debug(s);
             }
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Cannot run command line: %s",
-                    command), e);
+            throw new SmartRuntimeException(String.format(
+                    "Cannot run command line: %s", command), e);
         }
         return output.toString();
     }

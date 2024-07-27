@@ -1,5 +1,7 @@
 package org.example.enums;
 
+import org.example.exceptions.SmartRuntimeException;
+
 public enum BrowserName {
 
     CHROME("chrome"),
@@ -26,7 +28,7 @@ public enum BrowserName {
                 return value;
             }
         }
-        throw new RuntimeException(String.format(
+        throw new SmartRuntimeException(String.format(
                 "Cannot convert '%s' to BrowserName enum item.", name));
     }
 }

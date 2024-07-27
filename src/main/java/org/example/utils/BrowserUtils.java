@@ -5,6 +5,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.example.enums.BrowserName;
 import org.example.enums.DataModel;
 import org.example.enums.Platform;
+import org.example.exceptions.SmartRuntimeException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -50,8 +51,9 @@ public final class BrowserUtils {
             return browserBinaryFilePath;
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format("Cannot download %s:%s browser binary.\n%s",
-                    browserName, browserVersion, e.getMessage()));
+            throw new SmartRuntimeException(String.format(
+                    "Cannot download %s:%s browser binary.",
+                    browserName, browserVersion), e);
         }
     }
 
@@ -88,8 +90,9 @@ public final class BrowserUtils {
             return webDriverBinaryFilePath;
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format("Cannot download %s:%s WebDriver binary.\n%s",
-                    browserName, browserVersion, e.getMessage()));
+            throw new SmartRuntimeException(String.format(
+                    "Cannot download %s:%s WebDriver binary.",
+                    browserName, browserVersion), e);
         }
     }
 
@@ -97,7 +100,9 @@ public final class BrowserUtils {
         File binFolder = new File(DOWNLOAD_BIN_FOLDER_PATH);
         if (!binFolder.exists()) {
             if (!binFolder.mkdir()) {
-                throw new RuntimeException("Cannot create downloads bin folder: " + DOWNLOAD_BIN_FOLDER_PATH);
+                throw new SmartRuntimeException(String.format(
+                        "Cannot create downloads bin folder: %s",
+                        DOWNLOAD_BIN_FOLDER_PATH));
             }
         }
     }
@@ -128,7 +133,8 @@ public final class BrowserUtils {
             case CHROME -> browserFileName = SystemUtils.isWindows() ? "chrome.exe" : "chrome";
             case FIREFOX -> browserFileName = SystemUtils.isWindows() ? "firefox.exe" : "firefox";
             case EDGE -> browserFileName = SystemUtils.isWindows() ? "msedge.exe" : "msedge";
-            default -> throw new RuntimeException("Cannot get browser binary file path for " + browserName);
+            default -> throw new SmartRuntimeException(String.format(
+                    "Cannot get browser binary file path for %s.", browserName));
         }
         return String.format("%s/%s/%s", browserFolderPath, browserFolderName, browserFileName);
     }
@@ -141,7 +147,8 @@ public final class BrowserUtils {
             case CHROME -> webDriverFileName = SystemUtils.isWindows() ? "chromedriver.exe" : "chromedriver";
             case FIREFOX -> webDriverFileName = SystemUtils.isWindows() ? "geckodriver.exe" : "geckodriver";
             case EDGE -> webDriverFileName = SystemUtils.isWindows() ? "msedgedriver.exe" : "msedgedriver";
-            default -> throw new RuntimeException("Cannot get WebDriver binary file path for " + browserName);
+            default -> throw new SmartRuntimeException(String.format(
+                    "Cannot get WebDriver binary file path for %s.", browserName));
         }
         return String.format("%s/%s/%s", browserFolderPath, webDriverFolderName, webDriverFileName);
     }

@@ -2,6 +2,7 @@ package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.example.exceptions.SmartRuntimeException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -37,7 +38,7 @@ public final class FileSystemUtils {
             log.debug("File {} is created in folder {} with content: {}", fileName, folderPath, fileContent);
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format("Cannot create %s/%s file.",
+            throw new SmartRuntimeException(String.format("Cannot create %s/%s file.",
                     folderPath, fileName), e);
         }
     }
@@ -56,8 +57,9 @@ public final class FileSystemUtils {
             createFile(file.getParent(), file.getName(), fileContent);
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format("Cannot create %s file:\n",
-                    filePath), e);
+            throw new SmartRuntimeException(String.format(
+                    "Cannot create %s file with content: '%s'.",
+                    filePath, fileContent), e);
         }
     }
 
@@ -72,14 +74,14 @@ public final class FileSystemUtils {
             File folder = new File(folderPath);
             if (!folder.exists()) {
                 if (!folder.mkdirs()) {
-                    throw new RuntimeException(String.format(
-                            "Cannot create folder %s", folderPath));
+                    throw new SmartRuntimeException(String.format(
+                            "Cannot create folder %s.", folderPath));
                 }
                 log.debug("Folder {} is created.", folderPath);
             }
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Cannot create folder %s.", folderPath), e);
         }
     }
@@ -98,7 +100,7 @@ public final class FileSystemUtils {
             return fileContent;
         }
         catch (IOException e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Cannot read from file %s.", filePath), e);
         }
     }
@@ -118,11 +120,13 @@ public final class FileSystemUtils {
                 if (file.delete()) {
                     log.debug("File: {} is deleted or was not present.", filePath);
                 } else {
-                    throw new RuntimeException("Cannot delete file: " + filePath);
+                    throw new SmartRuntimeException(String.format(
+                            "Cannot delete file: %s.", filePath));
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Cannot delete file: " + filePath, e);
+            throw new SmartRuntimeException(String.format(
+                    "Cannot delete file: %s.", filePath), e);
         }
     }
 
@@ -139,7 +143,7 @@ public final class FileSystemUtils {
             log.info("Folder {} is deleted.", folderPath);
         }
         catch (IOException e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Cannot delete folder %s." , folderPath), e);
         }
     }
@@ -158,7 +162,7 @@ public final class FileSystemUtils {
             log.debug("File: {} is moved to {}.", fromPath, toPath);
         }
         catch (Exception e) {
-            throw new RuntimeException(
+            throw new SmartRuntimeException(
                     String.format("Cannot move file %s to %s.",
                             fromPath, toPath), e);
         }
@@ -202,13 +206,13 @@ public final class FileSystemUtils {
                     return fileNames;
                 }
             } else {
-                throw new RuntimeException(String.format(
+                throw new SmartRuntimeException(String.format(
                         "The specified path '%s' is not a directory or does not exist.",
                         folderPath));
             }
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Cannot get file names from the folder: %s",
                     folderPath), e);
         }
@@ -235,7 +239,7 @@ public final class FileSystemUtils {
             }
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Cannot get file extension form the file name: %s",
                     fileName), e);
         }
@@ -264,7 +268,7 @@ public final class FileSystemUtils {
             return nameNoExtension;
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Cannot get file name without extension form the file name: %s",
                     fileName), e);
         }

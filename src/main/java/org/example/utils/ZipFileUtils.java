@@ -6,6 +6,7 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.AesKeyStrength;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import net.lingala.zip4j.model.enums.EncryptionMethod;
+import org.example.exceptions.SmartRuntimeException;
 
 import java.io.File;
 
@@ -48,7 +49,7 @@ public final class ZipFileUtils {
             zipFile.close();
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Cannot unzip file %s to folder %s.",
                     zipFilePath, folderPath), e);
         }
@@ -93,7 +94,7 @@ public final class ZipFileUtils {
                     folderPath, zipFilePath);
         }
         catch (Exception e) {
-            throw new RuntimeException(String.format(
+            throw new SmartRuntimeException(String.format(
                     "Cannot zip folder %s to zip file %s.",
                     folderPath, zipFilePath), e);
         }
