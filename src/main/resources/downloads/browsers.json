@@ -1,12 +1,12 @@
 {
   "chrome": {
     "windows64": {
-      "stable":  "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.72/win64/chrome-win64.zip",
-      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.57/win64/chrome-win64.zip",
+      "stable": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.72/win64/chrome-win64.zip",
+      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.57/win64/chrome-win64.zip"
     },
     "linux64": {
       "stable": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.72/linux64/chrome-linux64.zip",
-      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.57/linux64/chrome-linux64.zip",
+      "beta": "https://storage.googleapis.com/chrome-for-testing-public/127.0.6533.57/linux64/chrome-linux64.zip"
     }
   }
 }
