@@ -94,6 +94,32 @@ public final class DataValidationUtils {
     }
 
     /**
+     * Validates that value is not less than MIN value.
+     * @param value The value.
+     * @param min The MIN value.
+     * @param dataName The data name.
+     */
+    public static void validateMin(long value, long min, String dataName) {
+        if (value < min) {
+            handleError(String.format("%s has value less than MIN=%d: %d",
+                    dataName, min, value));
+        }
+    }
+
+    /**
+     * Validates that value is not bigger than MAX value.
+     * @param value The value.
+     * @param max The MAX value.
+     * @param dataName The data name.
+     */
+    public static void validateMax(long value, long max, String dataName) {
+        if (value > max) {
+            handleError(String.format("%s has value less than MIN=%d: %d",
+                    dataName, max, value));
+        }
+    }
+
+    /**
      * Validates file path.
      * Throws exception if path is invalid.
      * @param filePath Yhe file  path.

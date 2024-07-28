@@ -71,8 +71,8 @@ jobs:
       #- name: Test - Local WebDriver - Linux Chrome
       #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local" "-Dbrowser=chrome:stable"
 
-      - name: Test - Local Playwright - Linux Firefox
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_playwright" "-Dbrowser=firefox"
+      - name: Test - Local Playwright - Linux Chromium
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_playwright" "-Dbrowser=chromium"
 
       - name: Test - Local Playwright - Linux Chromium
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_playwright" "-Dbrowser=chromium"

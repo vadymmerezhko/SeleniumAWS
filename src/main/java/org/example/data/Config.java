@@ -1,8 +1,10 @@
 package org.example.data;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.enums.BrowserName;
 import org.example.enums.TestMode;
 import org.example.exceptions.SmartRuntimeException;
+import org.example.utils.DataValidationUtils;
 
 import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_PATH;
 
@@ -10,9 +12,10 @@ import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_PATH;
  * The configuration file class.
  * See README.md fi;e for more details.
  */
+@Slf4j
 public class Config extends BaseConfig {
     private static final String TESTNG_FILE = "testngFile";
-    private static final String TREAD_COUNT = "threadCount";
+    private static final String THREAD_COUNT = "threadCount";
     private static final String TEST_MODE = "testMode";
     private static final String BROWSER = "browser";
     private static final String HEADLESS = "headless";
@@ -39,6 +42,8 @@ public class Config extends BaseConfig {
      */
     private Config(String filePath) {
         super(filePath);
+        log.debug("{} file path: {}", getClass().getSimpleName(), filePath);
+        DataValidationUtils.validateFilePath(filePath, "filePath");
     }
 
     /**
@@ -54,7 +59,8 @@ public class Config extends BaseConfig {
      * @return The maximal tread count.
      */
     synchronized public int getThreadCount() {
-        return getIntegerProperty(TREAD_COUNT);
+        validateDebugModeProperty();
+        return getIntegerProperty(THREAD_COUNT);
     }
 
     /**
@@ -195,6 +201,7 @@ public class Config extends BaseConfig {
      * @return The headless flag.
      */
     synchronized public boolean getHeadless() {
+        validateDebugModeProperty();
         return getBooleanProperty(HEADLESS);
     }
 
@@ -219,6 +226,7 @@ public class Config extends BaseConfig {
      * @return The debug mode flag.
      */
     synchronized public boolean getDebugMode() {
+        validateDebugModeProperty();
         return getBooleanProperty(DEBUG_MODE);
     }
 
@@ -244,5 +252,33 @@ public class Config extends BaseConfig {
      */
     synchronized public String getPagesFolderPath() {
         return getStringProperty(PAGES_FOLDER_PATH);
+    }
+
+    private void validateDebugModeProperty() {
+        boolean debugMode = getBooleanProperty(DEBUG_MODE);
+
+        if (debugMode) {
+            String format = "Wrong '%1$s' configuration parameter value '%2$s' for debugMode=true.\n" +
+                            "It should be Test %1$s=%3$s (\"-D%1$s=%3$s\").";
+            String errorMessage = null;
+            String testMode = getStringProperty(TEST_MODE);
+            String headless = getStringProperty(HEADLESS);
+            String threadCount = getStringProperty(THREAD_COUNT);
+
+            if (!testMode.equals("local")) {
+                errorMessage = String.format(format, TEST_MODE, testMode, "local");
+            }
+            else if (!headless.equals("false")) {
+                errorMessage = String.format(format, HEADLESS, headless, "false");
+            }
+            else if (!threadCount.equals("1")) {
+                errorMessage = String.format(format, THREAD_COUNT, threadCount, "1");
+            }
+
+            if (errorMessage != null) {
+                log.error(errorMessage);
+                System.exit(-1);
+            }
+        }
     }
 }

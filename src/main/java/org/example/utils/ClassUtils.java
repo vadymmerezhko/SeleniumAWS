@@ -15,8 +15,6 @@ import java.util.function.Supplier;
  */
 @Slf4j
 public final class ClassUtils {
-    private  static final int MAX_RETRY_COUNT = 100;
-    private  static final int MAX_WAIT_MILLISECONDS = 60 * 1000;
 
     private ClassUtils() {}
     private static final ConcurrentMap<Long, String> methodMap = new ConcurrentHashMap<>();
@@ -180,8 +178,8 @@ public final class ClassUtils {
 
         DataValidationUtils.validateNotNull(action, "action");
         DataValidationUtils.validateNotBlank(methodName, "methodName");
-        DataValidationUtils.validateRange(retryCount, 1, MAX_RETRY_COUNT, "retryCount");
-        DataValidationUtils.validateRange(waitMilliseconds,0, MAX_WAIT_MILLISECONDS, "waitMilliseconds");
+        DataValidationUtils.validateMin(retryCount, 1, "retryCount");
+        DataValidationUtils.validateMin(waitMilliseconds, 0,  "waitMilliseconds");
 
         try {
             for (int i = 1; i <= retryCount; i++) {

@@ -1,6 +1,8 @@
 package org.example.data;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
+import org.example.utils.DataValidationUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+@Slf4j
 public abstract class BaseConfig {
     private static final Map<String, String> stringPropertyMap = new HashMap<>();
     private static final Map<String, Integer> integerPropertyMap = new HashMap<>();
@@ -26,6 +29,8 @@ public abstract class BaseConfig {
     }
 
     protected String getStringProperty(String propertyName) {
+        DataValidationUtils.validateNotBlank(propertyName, "propertyName");
+
         if (!stringPropertyMap.containsKey(propertyName)) {
             String propertyValue = System.getProperty(propertyName);
 
@@ -42,6 +47,7 @@ public abstract class BaseConfig {
                         "configuration property '%s' is undefined.", propertyName));
             }
             stringPropertyMap.put(propertyName, propertyValue);
+            log.debug("{} property {}={}", getClass().getSimpleName(), propertyName, propertyValue);
             return propertyValue;
         }
         return stringPropertyMap.get(propertyName);

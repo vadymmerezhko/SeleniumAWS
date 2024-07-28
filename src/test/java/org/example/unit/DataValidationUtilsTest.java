@@ -134,4 +134,26 @@ public class DataValidationUtilsTest {
     public void testValidateFolderPathMultilineInvalid() {
         DataValidationUtils.validateFolderPath("./target\n", "folderPathData");
     }
+
+    @Test
+    public void testValidateMinValid() {
+        DataValidationUtils.validateMin(50, 50, "minData");
+        DataValidationUtils.validateMin(0, -1, "minData");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidateMinInvalid() {
+        DataValidationUtils.validateMin(49, 50, "minData");
+    }
+
+    @Test
+    public void testValidateMaxValid() {
+        DataValidationUtils.validateMax(50, 50, "maxData");
+        DataValidationUtils.validateMax(-1, 0, "maxData");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidateMaxInvalid() {
+        DataValidationUtils.validateMax(51, 50, "minData");
+    }
 }
