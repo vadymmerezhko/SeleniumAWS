@@ -10,7 +10,7 @@ public class ConverterUtilsTest {
     public void testEscapeJavaScriptExcludeDoubleQuote() {
         String javaScript = "var x = \"John\\'s book\"; // Example code";
         String expected = "var x \\u003D \"John\\\\\\'s book\"; // Example code";
-        String actual = ConverterUtils.escapeJavaScriptExcludeDoubleQuote(javaScript);
+        String actual = ConverterUtils.escapeJavaScriptExceptDoubleQuote(javaScript);
         Assert.assertEquals(actual, expected, "JavaScript was not properly escaped " +
                 "when excluding double quotes.");
     }
@@ -26,7 +26,7 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testEscapeJavaScriptExcludeDoubleQuoteNullInput() {
-        ConverterUtils.escapeJavaScriptExcludeDoubleQuote(null);
+        ConverterUtils.escapeJavaScriptExceptDoubleQuote(null);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
