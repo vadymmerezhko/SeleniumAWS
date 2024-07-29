@@ -3,6 +3,7 @@ package org.example.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.drivers.playwright.PlaywrightElement;
+import org.example.drivers.wrappers.SmartWebElement;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.helpers.GlobalKeyboardListener;
 import org.example.helpers.TimeOut;
@@ -20,8 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.example.constants.Settings.OPEN_AI_API_KEY_NAME;
-import static org.example.constants.Settings.OPEN_AI_API_URL;
+import static org.example.constants.Settings.*;
 
 @Slf4j
 public class WebUtils {
@@ -969,6 +969,54 @@ public class WebUtils {
         log.debug("Element selector {} format is valid: {}.",
                 selector, result);
         return result;
+    }
+
+    /**
+     * Waits till element is not moving.
+     * @param element The element.
+     */
+    public static void waitForElementNotMoving(WebElement element) {
+        TimeOut timeOut = new TimeOut("Wait for element not moving", WAIT_ELEMENT_SECONDS);
+
+        if (element instanceof SmartWebElement) {
+            WebElement nativeElement = ((SmartWebElement) element).getNativeElement();
+            org.openqa.selenium.Point previousPoint = nativeElement.getLocation();
+
+            while (!timeOut.getExpired()) {
+                WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
+                org.openqa.selenium.Point currentPoint = nativeElement.getLocation();
+
+                if (currentPoint.equals(previousPoint)) {
+                    log.debug("Element {} is not moving", element);
+                    break;
+                }
+                previousPoint = currentPoint;
+            }
+        }
+    }
+
+    /**
+     * Waits till element is not sizing.
+     * @param element The element.
+     */
+    public static void waitForElementNotSizing(WebElement element) {
+        TimeOut timeOut = new TimeOut("Wait for element not moving", WAIT_ELEMENT_SECONDS);
+
+        if (element instanceof SmartWebElement) {
+            WebElement nativeElement = ((SmartWebElement) element).getNativeElement();
+            Dimension previousSize = nativeElement.getSize();
+
+            while (!timeOut.getExpired()) {
+                WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
+                Dimension currentSize = ((SmartWebElement) element).getSize();
+
+                if (currentSize.equals(previousSize)) {
+                    log.debug("Element {} is not moving", element);
+                    break;
+                }
+                previousSize = currentSize;
+            }
+        }
     }
 
     private static synchronized void initializeKeyBoardListener() {

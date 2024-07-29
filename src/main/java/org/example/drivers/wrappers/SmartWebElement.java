@@ -4,6 +4,7 @@ import org.example.data.Config;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ClassUtils;
 import org.example.utils.WaiterUtils;
+import org.example.utils.WebUtils;
 import org.openqa.selenium.*;
 
 import java.util.List;
@@ -434,14 +435,18 @@ public class SmartWebElement extends BaseSmartWebElement {
         if (exception instanceof StaleElementReferenceException ||
             exception instanceof ElementNotInteractableException ||
             exception instanceof NoSuchElementException) {
+            WebElement fixedElement;
 
             if (parent == null) {
                 scrollToElement();
-                element = waiter.waitForElementVisibilityBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
+                fixedElement = waiter.waitForElementVisibilityBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
             } else {
                 parent.fixClickableWebElement(exception);
-                element = waitForChildElementPresence(by);
+                fixedElement = waitForChildElementPresence(by);
             }
+            WebUtils.waitForElementNotMoving(fixedElement);
+            WebUtils.waitForElementNotSizing(fixedElement);
+            element = fixedElement;
         }
     }
 }
