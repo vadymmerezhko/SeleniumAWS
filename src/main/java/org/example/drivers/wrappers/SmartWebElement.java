@@ -370,7 +370,9 @@ public class SmartWebElement extends BaseSmartWebElement {
             nativeElement = ((SmartWebElement) element).getNativeElement();
         }
         try {
-            ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", nativeElement);
+            ((JavascriptExecutor)driver).executeScript(
+                    "arguments[0].scrollIntoView(true);",
+                    nativeElement);
         }
         catch (StaleElementReferenceException |
                ElementNotInteractableException |
@@ -388,7 +390,8 @@ public class SmartWebElement extends BaseSmartWebElement {
         if (element instanceof SmartWebElement) {
             nativeElement = ((SmartWebElement) element).getNativeElement();
         }
-        ((JavascriptExecutor)driver).executeScript(String.format("arguments[0].value='%s'", value), nativeElement);
+        ((JavascriptExecutor)driver).executeScript(
+                String.format("arguments[0].value='%s'", value), nativeElement);
     }
 
     private WebElement waitForChildElementPresence(By childBy) {
@@ -413,7 +416,6 @@ public class SmartWebElement extends BaseSmartWebElement {
     }
 
     private void fixClickableWebElement(Exception exception) {
-        WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLISECONDS);
 
         if (exception instanceof StaleElementReferenceException ||
             exception instanceof ElementNotInteractableException ||
@@ -430,7 +432,6 @@ public class SmartWebElement extends BaseSmartWebElement {
     }
 
     private void fixVisibleWebElement(Exception exception) {
-        WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLISECONDS);
 
         if (exception instanceof StaleElementReferenceException ||
             exception instanceof ElementNotInteractableException ||

@@ -6,6 +6,7 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.ScreenshotType;
+import lombok.extern.slf4j.Slf4j;
 import org.example.drivers.selectors.SmartByParser;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ClassUtils;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 /**
  * The Playwright - Selenium WebDriver wrapper class.
  */
+@Slf4j
 public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScreenshot {
     private Browser browser;
     private PlaywrightPage playwrightPage;
@@ -67,6 +69,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
                         "Accessibility issues:\n%s",
                         accessibilityScanResults.getViolations()));
             }
+            log.debug("checkAccessibility()");
         }
     }
 
@@ -78,6 +81,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
     public void get(String url) {
         page.navigate(url);
         page.waitForLoadState();
+        log.debug("get({})", url);
         isPageOpen = true;
         checkAccessibility();
     }
@@ -88,7 +92,9 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public String getCurrentUrl() {
-        return page.url();
+        String currentUrl = page.url();
+        log.debug("getCurrentUrl(): {}", currentUrl);
+        return currentUrl;
     }
 
     /**
@@ -97,7 +103,9 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public String getTitle() {
-        return page.title();
+        String title = page.title();
+        log.debug("getTitle(): {}", title);
+        return title;
     }
 
     /**
@@ -113,8 +121,9 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
             locators = page.locator(locatorString).all();
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException(e);
         }
+        log.debug("Elements found by {}: {}", by, locators);
         return locators.stream()
                 .map(locator -> new PlaywrightElement(by, locator, this))
                 .collect(Collectors.toList());
@@ -130,10 +139,11 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         String locatorString = SmartByParser.getLocatorString(by);
         try {
             Locator locator = page.locator(locatorString);
+            log.debug("Element found by {}: {}", by, locator);
             return new PlaywrightElement(by, locator,this);
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException(e);
         }
     }
 
@@ -143,7 +153,9 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public String getPageSource() {
-        return page.innerHTML("*");
+        String pageSource = page.innerHTML("*");
+        log.debug("getPageSource():]\n{}", pageSource);
+        return pageSource;
     }
 
     /**
@@ -152,6 +164,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
     @Override
     public void close() {
         browser.close();
+        log.debug("Browser is closed.");
     }
 
     /**\
@@ -162,6 +175,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         if (browser != null) {
             browser.close();
             browser = null;
+            log.debug("Browse quit.");
         }
     }
 
@@ -235,7 +249,9 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
             return ((Locator) params.get(0)).evaluate(script);
         }
 
-        return page.evaluate(script, params);
+        Object result = page.evaluate(script, params);
+        log.debug("Executed JS:\n{}\nResult: '{}'", script, result);
+        return result;
     }
 
     /**
@@ -246,7 +262,9 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public Object executeAsyncScript(String script, Object... args) {
-        return executeScript(script, args);
+        Object result = executeScript(script, args);
+        log.debug("Executed asynchronous JS:\n{}\nResult: '{}'", script, result);
+        return result;
     }
 
     /**
@@ -263,6 +281,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         }
         try {
             byte[] data = page.screenshot(new Page.ScreenshotOptions().setType(ScreenshotType.JPEG));
+            log.debug("Screenshot was taken.");
             return ScreenshotUtils.convertScreenshotBytes(target, data);
         }
         catch (Exception e) {

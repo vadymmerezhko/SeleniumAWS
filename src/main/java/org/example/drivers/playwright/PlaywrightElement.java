@@ -3,6 +3,7 @@ package org.example.drivers.playwright;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.options.BoundingBox;
+import lombok.extern.slf4j.Slf4j;
 import org.example.drivers.selectors.SmartByParser;
 import org.example.drivers.wrappers.BaseSmartWebElement;
 import org.example.exceptions.SmartRuntimeException;
@@ -12,9 +13,11 @@ import org.openqa.selenium.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 /**
  * The Playwright - WebElement wrapper class.
  */
+@Slf4j
 public class PlaywrightElement extends BaseSmartWebElement {
 
     private final Locator locator;
@@ -39,20 +42,12 @@ public class PlaywrightElement extends BaseSmartWebElement {
     }
 
     /**
-     * Clicks the web element.
-     */
-    @Override
-    public void click() {
-        locator.click();
-        ((PlaywrightDriver) driver).checkAccessibility();
-    }
-
-    /**
      * Selects option by its text.
      * @param option The text of the option to select.
      */
     public void selectOptionByText(String option) {
         locator.selectOption(option);
+        log.debug("{} option selected by text: '{}'", locator, option);
     }
 
     /**
@@ -61,7 +56,18 @@ public class PlaywrightElement extends BaseSmartWebElement {
      */
     public void setValue(String value) {
         ElementHandle elementHandle = locator.elementHandle();
-        locator.evaluate(String.format("elementHandle => elementHandle.value='%s'", value), elementHandle);
+        locator.evaluate(String.format(
+                "elementHandle => elementHandle.value='%s'", value),
+                elementHandle);
+        log.debug("{} setValue({})", locator, value);
+    }
+
+    /**
+     * Clicks the web element.
+     */
+    @Override
+    public void click() {
+        locator.click();
     }
 
     /**
@@ -70,6 +76,8 @@ public class PlaywrightElement extends BaseSmartWebElement {
     @Override
     public void submit() {
         locator.click();
+        log.debug("{} submit().", locator);
+        ((PlaywrightDriver) driver).checkAccessibility();
     }
 
     /**
@@ -86,6 +94,7 @@ public class PlaywrightElement extends BaseSmartWebElement {
                 throw new SmartRuntimeException(e);
             }
         }
+        log.debug("{} sendKeys({})", locator, keysToSend);
     }
 
     /**
@@ -94,6 +103,7 @@ public class PlaywrightElement extends BaseSmartWebElement {
     @Override
     public void clear() {
         locator.clear();
+        log.debug("{} clear().", locator);
     }
 
     /**
@@ -103,24 +113,28 @@ public class PlaywrightElement extends BaseSmartWebElement {
     @Override
     public String getTagName() {
         ElementHandle elementHandle = locator.elementHandle();
-        String tagName = (String) locator.evaluate("elementHandle => elementHandle.tagName", elementHandle);
-        return tagName.toLowerCase();
+        String tagName = ((String) locator.evaluate(
+                "elementHandle => elementHandle.tagName", elementHandle))
+                .toLowerCase();
+        log.debug("{} getTagName(): {}", locator, tagName);
+        return tagName;
     }
 
     /**
      * Returns attribute value by its name.
-     * @param name The attribute name.
+     * @param attributeName The attribute name.
      * @return The attribute value.
      */
     @Override
-    public String getAttribute(String name) {
-        String value;
-        if (name.equals("value")) {
-            value = locator.inputValue();
+    public String getAttribute(String attributeName) {
+        String attributeValue;
+        if (attributeName.equals("value")) {
+            attributeValue = locator.inputValue();
         } else {
-            value = locator.getAttribute(name);
+            attributeValue = locator.getAttribute(attributeName);
         }
-        return value;
+        log.debug("{} getAttribute({}) is: {}", locator, attributeName, attributeValue);
+        return attributeValue;
     }
 
     /**
@@ -136,6 +150,7 @@ public class PlaywrightElement extends BaseSmartWebElement {
         } else {
             isSelected = locator.isChecked();
         }
+        log.debug("{} isSelected(): {}", locator, isSelected);
         return isSelected;
     }
 
@@ -145,7 +160,9 @@ public class PlaywrightElement extends BaseSmartWebElement {
      */
     @Override
     public boolean isEnabled() {
-        return locator.isEnabled();
+        boolean isEnabled = locator.isEnabled();
+        log.debug("{} isEnabled(): {}", locator, isEnabled);
+        return isEnabled;
     }
 
     /**
@@ -154,7 +171,9 @@ public class PlaywrightElement extends BaseSmartWebElement {
      */
     @Override
     public String getText() {
-        return locator.innerText();
+        String text = locator.innerText();
+        log.debug("{} getText(): {}", locator, text);
+        return text;
     }
 
     /**
@@ -172,6 +191,7 @@ public class PlaywrightElement extends BaseSmartWebElement {
         catch (Exception e) {
             throw new RuntimeException(e);
         }
+        log.debug("{} findElements by {}: {}", locator, by, childLocators);
         return childLocators.stream()
                 .map(locator -> new PlaywrightElement(by, locator, driver))
                 .collect(Collectors.toList());
@@ -187,6 +207,7 @@ public class PlaywrightElement extends BaseSmartWebElement {
         String locatorString = SmartByParser.getLocatorString(by);
         try {
             Locator childLocator = locator.locator(locatorString);
+            log.debug("{} findElement by {}: {}", locator, by, childLocator);
             return new PlaywrightElement(by, childLocator, driver);
         }
         catch (Exception e) {
@@ -200,7 +221,9 @@ public class PlaywrightElement extends BaseSmartWebElement {
      */
     @Override
     public boolean isDisplayed() {
-        return locator.isVisible() && !locator.isHidden();
+       boolean isDisplayed = locator.isVisible() && !locator.isHidden();
+        log.debug("{} isDisplayed(): {}", locator, isDisplayed);
+        return isDisplayed;
     }
 
     /**
@@ -210,7 +233,9 @@ public class PlaywrightElement extends BaseSmartWebElement {
     @Override
     public Point getLocation() {
         BoundingBox boundingBox = locator.boundingBox();
-        return new Point((int)boundingBox.x, (int)boundingBox.y);
+        Point location = new Point((int)boundingBox.x, (int)boundingBox.y);
+        log.debug("{} getLocation(): {}", locator, location);
+        return location;
     }
 
     /**
@@ -220,7 +245,9 @@ public class PlaywrightElement extends BaseSmartWebElement {
     @Override
     public Dimension getSize() {
         BoundingBox boundingBox = locator.boundingBox();
-        return new Dimension((int)boundingBox.width, (int)boundingBox.height);
+        Dimension size = new Dimension((int)boundingBox.width, (int)boundingBox.height);
+        log.debug("{} getLocation(): {}", locator, size);
+        return size;
     }
 
     /**
@@ -230,7 +257,10 @@ public class PlaywrightElement extends BaseSmartWebElement {
     @Override
     public Rectangle getRect() {
         BoundingBox boundingBox = locator.boundingBox();
-        return new Rectangle((int)boundingBox.x, (int)boundingBox.y, (int)boundingBox.width, (int)boundingBox.height);
+        Rectangle rect = new Rectangle((int)boundingBox.x, (int)boundingBox.y,
+                (int)boundingBox.width, (int)boundingBox.height);
+        log.debug("{} getRect(): {}", locator, rect);
+        return rect;
     }
 
     /**
@@ -240,13 +270,11 @@ public class PlaywrightElement extends BaseSmartWebElement {
      */
     @Override
     public String getCssValue(String styleName) {
-        try {
-            ElementHandle elementHandle = locator.elementHandle();
-            return (String) locator.evaluate(String.format(
-                    "elementHandle => elementHandle.style.%s", styleName), elementHandle);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        ElementHandle elementHandle = locator.elementHandle();
+        String cssValue = (String) locator.evaluate(String.format(
+                "elementHandle => elementHandle.style.%s", styleName), elementHandle);
+        log.debug("{} getCssValue(): {}", locator, cssValue);
+        return cssValue;
     }
 
     /**
@@ -259,7 +287,9 @@ public class PlaywrightElement extends BaseSmartWebElement {
         ElementHandle elementHandle = locator.elementHandle();
         Object property = locator.evaluate(
                 "elementHandle => elementHandle." + propertyName, elementHandle);
-        return String.valueOf(property);
+        String domProperty = String.valueOf(property);
+        log.debug("{} getDomProperty(): {}", locator, domProperty);
+        return domProperty;
     }
 
     /**
@@ -273,7 +303,9 @@ public class PlaywrightElement extends BaseSmartWebElement {
         Object attribute = locator.evaluate(
                 String.format("elementHandle => elementHandle.getAttribute('%s')", attributeName),
                 elementHandle);
-        return String.valueOf(attribute);
+        String domAttributeValue = String.valueOf(attribute);
+        log.debug("{} getDomAttribute(): {}", locator, domAttributeValue);
+        return domAttributeValue;
     }
 
     /**
@@ -286,6 +318,8 @@ public class PlaywrightElement extends BaseSmartWebElement {
     @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
         byte[] data = locator.screenshot();
-        return ScreenshotUtils.convertScreenshotBytes(target, data);
+        X screenshot = ScreenshotUtils.convertScreenshotBytes(target, data);
+        log.debug("{} getScreenshotAs()", locator);
+        return screenshot;
     }
 }
