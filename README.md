@@ -1,5 +1,9 @@
-## SeleniumAWS 1.10.0
+## SeleniumAWS 1.10.1
 ### Command line parameters
+AUT site host:
+```bash
+-DsiteHost=https:\\<host>:<port>
+```
 TestNG file name:
 ```bash
 -DtestngFile=<file name>

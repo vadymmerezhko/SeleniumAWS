@@ -752,6 +752,38 @@ public class WebUtils {
 
     /**
      * Saves element selector to JSON file.
+     * @param pageName The page name.
+     * @param url The page URL.
+     */
+    public static void savePageUrlToFile(String folderPath, String pageName, String url, String siteHost) {
+        String filePath = null;
+
+        try {
+            String fileName = String.format("%s.json", pageName);
+            JSONObject json;
+            filePath = String.format("%s/%s", folderPath, fileName);
+
+            if (FileSystemUtils.fileExists(filePath)) {
+                String jsonString = FileSystemUtils.readFile(filePath);
+                json = new JSONObject(jsonString);
+            } else {
+                json = new JSONObject();
+            }
+            String urlFormat = url.replace(siteHost, "%s");
+            json.put(PAGE_URL_FIELD_NAME, urlFormat);
+            FileSystemUtils.createFile(filePath, json.toString());
+            log.debug("Page {} URL {} is saved to file {}.",
+                    pageName, url, filePath);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Can not save web page %s URL %s to file: %s",
+                    pageName, url, filePath), e);
+        }
+    }
+
+    /**
+     * Saves element selector to JSON file.
      * @param elementName The element name.
      * @param selector The element selector.
      */
@@ -782,8 +814,61 @@ public class WebUtils {
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
-                    "Can not save web %s element selector to file: %s",
-                    elementName, filePath), e);
+                    "Can not save web %s element selector %s to file: %s",
+                    elementName, selector, filePath), e);
+        }
+    }
+
+    /**
+     * Reads page URL from file.
+     * @param folderPath The folder path.
+     * @param pageName The page name.
+     * @param siteHost The site host.
+     * @return The page URL.
+     */
+    public static String readPageUrlFromFile(String folderPath, String pageName, String siteHost) {
+        String filePath = null;
+        try {
+            String fileName = String.format("%s.json", pageName);
+            JSONObject json;
+            filePath = String.format("%s/%s", folderPath, fileName);
+
+            if (FileSystemUtils.fileExists(filePath)) {
+                String jsonString = FileSystemUtils.readFile(filePath);
+
+                if (jsonString.trim().isEmpty()) {
+                    return null;
+                }
+                json = new JSONObject(jsonString);
+                try {
+                    String urlFormat = json.get(PAGE_URL_FIELD_NAME).toString();
+                    log.debug("Page URL format {} is read from file {}.",
+                            urlFormat, fileName);
+                    String url = urlFormat.replace("%s", siteHost);
+                    log.debug("Page URL {} is read from file {}.",
+                            url, fileName);
+
+                    if (url.trim().isEmpty()) {
+                        return null;
+                    }
+                    return url;
+                }
+                catch (JSONException e) {
+                    log.debug("File {} has invalid JSON object format: {}",
+                            filePath, jsonString);
+                    return null;
+                }
+            }
+            else {
+                log.debug("Page object {} file {} does not exist.",
+                        pageName, filePath);
+                return null;
+            }
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Can not read web page %s URL from file: %s",
+                    pageName, filePath), e);
         }
     }
 

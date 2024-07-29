@@ -18,6 +18,7 @@ public class Settings {
             "--shm-size=\"2g\" selenium/standalone-%s:%s";
     public static final String SECURITY_KEY_PAIR_NAME = "SeleniumKeyPair";
     public static final String SECURITY_GROUP_NAME = "Selenium Test Security Group";
+    public static final String PAGE_URL_FIELD_NAME = "PAGE_URL";
     public static int TEST_RETRY_LIMIT = 3;
     public static final int AWS_URL_EXPIRES_SECONDS = 60 * 15;
     public static final int RMI_SERVER_BASE_PORT = 4200;

@@ -1,6 +1,6 @@
 package org.example.drivers.wrappers;
 
-import org.example.data.Config;
+import org.example.configs.Config;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ClassUtils;
 import org.example.utils.WaiterUtils;

@@ -1,6 +1,6 @@
 package org.example.servers;
 
-import org.example.data.TestConfig;
+import org.example.configs.TestConfig;
 
 /**
  * Test server manager class.

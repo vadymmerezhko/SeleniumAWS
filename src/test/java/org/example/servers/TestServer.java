@@ -35,7 +35,7 @@ public class TestServer extends BaseTestServer implements TestServerInterface {
 
         try {
             WebFormPage webFormPage = new WebFormPage();
-            webFormPage.open("https://www.selenium.dev/selenium/web/web-form.html");
+            webFormPage.open();
             webFormPage.enterIntoTextInput(testInput.textInput());
             webFormPage.enterPassword("Password123");
             webFormPage.enterIntoTextarea(testInput.textareaInput());

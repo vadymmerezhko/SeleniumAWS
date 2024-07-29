@@ -1,6 +1,6 @@
 package org.example.exceptions;
 
-import org.example.data.Config;
+import org.example.configs.Config;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.utils.ClassUtils;
 import org.example.utils.WebUtils;
@@ -49,10 +49,10 @@ public class BaseSmartException extends RuntimeException {
                     String parameterValue = parameter.toString();
                     message = String.format(
                             "%sMethod: %s\nParameter: %s\n%s%s",
-                            header,methodName, parameterValue, message, footer);
+                            header, methodName, parameterValue, message, footer);
                 } else {
                     message = String.format("%sMethod: %s\n%s%s",
-                            header,methodName, message, footer);
+                            header, methodName, message, footer);
                 }
             }
             if (!WebUtils.showConfirm(message)) {

@@ -1,6 +1,7 @@
-package org.example.data;
+package org.example.configs;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.data.BaseConfig;
 import org.example.enums.BrowserName;
 import org.example.enums.TestMode;
 import org.example.exceptions.SmartRuntimeException;

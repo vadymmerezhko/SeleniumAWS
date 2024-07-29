@@ -6,7 +6,7 @@ import io.appium.java_client.android.options.UiAutomator2Options;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.slf4j.Slf4j;
 import org.example.balancers.LoadBalancer;
-import org.example.data.Config;
+import org.example.configs.Config;
 import org.example.drivers.wrappers.SmartWebDriver;
 import org.example.enums.BrowserName;
 import org.example.enums.TestMode;

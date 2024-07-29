@@ -1,6 +1,6 @@
 package org.example.drivers.elements;
 
-import org.example.data.Config;
+import org.example.configs.Config;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.drivers.selectors.SmartBy;
 import org.example.drivers.wrappers.SmartWebElement;

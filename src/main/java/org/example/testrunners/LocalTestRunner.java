@@ -1,6 +1,6 @@
 package org.example.testrunners;
 
-import org.example.data.Config;
+import org.example.configs.Config;
 import org.example.utils.*;
 import org.testng.Assert;
 

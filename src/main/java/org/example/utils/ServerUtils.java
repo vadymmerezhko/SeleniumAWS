@@ -3,7 +3,7 @@ package org.example.utils;
 import com.amazonaws.services.ec2.AmazonEC2;
 import lombok.extern.slf4j.Slf4j;
 import org.example.balancers.LoadBalancer;
-import org.example.data.Config;
+import org.example.configs.Config;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.helpers.TimeOut;
 

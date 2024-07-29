@@ -1,7 +1,7 @@
 package org.example.drivers.wrappers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.data.Config;
+import org.example.configs.Config;
 import org.example.utils.WaiterUtils;
 import org.openqa.selenium.*;
 

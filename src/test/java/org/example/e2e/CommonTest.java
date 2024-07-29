@@ -2,7 +2,7 @@ package org.example.e2e;
 
 import org.example.data.SignUpTestInput;
 import org.example.data.SignUpTestResult;
-import org.example.data.TestConfig;
+import org.example.configs.TestConfig;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.servers.TestServerInterface;
 import org.example.servers.TestServerManager;
