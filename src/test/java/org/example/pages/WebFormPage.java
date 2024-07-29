@@ -11,7 +11,7 @@ public class WebFormPage extends BasePage {
     private final TextInput textInput = new TextInput(this, new SmartBy());
     private final Password password = new Password(this, new SmartBy());
     private final Textarea textarea = new Textarea(this, new SmartBy());
-    private final Dropdown dropdown = new Dropdown(this, new SmartBy("3"));
+    private final Dropdown dropdown = new Dropdown(this, new SmartBy());
     private final FileInput fileInput = new FileInput(this, new SmartBy());
     private final DataList dataList = new DataList(this, new SmartBy());
     private final Checkbox checkbox1 = new Checkbox(this, new SmartBy());

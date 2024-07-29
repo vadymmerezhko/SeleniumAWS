@@ -113,7 +113,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
             locators = page.locator(locatorString).all();
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException(e);
         }
         return locators.stream()
                 .map(locator -> new PlaywrightElement(by, locator, this))
@@ -133,7 +133,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
             return new PlaywrightElement(by, locator,this);
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException(e);
         }
     }
 
