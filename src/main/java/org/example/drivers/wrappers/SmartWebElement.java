@@ -55,11 +55,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public void click() {
         ClassUtils.performRunnableMethod(
-                element::click,
+                this::doClick,
                 this::fixClickableWebElement,
                 "click",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private void doClick() {
+        element.click();
     }
 
     /**
@@ -68,11 +72,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public void submit() {
         ClassUtils.performRunnableMethod(
-                element::submit,
+                this::doSubmit,
                 this::fixClickableWebElement,
                 "submit",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private void doSubmit() {
+        element.submit();
     }
 
     /**
@@ -82,12 +90,16 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public void sendKeys(CharSequence... keysToSend) {
         ClassUtils.performConsumerMethod(
-                element::sendKeys,
+                this::doSendKeys,
                 keysToSend,
                 this::fixClickableWebElement,
                 "sendKeys",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private void doSendKeys(CharSequence... keysToSend) {
+        element.sendKeys(keysToSend);
     }
 
     /**
@@ -96,11 +108,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public void clear() {
         ClassUtils.performRunnableMethod(
-                element::clear,
+                this::doClear,
                 this::fixClickableWebElement,
                 "clear",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private void doClear() {
+        element.clear();
     }
 
     /**
@@ -110,11 +126,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public String getTagName() {
         return ClassUtils.performSupplierMethod(
-                element::getTagName,
+                this::doGetTagName,
                 this::fixClickableWebElement,
                 "getTagName",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private String doGetTagName() {
+        return element.getTagName();
     }
 
     /**
@@ -125,12 +145,16 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public String getAttribute(String name) {
         return ClassUtils.performFunctionMethod(
-                element::getAttribute,
+                this::doGetAttribute,
                 name,
                 this::fixVisibleWebElement,
                 "getAttribute",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private String doGetAttribute(String name) {
+        return element.getAttribute(name);
     }
 
     /**
@@ -141,12 +165,16 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public String getDomProperty(String name) {
         return ClassUtils.performFunctionMethod(
-                element::getDomProperty,
+                this::doGetDomProperty,
                 name,
                 this::fixVisibleWebElement,
                 "getDomProperty",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private String doGetDomProperty(String name) {
+        return element.getDomProperty(name);
     }
 
     /**
@@ -157,12 +185,16 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public String getDomAttribute(String name) {
         return ClassUtils.performFunctionMethod(
-                element::getDomAttribute,
+                this::doGetDomAttribute,
                 name,
                 this::fixVisibleWebElement,
                 "getDomAttribute",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private String doGetDomAttribute(String name) {
+        return element.getDomAttribute(name);
     }
 
     /**
@@ -172,11 +204,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public String getAriaRole() {
         return ClassUtils.performSupplierMethod(
-                element::getAriaRole,
+                this::doGetAriaRole,
                 this::fixVisibleWebElement,
                 "getAriaRole",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private String doGetAriaRole() {
+        return element.getAriaRole();
     }
 
     /**
@@ -186,11 +222,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public String getAccessibleName() {
         return ClassUtils.performSupplierMethod(
-                element::getAccessibleName,
+                this::doGetAccessibleName,
                 this::fixVisibleWebElement,
                 "getAccessibleName",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private String doGetAccessibleName() {
+        return element.getAccessibleName();
     }
 
     /**
@@ -200,11 +240,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public boolean isSelected() {
         return ClassUtils.performSupplierMethod(
-                element::isSelected,
+                this::doIsSelected,
                 this::fixVisibleWebElement,
                 "isSelected",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private boolean doIsSelected() {
+        return element.isSelected();
     }
 
     /**
@@ -214,11 +258,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public boolean isEnabled() {
         return ClassUtils.performSupplierMethod(
-                element::isEnabled,
+                this::doIsEnabled,
                 this::fixVisibleWebElement,
                 "isEnabled",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private boolean doIsEnabled() {
+        return element.isEnabled();
     }
 
     /**
@@ -228,11 +276,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public String getText() {
         return ClassUtils.performSupplierMethod(
-                element::getText,
+                this::doGetText,
                 this::fixVisibleWebElement,
                 "getText",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private String doGetText() {
+        return element.getText();
     }
 
     /**
@@ -264,11 +316,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public boolean isDisplayed() {
         return ClassUtils.performSupplierMethod(
-                element::isDisplayed,
+                this::doIsDisplayed,
                 null,
                 "isDisplayed",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private boolean doIsDisplayed() {
+        return element.isDisplayed();
     }
 
     /**
@@ -278,11 +334,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public Point getLocation() {
         return ClassUtils.performSupplierMethod(
-                element::getLocation,
+                this::doGetLocation,
                 this::fixVisibleWebElement,
                 "getLocation",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private Point doGetLocation() {
+        return element.getLocation();
     }
 
     /**
@@ -292,11 +352,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public Dimension getSize() {
         return ClassUtils.performSupplierMethod(
-                element::getSize,
+                this::doGetSize,
                 this::fixVisibleWebElement,
                 "getSize",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private Dimension doGetSize() {
+        return element.getSize();
     }
 
     /**
@@ -306,11 +370,15 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public Rectangle getRect() {
         return ClassUtils.performSupplierMethod(
-                element::getRect,
+                this::doGetRect,
                 this::fixVisibleWebElement,
                 "getRect",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private Rectangle doGetRect() {
+        return element.getRect();
     }
 
     /**
@@ -321,12 +389,16 @@ public class SmartWebElement extends BaseSmartWebElement {
     @Override
     public String getCssValue(String propertyName) {
         return ClassUtils.performFunctionMethod(
-                element::getCssValue,
+                this::doGetCssValue,
                 propertyName,
                 this::fixVisibleWebElement,
                 "getCssValue",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private String doGetCssValue(String propertyName) {
+        return element.getCssValue(propertyName);
     }
 
     /**
@@ -335,11 +407,15 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     public SearchContext getShadowRoot() {
         return ClassUtils.performSupplierMethod(
-                element::getShadowRoot,
+                this::doGetShadowRoot,
                 this::fixVisibleWebElement,
                 "getShadowRoot",
                 RETRY_COUNT,
                 RETRY_WAIT_MILLISECONDS);
+    }
+
+    private SearchContext doGetShadowRoot() {
+        return element.getShadowRoot();
     }
 
     /**
@@ -352,12 +428,16 @@ public class SmartWebElement extends BaseSmartWebElement {
         @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
             return ClassUtils.performFunctionMethod(
-                    element::getScreenshotAs,
+                    this::doGetScreenshotAs,
                     target,
                     this::fixVisibleWebElement,
                     "getScreenshotAs",
                     RETRY_COUNT,
                     RETRY_WAIT_MILLISECONDS);
+    }
+
+    private <X> X doGetScreenshotAs(OutputType<X> target) throws WebDriverException {
+        return element.getScreenshotAs(target);
     }
 
     /**
@@ -369,7 +449,9 @@ public class SmartWebElement extends BaseSmartWebElement {
             nativeElement = ((SmartWebElement) element).getNativeElement();
         }
         try {
-            ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", nativeElement);
+            ((JavascriptExecutor)driver).executeScript(
+                    "arguments[0].scrollIntoView(true);",
+                    nativeElement);
         }
         catch (StaleElementReferenceException |
                ElementNotInteractableException |
