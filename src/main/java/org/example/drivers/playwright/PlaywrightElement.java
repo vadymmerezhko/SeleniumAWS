@@ -113,10 +113,11 @@ public class PlaywrightElement extends BaseSmartWebElement {
     @Override
     public String getTagName() {
         ElementHandle elementHandle = locator.elementHandle();
-        String tagName = (String) locator.evaluate(
-                "elementHandle => elementHandle.tagName", elementHandle);
+        String tagName = ((String) locator.evaluate(
+                "elementHandle => elementHandle.tagName", elementHandle))
+                .toLowerCase();
         log.debug("{} getTagName(): {}", locator, tagName);
-        return tagName.toLowerCase();
+        return tagName;
     }
 
     /**
