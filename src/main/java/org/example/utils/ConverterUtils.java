@@ -15,7 +15,7 @@ public class ConverterUtils {
      * @param javaScript The JavaScript string.
      * @return The escaped JavaScript string.
      */
-    public static String escapeJavaScriptExcludeDoubleQuote(String javaScript) {
+    public static String escapeJavaScriptExceptDoubleQuote(String javaScript) {
         DataValidationUtils.validateNotNull(javaScript, "javaScript");
 
         String escapedJson = escapeJavaScriptExcept(javaScript, '"');
@@ -34,6 +34,15 @@ public class ConverterUtils {
         String escapedJson = escapeJavaScriptExcept(javaScript, '\'');
         log.debug("JavaScript {} after escape: {}.", javaScript, escapedJson);
         return escapedJson;
+    }
+
+    /**
+     * Escapes JavaScript.
+     * @param input The input to escape.
+     * @return The escaped script.
+     */
+    public static String escapeJavaScriptExcept(String input) {
+        return escapeJavaScriptExcept(input, 'a');
     }
 
     private static String escapeJavaScriptExcept(String input, char exceptChar) {

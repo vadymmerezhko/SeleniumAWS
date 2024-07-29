@@ -268,7 +268,8 @@ public class WebUtils {
         try {
             WebDriver driver = WebDriverFactory.getDriver();
             JavascriptExecutor js = (JavascriptExecutor) driver;
-            js.executeScript(String.format("alert('%s');", ConverterUtils.escapeJavaScriptExcludeDoubleQuote(text)));
+            js.executeScript(String.format("alert('%s');",
+                    ConverterUtils.escapeJavaScriptExcept(text)));
 
             WebDriverWait wait = new WebDriverWait(driver,
                     Duration.ofSeconds(SHOW_POPUP_TIMEOUT_SECONDS));
@@ -306,7 +307,7 @@ public class WebUtils {
 
             js.executeScript(script);
             js.executeScript(String.format("confirm('%s');",
-                    ConverterUtils.escapeJavaScriptExceptSingleQuotes(text)));
+                    ConverterUtils.escapeJavaScriptExcept(text)));
             log.debug("Confirm popup is open with text: {}", text);
             // Wait for the confirm popup is closed by user.
             wait.until(ExpectedConditions.not(ExpectedConditions.alertIsPresent()));
@@ -352,8 +353,8 @@ public class WebUtils {
         String script = String.format(
                 "var result = prompt('%s:', '%s');" +
                 "document.getElementById('prompt-result').value = result;",
-                ConverterUtils.escapeJavaScriptExcludeDoubleQuote(text),
-                ConverterUtils.escapeJavaScriptExcludeDoubleQuote(defaultValue));
+                ConverterUtils.escapeJavaScriptExcept(text),
+                ConverterUtils.escapeJavaScriptExcept(defaultValue));
         jsExecutor.executeScript(script);
 
         // Wait for the alert (prompt) to be present
@@ -633,7 +634,7 @@ public class WebUtils {
         if (text != null) {
             // Replace text placeholder with actual text (if any).
             // It can be more than one replacement.
-            String jsSelector =  ConverterUtils.escapeJavaScriptExcludeDoubleQuote(text);
+            String jsSelector =  ConverterUtils.escapeJavaScriptExceptDoubleQuote(text);
             selector = selector.replace("'%s'", String.format("'%s'", jsSelector))
                     .replace("\"%s\"", String.format("'%s'", jsSelector));
         }

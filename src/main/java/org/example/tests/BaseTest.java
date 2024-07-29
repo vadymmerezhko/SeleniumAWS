@@ -52,23 +52,41 @@ public abstract class BaseTest {
     public void afterMethod(ITestResult result) {
         Reporter.setCurrentTestResult(result);
         LoadBalancer.getInstance().decrementServerThreadCount();
+        int status = result.getStatus();
 
         try {
-            if (config.getScreenshotOnFail() && result.getStatus() == ITestResult.FAILURE) {
+            if (config.getScreenshotOnFail() && status == ITestResult.FAILURE) {
                 takeScreenshot(result);
             }
             if (config.getVideoOnFail()) {
                 WebDriverFactory.stopVideoRecording();
 
-                if (result.getStatus() != ITestResult.FAILURE) {
+                if (status != ITestResult.FAILURE) {
                     FileSystemUtils.deleteFile(WebDriverFactory.getVideoFilePath());
                 } else {
                     addVideoLinkToTestReport();
                 }
             }
+            if (status == ITestResult.FAILURE && Config.getInstance().getDebugMode()) {
+                showDebugAlert(result.getMethod().getQualifiedName(),
+                        result.getThrowable().getMessage());
+            }
         }
         catch (Exception e) {
             throw new SmartRuntimeException("'After' method failed.", e);
+        }
+    }
+
+    private static void showDebugAlert(String testName, String errorMessage) {
+        String message = String.format(
+                "TEST FAILURE\n\nTest '%s' has failed.\n" +
+                "Error: %s\n\n" +
+                "Press OK to continue.\n" +
+                "Or press CANCEL to terminate tests.",
+                testName, errorMessage);
+        if (!WebUtils.showConfirm(message)) {
+            WebDriverFactory.terminateAllBrowsersAndServers();
+            System.exit(-1);
         }
     }
 
