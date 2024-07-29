@@ -222,15 +222,20 @@ public class WebDriverFactory {
         return videoFilePathMap.get(threadId);
     }
 
+    public static void quitDriver() {
+        long threadId = Thread.currentThread().threadId();
+        quitDriver(threadId);
+    }
+
     /**
      * Closes all web drivers in parallel.
      */
-    public static void closeAllDrivers() {
+    public static void quitAllDrivers() {
         Set<Thread> threadSet = new HashSet<>();
 
         try {
             for (Long threadId : driverMap.keySet()) {
-                threadSet.add(closeDriverInParallel(threadId));
+                threadSet.add(quitDriverInParallel(threadId));
             }
             // Wait for closing all drivers.
             for (Thread thread : threadSet) {
@@ -372,7 +377,7 @@ public class WebDriverFactory {
      */
     public static void terminateAllBrowsersAndServers() {
         log.info("Test was terminated by user in debug mode.");
-        WebDriverFactory.closeAllDrivers();
+        WebDriverFactory.quitAllDrivers();
         ServerUtils.terminateAllSeleniumServers();
         ServerUtils.terminateAwsRmiServer();
         System.exit(-1);
@@ -503,7 +508,7 @@ public class WebDriverFactory {
         }
         catch (Exception e) {
             log.error("AWS Device Farm exception:\n{}", e.getMessage());
-            WebDriverFactory.closeAllDrivers();
+            WebDriverFactory.quitAllDrivers();
             ServerUtils.terminateAllSeleniumServers();
             System.exit(-1);
         }
@@ -628,15 +633,15 @@ public class WebDriverFactory {
         return options;
     }
 
-    private static void closeDriver(long threadId) {
+    private static void quitDriver(long threadId) {
         if (driverMap.containsKey(threadId)) {
             driverMap.get(threadId).quit();
             driverMap.remove(threadId);
         }
     }
 
-    private static Thread closeDriverInParallel(long threadId) {
-        Thread thread = new Thread(() -> WebDriverFactory.closeDriver(threadId));
+    private static Thread quitDriverInParallel(long threadId) {
+        Thread thread = new Thread(() -> WebDriverFactory.quitDriver(threadId));
         thread.start();
         return thread;
     }

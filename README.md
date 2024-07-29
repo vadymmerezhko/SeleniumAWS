@@ -1,4 +1,4 @@
-## SeleniumAWS 1.9.7
+## SeleniumAWS 1.9.8
 ### Command line parameters
 TestNG file name:
 ```bash
@@ -174,6 +174,15 @@ Local Playwright mode WebKit:
 ```bash
 -Dbrowser=firefox:webkit
 ```
+Debug mode (for -DtestMode=local, -DthreadCount=1, -Dheadless=false):
+```bash
+-DdebugMode=true
+```
+Retain browser open after test ends and cleans cookies:
+```bash
+-DretainBrowser=true
+```
+
 ### Test Run Command Lines
 #### Local Run - Chrome stable
 ```bash

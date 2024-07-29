@@ -66,6 +66,9 @@ public abstract class BaseTest {
                     addVideoLinkToTestReport();
                 }
             }
+            if (!Config.getInstance().getRetainBrowser()) {
+                WebDriverFactory.quitDriver();
+            }
         }
         catch (Exception e) {
             throw new SmartRuntimeException("'After' method failed.", e);

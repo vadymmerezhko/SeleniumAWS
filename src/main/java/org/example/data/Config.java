@@ -31,6 +31,7 @@ public class Config extends BaseConfig {
     private static final String STEP_DELAY = "stepDelay";
     private static final String BROWSER_SIZE = "browserSize";
     private static final String PAGES_FOLDER_PATH = "pagesFolderPath";
+    private static final String RETAIN_BROWSER = "retainBrowser";
 
     public static Config getInstance() {
         return new Config(CONFIG_PROPERTIES_FILE_PATH);
@@ -252,6 +253,15 @@ public class Config extends BaseConfig {
      */
     synchronized public String getPagesFolderPath() {
         return getStringProperty(PAGES_FOLDER_PATH);
+    }
+
+    /**
+     * Returns true flag if browser should keep open when test ends.
+     * Or false if tit should be closed.
+     * @return The flag.
+     */
+    synchronized public boolean getRetainBrowser() {
+        return getBooleanProperty(RETAIN_BROWSER);
     }
 
     private void validateDebugModeProperty() {

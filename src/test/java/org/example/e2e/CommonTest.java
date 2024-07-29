@@ -20,7 +20,7 @@ public class CommonTest extends BaseTest {
 
     @AfterSuite()
     public void afterSuite() {
-        WebDriverFactory.closeAllDrivers();
+        WebDriverFactory.quitAllDrivers();
         ServerUtils.terminateAllSeleniumServers();
         ServerUtils.terminateAwsRmiServer();
     }
