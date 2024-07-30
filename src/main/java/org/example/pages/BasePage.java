@@ -140,6 +140,10 @@ public abstract class BasePage {
         String pageName = this.getClass().getSimpleName();
         String siteHost = TestConfig.getInstance().getSiteHost();
         String pagesFolderPath = Config.getInstance().getPagesFolderPath();
+        String logError =
+                "\n///////////////////////////////////////////////////////////\n\n" +
+                "User made hard system exit on page URL confirm popup.\n\n" +
+                "///////////////////////////////////////////////////////////";
 
         if (pageUrlMap.containsKey(pageName)) {
             url = pageUrlMap.get(pageName);
@@ -177,7 +181,8 @@ public abstract class BasePage {
                             pageName, url);
 
                     if (!WebUtils.showConfirm(confirmMessage)) {
-                        WebDriverFactory.terminateAllBrowsersAndServers();
+                        log.error(logError);
+                        WebDriverFactory.hardSystemExit();
                     }
                     url = null;
                     continue;
@@ -191,7 +196,8 @@ public abstract class BasePage {
                             pageName, url, siteHost);
 
                     if (!WebUtils.showConfirm(wrongHostMessage)) {
-                        WebDriverFactory.terminateAllBrowsersAndServers();
+                        log.error(logError);
+                        WebDriverFactory.hardSystemExit();
                     }
                     url = null;
                     continue;

@@ -21,6 +21,7 @@ public class WebFormPage extends BasePage {
     private final ColorPicker colorPicker = new ColorPicker(this, new SmartBy());
     private final DatePicker datePicker = new DatePicker(this, new SmartBy());
     private final RangeSlider rangeSlider = new RangeSlider(this, new SmartBy());
+    private final Button submitButton = new Button(this, new SmartBy());
 
     /**
      * Enters text to text input.
@@ -226,5 +227,12 @@ public class WebFormPage extends BasePage {
      */
     public int getRange() {
         return rangeSlider.getValue();
+    }
+
+    /**
+     * Submits the Web Form.
+     */
+    public void submit() {
+        submitButton.click();
     }
  }

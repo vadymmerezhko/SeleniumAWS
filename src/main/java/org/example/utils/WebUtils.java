@@ -409,6 +409,11 @@ public class WebUtils {
             WebElement element = WebUtils.selectWebElement(elementName);
             String selector = WebUtils.getElementSelector(element, text);
             String format = null;
+            String errorLog =
+                    "\n///////////////////////////////////////////////////////////\n\n" +
+                    "User made hard system exit on element selector prompt popup.\n\n" +
+                    "///////////////////////////////////////////////////////////";
+
             log.debug("Element {} selector with text {} is detected by algorithm: {}",
                     element, text, selector);
 
@@ -439,8 +444,8 @@ public class WebUtils {
                             elementName), selector);
 
                     if (selector.isEmpty()) {
-                        // Terminate all tests when user clicks Cancel button.
-                        WebDriverFactory.terminateAllBrowsersAndServers();
+                        log.error(errorLog);
+                        WebDriverFactory.hardSystemExit();
                     }
                 }
 
@@ -469,8 +474,8 @@ public class WebUtils {
                 selector = showPrompt(String.format(format, elementName), selector);
 
                 if (selector.isEmpty()) {
-                    // Terminate all tests when user clicks Cancel button.
-                    WebDriverFactory.terminateAllBrowsersAndServers();
+                    log.error(errorLog);
+                    WebDriverFactory.hardSystemExit();
                 }
 
                 if (selector.equals(previousSelector)) {

@@ -4,7 +4,7 @@
         <classes>
             <class name="org.example.e2e.Selenium1Test">
                 <methods>
-                    <include name="signUp1" />
+                    <include name="testWebForm1" />
                 </methods>
             </class>
             <class name="org.example.e2e.CommonTest"/>

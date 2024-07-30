@@ -285,9 +285,12 @@ public class Config extends BaseConfig {
             else if (!threadCount.equals("1")) {
                 errorMessage = String.format(format, THREAD_COUNT, threadCount, "1");
             }
-
             if (errorMessage != null) {
-                log.error(errorMessage);
+                log.error(
+                    "///////////////////////////////////////////////////////////\n\n" +
+                    "{}\n\n" +
+                    "///////////////////////////////////////////////////////////",
+                    errorMessage);
                 System.exit(-1);
             }
         }

@@ -1,5 +1,6 @@
 package org.example.exceptions;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.utils.ClassUtils;
@@ -8,6 +9,7 @@ import org.example.utils.WebUtils;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
+@Slf4j
 public class BaseSmartException extends RuntimeException {
     private static final int MAX_MESSAGE_LENGTH = 500;
 
@@ -56,8 +58,11 @@ public class BaseSmartException extends RuntimeException {
                 }
             }
             if (!WebUtils.showConfirm(message)) {
-                // Terminate all tests when user clicks Cancel button.
-                WebDriverFactory.terminateAllBrowsersAndServers();
+                log.error(
+                    "\n///////////////////////////////////////////////////////////\n\n" +
+                    "User made hard system exit on exception confirm popup.\n\n" +
+                    "///////////////////////////////////////////////////////////");
+                WebDriverFactory.hardSystemExit();
             }
         }
     }

@@ -1,5 +1,6 @@
 package org.example.tests;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.balancers.LoadBalancer;
 import org.example.configs.Config;
 import org.example.drivers.elements.BaseElement;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Slf4j
 public abstract class BaseTest {
     static private final String SCREENSHOTS_FOLDER_PATH = "./target/surefire-reports/screenshots";
     static private final String VIDEOS_FOLDER_PATH = "./target/surefire-reports/videos";
@@ -68,7 +70,7 @@ public abstract class BaseTest {
                 }
             }
             if (status == ITestResult.FAILURE && Config.getInstance().getDebugMode()) {
-                showDebugAlert(result.getMethod().getQualifiedName(),
+                showDebugConfirm(result.getMethod().getQualifiedName(),
                         result.getThrowable().getMessage());
             }
             if (!Config.getInstance().getRetainBrowser()) {
@@ -80,7 +82,7 @@ public abstract class BaseTest {
         }
     }
 
-    private static void showDebugAlert(String testName, String errorMessage) {
+    private static void showDebugConfirm(String testName, String errorMessage) {
         String message = String.format(
                 "TEST FAILURE\n\nTest '%s' has failed.\n" +
                 "Error: %s\n\n" +
@@ -88,7 +90,11 @@ public abstract class BaseTest {
                 "Or press CANCEL to terminate tests.",
                 testName, errorMessage);
         if (!WebUtils.showConfirm(message)) {
-            WebDriverFactory.terminateAllBrowsersAndServers();
+            WebDriverFactory.hardSystemExit();
+            log.error(
+                "\n///////////////////////////////////////////////////////////\n\n" +
+                "User made hard system exit on test failure confirm popup.\n\n" +
+                "///////////////////////////////////////////////////////////");
             System.exit(-1);
         }
     }

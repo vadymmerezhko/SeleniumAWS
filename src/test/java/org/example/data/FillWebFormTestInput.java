@@ -3,7 +3,7 @@ package org.example.data;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 /**
- * Signup test input data record.
+ * fillWebForm test input data record.
  * @param textInput The text input.
  * @param textareaInput The text area input.
  * @param dropdownSelectedOption The dropdown option to select.
@@ -18,16 +18,16 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
  * @param range The range value.
  */
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public record SignUpTestInput(String textInput,
-                              String textareaInput,
-                              String dropdownSelectedOption,
-                              String dataListSelectOption,
-                              String filePath,
-                              boolean checkbox1Value,
-                              boolean checkbox2Value,
-                              boolean radiobutton1Value,
-                              boolean radiobutton2Value,
-                              String color,
-                              String date,
-                              int range) {
+public record FillWebFormTestInput(String textInput,
+                                   String textareaInput,
+                                   String dropdownSelectedOption,
+                                   String dataListSelectOption,
+                                   String filePath,
+                                   boolean checkbox1Value,
+                                   boolean checkbox2Value,
+                                   boolean radiobutton1Value,
+                                   boolean radiobutton2Value,
+                                   String color,
+                                   String date,
+                                   int range) {
 }
