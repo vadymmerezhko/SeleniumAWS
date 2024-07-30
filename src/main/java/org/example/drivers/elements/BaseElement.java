@@ -3,6 +3,7 @@ package org.example.drivers.elements;
 import org.example.configs.Config;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.drivers.selectors.SmartBy;
+import org.example.drivers.wrappers.SmartWebDriverWaiter;
 import org.example.drivers.wrappers.SmartWebElement;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.pages.BasePage;
@@ -16,6 +17,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static org.example.constants.Settings.PAGE_LOAD_TIMEOUT_SEC;
+
 /**
  * Base web element class.
  */
@@ -28,6 +31,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     protected By by;
     protected final BasePage page;
     protected WebDriver driver;
+    private final SmartWebDriverWaiter waiter;
     protected String elementName;
     protected long threadId;
 
@@ -45,6 +49,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
         this.page = page;
         this.by = by;
         driver = WebDriverFactory.getDriver();
+        waiter = new SmartWebDriverWaiter(driver);
         threadId = Thread.currentThread().threadId();
     }
 
@@ -274,7 +279,8 @@ public abstract class BaseElement implements WebElement, WrapsElement {
                         setElementSelector(smartBy);
                     }
                 }
-                element = WebDriverFactory.getDriver().findElement(by);
+                waiter.waitForPageLoad(PAGE_LOAD_TIMEOUT_SEC);
+                element = driver.findElement(by);
                 handleElement();
             }
             return element;
