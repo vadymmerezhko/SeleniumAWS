@@ -369,7 +369,8 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             }
         }
         catch (Throwable e) {
-            throw new SmartRuntimeException("Can not set element selector.", e);
+            throw new SmartRuntimeException(String.format(
+                    "Can not set element selector %s.", by), e);
         }
     }
 
