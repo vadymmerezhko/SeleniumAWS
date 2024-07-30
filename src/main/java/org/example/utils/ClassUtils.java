@@ -82,16 +82,17 @@ public final class ClassUtils {
      * @param fix The fix method that has Exception parameter.
      *            Optional - can be null.
      * @param methodName - The method name for logging.
-     * @param retryCount - The number of reties from 1 to 100.
-     * @param waitMilliseconds - The wait milliseconds from 0 to 1 60000.
+     * @param waitMilliseconds - The wait milliseconds.
+     * @param waitTimeoutMilliseconds - The wait timeout milliseconds.
      */
     public static void performRunnableMethod(
             Runnable action,
             Consumer<Exception> fix,
             String methodName,
-            int retryCount,
-            int waitMilliseconds) {
-        performMethod(action, null, fix, methodName, retryCount, waitMilliseconds);
+            int waitMilliseconds,
+            int waitTimeoutMilliseconds) {
+        performMethod(action, null, fix, methodName, 
+                waitMilliseconds, waitTimeoutMilliseconds);
     }
 
     /**
@@ -103,18 +104,19 @@ public final class ClassUtils {
      * @param fix The fix method that has Exception parameter.
      *            Optional - can be null.
      * @param methodName - The method name for logging.
-     * @param retryCount - The number of reties from 1 to 100.
-     * @param waitMilliseconds - The wait milliseconds from 0 to 1 60000.
+     * @param waitMilliseconds - The wait milliseconds.
+     * @param waitTimeoutMilliseconds - The wait timeout milliseconds.
      */
     public static <P> void performConsumerMethod(
             Consumer<P> action,
             P parameter,
             Consumer<Exception> fix,
             String methodName,
-            int retryCount,
-            int waitMilliseconds) {
+            int waitMilliseconds,
+            int waitTimeoutMilliseconds) {
         DataValidationUtils.validateNotNull(parameter, "parameter");
-        performMethod(action, parameter, fix, methodName, retryCount, waitMilliseconds);
+        performMethod(action, parameter, fix, methodName, 
+                waitMilliseconds, waitTimeoutMilliseconds);
     }
 
     /**
@@ -125,17 +127,17 @@ public final class ClassUtils {
      * @param fix The fix method that has Exception parameter.
      *            Optional - can be null.
      * @param methodName - The method name for logging.
-     * @param retryCount - The number of reties from 1 to 100.
-     * @param waitMilliseconds - The wait milliseconds before next try
-     *                         from 0 to 1 60000.
+     * @param waitMilliseconds - The wait milliseconds before next try.
+     * @param waitTimeoutMilliseconds - The wait timeout milliseconds.
      */
     public static <R> R performSupplierMethod(
             Supplier<R> action,
             Consumer<Exception> fix,
             String methodName,
-            int retryCount,
-            int waitMilliseconds) {
-        return performMethod(action, null, fix, methodName, retryCount, waitMilliseconds);
+            int waitMilliseconds,
+            int waitTimeoutMilliseconds) {
+        return performMethod(action, null, fix, methodName,
+                waitMilliseconds, waitTimeoutMilliseconds);
     }
 
     /**
@@ -147,18 +149,19 @@ public final class ClassUtils {
      * @param fix The fix method that has Exception parameter.
      *            Optional - can be null.
      * @param methodName - The method name for logging.
-     * @param retryCount - The number of reties from 1 to 100.
-     * @param waitMilliseconds - The wait milliseconds from 0 to 1 60000.
+     * @param waitMilliseconds - The wait milliseconds.
+     * @param waitTimeoutMilliseconds - The wait timeout milliseconds (from 1 second).
      */
     public static <P, R> R performFunctionMethod(
             Function<P, R> action,
             P parameter,
             Consumer<Exception> fix,
             String methodName,
-            int retryCount,
-            int waitMilliseconds) {
+            int waitMilliseconds,
+            int waitTimeoutMilliseconds) {
         DataValidationUtils.validateNotNull(parameter, "parameter");
-        return performMethod(action, parameter, fix, methodName, retryCount, waitMilliseconds);
+        return performMethod(action, parameter, fix, methodName,
+                waitMilliseconds, waitTimeoutMilliseconds);
     }
 
     private static <P, R> R performMethod(
@@ -166,8 +169,8 @@ public final class ClassUtils {
             P parameter,
             Consumer<Exception> fix,
             String methodName,
-            int retryCount,
-            int waitMilliseconds) {
+            int waitMilliseconds,
+            int waitTimeoutMilliseconds) {
         Exception lastException = null;
         long threadId = Thread.currentThread().threadId();
 
@@ -175,14 +178,16 @@ public final class ClassUtils {
         if (parameter != null) {
             parameterMap.put(threadId, parameter);
         }
-
         DataValidationUtils.validateNotNull(action, "action");
         DataValidationUtils.validateNotBlank(methodName, "methodName");
-        DataValidationUtils.validateMin(retryCount, 1, "retryCount");
         DataValidationUtils.validateMin(waitMilliseconds, 0,  "waitMilliseconds");
+        DataValidationUtils.validateMin(waitTimeoutMilliseconds, 1, "waitTimeoutMilliseconds");
+
+        int retryCount = 0;
+        long startMilliseconds = System.currentTimeMillis();
 
         try {
-            for (int i = 1; i <= retryCount; i++) {
+            while (System.currentTimeMillis() - startMilliseconds < waitTimeoutMilliseconds) {
                 try {
                     if (action instanceof Runnable) {
                         ((Runnable) action).run();
@@ -205,9 +210,10 @@ public final class ClassUtils {
                         fix.accept(e);
                     }
                     WaiterUtils.waitMilliSeconds(waitMilliseconds);
-                    log.debug("Method '{}' retry: {}.", methodName, i);
+                    log.debug("Method '{}' try count: {}.", methodName, retryCount);
                     lastException = e;
                 }
+                retryCount++;
             }
             throw new SmartRuntimeException(String.format(
                     "Failed to run method '%s' after %d retries.",

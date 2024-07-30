@@ -433,6 +433,7 @@ public class WebDriverFactory {
                     .setSlowMo(0));
             BrowserContext context = browser.newContext();
             Page page = context.newPage();
+            page.setDefaultTimeout(RETRY_TIMEOUT_MILLISECONDS);
             PlaywrightDriver driver = new PlaywrightDriver(browser, page);
             driver.setAccessibilityTestEnabled(accessibilityTest);
             return driver;

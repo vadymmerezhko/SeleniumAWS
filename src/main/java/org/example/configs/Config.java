@@ -33,6 +33,8 @@ public class Config extends BaseConfig {
     private static final String BROWSER_SIZE = "browserSize";
     private static final String PAGES_FOLDER_PATH = "pagesFolderPath";
     private static final String RETAIN_BROWSER = "retainBrowser";
+    private static final String RETRY_WAIT = "retryWait";
+    private static final String RETRY_TIMEOUT = "retryTimeout";
 
     public static Config getInstance() {
         return new Config(CONFIG_PROPERTIES_FILE_PATH);
@@ -103,6 +105,22 @@ public class Config extends BaseConfig {
      */
     synchronized public String getStartDate() {
         return getStringProperty(START_DATE);
+    }
+
+    /**
+     * Returns method retry wait milliseconds (from 0 millisecond).
+     * @return The wait milliseconds.
+     */
+    synchronized public int getRetryWaitMSec() {
+        return getIntegerProperty(RETRY_WAIT);
+    }
+
+    /**
+     * Returns method retry timeout seconds (from 1 second).
+     * @return The wait milliseconds.
+     */
+    synchronized public int getRetryTimeoutSec() {
+        return getIntegerProperty(RETRY_TIMEOUT);
     }
 
     /**

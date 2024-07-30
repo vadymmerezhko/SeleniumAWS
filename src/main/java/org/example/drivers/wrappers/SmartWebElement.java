@@ -59,8 +59,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doClick,
                 this::fixClickableWebElement,
                 "click",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private void doClick() {
@@ -76,8 +76,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doSubmit,
                 this::fixClickableWebElement,
                 "submit",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private void doSubmit() {
@@ -95,8 +95,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 keysToSend,
                 this::fixClickableWebElement,
                 "sendKeys",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private void doSendKeys(CharSequence... keysToSend) {
@@ -112,8 +112,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doClear,
                 this::fixClickableWebElement,
                 "clear",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private void doClear() {
@@ -130,8 +130,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doGetTagName,
                 this::fixClickableWebElement,
                 "getTagName",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private String doGetTagName() {
@@ -150,8 +150,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 name,
                 this::fixVisibleWebElement,
                 "getAttribute",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private String doGetAttribute(String name) {
@@ -170,8 +170,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 name,
                 this::fixVisibleWebElement,
                 "getDomProperty",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private String doGetDomProperty(String name) {
@@ -190,8 +190,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 name,
                 this::fixVisibleWebElement,
                 "getDomAttribute",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private String doGetDomAttribute(String name) {
@@ -208,8 +208,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doGetAriaRole,
                 this::fixVisibleWebElement,
                 "getAriaRole",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private String doGetAriaRole() {
@@ -226,8 +226,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doGetAccessibleName,
                 this::fixVisibleWebElement,
                 "getAccessibleName",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private String doGetAccessibleName() {
@@ -244,8 +244,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doIsSelected,
                 this::fixVisibleWebElement,
                 "isSelected",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private boolean doIsSelected() {
@@ -262,8 +262,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doIsEnabled,
                 this::fixVisibleWebElement,
                 "isEnabled",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private boolean doIsEnabled() {
@@ -280,8 +280,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doGetText,
                 this::fixVisibleWebElement,
                 "getText",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private String doGetText() {
@@ -320,8 +320,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doIsDisplayed,
                 null,
                 "isDisplayed",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private boolean doIsDisplayed() {
@@ -338,8 +338,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doGetLocation,
                 this::fixVisibleWebElement,
                 "getLocation",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private Point doGetLocation() {
@@ -356,8 +356,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doGetSize,
                 this::fixVisibleWebElement,
                 "getSize",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private Dimension doGetSize() {
@@ -374,8 +374,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doGetRect,
                 this::fixVisibleWebElement,
                 "getRect",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private Rectangle doGetRect() {
@@ -394,8 +394,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 propertyName,
                 this::fixVisibleWebElement,
                 "getCssValue",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private String doGetCssValue(String propertyName) {
@@ -411,8 +411,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doGetShadowRoot,
                 this::fixVisibleWebElement,
                 "getShadowRoot",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
+                RETRY_WAIT_MILLISECONDS,
+                RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private SearchContext doGetShadowRoot() {
@@ -433,8 +433,8 @@ public class SmartWebElement extends BaseSmartWebElement {
                     target,
                     this::fixVisibleWebElement,
                     "getScreenshotAs",
-                    RETRY_COUNT,
-                    RETRY_WAIT_MILLISECONDS);
+                    RETRY_WAIT_MILLISECONDS,
+                    RETRY_TIMEOUT_MILLISECONDS);
     }
 
     private <X> X doGetScreenshotAs(OutputType<X> target) throws WebDriverException {
