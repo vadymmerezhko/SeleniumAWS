@@ -501,6 +501,8 @@ public class SmartWebElement extends BaseSmartWebElement {
             exception instanceof ElementNotInteractableException ||
             exception instanceof NoSuchElementException) {
 
+            waiter.waitForPageLoad(PAGE_LOAD_TIMEOUT_SEC);
+
             if (parent == null) {
                 scrollToElement();
                 element = waiter.waitForElementToBeClickableBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
@@ -517,6 +519,8 @@ public class SmartWebElement extends BaseSmartWebElement {
             exception instanceof ElementNotInteractableException ||
             exception instanceof NoSuchElementException) {
             WebElement fixedElement;
+
+            waiter.waitForPageLoad(PAGE_LOAD_TIMEOUT_SEC);
 
             if (parent == null) {
                 scrollToElement();

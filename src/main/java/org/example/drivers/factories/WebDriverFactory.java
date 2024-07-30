@@ -387,7 +387,7 @@ public class WebDriverFactory {
      */
     public static void hardSystemExit() {
         quiteAllBrowsersAndServers();
-        log.error(
+        log.info(
             "///////////////////////////////////////////////////////////\n\n" +
             "Hard system exit after all browsers and servers are quit.\n\n" +
             "///////////////////////////////////////////////////////////");

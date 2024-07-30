@@ -28,6 +28,7 @@ public class Settings {
     public static final int WAIT_ELEMENT_CHANGING_MILLISECONDS = 20;
     public static final int WAIT_ELEMENT_SECONDS = 4;
     public static final int RETRY_COUNT = 20;
+    public static final int PAGE_LOAD_TIMEOUT_SEC = 15;
     public static final String RMI_SERVER_USER_DATA_TEMPLATE =
             "#!/bin/bash\n" +
             "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +

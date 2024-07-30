@@ -58,10 +58,7 @@ public class BaseSmartException extends RuntimeException {
                 }
             }
             if (!WebUtils.showConfirm(message)) {
-                log.error(
-                    "\n///////////////////////////////////////////////////////////\n\n" +
-                    "User made hard system exit on exception confirm popup.\n\n" +
-                    "///////////////////////////////////////////////////////////");
+                log.info("User made hard system exit on exception confirm popup.");
                 WebDriverFactory.hardSystemExit();
             }
         }

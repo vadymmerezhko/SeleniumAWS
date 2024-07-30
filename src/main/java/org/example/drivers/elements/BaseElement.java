@@ -276,7 +276,6 @@ public abstract class BaseElement implements WebElement, WrapsElement {
                 }
                 element = WebDriverFactory.getDriver().findElement(by);
                 handleElement();
-                return element;
             }
             return element;
         }

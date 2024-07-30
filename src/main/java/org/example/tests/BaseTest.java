@@ -91,10 +91,7 @@ public abstract class BaseTest {
                 testName, errorMessage);
         if (!WebUtils.showConfirm(message)) {
             WebDriverFactory.hardSystemExit();
-            log.error(
-                "\n///////////////////////////////////////////////////////////\n\n" +
-                "User made hard system exit on test failure confirm popup.\n\n" +
-                "///////////////////////////////////////////////////////////");
+            log.info("User made hard system exit on test failure confirm popup.");
             System.exit(-1);
         }
     }

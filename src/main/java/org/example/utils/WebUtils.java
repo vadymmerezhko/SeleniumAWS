@@ -721,7 +721,7 @@ public class WebUtils {
         log.debug("Element {} selection by user started.", elementName);
 
         WebUtils.showAlert(String.format(
-                "WEB ELEMENT\n\nPlease select '%s' element and click left Ctrl.",
+                "WEB ELEMENT\n\nPlease select '%s' element and click left CTRL.",
                 elementName));
         initializeKeyBoardListener();
         WebElement element = null;
