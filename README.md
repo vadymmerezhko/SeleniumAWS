@@ -1,4 +1,4 @@
-## SeleniumAWS 1.10.2
+## SeleniumAWS 1.10.5
 ### Command line parameters
 AUT site host:
 ```bash
