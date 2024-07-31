@@ -177,7 +177,8 @@ public abstract class BasePage {
                             pageName, url);
 
                     if (!WebUtils.showConfirm(confirmMessage)) {
-                        WebDriverFactory.terminateAllBrowsersAndServers();
+                        log.error("User made hard system exit on page URL confirm popup.");
+                        WebDriverFactory.hardSystemExit();
                     }
                     url = null;
                     continue;
@@ -191,7 +192,8 @@ public abstract class BasePage {
                             pageName, url, siteHost);
 
                     if (!WebUtils.showConfirm(wrongHostMessage)) {
-                        WebDriverFactory.terminateAllBrowsersAndServers();
+                        log.error("User made hard system exit on page URL confirm popup.");
+                        WebDriverFactory.hardSystemExit();
                     }
                     url = null;
                     continue;

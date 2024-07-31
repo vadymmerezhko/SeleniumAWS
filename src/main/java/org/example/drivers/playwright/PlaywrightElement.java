@@ -2,16 +2,21 @@ package org.example.drivers.playwright;
 
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.options.BoundingBox;
 import lombok.extern.slf4j.Slf4j;
 import org.example.drivers.selectors.SmartByParser;
 import org.example.drivers.wrappers.BaseSmartWebElement;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ScreenshotUtils;
+import org.example.utils.WaiterUtils;
 import org.openqa.selenium.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.example.constants.Settings.WAIT_ELEMENT_DELAY_MILLISECONDS;
+import static org.example.constants.Settings.WAIT_ELEMENT_TIMEOUT_SECONDS;
 
 
 /**
@@ -183,18 +188,27 @@ public class PlaywrightElement extends BaseSmartWebElement {
      */
     @Override
     public List<WebElement> findElements(By by) {
+        long startMilliseconds = System.currentTimeMillis();
+        long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
         String locatorString = SmartByParser.getLocatorString(by);
-        List<Locator> childLocators;
-        try {
-            childLocators = locator.locator(locatorString).all();
+        PlaywrightException exception = null;
+        List<Locator> locators;
+
+        while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
+            try {
+                locators = locator.locator(locatorString).all();
+                log.debug("Elements found by {}: {}", by, locators);
+                return locators.stream()
+                        .map(locator -> new PlaywrightElement(by, locator, driver))
+                        .collect(Collectors.toList());
+            }
+            catch (PlaywrightException e) {
+                exception = e;
+            }
+            WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_DELAY_MILLISECONDS);
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        log.debug("{} findElements by {}: {}", locator, by, childLocators);
-        return childLocators.stream()
-                .map(locator -> new PlaywrightElement(by, locator, driver))
-                .collect(Collectors.toList());
+        throw new SmartRuntimeException(String.format(
+                "Playwright %s child web elements are not found by %s", locator, by), exception);
     }
 
     /**
@@ -204,15 +218,25 @@ public class PlaywrightElement extends BaseSmartWebElement {
      */
     @Override
     public WebElement findElement(By by) {
+        long startMilliseconds = System.currentTimeMillis();
+        long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
         String locatorString = SmartByParser.getLocatorString(by);
-        try {
-            Locator childLocator = locator.locator(locatorString);
-            log.debug("{} findElement by {}: {}", locator, by, childLocator);
-            return new PlaywrightElement(by, childLocator, driver);
+        PlaywrightException exception = null;
+        Locator childLocator;
+
+        while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
+            try {
+                childLocator = locator.locator(locatorString);
+                log.debug("{}.findElement by {}: {}", locator, by, childLocator);
+                return new PlaywrightElement(by, childLocator, driver);
+            }
+            catch (PlaywrightException e) {
+                exception = e;
+            }
+            WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_DELAY_MILLISECONDS);
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        throw new SmartRuntimeException(String.format(
+                "Playwright %s child web element is not found by %s", locator, by), exception);
     }
 
     /**

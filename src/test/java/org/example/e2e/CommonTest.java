@@ -1,8 +1,9 @@
 package org.example.e2e;
 
-import org.example.data.SignUpTestInput;
-import org.example.data.SignUpTestResult;
+import org.example.data.FillWebFormTestInput;
+import org.example.data.FillWebFormTestResult;
 import org.example.configs.TestConfig;
+import org.example.data.SubmitWebFormTestResult;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.servers.TestServerInterface;
 import org.example.servers.TestServerManager;
@@ -25,10 +26,10 @@ public class CommonTest extends BaseTest {
         ServerUtils.terminateAwsRmiServer();
     }
 
-    protected void signUp() {
+    protected void fillWebForm() {
         Path currentRelativePath = Paths.get("pom.xml");
         String currentFolderPath = currentRelativePath.toAbsolutePath().toString();
-        SignUpTestInput testInput = new SignUpTestInput(
+        FillWebFormTestInput testInput = new FillWebFormTestInput(
                 "Selenium",
                 "Selenium WebDriver", // Multiline text cause failure on Safari.
                 "Two",
@@ -42,21 +43,29 @@ public class CommonTest extends BaseTest {
                 "05/23/1970",
                 2);
 
-        signUp(testInput);
+        fillWebForm(testInput);
     }
 
-    protected void failSignUp() {
-        signUp();
+    protected void failFillWebForm() {
+        fillWebForm();
         if (config.getDebugFail()) {
             Assert.fail("Test is failed for debug purpose.");
         }
     }
 
-    private void signUp(SignUpTestInput testInput) {
-        Reporter.log("<b>SignUp test execution started.</b>");
+    protected void submitWebForm() {
+        TestServerInterface testServer = TestServerManager.getTestServer();
+        SubmitWebFormTestResult testResult = testServer.submitWebForm();
+
+        Assert.assertEquals(testResult.header(), "Form submitted");
+        Assert.assertEquals(testResult.status(), "Received!");
+    }
+
+    private void fillWebForm(FillWebFormTestInput testInput) {
+        Reporter.log("<b>fillWebForm test execution started.</b>");
 
         TestServerInterface testServer = TestServerManager.getTestServer();
-        SignUpTestResult testResult = testServer.signUp(testInput);
+        FillWebFormTestResult testResult = testServer.fillWebForm(testInput);
 
         Assert.assertEquals(testResult.textInput(), testInput.textInput());
         Assert.assertEquals(testResult.textareaInput(), testInput.textareaInput());
@@ -72,6 +81,6 @@ public class CommonTest extends BaseTest {
         Assert.assertEquals(testResult.date(), testInput.date());
         Assert.assertEquals(testResult.range(), testInput.range());
 
-        Reporter.log("<b>SignUp test execution finished.</b>");
+        Reporter.log("<b>fillWebForm test execution finished.</b>");
     }
 }

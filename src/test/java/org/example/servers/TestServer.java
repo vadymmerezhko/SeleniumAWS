@@ -1,9 +1,11 @@
 package org.example.servers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.data.SignUpTestInput;
-import org.example.data.SignUpTestResult;
+import org.example.data.FillWebFormTestInput;
+import org.example.data.FillWebFormTestResult;
+import org.example.data.SubmitWebFormTestResult;
 import org.example.exceptions.SmartRuntimeException;
+import org.example.pages.TargetPage;
 import org.example.pages.WebFormPage;
 import org.example.tests.BaseTestServer;
 
@@ -26,12 +28,12 @@ public class TestServer extends BaseTestServer implements TestServerInterface {
     }
 
     /**
-     * Sign up test method implementation with JSON input and output string.
-     * @param testInput The JSON input string.
-     * @return The JSON output string.
+     * Fill Web Form test method implementation.
+     * @param testInput The test input.
+     * @return The test result.
      */
     @Override
-    public SignUpTestResult signUp(SignUpTestInput testInput) {
+    public FillWebFormTestResult fillWebForm(FillWebFormTestInput testInput) {
 
         try {
             WebFormPage webFormPage = new WebFormPage();
@@ -53,14 +55,13 @@ public class TestServer extends BaseTestServer implements TestServerInterface {
             if (testInput.radiobutton2Value()) {
                 webFormPage.selectRadiobutton2();
             }
-
             webFormPage.pickColor(testInput.color());
             webFormPage.pickDate(testInput.date());
             webFormPage.setRange(testInput.range());
 
-            //log.info("Page URL: {}", webFormPage.getURL());
+            log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
-            return new SignUpTestResult(
+            return new FillWebFormTestResult(
                     webFormPage.getTextInputValue(),
                     webFormPage.getTextareaValue(),
                     webFormPage.getDropdownSelectedOption(),
@@ -75,7 +76,23 @@ public class TestServer extends BaseTestServer implements TestServerInterface {
                     webFormPage.getRange());
         }
         catch (Exception e) {
-            throw new SmartRuntimeException("Sign up filed.", e);
+            throw new SmartRuntimeException("Filling the Web Form failed.", e);
         }
+    }
+
+    /**
+     * Submit Web Form test method implementation.
+     * @return The test result.
+     */
+    @Override
+    public SubmitWebFormTestResult submitWebForm() {
+        WebFormPage webFormPage = new WebFormPage();
+        webFormPage.submit();
+
+        TargetPage targetPage = new TargetPage();
+        String header = targetPage.getHeaderText();
+        String status = targetPage.getStatusText();
+
+        return new SubmitWebFormTestResult(header, status);
     }
 }

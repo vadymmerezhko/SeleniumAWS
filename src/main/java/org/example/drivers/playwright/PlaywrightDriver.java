@@ -5,18 +5,24 @@ import com.deque.html.axecore.results.AxeResults;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.options.ScreenshotType;
 import lombok.extern.slf4j.Slf4j;
 import org.example.drivers.selectors.SmartByParser;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ClassUtils;
 import org.example.utils.ScreenshotUtils;
+import org.example.utils.WaiterUtils;
 import org.openqa.selenium.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.example.constants.Settings.WAIT_ELEMENT_DELAY_MILLISECONDS;
+import static org.example.constants.Settings.WAIT_ELEMENT_TIMEOUT_SECONDS;
+
 
 /**
  * The Playwright - Selenium WebDriver wrapper class.
@@ -74,13 +80,21 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
     }
 
     /**
+     * Waits for page load.
+     */
+    public void waitForPageLoad() {
+        page.waitForLoadState();
+        page.waitForFunction("document.readyState === 'complete'");
+    }
+
+    /**
      * Opens browser page by its URL.
      * @param url The page URL.
      */
     @Override
     public void get(String url) {
         page.navigate(url);
-        page.waitForLoadState();
+        waitForPageLoad();
         log.debug("get({})", url);
         isPageOpen = true;
         checkAccessibility();
@@ -115,18 +129,28 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public List<WebElement> findElements(By by) {
+        long startMilliseconds = System.currentTimeMillis();
+        long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
         String locatorString = SmartByParser.getLocatorString(by);
+        PlaywrightException exception = null;
         List<Locator> locators;
-        try {
-            locators = page.locator(locatorString).all();
+
+        while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
+            try {
+                locators = page.locator(locatorString).all();
+                log.debug("Elements found by {}: {}", by, locators);
+                return locators.stream()
+                        .map(locator -> new PlaywrightElement(by, locator, this))
+                        .collect(Collectors.toList());
+            }
+            catch (PlaywrightException e) {
+                exception = e;
+            }
+            WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_DELAY_MILLISECONDS);
+            waitForPageLoad();
         }
-        catch (Exception e) {
-            throw new SmartRuntimeException(e);
-        }
-        log.debug("Elements found by {}: {}", by, locators);
-        return locators.stream()
-                .map(locator -> new PlaywrightElement(by, locator, this))
-                .collect(Collectors.toList());
+        throw new SmartRuntimeException(String.format(
+                "Playwright web elements are not found by %s", by), exception);
     }
 
     /**
@@ -136,15 +160,26 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
      */
     @Override
     public WebElement findElement(By by) {
+        long startMilliseconds = System.currentTimeMillis();
+        long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
         String locatorString = SmartByParser.getLocatorString(by);
-        try {
-            Locator locator = page.locator(locatorString);
-            log.debug("Element found by {}: {}", by, locator);
-            return new PlaywrightElement(by, locator,this);
+        PlaywrightException exception = null;
+        Locator foundLocator;
+
+        while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
+            try {
+                foundLocator = page.locator(locatorString);
+                log.debug("{}.findElement by {}: {}", page, by, foundLocator);
+                return new PlaywrightElement(by, foundLocator, this);
+            }
+            catch (PlaywrightException e) {
+                exception = e;
+            }
+            WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_DELAY_MILLISECONDS);
+            waitForPageLoad();
         }
-        catch (Exception e) {
-            throw new SmartRuntimeException(e);
-        }
+        throw new SmartRuntimeException(String.format(
+                "Playwright web element is not found by %s", by), exception);
     }
 
     /**

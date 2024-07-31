@@ -36,6 +36,10 @@ public class Config extends BaseConfig {
     private static final String RETRY_WAIT = "retryWait";
     private static final String RETRY_TIMEOUT = "retryTimeout";
 
+    private static final  String PAGE_WAIT_TIMEOUT = "pageWaitTimeout";
+    private static final  String ELEMENT_WAIT_TIMEOUT = "elementWaitTimeout";
+    private static final  String ELEMENT_WAIT_DELAY = "elementWaitDelay";
+
     public static Config getInstance() {
         return new Config(CONFIG_PROPERTIES_FILE_PATH);
     }
@@ -283,6 +287,30 @@ public class Config extends BaseConfig {
         return getBooleanProperty(RETAIN_BROWSER);
     }
 
+    /**
+     * Returns page wait timeout seconds.
+     * @return The timeout seconds.
+     */
+    synchronized public int getPageWaitTimeout() {
+        return getIntegerProperty(PAGE_WAIT_TIMEOUT);
+    }
+
+    /**
+     * Returns elemnt wait timeout seconds.
+     * @return The timeout seconds.
+     */
+    synchronized public int getElementWaitTimeout() {
+        return getIntegerProperty(ELEMENT_WAIT_TIMEOUT);
+    }
+
+    /**
+     * Returns element wait delay milliseconds.
+     * @return The timeout seconds.
+     */
+    synchronized public int getElementWaitDelay() {
+        return getIntegerProperty(ELEMENT_WAIT_DELAY);
+    }
+
     private void validateDebugModeProperty() {
         boolean debugMode = getBooleanProperty(DEBUG_MODE);
 
@@ -303,9 +331,12 @@ public class Config extends BaseConfig {
             else if (!threadCount.equals("1")) {
                 errorMessage = String.format(format, THREAD_COUNT, threadCount, "1");
             }
-
             if (errorMessage != null) {
-                log.error(errorMessage);
+                log.error(
+                    "///////////////////////////////////////////////////////////\n\n" +
+                    "{}\n\n" +
+                    "///////////////////////////////////////////////////////////",
+                    errorMessage);
                 System.exit(-1);
             }
         }

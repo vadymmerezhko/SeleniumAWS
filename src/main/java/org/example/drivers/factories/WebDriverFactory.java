@@ -373,13 +373,24 @@ public class WebDriverFactory {
     }
 
     /**
-     * Terminates all browsers and servers.
+     * Terminates all browsers and servers and makes hard system exit.
      */
-    public static void terminateAllBrowsersAndServers() {
-        log.info("Test was terminated by user in debug mode.");
+    public static void quiteAllBrowsersAndServers() {
         WebDriverFactory.quitAllDrivers();
         ServerUtils.terminateAllSeleniumServers();
         ServerUtils.terminateAwsRmiServer();
+        log.debug("All browsers and servers are quit.");
+    }
+
+    /**
+     * Terminates all browsers and servers and makes hard system exit.
+     */
+    public static void hardSystemExit() {
+        quiteAllBrowsersAndServers();
+        log.info(
+            "///////////////////////////////////////////////////////////\n\n" +
+            "Hard system exit after all browsers and servers are quit.\n\n" +
+            "///////////////////////////////////////////////////////////");
         System.exit(-1);
     }
 
@@ -508,10 +519,12 @@ public class WebDriverFactory {
             driver = new RemoteWebDriver(testGridUrl, capabilities);
         }
         catch (Exception e) {
-            log.error("AWS Device Farm exception:\n{}", e.getMessage());
-            WebDriverFactory.quitAllDrivers();
-            ServerUtils.terminateAllSeleniumServers();
-            System.exit(-1);
+            log.error(
+                "\n///////////////////////////////////////////////////////////\n\n" +
+                "Hard system exit after AWS Device Farm exception:\n{}\n\n" +
+                "///////////////////////////////////////////////////////////",
+                e.getMessage());
+            WebDriverFactory.hardSystemExit();
         }
         return driver;
     }

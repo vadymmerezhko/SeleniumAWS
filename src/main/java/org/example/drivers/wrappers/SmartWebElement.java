@@ -1,5 +1,6 @@
 package org.example.drivers.wrappers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ClassUtils;
@@ -17,6 +18,7 @@ import static org.example.constants.Settings.*;
  * This class wraps WebElement and adds auto wait, retry on error
  * to make the WebElement more reliable.
  */
+@Slf4j
 public class SmartWebElement extends BaseSmartWebElement {
     static protected final Config config = Config.getInstance();
     private static final int WAIT_FOR_ELEMENT_TIMEOUT_SEC = 15;
@@ -59,8 +61,9 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doClick,
                 this::fixClickableWebElement,
                 "click",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.click()", element);
     }
 
     private void doClick() {
@@ -76,8 +79,9 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doSubmit,
                 this::fixClickableWebElement,
                 "submit",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.submit()", element);
     }
 
     private void doSubmit() {
@@ -95,8 +99,9 @@ public class SmartWebElement extends BaseSmartWebElement {
                 keysToSend,
                 this::fixClickableWebElement,
                 "sendKeys",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.sendKeys('{}')", element, keysToSend);
     }
 
     private void doSendKeys(CharSequence... keysToSend) {
@@ -112,8 +117,9 @@ public class SmartWebElement extends BaseSmartWebElement {
                 this::doClear,
                 this::fixClickableWebElement,
                 "clear",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.clear()", element);
     }
 
     private void doClear() {
@@ -126,12 +132,14 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public String getTagName() {
-        return ClassUtils.performSupplierMethod(
+        String tagName = ClassUtils.performSupplierMethod(
                 this::doGetTagName,
                 this::fixClickableWebElement,
                 "getTagName",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getTagName(): {}", element, tagName);
+        return tagName;
     }
 
     private String doGetTagName() {
@@ -145,13 +153,15 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public String getAttribute(String name) {
-        return ClassUtils.performFunctionMethod(
+        String tagAttribute = ClassUtils.performFunctionMethod(
                 this::doGetAttribute,
                 name,
                 this::fixVisibleWebElement,
                 "getAttribute",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getAttribute('{}'): {}", element, name, tagAttribute);
+        return tagAttribute;
     }
 
     private String doGetAttribute(String name) {
@@ -165,13 +175,15 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public String getDomProperty(String name) {
-        return ClassUtils.performFunctionMethod(
+        String domProperty = ClassUtils.performFunctionMethod(
                 this::doGetDomProperty,
                 name,
                 this::fixVisibleWebElement,
                 "getDomProperty",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getDomProperty('{}'): {}", element, name, domProperty);
+        return domProperty;
     }
 
     private String doGetDomProperty(String name) {
@@ -185,13 +197,15 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public String getDomAttribute(String name) {
-        return ClassUtils.performFunctionMethod(
+        String domAttribute = ClassUtils.performFunctionMethod(
                 this::doGetDomAttribute,
                 name,
                 this::fixVisibleWebElement,
                 "getDomAttribute",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getDomAttribute('{}'): {}", element, name, domAttribute);
+        return domAttribute;
     }
 
     private String doGetDomAttribute(String name) {
@@ -204,12 +218,14 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public String getAriaRole() {
-        return ClassUtils.performSupplierMethod(
+        String arialRole = ClassUtils.performSupplierMethod(
                 this::doGetAriaRole,
                 this::fixVisibleWebElement,
                 "getAriaRole",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getAriaRole(): {}", element, arialRole);
+        return arialRole;
     }
 
     private String doGetAriaRole() {
@@ -222,12 +238,14 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public String getAccessibleName() {
-        return ClassUtils.performSupplierMethod(
+        String accessibleName = ClassUtils.performSupplierMethod(
                 this::doGetAccessibleName,
                 this::fixVisibleWebElement,
                 "getAccessibleName",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getAccessibleName(): {}", element, accessibleName);
+        return accessibleName;
     }
 
     private String doGetAccessibleName() {
@@ -240,12 +258,14 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public boolean isSelected() {
-        return ClassUtils.performSupplierMethod(
+        boolean isSelected = ClassUtils.performSupplierMethod(
                 this::doIsSelected,
                 this::fixVisibleWebElement,
                 "isSelected",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.isSelected(): {}", element, isSelected);
+        return isSelected;
     }
 
     private boolean doIsSelected() {
@@ -258,12 +278,14 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public boolean isEnabled() {
-        return ClassUtils.performSupplierMethod(
+        boolean isEnabled = ClassUtils.performSupplierMethod(
                 this::doIsEnabled,
                 this::fixVisibleWebElement,
                 "isEnabled",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.isEnabled(): {}", element, isEnabled);
+        return isEnabled;
     }
 
     private boolean doIsEnabled() {
@@ -276,12 +298,14 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public String getText() {
-        return ClassUtils.performSupplierMethod(
+        String text = ClassUtils.performSupplierMethod(
                 this::doGetText,
                 this::fixVisibleWebElement,
                 "getText",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getText(): {}", element, text);
+        return text;
     }
 
     private String doGetText() {
@@ -307,7 +331,27 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public WebElement findElement(By childBy) {
-        return new SmartWebElement(element.findElement(childBy), this, childBy, driver, waiter);
+        long startMilliseconds = System.currentTimeMillis();
+        long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
+        WebElement childElement;
+
+        while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
+            List<WebElement> elements = findElements(by);
+            int size = elements.size();
+
+            if (size == 1) {
+                childElement = elements.get(0);
+                log.debug("Web element {} is found by selector {}.", childElement, by);
+                return new SmartWebElement(childElement, null, by, driver, waiter);
+            }
+            else if (elements.size() > 0) {
+                break;
+            }
+            WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_DELAY_MILLISECONDS);
+        }
+        childElement = new SmartWebElement(element.findElement(by), null, by, driver, waiter);
+        log.debug("Web element {} is found by selector {}.", childElement, by);
+        return childElement;
     }
 
     /**
@@ -316,12 +360,14 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public boolean isDisplayed() {
-        return ClassUtils.performSupplierMethod(
+        boolean isDisplayed = ClassUtils.performSupplierMethod(
                 this::doIsDisplayed,
                 null,
                 "isDisplayed",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.isDisplayed(): {}", element, isDisplayed);
+        return isDisplayed;
     }
 
     private boolean doIsDisplayed() {
@@ -334,12 +380,14 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public Point getLocation() {
-        return ClassUtils.performSupplierMethod(
+        Point location = ClassUtils.performSupplierMethod(
                 this::doGetLocation,
                 this::fixVisibleWebElement,
                 "getLocation",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getLocation(): {}", element, location);
+        return location;
     }
 
     private Point doGetLocation() {
@@ -352,12 +400,14 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public Dimension getSize() {
-        return ClassUtils.performSupplierMethod(
+        Dimension size = ClassUtils.performSupplierMethod(
                 this::doGetSize,
                 this::fixVisibleWebElement,
                 "getSize",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getSize(): {}", element, size);
+        return size;
     }
 
     private Dimension doGetSize() {
@@ -370,12 +420,14 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public Rectangle getRect() {
-        return ClassUtils.performSupplierMethod(
+        Rectangle rect = ClassUtils.performSupplierMethod(
                 this::doGetRect,
                 this::fixVisibleWebElement,
                 "getRect",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getRect(): {}", element, rect);
+        return rect;
     }
 
     private Rectangle doGetRect() {
@@ -389,13 +441,15 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public String getCssValue(String propertyName) {
-        return ClassUtils.performFunctionMethod(
+        String cssValue = ClassUtils.performFunctionMethod(
                 this::doGetCssValue,
                 propertyName,
                 this::fixVisibleWebElement,
                 "getCssValue",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getCssValue('{}'): {}", element, propertyName, cssValue);
+        return cssValue;
     }
 
     private String doGetCssValue(String propertyName) {
@@ -407,12 +461,14 @@ public class SmartWebElement extends BaseSmartWebElement {
      * @return The shadow root.
      */
     public SearchContext getShadowRoot() {
-        return ClassUtils.performSupplierMethod(
+        SearchContext shadowRoot = ClassUtils.performSupplierMethod(
                 this::doGetShadowRoot,
                 this::fixVisibleWebElement,
                 "getShadowRoot",
-                RETRY_WAIT_MILLISECONDS,
-                RETRY_TIMEOUT_MILLISECONDS);
+                RETRY_COUNT,
+                RETRY_WAIT_MILLISECONDS);
+        log.debug("{}.getShadowRoot(): {}", element, shadowRoot);
+        return shadowRoot;
     }
 
     private SearchContext doGetShadowRoot() {
@@ -428,13 +484,15 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
         @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
-            return ClassUtils.performFunctionMethod(
+            X screenshot = ClassUtils.performFunctionMethod(
                     this::doGetScreenshotAs,
                     target,
                     this::fixVisibleWebElement,
                     "getScreenshotAs",
-                    RETRY_WAIT_MILLISECONDS,
-                    RETRY_TIMEOUT_MILLISECONDS);
+                    RETRY_COUNT,
+                    RETRY_WAIT_MILLISECONDS);
+            log.debug("{}.getScreenshotAs({}", element, target);
+            return screenshot;
     }
 
     private <X> X doGetScreenshotAs(OutputType<X> target) throws WebDriverException {
@@ -459,6 +517,7 @@ public class SmartWebElement extends BaseSmartWebElement {
                NoSuchElementException e) {
             // Ignore exception;
         }
+        log.debug("Page scrolled to element {}.", element);
     }
 
     /**
@@ -472,6 +531,7 @@ public class SmartWebElement extends BaseSmartWebElement {
         }
         ((JavascriptExecutor)driver).executeScript(
                 String.format("arguments[0].value='%s'", value), nativeElement);
+        log.debug("Element {} value set to '{}'.", element, value);
     }
 
     private WebElement waitForChildElementPresence(By childBy) {
@@ -501,6 +561,8 @@ public class SmartWebElement extends BaseSmartWebElement {
             exception instanceof ElementNotInteractableException ||
             exception instanceof NoSuchElementException) {
 
+            waiter.waitForPageLoad();
+
             if (parent == null) {
                 scrollToElement();
                 element = waiter.waitForElementToBeClickableBy(by, WAIT_FOR_ELEMENT_TIMEOUT_SEC);
@@ -517,6 +579,8 @@ public class SmartWebElement extends BaseSmartWebElement {
             exception instanceof ElementNotInteractableException ||
             exception instanceof NoSuchElementException) {
             WebElement fixedElement;
+
+            waiter.waitForPageLoad();
 
             if (parent == null) {
                 scrollToElement();

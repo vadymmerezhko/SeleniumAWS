@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+
 /**
  * Base web element class.
  */
@@ -29,7 +30,6 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     protected final BasePage page;
     protected WebDriver driver;
     protected String elementName;
-    protected long threadId;
 
     public static Map<String, String> getElementSelectorMap() {
         return elementSelectorMap;
@@ -45,7 +45,6 @@ public abstract class BaseElement implements WebElement, WrapsElement {
         this.page = page;
         this.by = by;
         driver = WebDriverFactory.getDriver();
-        threadId = Thread.currentThread().threadId();
     }
 
     /**
@@ -274,9 +273,8 @@ public abstract class BaseElement implements WebElement, WrapsElement {
                         setElementSelector(smartBy);
                     }
                 }
-                element = WebDriverFactory.getDriver().findElement(by);
+                element = driver.findElement(by);
                 handleElement();
-                return element;
             }
             return element;
         }
@@ -294,6 +292,8 @@ public abstract class BaseElement implements WebElement, WrapsElement {
      * Handles web element after an action on it.
      */
     protected void handleElement() {
+        long threadId = Thread.currentThread().threadId();
+
         if (handledElementMap.isEmpty() || handledElementMap.get(threadId) != element) {
             handledElementMap.put(threadId, element);
 
@@ -364,7 +364,8 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             }
         }
         catch (Throwable e) {
-            throw new SmartRuntimeException("Can not set element selector.", e);
+            throw new SmartRuntimeException(String.format(
+                    "Can not set element selector %s.", by), e);
         }
     }
 

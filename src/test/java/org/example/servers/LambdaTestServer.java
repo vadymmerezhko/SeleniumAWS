@@ -1,7 +1,8 @@
 package org.example.servers;
 
-import org.example.data.SignUpTestInput;
-import org.example.data.SignUpTestResult;
+import org.example.data.FillWebFormTestInput;
+import org.example.data.FillWebFormTestResult;
+import org.example.data.SubmitWebFormTestResult;
 import org.example.tests.BaseTestServer;
 
 /**
@@ -15,7 +16,12 @@ public class LambdaTestServer extends BaseTestServer implements TestServerInterf
      * @return The JSON string output.
      */
     @Override
-    public SignUpTestResult signUp(SignUpTestInput testInput) {
-        return (SignUpTestResult) invokeLambdaFunction("signUp", testInput, SignUpTestResult.class);
+    public FillWebFormTestResult fillWebForm(FillWebFormTestInput testInput) {
+        return (FillWebFormTestResult) invokeLambdaFunction("fillWebForm", testInput, FillWebFormTestResult.class);
+    }
+
+    @Override
+    public SubmitWebFormTestResult submitWebForm() {
+        return null;
     }
 }

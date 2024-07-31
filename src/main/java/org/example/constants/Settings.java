@@ -26,9 +26,11 @@ public class Settings {
     public static final int REMOTE_WEB_DRIVER_PORT = 4444;
     public static final int SERVER_WAIT_TIMEOUT_SECONDS = 120;
     public static final int RETRY_WAIT_MILLISECONDS = Config.getInstance().getRetryWaitMSec();
-    public static  final  int RETRY_TIMEOUT_MILLISECONDS = Config.getInstance().getRetryTimeoutSec();
+    public static final int RETRY_TIMEOUT_MILLISECONDS = Config.getInstance().getRetryTimeoutSec();
     public static final int WAIT_ELEMENT_CHANGING_MILLISECONDS = 20;
-    public static final int WAIT_ELEMENT_SECONDS = 4;
+    public static final int WAIT_ELEMENT_DELAY_MILLISECONDS = Config.getInstance().getElementWaitDelay();
+    public static final int WAIT_ELEMENT_TIMEOUT_SECONDS = Config.getInstance().getElementWaitTimeout();
+    public static final int PAGE_LOAD_WAIT_TIMEOUT_SECONDS = Config.getInstance().getPageWaitTimeout();
     public static final int RETRY_COUNT = 20;
     public static final String RMI_SERVER_USER_DATA_TEMPLATE =
             "#!/bin/bash\n" +

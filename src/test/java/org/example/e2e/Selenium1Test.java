@@ -4,43 +4,51 @@ import org.testng.annotations.*;
 
 public class Selenium1Test extends CommonTest {
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 1, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp1() {
-        failSignUp();
+    @Test(description = "This method validates the Web Form functionality", invocationCount = 1, retryAnalyzer = RetryAnalyzer.class)
+    public void testWebForm1() {
+        failFillWebForm();
+        submitWebForm();
     }
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp2() {
-        signUp();
+    @Test(description = "This method validates the Web Form functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
+    public void testWebForm2() {
+        fillWebForm();
+        submitWebForm();
     }
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp3() {
-        signUp();
+    @Test(description = "This method validates the Web Form functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
+    public void testWebForm3() {
+        fillWebForm();
+        submitWebForm();
     }
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 1, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp4() {
-        failSignUp();
+    @Test(description = "This method validates the Web Form functionality", invocationCount = 1, retryAnalyzer = RetryAnalyzer.class)
+    public void testWebForm4() {
+        failFillWebForm();
+        submitWebForm();
     }
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp5() {
-        signUp();
+    @Test(description = "This method validates the Web Form functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
+    public void testWebForm5() {
+        fillWebForm();
+        submitWebForm();
     }
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp6() {
-        signUp();
+    @Test(description = "This method validates the Web Form functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
+    public void testWebForm6() {
+        fillWebForm();
+        submitWebForm();
     }
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp7() {
-        signUp();
+    @Test(description = "This method validates the Web Form functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
+    public void fillWebForm7() {
+        fillWebForm();
+        submitWebForm();
     }
 
-    @Test(description = "This method validates the sign up functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
-    public void signUp8() {
-        signUp();
+    @Test(description = "This method validates the Web Form functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
+    public void fillWebForm8() {
+        fillWebForm();
+        submitWebForm();
     }
 }
