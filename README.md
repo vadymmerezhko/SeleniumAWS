@@ -1,182 +1,280 @@
-## SeleniumAWS 1.10.5
+## SeleniumAWS 1.10.7
 ### Command line parameters
+#### -DsiteHost
 AUT site host:
 ```bash
--DsiteHost=https:\\<host>:<port>
+-DsiteHost=https:\\localhost:4444
 ```
-TestNG file name:
-```bash
--DtestngFile=<file name>
-```
+#### -DtestSuite
 Test suite path:
 ```bash
--DtestSuite=<test suite path>
+-DtestSuite=./src/test/resources/testng.xml
 ```
-Thread count (from 1 to 32):
+#### -DthreadCount
+Parallel threads count (from 1 to 32, 4 is default):
 ```bash
--DthreadCount=<trtead count>
+-DthreadCount=4
 ```
-Test mode (local, local_auto, local_appium, remote, local_docker, local_docker_auto, aws_docker, aws_device_farm, local_playwright, aws_lambda, aws_rmi, local_accessibility):
-```bash
--DtestMode=<test mode>
-```
-Browser name (chrome, chromium, firefox, edge, safari, webkit):
-```bash
--Dbrowser=<browser name>
-```
-Browser name and version (latest, latest-1, dev, stable, beta, canary):
-```bash
--Dbrowser=<browser name>:<browser version>
-```
-Browser size (width:height):
-```bash
--DbrowserSize=<width>:<height>
-```
-Headless (true/false):
-```bash
--Dheadless=true
-```
-Non-headless (true/false):
-```bash
--Dheadless=false
-```
-Remote host (like http://127.0.0.1:4444):
-```bash
--DremoteHost=<remote host URL>
-```
-Remote host example:
-```bash
--DremoteHost=http://localhost:4444
-```
-Take screenshot on fail (true/false):
-```bash
--DscreenshotOnFail=true
-```
-Record video on fail (true/false):
-```bash
--DvideoOnFail=false
-```
-Fail test for debug purpose (true/false):
-```bash
--DdebugFail=false
-```
-Highlight current element for debug purpose (true/false):
-```bash
--Dhighlight=true
-```
-Step delay for debug purpose (milliseconds):
-```bash
--DstepDelay=50
-```
-### Test modes
-Local (for chrome:stable, chrome:beta, chrome:canary, firefox:stable, edge:stable):
-```bash
--DtestMode=local
-```
-Local Auto (for installed chrome, firefox, edge, safari):
-```bash
--DtestMode=local_auto
-```
-Local Docker (for chrome:version, edge:version, firefox:version,
-for versions: latest, latest-1, latest-n, 124.0, beta, dev):
-```bash
--DtestMode=local_docker
-```
-Local Docker Auto (for chrome:version, chromium:version, edge:<version>, firefox:<version>, safari:version,
-for versions: latest, latest-1, latest-n, 124.0, beta, dev):
-```bash
--DtestMode=local_docker_auto
-```
-Local Playwright (for chromium, firefox, webkit):
-```bash
--DtestMode=local_playwright
-```
-Local Playwright accessibility (for chromium only):
-```bash
--DtestMode=local_accessibility
-```
-AWS Docker (for chrome:version, edge:version, firefox:version,
-for versions: latest, latest-1, latest-n, 124.0, beta, dev):
+#### -DtestMode
+Test mode:
+- local (default)
+- local_auto
+- local_appium
+- local_docker
+- local_docker_auto
+- local_playwright
+- local_accessibility
+- remote
+- aws_local (TODO)
+- aws_docker
+- aws_device_farm
 ```bash
 -DtestMode=aws_docker
 ```
-AWS Device farm (for chrome:version, edge:version, firefox:latest on Windows,
-for versions: latest, latest-1, latest-n):
-```bash
--DtestMode=aws_device_farm
-```
-Remote (Selenium Grid for chrome, edge, firefox, safari):
-```bash
--DtestMode=remote
-```
-Local Appium:
-```bash
--DtestMode=local_appium";
-```
-AWS Lambda (for Playwright firefox only):
-```bash
--DtestMode=aws_lambda
-```
-AWS RMI:
-```bash
--DtestMode=aws_rmi
-```
-AWS RMI (for local run only):
-```bash
--DdebugMode=true
-```
-#### Browser names:
-Local mode Chrome stable:
-```bash
--Dbrowser=chrome:stable
-```
-Local mode Chrome beta:
-```bash
--Dbrowser=chrome:beta
-```
-Local mode Chrome canary:
-```bash
--Dbrowser=chrome:canary
-```
-Local Docker mode Chrome latest:
-```bash
--Dbrowser=chrome:latest
-```
-Local Docker mode Chrome latest - 1:
-```bash
--Dbrowser=chrome:latest-1
-```
-Local Docker mode Chrome 112:
-```bash
--Dbrowser=chrome:112.0
-```
-Local mode Firefox stable:
-```bash
--Dbrowser=firefox:stable
-```
-Local Docker mode Firefox latest:
-```bash
--Dbrowser=chrome:latest
-```
-Local Docker Auto mode Safari latest:
-```bash
--Dbrowser=safari:latest
-```
-Local mode Edge stable:
-```bash
--Dbrowser=firefox:stable
-```
-Local Playwright mode Firefox:
+#### -Dbrowser
+Browser name:
+- chrome
+- chromium
+- firefox
+- edge
+- safari
+- webkit (local_playwright only)
 ```bash
 -Dbrowser=firefox
 ```
-Local Playwright mode Chromium:
+Browser name and version.
+
+For local, aws_local (TODO) test modes:
+- chrome:stable (defalt)
+- chrome:beta
+- firefox:stable
+- firefox:beta
+- edge:stable
+- edge:beta
+
+For local_docker, local_docker_auto, aws_docker test modes:
+- chrome:latest
+- chrome:latest-1
+- chrome:latest-{n}
+- chrome:126.0
+- chrome:{version}
+- firefox:latest
+- firefox:latest
+- firefox:126.0
+- edge:latest
+- edge:latest-1
+- edge:127.0
+- safari:latest
+- safari:latest-1
+- safari:15.0
+
 ```bash
--Dbrowser=firefox:chromium
+-Dbrowser=chrome:latest
 ```
-Local Playwright mode WebKit:
+#### -DbrowserSize
+Browser size width:height:
+ - browserSize=1052:630 (default)
 ```bash
--Dbrowser=firefox:webkit
+-DbrowserSize=1052:630
+```
+#### -Dheadless
+Headless:
+- true (default)
+- false
+```bash
+-Dheadless=false
+```
+#### -DremoteHost
+Remote host http:/{host}:{port} : 
+- http://127.0.0.1:4444
+- http://localhost:4444
+- http://192.168.1.1:4444
+- http://test.server.com:4444
+- https://your_username/your_access_key@ondemand.us-west-1.saucelabs.com/wd/hub
+```bash
+-DremoteHost=http://localhost:4444
+```
+#### -DretainBrowser
+Retains browser session be open and resets cookies  after test ends to improve performance in 2 - 3 times:
+- true (default)
+- false (closes browser after every test)
+#### DscreenshotOnFail
+Takes screenshot on fail:
+- true (default)
+- false
+```bash
+-DscreenshotOnFail=true
+```
+#### DvideoOnFail
+Records video on fail:
+- true
+- false (default)
+```bash
+-DvideoOnFail=false
+```
+#### -DdebugFail
+Fail test for debug purpose:
+- true
+- false (default)
+Only for (otherwise causes an exception):
+- -DtestMode=local
+- -Dheadless=false
+- -DthreadCount=1
+```bash
+-DdebugFail=true -DtestMode=local -Dheadless=false -DthreadCount=1
+```
+#### -Dhighlight
+Highlights current element for debug purpose:
+- true
+- false (default)
+```bash
+-Dhighlight=true
+```
+#### -DstepDelay
+Step delay for debug purpose (milliseconds):
+- 0 (default)
+- 500
+```bash
+-DstepDelay=200
+```
+### Test modes
+#### local
+For browsers:
+- chrome:stable
+- chrome:beta
+- firefox:stable
+- edge:stable
+```bash
+-DtestMode=local -Dbrowser=chrome:stable
+```
+#### local_auto
+For installed browsers:
+- chrome
+- firefox
+- edge
+- safari
+```bash
+-DtestMode=local_auto -Dbrowser=chrome:latest
+```
+#### local_docker
+For running Docker and browsers:
+- chrome:latest
+- chrome:latest-1
+- chrome:126.0
+- firefox:latest
+- firefox:latest
+- firefox:126.0
+- edge:latest
+- edge:latest-1
+- edge:127.0
+```bash
+-DtestMode=local_docker
+```
+#### local_docker_auto
+For running Docker and browsers:
+- chrome:latest
+- chrome:latest-1
+- chrome:126.0
+- firefox:latest
+- firefox:latest
+- firefox:126.0
+- edge:latest
+- edge:latest-1
+- edge:127.0
+- safari:latest
+- safari:latest-1
+- safari:15.0
+```bash
+-DtestMode=local_docker_auto -Dbrowser=safari:latest
+```
+#### local_playwright
+For browsers:
+- chromium
+- firefox
+- webkit
+```bash
+-DtestMode=local_playwright -Dbrowser=firefox
+```
+#### local_appium:
+TODO
+```bash
+-DtestMode=local_appium
+```
+#### local_accessibility
+For chromium browser only:
+```bash
+-DtestMode=local_accessibility
+```
+#### aws_docker
+For browsers running on AWS EC2:
+- chrome:latest
+- chrome:latest-1
+- chrome:126.0
+- firefox:latest
+- firefox:latest
+- firefox:126.0
+- edge:latest
+- edge:latest-1
+- edge:127.0
+```bash
+-DtestMode=aws_docker -Dbrowser:firefox:latest
+```
+#### aws_device_farm
+For Windows browsers running on AWS Device Farm:
+- chrome:latest
+- chrome:latest-1
+- firefox:latest
+- firefox:latest
+- edge:latest
+- edge:latest-1
+```bash
+-DtestMode=aws_device_farm -Browser=edge:latests
+```
+#### aws_docker
+TODO
+#### remote
+For Selenium Grid running locally or on server and browsers:
+- chrome
+- edge
+- firefox
+- safari
+```bash
+-DtestMode=remote -DremoteHost=http:\\192.168.1.1:4444 -Dbrowser:chrome
+```
+#### -DpageWaitTimeout
+Wait for page load timeout seconds:
+- 30 (default)
+- 60
+```bash
+-DpageWaitTimeout=60
+```
+#### -DelementWaitTimeout
+Wait for element timeout seconds:
+- 8 (default)
+- 30
+```bash
+-DelementWaitTimeout=10
+```
+#### -DretryWait
+Test step retry on error wait delay milliseconds:
+- 200 (default)
+- 500
+```bash
+-DretryWait=100
+```
+#### -DretryTimeout
+Test step retry on error wait timeout milliseconds:
+- 8000 (default)
+- 30000
+```bash
+-DretryTimeout=4000
+```
+#### -DpagesFolderPath
+Folder path for storing page object JSON files:
+- ./src/test/resources/pages
+- ./any/folder/path
+```bash
+-DpagesFolderPath=./src/test/resources/pages
 ```
 ### Test Run Command Lines
 #### Local Run - Chrome stable
@@ -212,25 +310,15 @@ mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCoun
 ```bash
 mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=5" "-DtestMode=aws_device_farm" "-Dbrowser=edge:latest"
 ```
-#### AWS Remote Docker - Chrome latest
+#### AWS Docker - Chrome latest
 ```bash
 mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
-```
-#### AWS Lambda - Playwright Firefox
-TODO: Disabled till Maven exec plugin vulnerability is fixed.
-```bash
-mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=aws_lambda"
-```
-#### AWS RMI Docker - Chrome latest
-TODO: Disabled till Maven exec plugin vulnerability is fixed.
-```bash
-mvn clean test "-DtestSuite=./src/test/resources/testng1.xml" "-DthreadCount=4" "-DtestMode=aws_rmi" "-Dbrowser=chrome:latest"
 ```
 #### Local Docker - Firefox latest
 Runs tests in debug mode. User can define and fix element selectors at runtime.
 Use only headed mode and only one thread. 
 ```bash
-mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=local" "-Dbrowser=firefox:stable" "-Dheadless=false" "-DdebugMode=true"
+mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=1" "-DtestMode=local" "-Dbrowser=firefox:stable" "-Dheadless=false" "-DthreadCount=1" "-DdebugMode=true"
 ```
 #### Unit Tests
 ```bash

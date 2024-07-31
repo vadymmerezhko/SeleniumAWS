@@ -5,8 +5,8 @@ import org.example.drivers.selectors.SmartBy;
 
 public class TargetPage extends BasePage {
 
-    private final Label header = new Label(this, new SmartBy());
-    private final Label status = new Label(this, new SmartBy());
+    private final Label header = new Label(this, SmartBy.magic());
+    private final Label status = new Label(this, SmartBy.magic());
 
     /**
      * Returns Result page header text.

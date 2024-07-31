@@ -12,12 +12,35 @@ public class SmartBy extends By {
     private final String text;
     private String elementName;
 
-    public SmartBy() {
+    /**
+     * Returns selector found by nest order:
+     * - Algorithm;
+     * - OpenAI;
+     * - Image.
+     * @return The selector.
+     */
+    public static SmartBy magic() {
+        return new SmartBy();
+    }
+
+    /**
+     * Returns selector with keyword found by nest order:
+     * - Algorithm;
+     * - OpenAI;
+     * - Image.
+     * @param keyword The keyword.
+     * @return The selector.
+     */
+    public static SmartBy magicKeyword(String keyword) {
+        return new SmartBy(keyword);
+    }
+
+    private SmartBy() {
         super();
         this.text = null;
     }
 
-    public SmartBy(String keyword) {
+    private SmartBy(String keyword) {
         super();
         this.text = keyword;
     }

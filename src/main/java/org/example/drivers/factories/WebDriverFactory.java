@@ -82,17 +82,17 @@ public class WebDriverFactory {
             log.info("Creating {} web driver for {} browser...", testMethod, config.getBrowser());
 
             switch (testMethod) {
-                case AWS_DOCKER -> driver = new SmartWebDriver(getAWSDockerDriver(
-                        browserName, config.getBrowserVersion(), threadCount));
+                case LOCAL -> driver = new SmartWebDriver(getLocalWebDriver(browserName, config.getBrowserVersion()));
+                case LOCAL_AUTO -> driver = new SmartWebDriver(getLocalAutoWebDriver(browserName));
                 case LOCAL_DOCKER -> driver = new SmartWebDriver(getLocalDockerWebDriver(
                         browserName, config.getBrowserVersion(), threadCount));
                 case LOCAL_DOCKER_AUTO -> driver = new SmartWebDriver(getLocalDockerAutoWebDriver(
                         browserName, config.getBrowserVersion()));
-                case LOCAL -> driver = new SmartWebDriver(getLocalWebDriver(browserName, config.getBrowserVersion()));
-                case LOCAL_AUTO -> driver = new SmartWebDriver(getLocalAutoWebDriver(browserName));
                 case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver(browserName);
                 case REMOTE -> driver = new SmartWebDriver(getRemoteWebDriver(
                         config.getRemoteHost(), browserName, config.getBrowserVersion()));
+                case AWS_DOCKER -> driver = new SmartWebDriver(getAWSDockerDriver(
+                        browserName, config.getBrowserVersion(), threadCount));
                 case AWS_DEVICE_FARM -> driver = new SmartWebDriver(getAWSDeviceFarmWebDriver(
                         browserName, config.getBrowserVersion()));
                 case LOCAL_APPIUM -> driver = new SmartWebDriver(
