@@ -111,6 +111,7 @@ public class SmartWebDriver implements WebDriver, JavascriptExecutor, TakesScree
                 break;
             }
             WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_DELAY_MILLISECONDS);
+            waitForPageLoad();
         }
         element = new SmartWebElement(driver.findElement(by), null, by, driver, waiter);
         log.debug("Web element {} is found by selector {}.", element, by);

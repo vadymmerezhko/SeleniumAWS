@@ -2,10 +2,7 @@ package org.example.drivers.elements;
 
 import org.example.configs.Config;
 import org.example.drivers.factories.WebDriverFactory;
-import org.example.drivers.playwright.PlaywrightDriver;
 import org.example.drivers.selectors.SmartBy;
-import org.example.drivers.wrappers.SmartWebDriver;
-import org.example.drivers.wrappers.SmartWebDriverWaiter;
 import org.example.drivers.wrappers.SmartWebElement;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.pages.BasePage;
@@ -276,12 +273,6 @@ public abstract class BaseElement implements WebElement, WrapsElement {
                         setElementSelector(smartBy);
                     }
                 }
-                if (driver instanceof PlaywrightDriver) {
-                    ((PlaywrightDriver) driver).waitForPageLoad();
-                } else {
-                    ((SmartWebDriver) driver).waitForPageLoad();
-                }
-
                 element = driver.findElement(by);
                 handleElement();
             }
