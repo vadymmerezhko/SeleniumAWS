@@ -114,7 +114,7 @@ public class SmartWebDriver implements WebDriver, JavascriptExecutor, TakesScree
             waitForPageLoad();
         }
         element = new SmartWebElement(driver.findElement(by), null, by, driver, waiter);
-        log.debug("Web element {} is found by selector {}.", element, by);
+        log.debug("Web element {} is not found by selector {}.", element, by);
         return element;
     }
 
