@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
 /**
  * The Playwright - Selenium WebDriver wrapper class.
  */
@@ -74,13 +75,21 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
     }
 
     /**
+     * Waits for page load.
+     */
+    public void waitForPageLoad() {
+        page.waitForLoadState();
+        page.waitForFunction("document.readyState === 'complete'");
+    }
+
+    /**
      * Opens browser page by its URL.
      * @param url The page URL.
      */
     @Override
     public void get(String url) {
         page.navigate(url);
-        page.waitForLoadState();
+        waitForPageLoad();
         log.debug("get({})", url);
         isPageOpen = true;
         checkAccessibility();

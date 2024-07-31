@@ -33,13 +33,19 @@ public class SmartWebDriver implements WebDriver, JavascriptExecutor, TakesScree
     }
 
     /**
+     * Waits for page load.
+     */
+    public void waitForPageLoad() {
+        waiter.waitForPageLoad();
+    }
+
+    /**
      * Opens browser page by its URL.
      * @param url The page URL.
      */
     @Override
     public void get(String url) {
         driver.get(url);
-        waiter.waitForPageLoad(PAGE_LOAD_TIMEOUT_SEC);
         log.debug("Web page {} is open.", url);
     }
 
@@ -88,23 +94,27 @@ public class SmartWebDriver implements WebDriver, JavascriptExecutor, TakesScree
      */
     @Override
     public WebElement findElement(By by) {
-        for (int i = 1; i <= RETRY_COUNT; i++) {
-            try {
-                WebElement element = new SmartWebElement(
-                        driver.findElement(by), null, by, driver, waiter);
+        long startMilliseconds = System.currentTimeMillis();
+        long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
+        WebElement element;
+
+        while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
+            List<WebElement> elements = findElements(by);
+            int size = elements.size();
+
+            if (size == 1) {
+                element = elements.get(0);
                 log.debug("Web element {} is found by selector {}.", element, by);
-                return element;
+                return new SmartWebElement(element, null, by, driver, waiter);
             }
-            catch (NoSuchElementException e) {
-                if (i == RETRY_COUNT || config.getDebugMode()) {
-                    throw e;
-                }
+            else if (elements.size() > 0) {
+                break;
             }
-            WaiterUtils.waitMilliSeconds(RETRY_WAIT_MILLISECONDS);
-            log.debug("Retry {} to find WebElement by selector {}", i, by);
+            WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_DELAY_MILLISECONDS);
         }
-        log.debug("null WebElement is found by selector {}.", by);
-        return null;
+        element = new SmartWebElement(driver.findElement(by), null, by, driver, waiter);
+        log.debug("Web element {} is found by selector {}.", element, by);
+        return element;
     }
 
     /**

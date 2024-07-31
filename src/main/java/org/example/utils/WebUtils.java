@@ -1067,7 +1067,7 @@ public class WebUtils {
      * @param element The element.
      */
     public static void waitForElementNotMoving(WebElement element) {
-        TimeOut timeOut = new TimeOut("Wait for element not moving", WAIT_ELEMENT_SECONDS);
+        TimeOut timeOut = new TimeOut("Wait for element not moving", PAGE_LOAD_WAIT_TIMEOUT_SECONDS);
 
         if (element instanceof SmartWebElement) {
             WebElement nativeElement = ((SmartWebElement) element).getNativeElement();
@@ -1091,7 +1091,7 @@ public class WebUtils {
      * @param element The element.
      */
     public static void waitForElementNotSizing(WebElement element) {
-        TimeOut timeOut = new TimeOut("Wait for element not moving", WAIT_ELEMENT_SECONDS);
+        TimeOut timeOut = new TimeOut("Wait for element not moving", PAGE_LOAD_WAIT_TIMEOUT_SECONDS);
 
         if (element instanceof SmartWebElement) {
             WebElement nativeElement = ((SmartWebElement) element).getNativeElement();

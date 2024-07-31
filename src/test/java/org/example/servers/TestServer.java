@@ -55,12 +55,11 @@ public class TestServer extends BaseTestServer implements TestServerInterface {
             if (testInput.radiobutton2Value()) {
                 webFormPage.selectRadiobutton2();
             }
-
             webFormPage.pickColor(testInput.color());
             webFormPage.pickDate(testInput.date());
             webFormPage.setRange(testInput.range());
 
-            //log.info("Page URL: {}", webFormPage.getURL());
+            log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
             return new FillWebFormTestResult(
                     webFormPage.getTextInputValue(),
@@ -77,7 +76,7 @@ public class TestServer extends BaseTestServer implements TestServerInterface {
                     webFormPage.getRange());
         }
         catch (Exception e) {
-            throw new SmartRuntimeException("Sign up filed.", e);
+            throw new SmartRuntimeException("Filling the Web Form failed.", e);
         }
     }
 

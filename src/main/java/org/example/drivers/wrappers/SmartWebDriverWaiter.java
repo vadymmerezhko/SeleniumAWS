@@ -7,6 +7,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
+import static org.example.constants.Settings.PAGE_LOAD_WAIT_TIMEOUT_SECONDS;
+
 /**
  * Smart web driver waiter class.
  */
@@ -26,19 +28,12 @@ public class SmartWebDriverWaiter {
 
     /**
      * Waits for page load.
-     * @param timeoutSeconds The timeout seconds.
-     *                       Throws runtime exception in case of timeout.
      */
-    public void waitForPageLoad(int timeoutSeconds) {
-        ExpectedCondition<Boolean> expectation = new
-                ExpectedCondition<Boolean>() {
-                    public Boolean apply(WebDriver driver) {
-                        return ((JavascriptExecutor) driver).executeScript(
-                                "return document.readyState").toString().equals("complete");
-                    }
-                };
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
-        wait.until(expectation);
+    public void waitForPageLoad() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(
+                PAGE_LOAD_WAIT_TIMEOUT_SECONDS));
+        wait.until((ExpectedCondition<Boolean>) wd ->
+                ((JavascriptExecutor) wd).executeScript("return document.readyState").equals("complete"));
     }
 
     /**

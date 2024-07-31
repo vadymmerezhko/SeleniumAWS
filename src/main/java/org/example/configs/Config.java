@@ -34,6 +34,10 @@ public class Config extends BaseConfig {
     private static final String PAGES_FOLDER_PATH = "pagesFolderPath";
     private static final String RETAIN_BROWSER = "retainBrowser";
 
+    private static final  String PAGE_WAIT_TIMEOUT = "pageWaitTimeout";
+    private static final  String ELEMENT_WAIT_TIMEOUT = "elementWaitTimeout";
+    private static final  String ELEMENT_WAIT_DELAY = "elementWaitDelay";
+
     public static Config getInstance() {
         return new Config(CONFIG_PROPERTIES_FILE_PATH);
     }
@@ -263,6 +267,30 @@ public class Config extends BaseConfig {
      */
     synchronized public boolean getRetainBrowser() {
         return getBooleanProperty(RETAIN_BROWSER);
+    }
+
+    /**
+     * Returns page wait timeout seconds.
+     * @return The timeout seconds.
+     */
+    synchronized public int getPageWaitTimeout() {
+        return getIntegerProperty(PAGE_WAIT_TIMEOUT);
+    }
+
+    /**
+     * Returns elemnt wait timeout seconds.
+     * @return The timeout seconds.
+     */
+    synchronized public int getElementWaitTimeout() {
+        return getIntegerProperty(ELEMENT_WAIT_TIMEOUT);
+    }
+
+    /**
+     * Returns element wait delay milliseconds.
+     * @return The timeout seconds.
+     */
+    synchronized public int getElementWaitDelay() {
+        return getIntegerProperty(ELEMENT_WAIT_DELAY);
     }
 
     private void validateDebugModeProperty() {
