@@ -8,6 +8,8 @@ import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.DataValidationUtils;
 
 import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_PATH;
+import static org.example.enums.TestMode.LOCAL;
+import static org.example.enums.TestMode.LOCAL_AUTO;
 
 /**
  * The configuration file class.
@@ -35,7 +37,6 @@ public class Config extends BaseConfig {
     private static final String RETAIN_BROWSER = "retainBrowser";
     private static final String RETRY_WAIT = "retryWait";
     private static final String RETRY_TIMEOUT = "retryTimeout";
-
     private static final  String PAGE_WAIT_TIMEOUT = "pageWaitTimeout";
     private static final  String ELEMENT_WAIT_TIMEOUT = "elementWaitTimeout";
     private static final  String ELEMENT_WAIT_DELAY = "elementWaitDelay";
@@ -321,8 +322,9 @@ public class Config extends BaseConfig {
             String testMode = getStringProperty(TEST_MODE);
             String headless = getStringProperty(HEADLESS);
             String threadCount = getStringProperty(THREAD_COUNT);
+            TestMode mode = TestMode.fromString(testMode);
 
-            if (!testMode.equals("local")) {
+            if (mode != LOCAL && mode != LOCAL_AUTO) {
                 errorMessage = String.format(format, TEST_MODE, testMode, "local");
             }
             else if (!headless.equals("false")) {
@@ -332,11 +334,11 @@ public class Config extends BaseConfig {
                 errorMessage = String.format(format, THREAD_COUNT, threadCount, "1");
             }
             if (errorMessage != null) {
-                log.error(
-                    "///////////////////////////////////////////////////////////\n\n" +
-                    "{}\n\n" +
-                    "///////////////////////////////////////////////////////////",
-                    errorMessage);
+                log.error("""
+                    ///////////////////////////////////////////////////////////
+                    {}
+                    ///////////////////////////////////////////////////////////
+                    """.stripIndent(), errorMessage);
                 System.exit(-1);
             }
         }

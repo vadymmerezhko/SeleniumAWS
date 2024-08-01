@@ -1,9 +1,9 @@
-## SeleniumAWS 1.10.7
+## SeleniumAWS 1.10.8
 ### Command line parameters
 #### -DsiteHost
-AUT site host:
+AUT site host to switch between DEV, QA and PROD environments:
 ```bash
--DsiteHost=https:\\localhost:4444
+-DsiteHost=https://www.selenium.dev
 ```
 #### -DtestSuite
 Test suite path:
@@ -31,6 +31,10 @@ Test mode:
 ```bash
 -DtestMode=aws_docker
 ```
+#### -DdebugMode
+Runs tests in debug mode when user can see debug popup messages in case of test failure:
+- true
+- false (default)
 #### -Dbrowser
 Browser name:
 - chrome
@@ -139,20 +143,20 @@ Step delay for debug purpose (milliseconds):
 ```
 ### Test modes
 #### local
-For browsers:
-- chrome:stable
-- chrome:beta
-- firefox:stable
-- edge:stable
-```bash
--DtestMode=local -Dbrowser=chrome:stable
-```
-#### local_auto
-For installed browsers:
+For already installed browsers and WebDrivers:
 - chrome
 - firefox
 - edge
 - safari
+```bash
+-DtestMode=local -Dbrowser=chrome:stable
+```
+#### local_auto
+Downloads browser and WebDriver binaries before test for browsers:
+- chrome:stable
+- chrome:beta
+- firefox:stable
+- edge:stable
 ```bash
 -DtestMode=local_auto -Dbrowser=chrome:latest
 ```

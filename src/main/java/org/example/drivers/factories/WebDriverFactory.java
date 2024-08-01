@@ -82,8 +82,8 @@ public class WebDriverFactory {
             log.info("Creating {} web driver for {} browser...", testMethod, config.getBrowser());
 
             switch (testMethod) {
-                case LOCAL -> driver = new SmartWebDriver(getLocalWebDriver(browserName, config.getBrowserVersion()));
-                case LOCAL_AUTO -> driver = new SmartWebDriver(getLocalAutoWebDriver(browserName));
+                case LOCAL -> driver = new SmartWebDriver(getLocalWebDriver(browserName));
+                case LOCAL_AUTO -> driver = new SmartWebDriver(getLocalAutoWebDriver(browserName, config.getBrowserVersion()));
                 case LOCAL_DOCKER -> driver = new SmartWebDriver(getLocalDockerWebDriver(
                         browserName, config.getBrowserVersion(), threadCount));
                 case LOCAL_DOCKER_AUTO -> driver = new SmartWebDriver(getLocalDockerAutoWebDriver(
@@ -253,11 +253,12 @@ public class WebDriverFactory {
 
     /**
      * Returns local web driver by browser name and browser version.
+     * Downloads browser and WebDriver binaries before the test.
      * @param browserName The browser name.
      * @param browserVersion The browser version (optional).
      * @return The web driver instance.
      */
-    private static WebDriver getLocalWebDriver(BrowserName browserName, String browserVersion) {
+    private static WebDriver getLocalAutoWebDriver(BrowserName browserName, String browserVersion) {
         WebDriver driver;
 
         switch (browserName) {
@@ -271,11 +272,12 @@ public class WebDriverFactory {
     }
 
     /**
-     * Returns local auto web driver by browser name. Browser version is detected automatically.
+     * Returns local auto web driver by browser name.
+     * Browser and corresponding WebDriver should be installed before test.
      * @param browserName The browser name.
      * @return The web driver instance.
      */
-    private static WebDriver getLocalAutoWebDriver(BrowserName browserName) {
+    private static WebDriver getLocalWebDriver(BrowserName browserName) {
         WebDriver driver;
 
         switch (browserName) {
@@ -387,10 +389,11 @@ public class WebDriverFactory {
      */
     public static void hardSystemExit() {
         quiteAllBrowsersAndServers();
-        log.info(
-            "///////////////////////////////////////////////////////////\n\n" +
-            "Hard system exit after all browsers and servers are quit.\n\n" +
-            "///////////////////////////////////////////////////////////");
+        log.info("""
+            ///////////////////////////////////////////////////////////
+            Hard system exit after all browsers and servers are quit.
+            ///////////////////////////////////////////////////////////
+            """.stripIndent());
         System.exit(-1);
     }
 
@@ -519,11 +522,12 @@ public class WebDriverFactory {
             driver = new RemoteWebDriver(testGridUrl, capabilities);
         }
         catch (Exception e) {
-            log.error(
-                "\n///////////////////////////////////////////////////////////\n\n" +
-                "Hard system exit after AWS Device Farm exception:\n{}\n\n" +
-                "///////////////////////////////////////////////////////////",
-                e.getMessage());
+            log.error("""
+                ///////////////////////////////////////////////////////////
+                Hard system exit after AWS Device Farm exception:
+                {}
+                ///////////////////////////////////////////////////////////
+                """.stripIndent(), e.getMessage());
             WebDriverFactory.hardSystemExit();
         }
         return driver;
@@ -568,14 +572,14 @@ public class WebDriverFactory {
     private static ChromeOptions getChromeOptions(String browserVersion) {
         ChromeOptions options = new ChromeOptions();
 
-        if (config.getTestMode() == LOCAL) {
+        if (config.getTestMode() == LOCAL_AUTO) {
             String chromeDriverPath = BrowserUtils.downloadWebDriverBinary(CHROME, browserVersion);
             String chromeBrowserPath = BrowserUtils.downloadBrowserBinary(CHROME, browserVersion);
 
             System.setProperty("webdriver.chrome.driver", chromeDriverPath);
             options.setBinary(chromeBrowserPath);
         }
-        else if (config.getTestMode() == LOCAL_AUTO) {
+        else if (config.getTestMode() == LOCAL) {
             WebDriverManager.chromedriver().clearDriverCache().setup();
         }
 
@@ -595,11 +599,11 @@ public class WebDriverFactory {
     private static FirefoxOptions getFirefoxOptions(String browserVersion) {
         FirefoxOptions options = new FirefoxOptions();
 
-        if (config.getTestMode().equals(LOCAL)) {
+        if (config.getTestMode().equals(LOCAL_AUTO)) {
             String geckoDriverPath = BrowserUtils.downloadWebDriverBinary(FIREFOX, browserVersion);
             System.setProperty("webdriver.chrome.driver", geckoDriverPath);
         }
-        else if (config.getTestMode().equals(LOCAL_AUTO)) {
+        else if (config.getTestMode().equals(LOCAL)) {
             WebDriverManager.firefoxdriver().clearDriverCache().setup();
         }
 
@@ -619,11 +623,11 @@ public class WebDriverFactory {
     private static EdgeOptions getEdgeOptions(String browserVersion) {
        EdgeOptions options = new EdgeOptions();
 
-        if (config.getTestMode().equals(LOCAL)) {
+        if (config.getTestMode().equals(LOCAL_AUTO)) {
             String edgeDriverPath = BrowserUtils.downloadWebDriverBinary(EDGE, browserVersion);
             System.setProperty("webdriver.chrome.driver", edgeDriverPath);
         }
-        else if (config.getTestMode().equals(LOCAL_AUTO)) {
+        else if (config.getTestMode().equals(LOCAL)) {
             WebDriverManager.edgedriver().clearDriverCache().setup();
         }
 

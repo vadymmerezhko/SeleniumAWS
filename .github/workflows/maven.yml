@@ -42,7 +42,6 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-
       - name: Unit Tests
         run: mvn test "-DtestSuite=./src/test/resources/testngUnitTests.xml" "-DthreadCount=2"
         continue-on-error: true
@@ -51,7 +50,7 @@ jobs:
       #- name: Test - AWS Local Docker - Chrome latest
       #  run: mvn -f aws-local-pom.xml clean compile exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
 
-      - name: Test - Local Docker - Linux Chrome latest
+      - name: Test - Local  Docker - Linux Chrome latest
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DscreenshotOnFail=true" "-DdebugFail=true" "-Dhighlight=true" "-DvideoOnFail=true"
         continue-on-error: true
 
@@ -67,8 +66,8 @@ jobs:
       - name: Test - Local Docker Auto - Linux Edge latest
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker_auto" "-Dbrowser=edge:latest"
 
-      - name: Test - Local WebDriver - Linux Chrome
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local" "-Dbrowser=chrome:stable"
+      - name: Test - Local Auto - Linux Chrome
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_auto" "-Dbrowser=chrome:stable"
 
       - name: Test - Local Playwright - Linux Firefox
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_playwright" "-Dbrowser=firefox"
