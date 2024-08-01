@@ -7,7 +7,6 @@ import org.example.data.SubmitWebFormTestResult;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.pages.TargetPage;
 import org.example.pages.WebFormPage;
-import org.example.tests.BaseTestServer;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -16,7 +15,7 @@ import java.util.concurrent.ConcurrentMap;
  * Test server implementation class.
  */
 @Slf4j
-public class TestServer extends BaseTestServer implements TestServerInterface {
+public class TestServer implements TestServerInterface {
     static private final ConcurrentMap<Long, Boolean> threadMap = new ConcurrentHashMap<>();
 
     /**

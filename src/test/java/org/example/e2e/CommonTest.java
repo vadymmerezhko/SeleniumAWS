@@ -8,7 +8,6 @@ import org.example.drivers.factories.WebDriverFactory;
 import org.example.servers.TestServerInterface;
 import org.example.servers.TestServerManager;
 import org.example.tests.BaseTest;
-import org.example.utils.ServerUtils;
 import org.testng.Assert;
 import org.testng.Reporter;
 import org.testng.annotations.AfterSuite;
@@ -21,9 +20,7 @@ public class CommonTest extends BaseTest {
 
     @AfterSuite()
     public void afterSuite() {
-        WebDriverFactory.quitAllDrivers();
-        ServerUtils.terminateAllSeleniumServers();
-        ServerUtils.terminateAwsRmiServer();
+        WebDriverFactory.quiteAllBrowsersAndServers();
     }
 
     protected void fillWebForm() {

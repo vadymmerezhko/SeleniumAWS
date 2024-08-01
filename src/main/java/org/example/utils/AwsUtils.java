@@ -4,11 +4,6 @@ import com.amazonaws.auth.*;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.*;
-import com.amazonaws.services.lambda.model.TooManyRequestsException;
-import com.amazonaws.services.lambda.AWSLambda;
-import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
-import com.amazonaws.services.lambda.model.InvokeRequest;
-import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -21,11 +16,8 @@ import org.example.helpers.TimeOut;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.example.constants.Settings.AWS_REGION;
-import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
 
 /**
  * AWS manager class.
@@ -34,10 +26,8 @@ import static org.example.constants.Settings.REQUEST_HANDLER_ERROR_MSG;
 public final class AwsUtils {
     static private final int WAIT_EC2_ID_TIMEOUT = 120;
     static private final int WAIT_EC2_PUBLIC_IP_TIMEOUT = 120;
-    static private final int AWS_LAMBDA_RETRY_COUNT = 20;
     static private final String AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID";
     static private final String AWS_SECRET_ACCESS_KEY = "AWS_SECRET_ACCESS_KEY";
-    static private final ConcurrentMap<Long, AWSLambda> amsLambdaClientMam = new ConcurrentHashMap<>();
 
     private AwsUtils() {}
 
@@ -161,58 +151,6 @@ public final class AwsUtils {
     }
 
     /**
-     * Invokes AWS Lambda function by its name with JSON input parameter.
-     * @param functionName The function name.
-     * @param inputJsonString The JSON input string.
-     * @return The JSON output string.
-     */
-    public static String invokeLambdaFunction(String functionName, String inputJsonString) {
-        try {
-            AWSLambda client = getAwsLambdaClient();
-            String lambdaInput = ConverterUtils.escapeJavaScriptExceptSingleQuotes(inputJsonString);
-            InvokeRequest request = new InvokeRequest()
-                    .withFunctionName(functionName)
-                    .withPayload(lambdaInput);
-            InvokeResult result;
-            int tryCount = 1;
-
-            // Retry AWS Lambda function in case of "Too many requests" error.
-            do {
-                try {
-                    result = client.invoke(request);
-                    break;
-                }
-                catch (TooManyRequestsException e) {
-                    if (tryCount == AWS_LAMBDA_RETRY_COUNT) {
-                        throw e;
-                    }
-                    log.info("Retry {} for thread id {}", tryCount, Thread.currentThread().threadId());
-                    tryCount++;
-                }
-            }
-            while (true);
-
-            if (result.getFunctionError() != null) {
-                throw new SmartRuntimeException(String.format(
-                        "AWS Lambda error: %s.", result.getFunctionError()));
-            }
-            if (result.getStatusCode() != 200) {
-                throw new SmartRuntimeException(String.format(
-                        "AWS Lambda status call: %s.", result.getStatusCode()));
-            }
-            String lambdaOutputJsonString = new String(result.getPayload().array());
-            if (lambdaOutputJsonString.contains(REQUEST_HANDLER_ERROR_MSG)) {
-                return lambdaOutputJsonString;
-            }
-            return ConverterUtils.escapeJavaScriptExceptSingleQuotes(
-                    lambdaOutputJsonString.substring(1, lambdaOutputJsonString.length() - 1));
-        }
-        catch (Exception e) {
-            throw new SmartRuntimeException("Failed to invoke AWS Lambda function.", e);
-        }
-    }
-
-    /**
      * Uploads file to AWS S3 bucket.
      * @param filePath The file path to upload.
      * @param bucketName The bucket name.
@@ -277,24 +215,6 @@ public final class AwsUtils {
      */
     public static String getAwsSecretKey() {
         return System.getenv(AWS_SECRET_ACCESS_KEY);
-    }
-
-    private static AWSLambda getAwsLambdaClient() {
-        long threadId = Thread.currentThread().threadId();
-
-        if (!amsLambdaClientMam.containsKey(threadId)) {
-            BasicAWSCredentials credentials = new
-                    BasicAWSCredentials(getAwsAccessKey(), getAwsSecretKey());
-            AWSLambdaClientBuilder builder = AWSLambdaClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withRegion(AWS_REGION);
-            AWSLambda client = builder.build();
-            amsLambdaClientMam.put(threadId, client);
-            return client;
-        }
-        else {
-            return amsLambdaClientMam.get(threadId);
-        }
     }
 
     private static InstanceType getEc2InstanceType(int threadCount) {

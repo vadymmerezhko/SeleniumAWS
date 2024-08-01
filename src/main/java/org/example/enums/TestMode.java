@@ -12,9 +12,7 @@ public enum TestMode {
     AWS_DOCKER("aws_docker"),
     AWS_DEVICE_FARM("aws_device_farm"),
     REMOTE("remote"),
-    LOCAL_APPIUM("local_appium"),
-    AWS_LAMBDA("aws_lambda"),
-    AWS_RMI("aws_rmi");
+    LOCAL_APPIUM("local_appium");
     private final String name;
 
     TestMode(String name) {

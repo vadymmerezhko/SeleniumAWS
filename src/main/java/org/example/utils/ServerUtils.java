@@ -20,9 +20,6 @@ import static org.example.constants.Settings.*;
  */
 @Slf4j
 public final class ServerUtils {
-    private static String AWS_RMI_SERVER_INSTANCE_ID;
-    private static String AWS_RMI_SERVER_INSTANCE_IP;
-    private static final int THREAD_COUNT = Config.getInstance().getThreadCount();
     private final static LoadBalancer loadBalancer = LoadBalancer.getInstance();
 
     private ServerUtils() {}
@@ -90,78 +87,6 @@ public final class ServerUtils {
     }
 
     /**
-     * Creates RMI server and returns its public IP address.
-     * @return The RMI server public IP address.
-     */
-    public static synchronized String createRmiServer() {
-        if (AWS_RMI_SERVER_INSTANCE_IP == null) {
-            try {
-                Config config = Config.getInstance();
-                String userData = String.format(RMI_SERVER_USER_DATA_TEMPLATE,
-                        config.getThreadCount(),
-                        config.getBrowserName(),
-                        config.getBrowserVersion());
-                String encodedUserData = Base64.getEncoder().encodeToString(userData.getBytes());
-                AmazonEC2 ec2 = AwsUtils.getEC2Client();
-                AWS_RMI_SERVER_INSTANCE_ID = AwsUtils.runEC2AndEWaitForId(ec2, config.getThreadCount(),
-                        AWS_RMI_IMAGE_ID, SECURITY_KEY_PAIR_NAME, SECURITY_GROUP_NAME, encodedUserData);
-                AWS_RMI_SERVER_INSTANCE_IP = AwsUtils.waitForEC2Ip(ec2, AWS_RMI_SERVER_INSTANCE_ID);
-                waitForServerAvailability(AWS_RMI_SERVER_INSTANCE_IP, getRmiServerPort(THREAD_COUNT));
-                log.info("AWS EC2 RMI server is running on IP: {}", AWS_RMI_SERVER_INSTANCE_IP);
-            }
-            catch (Exception e) {
-                terminateAwsRmiServer();
-            }
-        }
-        return AWS_RMI_SERVER_INSTANCE_IP;
-    }
-
-    /**
-     * Returns RMI server name by its index.
-     * @param index The server index.
-     * @return The RMI server name.
-     */
-    public static String getRmiServerName(int index) {
-        return RMI_SERVER_NAME + index;
-    }
-
-    /**
-     * Returns RMI server name.
-     * @return The RMI server name.
-     */
-    public static String getRmiServerName() {
-        int index = getRmiServerIndex();
-        return RMI_SERVER_NAME + index;
-    }
-
-    /**
-     * Returns RMI server port by its index.
-     * @param index The server index.
-     * @return The RMI server port.
-     */
-    public static int getRmiServerPort(int index) {
-        return RMI_SERVER_BASE_PORT + index;
-    }
-
-    /**
-     * Returns RMI server port.
-     * @return The RMI server port.
-     */
-    public static int getRmiServerPort() {
-        int index = getRmiServerIndex();
-        return RMI_SERVER_BASE_PORT + index;
-    }
-
-    /**
-     * Returns current thread RMI server index.
-     * @return The RMI server index.
-     */
-    private static int getRmiServerIndex() {
-        long threadId = Thread.currentThread().threadId();
-        return (int)threadId % THREAD_COUNT + 1;
-    }
-
-    /**
      * Waits for server availability by server IP address and port number.
      * @param serverIP The server IP address
      * @param port The server port number.
@@ -203,15 +128,6 @@ public final class ServerUtils {
                 log.info("Server {}:{} is unavailable.", serverIP, port);
                 break;
             }
-        }
-    }
-
-    /**
-     * Terminates RMI server.
-     */
-    public static void terminateAwsRmiServer() {
-        if (AWS_RMI_SERVER_INSTANCE_ID != null) {
-            AwsUtils.terminateEC2(AwsUtils.getEC2Client(), AWS_RMI_SERVER_INSTANCE_ID);
         }
     }
 

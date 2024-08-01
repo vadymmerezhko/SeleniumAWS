@@ -380,7 +380,6 @@ public class WebDriverFactory {
     public static void quiteAllBrowsersAndServers() {
         WebDriverFactory.quitAllDrivers();
         ServerUtils.terminateAllSeleniumServers();
-        ServerUtils.terminateAwsRmiServer();
         log.debug("All browsers and servers are quit.");
     }
 

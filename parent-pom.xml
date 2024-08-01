@@ -4,7 +4,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>SeleniumTestNGParentPom</artifactId>
-  <version>1.10.8</version>
+  <version>1.10.9</version>
   <packaging>pom</packaging>
 
   <name>SeleniumTestNGParentPom</name>
@@ -137,17 +137,6 @@
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
       <version>20231013</version>
-    </dependency>
-    <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-lambda-java-core</artifactId>
-      <version>1.2.3</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-lambda -->
-    <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-lambda</artifactId>
-      <version>1.12.688</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
     <dependency>
