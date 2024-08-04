@@ -88,14 +88,6 @@ public class WebFormPage extends BasePage {
     }
 
     /**
-     * Selects data list option by its index.
-     * @param index The option index.
-     */
-    public void selectDataListOption(int index) {
-        dataList.selectOptionByIndex(index);
-    }
-
-    /**
      * Returns data list selected option value.
      * @return The text value.
      */
@@ -112,7 +104,7 @@ public class WebFormPage extends BasePage {
     }
 
     /**
-     * REturns the file path from file brows input.
+     * Returns the file path from file brows input.
      * @return The file path value.
      */
     public String getFilePath() {
@@ -193,7 +185,7 @@ public class WebFormPage extends BasePage {
      * Returns the color picker value in format "#RRGGBB" like "#0088ff".
      * @return The color picker value.
      */
-    public String getPickedColor() {
+    public String getColor() {
         return colorPicker.getPickedColor();
     }
 
@@ -209,7 +201,7 @@ public class WebFormPage extends BasePage {
      * Returns data picker value.
      * @return The data value.
      */
-    public String getPickedDate() {
+    public String getDate() {
         return datePicker.getPickedDate();
     }
 

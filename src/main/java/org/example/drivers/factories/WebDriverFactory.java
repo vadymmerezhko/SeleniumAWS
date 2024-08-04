@@ -579,10 +579,6 @@ public class WebDriverFactory {
             System.setProperty("webdriver.chrome.driver", chromeDriverPath);
             options.setBinary(chromeBrowserPath);
         }
-        else if (config.getTestMode() == LOCAL) {
-            WebDriverManager.chromedriver().clearDriverCache().setup();
-        }
-
         options.addArguments("--disable-gpu"); // applicable to Windows os only
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
         options.addArguments("--no-sandbox"); // bypass OS security model
@@ -603,10 +599,6 @@ public class WebDriverFactory {
             String geckoDriverPath = BrowserUtils.downloadWebDriverBinary(FIREFOX, browserVersion);
             System.setProperty("webdriver.chrome.driver", geckoDriverPath);
         }
-        else if (config.getTestMode().equals(LOCAL)) {
-            WebDriverManager.firefoxdriver().clearDriverCache().setup();
-        }
-
         options.addArguments("--disable-gpu"); // applicable to Windows os only
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
         options.addArguments("--no-sandbox"); // bypass OS security model
@@ -627,10 +619,6 @@ public class WebDriverFactory {
             String edgeDriverPath = BrowserUtils.downloadWebDriverBinary(EDGE, browserVersion);
             System.setProperty("webdriver.chrome.driver", edgeDriverPath);
         }
-        else if (config.getTestMode().equals(LOCAL)) {
-            WebDriverManager.edgedriver().clearDriverCache().setup();
-        }
-
         options.addArguments("--disable-gpu"); // applicable to Windows os only
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
         options.addArguments("--no-sandbox"); // bypass OS security model

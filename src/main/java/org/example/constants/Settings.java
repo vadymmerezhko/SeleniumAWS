@@ -20,6 +20,7 @@ public class Settings {
     public static final String SECURITY_KEY_PAIR_NAME = "SeleniumKeyPair";
     public static final String SECURITY_GROUP_NAME = "Selenium Test Security Group";
     public static final String PAGE_URL_FIELD_NAME = "PAGE_URL";
+    public static final String DATA_OBJECTS_FOLDER_PATH = Config.getInstance().getDataObjectsFolderPath();
     public static int TEST_RETRY_LIMIT = 3;
     public static final int AWS_URL_EXPIRES_SECONDS = 60 * 15;
     public static final int RMI_SERVER_BASE_PORT = 4200;
@@ -32,21 +33,22 @@ public class Settings {
     public static final int WAIT_ELEMENT_TIMEOUT_SECONDS = Config.getInstance().getElementWaitTimeout();
     public static final int PAGE_LOAD_WAIT_TIMEOUT_SECONDS = Config.getInstance().getPageWaitTimeout();
     public static final int RETRY_COUNT = 20;
-    public static final String RMI_SERVER_USER_DATA_TEMPLATE =
-            "#!/bin/bash\n" +
-            "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +
-            "cd SeleniumAWS\n" +
-            "sudo mvn -f rmi-pom.xml compile\n" +
-            "sudo mvn -f rmi-pom.xml exec:java \"-DthreadCount=%d\" \"-DtestMode=local_docker\" \"-Dbrowser=%s:%s\"";
+    public static final String RMI_SERVER_USER_DATA_TEMPLATE = """
+            #!/bin/bash
+            sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git
+            cd SeleniumAWS
+            sudo mvn -f rmi-pom.xml compile
+            sudo mvn -f rmi-pom.xml exec:java "-DthreadCount=%d" "-DtestMode=local_docker" "-Dbrowser=%s:%s"
+            """.stripIndent();
 
-    public static final String AWS_LOCAL_SERVER_USER_DATA_TEMPLATE =
-            "#!/bin/bash\n" +
-            "sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git\n" +
-            "cd SeleniumAWS\n" +
-            "sudo mvn -f local-pom.xml compile\n" +
-            "sudo mvn -f local-pom.xml exec:java " +
-            "\"-DaccessKey=%s\" \"-DsecretKey=%s\" \"-DstartDate=%s\" \"-DtestngFile=%s\" " +
-            "\"-DthreadCount=%d\" \"-DtestMode=local_docker\" \"-Dbrowser=%s:%s\"";
+    public static final String AWS_LOCAL_SERVER_USER_DATA_TEMPLATE = """
+           #!/bin/bash
+           sudo git clone https://github.com/vadymmerezhko/SeleniumAWS.git
+           cd SeleniumAWS
+           sudo mvn -f local-pom.xml compile
+           sudo mvn -f local-pom.xml exec:java "-DaccessKey=%s" "-DsecretKey=%s" "-DstartDate=%s" "-DtestngFile=%s "-DthreadCount=%d" "-DtestMode=local_docker" "-Dbrowser=%s:%s"
+           """.stripIndent();
+
 
     public static final String AWS_DEVICE_FARM_BROWSERS_ARM =
             "arn:aws:devicefarm:us-west-2:535905549021:testgrid-project:4b3efa9e-934a-4530-ad16-73ea5a12e7df";

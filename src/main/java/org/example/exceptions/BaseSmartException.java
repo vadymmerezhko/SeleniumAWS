@@ -41,7 +41,7 @@ public class BaseSmartException extends RuntimeException {
             String message = String.format("Message: %s\nStack trace:\n%s",
                     getMessage(), stackTrace);
             String header = "EXCEPTION\n\n";
-            String footer = "\n\nClick OK to continue.\nOr click CANCEL to terminate the test.";
+            String footer = "\n\nClick OK to continue.\nOr click CANCEL to exit the test.";
 
             if (message.length() > MAX_MESSAGE_LENGTH) {
                 message = message.substring(0, MAX_MESSAGE_LENGTH);

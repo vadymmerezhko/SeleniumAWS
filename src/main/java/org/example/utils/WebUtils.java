@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.awt.Point;
@@ -42,59 +43,66 @@ public class WebUtils {
             "\"messages\": [{" +
             "\"role\": \"user\"," +
             "\"content\": \"%s\"}]}";
-    static private final String ELEMENT_CSS_SELECTOR_AI_PROMPT_FORMAT =
-            "You are a web automation assistant. Given the following HTML page source and " +
-            "an HTML element snippet, extract either a CSS selector or an XPath selector for " +
-            "the specified element.\n\n" +
-            "1. **Selector Restrictions**:\n" +
-            "   - Exclude these selectors: %s.\n" +
-            "   - Do not use element style attributes.\n\n" +
-            "2. **Allowed Attributes**:\n" +
-            "   - Use only these attributes: `id`, `name`, `type`, `class`, `alt`,\n" +
-            "    `placeholder`, `title`, `accesskey`, `tabindex`, `value`, `myprop`,\n" +
-            "    `list`, `label`.\n\n" +
-            "3. **Validation**:\n" +
-            "   - Ensure that the selector uniquely identifies the provided element\n" +
-            "     and is valid.\n\n" +
-            "4. **Output**:\n" +
-            "   - If no valid selector is found, return an empty string.\n" +
-            "   - Do not include any additional text or description; return only\n" +
-            "     the selector or an empty string.\n\n" +
-            "HTML page source:\n%s.\n" +
-            "HTML element snippet:\n%s.";
-    static private final String ELEMENT_XPATH_SELECTOR_AI_PROMPT_FORMAT =
-            "You are a web automation assistant. Given the following HTML page source and " +
-            "an HTML element snippet, extract an XPath selector for " +
-            "the specified element.\n\n" +
-            "1. **Text Matching**:\n" +
-            "   - The following attribute values may exactly match or contain the unique text:\n" +
-            "     `text()`, `.`, `alt`, `placeholder`, `title`, `value`, `label`.\n\n" +
-            "2. **Text Matching**:\n" +
-            "   - Prioritize an exact text match in the following attributes:\n" +
-            "    `text()`, `alt`, `placeholder`, `title`, `value`, `label`.\n" +
-            "   - If an exact match is not found, use `contains()` for a partial\n" +
-            "     match in these attributes.\n\n" +
-            "3. **Selector Restrictions**:\n" +
-            "   - Exclude selectors matching these patterns: %s.\n" +
-            "   - Do not use element style attributes.\n\n" +
-            "4. **Allowed Attributes**:\n" +
-            "   - Only use these attributes for constructing the XPath:\n" +
-            "     `id`, `name`, `type`, `class`, `alt`, `placeholder`, `title`,\n" +
-            "     `accesskey`, `tabindex`, `value`, `myprop`, `list`, `label`.\n" +
-            "   - These attributes values may equal unique text or contain the text:\n" +
-            "     `text()`, `.`, `alt`, `placeholder`, `title`, `value`, `label`.\n\n" +
-            "5. **Validation**:\n" +
-            "   - Ensure the XPath is as short as possible.\n" +
-            "   - Ensure the XPath selector is valid, uniquely identifies the element,\n" +
-            "     but not its child or sibling.\n" +
-            "   - Ensure the XPath selector is valid, uniquely identifies the\n" +
-            "     provided element, and does not include unwanted patterns.\n\n" +
-            "6. **Output**:\n" +
-            "   - Return only the XPath selector or an empty string if no valid selector is found.\n" +
-            "   - Do not include additional text or descriptions.\n\n" +
-            "HTML page source:\n%s.\n" +
-            "HTML element snippet:\n%s.\n" +
-            "Unique text: '%s'.";
+    static private final String ELEMENT_CSS_SELECTOR_AI_PROMPT_FORMAT = """
+               You are a web automation assistant. Given the following HTML page source and
+               an HTML element snippet, extract either a CSS selector or an XPath selector for
+               he specified element.
+               1. **Selector Restrictions**:
+                  - Exclude these selectors: %s.
+                  - Do not use element style attributes.
+               2. **Allowed Attributes**:
+                  - Use only these attributes: `id`, `name`, `type`, `class`, `alt`,
+                   `placeholder`, `title`, `accesskey`, `tabindex`, `value`, `myprop`,
+                   `list`, `label`.
+               3. **Validation**:
+                  - Ensure that the selector uniquely identifies the provided element
+                    and is valid.
+               4. **Output**:
+                  - If no valid selector is found, return an empty string.
+                  - Do not include any additional text or description; return only
+                    the selector or an empty string.
+               HTML page source:
+               %s.
+               HTML element snippet:
+               %s.
+            """.stripIndent();
+
+    static private final String ELEMENT_XPATH_SELECTOR_AI_PROMPT_FORMAT = """
+            You are a web automation assistant. Given the following HTML page source and
+            an HTML element snippet, extract an XPath selector for
+            the specified element.
+            1. **Text Matching**:
+               - The following attribute values may exactly match or contain the unique text:
+                 `text()`, `.`, `alt`, `placeholder`, `title`, `value`, `label`.
+            2. **Text Matching**:
+               - Prioritize an exact text match in the following attributes:
+                `text()`, `alt`, `placeholder`, `title`, `value`, `label`.
+               - If an exact match is not found, use `contains()` for a partial
+                 match in these attributes.
+            3. **Selector Restrictions**:
+               - Exclude selectors matching these patterns: %s.
+               - Do not use element style attributes.
+            4. **Allowed Attributes**:
+               - Only use these attributes for constructing the XPath:
+                 `id`, `name`, `type`, `class`, `alt`, `placeholder`, `title`,
+                 `accesskey`, `tabindex`, `value`, `myprop`, `list`, `label`.
+               - These attributes values may equal unique text or contain the text:
+                 `text()`, `.`, `alt`, `placeholder`, `title`, `value`, `label`.
+            5. **Validation**:
+               - Ensure the XPath is as short as possible.
+               - Ensure the XPath selector is valid, uniquely identifies the element,
+                 but not its child or sibling.
+               - Ensure the XPath selector is valid, uniquely identifies the
+                 provided element, and does not include unwanted patterns.
+            6. **Output**:
+               - Return only the XPath selector or an empty string if no valid selector is found.
+               - Do not include additional text or descriptions.
+            HTML page source:
+            %s
+            HTML element snippet:
+            %s
+            Unique text: '%s'
+            """.stripIndent();
     private static final int MAX_ELEMENT_NESTING = 10;
     private static final ConcurrentMap<Long, Boolean> listenerSetupMap = new ConcurrentHashMap<>();
     private static final ConcurrentMap<Long, WebElement> highlightedElementMap = new ConcurrentHashMap<>();
@@ -269,7 +277,7 @@ public class WebUtils {
             WebDriver driver = WebDriverFactory.getDriver();
             JavascriptExecutor js = (JavascriptExecutor) driver;
             js.executeScript(String.format("alert('%s');",
-                    ConverterUtils.escapeJavaScriptExcept(text)));
+                    ConverterUtils.escapeJavaScript(text)));
 
             WebDriverWait wait = new WebDriverWait(driver,
                     Duration.ofSeconds(SHOW_POPUP_TIMEOUT_SECONDS));
@@ -307,7 +315,7 @@ public class WebUtils {
 
             js.executeScript(script);
             js.executeScript(String.format("confirm('%s');",
-                    ConverterUtils.escapeJavaScriptExcept(text)));
+                    ConverterUtils.escapeJavaScript(text)));
             log.debug("Confirm popup is open with text: {}", text);
             // Wait for the confirm popup is closed by user.
             wait.until(ExpectedConditions.not(ExpectedConditions.alertIsPresent()));
@@ -353,8 +361,8 @@ public class WebUtils {
         String script = String.format(
                 "var result = prompt('%s:', '%s');" +
                 "document.getElementById('prompt-result').value = result;",
-                ConverterUtils.escapeJavaScriptExcept(text),
-                ConverterUtils.escapeJavaScriptExcept(defaultValue));
+                ConverterUtils.escapeJavaScript(text),
+                ConverterUtils.escapeJavaScript(defaultValue));
         jsExecutor.executeScript(script);
 
         // Wait for the alert (prompt) to be present
@@ -380,12 +388,14 @@ public class WebUtils {
     public static Map<String, String> getAllAttributes(WebElement element) {
         WebDriver driver = WebDriverFactory.getDriver();
         JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
-        Map<String, Object> attributes = (Map<String, Object>) jsExecutor.executeScript(
-                "var items = {}; " +
-                        "for (index = 0; index < arguments[0].attributes.length; ++index) { " +
-                        "    items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value " +
-                        "}; " +
-                        "return items;", element);
+        Map<String, Object> attributes = (Map<String, Object>) jsExecutor.executeScript("""
+                var items = {};
+                for (index = 0; index < arguments[0].attributes.length; ++index) {
+                    items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value
+                };
+                return items;
+                """.stripIndent(),
+                element);
         // Convert Object values to String
         Map<String, String> stringAttributes = new HashMap<>();
         for (Map.Entry<String, Object> entry : attributes.entrySet()) {
@@ -406,13 +416,22 @@ public class WebUtils {
      */
     public static String selectElementAndGetSelector(String elementName, String text) {
         try {
+            WebUtils.showAlert(String.format("""
+                WEB ELEMENT
+                
+                Please select '%s' element and click left CTRL.
+                """.stripIndent(), elementName));
+
             WebElement element = WebUtils.selectWebElement(elementName);
             String selector = WebUtils.getElementSelector(element, text);
             String format = null;
-            String errorLog =
-                    "\n///////////////////////////////////////////////////////////\n\n" +
-                    "User made hard system exit on element selector prompt popup.\n\n" +
-                    "///////////////////////////////////////////////////////////";
+            String errorLog = """
+                   
+                   ////////////////////////////////////////////////////////////
+                   User made hard system exit on element selector prompt popup.
+                   "///////////////////////////////////////////////////////////
+                   """.stripIndent();
+
 
             log.debug("Element {} selector with text {} is detected by algorithm: {}",
                     element, text, selector);
@@ -429,18 +448,24 @@ public class WebUtils {
                                 elementName),
                         null);
             }
-            String formatFormat =
-                    "%s\nEnter the selector or just click OK to select the element.\n" +
-                    "Or click CANCEL to terminate the test.";
+            String formatFormat = """
+                    %s
+                    Enter the selector or just click OK to select the element.
+                    Or click CANCEL to exit the test.";
+                    """.stripIndent();
 
             while (true) {
 
                 if (WebUtils.isSelectorValidAndUnique(element, text, selector)) {
                     selector = selector.trim();
-                    selector = showPrompt(String.format(
-                            "WEB ELEMENT\n\nValid %s element selector.\n" +
-                            "\nClick OK to accept it or update it.\n" +
-                            "OR click CANCEL to terminate the test",
+                    selector = showPrompt(String.format("""
+                           WEB ELEMENT
+                            
+                           Valid %s element selector.
+                            
+                           Click OK to accept it or update it.
+                           OR click CANCEL to exit the test.
+                           """.stripIndent(),
                             elementName), selector);
 
                     if (selector.isEmpty()) {
@@ -477,8 +502,13 @@ public class WebUtils {
                     log.error(errorLog);
                     WebDriverFactory.hardSystemExit();
                 }
-
                 if (selector.equals(previousSelector)) {
+                    WebUtils.showAlert(String.format("""
+                        WEB ELEMENT
+                
+                        Please select '%s' element and click left CTRL.
+                        """.stripIndent(), elementName));
+
                     element = WebUtils.selectWebElement(elementName);
                     selector = WebUtils.getElementSelector(element, text);
                 }
@@ -720,9 +750,6 @@ public class WebUtils {
         WebElement prevElement = null;
         log.debug("Element {} selection by user started.", elementName);
 
-        WebUtils.showAlert(String.format(
-                "WEB ELEMENT\n\nPlease select '%s' element and click left CTRL.",
-                elementName));
         initializeKeyBoardListener();
         WebElement element = null;
 
@@ -1099,7 +1126,7 @@ public class WebUtils {
 
             while (!timeOut.getExpired()) {
                 WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
-                Dimension currentSize = ((SmartWebElement) element).getSize();
+                Dimension currentSize = element.getSize();
 
                 if (currentSize.equals(previousSize)) {
                     log.debug("Element {} is not moving", element);
@@ -1107,6 +1134,42 @@ public class WebUtils {
                 }
                 previousSize = currentSize;
             }
+        }
+    }
+
+    /**
+     * Returns element value or text.
+     * Check-box and radio-box value "on" converted to "true",
+     * and "off" to "false".
+     * @param element The element.
+     * @return The value or text.
+     */
+    public static String getElementValueOrText(WebElement element) {
+        try {
+            String elementValue = element.getAttribute("value");
+            String elementText = element.getText();
+            String elementTag = element.getTagName();
+
+            if (elementValue != null) {
+
+                if (elementTag.equals("input") &&
+                   (element.getAttribute("type").equals("checkbox") ||
+                    element.getAttribute("type").equals("radio"))) {
+                    elementValue = String.valueOf(element.isSelected());
+                }
+                else if (elementTag.equals("select")) {
+                    Select select = new Select(element);
+                    elementValue = select.getFirstSelectedOption().getText();
+                }
+            }
+            else if (!elementText.isEmpty()) {
+                elementValue = elementText;
+            }
+            return elementValue;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot get element %s value or text.", element));
         }
     }
 

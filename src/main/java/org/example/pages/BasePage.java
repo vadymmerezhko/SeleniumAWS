@@ -160,8 +160,11 @@ public abstract class BasePage {
             if (Config.getInstance().getDebugMode()) {
                 String currentUrl = getCurrentUrl();
                 String promptMessage = String.format(
-                        "PAGE\n\n" +
-                        "Please enter %s URL or just click OK to save it",
+                       """
+                       PAGE
+
+                       Please enter %s URL or just click OK to save it
+                       """.stripIndent(),
                         pageName);
 
                 url = WebUtils.showPrompt(promptMessage, currentUrl);
@@ -170,11 +173,15 @@ public abstract class BasePage {
                     WebDriverFactory.getDriver().get(url);
                 }
                 catch (WebDriverException e) {
-                    String confirmMessage = String.format(
-                            "PAGE\n\nInvalid %s URL: %s\n\n" +
-                            "Click OK to enter the valid URL.\n" +
-                            "Or click CANCEL to terminate the test.",
-                            pageName, url);
+                    String confirmMessage = String.format("""
+                        "PAGE
+                        
+                        Invalid %s URL: %s
+                       
+                        Click OK to enter the valid URL.
+                        Or click CANCEL to exit the test.
+                        """.stripIndent(),
+                        pageName, url);
 
                     if (!WebUtils.showConfirm(confirmMessage)) {
                         log.error("User made hard system exit on page URL confirm popup.");
@@ -185,11 +192,15 @@ public abstract class BasePage {
                 }
 
                 if (!url.trim().startsWith(siteHost)) {
-                    String wrongHostMessage = String.format(
-                            "PAGE\n\n%s URL %s does not start with site host %s.\n\n" +
-                            "Click OK to enter valid URL.\n" +
-                            "Or click CANCEL to terminate the test.",
-                            pageName, url, siteHost);
+                    String wrongHostMessage = String.format("""
+                        PAGE
+
+                        %s URL %s does not start with site host %s.
+
+                        Click OK to enter valid URL.
+                        Or click CANCEL to exit the test.
+                        """.stripIndent(),
+                        pageName, url, siteHost);
 
                     if (!WebUtils.showConfirm(wrongHostMessage)) {
                         log.error("User made hard system exit on page URL confirm popup.");

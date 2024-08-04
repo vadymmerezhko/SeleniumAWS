@@ -1,8 +1,6 @@
 package org.example.servers;
 
-import org.example.data.FillWebFormTestInput;
-import org.example.data.FillWebFormTestResult;
-import org.example.data.SubmitWebFormTestResult;
+import org.example.data.*;
 
 /**
  * Test server interface.
@@ -11,10 +9,10 @@ public interface TestServerInterface {
 
     /**
      * Fills the Web Form method interface.
-     * @param testInput The input data.
-     * @return The JSON string output.
+     * @param input The input data.
+     * @return The output data.
      */
-    FillWebFormTestResult fillWebForm(FillWebFormTestInput testInput);
+    WebFormPageOutput fillWebForm(WebFormPageInput input);
 
-    SubmitWebFormTestResult submitWebForm();
+    TargetPageOutput submitWebForm();
 }

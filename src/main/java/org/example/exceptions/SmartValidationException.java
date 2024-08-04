@@ -9,4 +9,8 @@ public class SmartValidationException extends BaseSmartException {
         super(message);
     }
 
+    public SmartValidationException(String message, Throwable e) {
+        super(message, e);
+    }
+
 }

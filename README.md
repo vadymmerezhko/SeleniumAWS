@@ -1,4 +1,4 @@
-## SeleniumAWS 1.10.8
+## SeleniumAWS 1.10.10
 ### Command line parameters
 #### -DsiteHost
 AUT site host to switch between DEV, QA and PROD environments:
@@ -279,6 +279,13 @@ Folder path for storing page object JSON files:
 - ./any/folder/path
 ```bash
 -DpagesFolderPath=./src/test/resources/pages
+```
+#### -DdataFolderPath
+Folder path for storing data object JSON files:
+- ./src/test/resources/data
+- ./any/folder/path
+```bash
+-DdataFolderPath=./src/test/resources/data
 ```
 ### Test Run Command Lines
 #### Local Run - Chrome stable

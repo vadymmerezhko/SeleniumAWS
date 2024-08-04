@@ -20,11 +20,20 @@ public final class ClassUtils {
     private static final ConcurrentMap<Long, String> methodMap = new ConcurrentHashMap<>();
     private static final ConcurrentMap<Long, Object> parameterMap = new ConcurrentHashMap<>();
 
+    /**
+     * Returns method name.
+     * @return The method name.
+     */
     public static String getMethodName() {
         long threadId = Thread.currentThread().threadId();
         return methodMap.get(threadId);
     }
 
+    /**
+     * Return the parameter value.
+     * @return The parameter value.
+     * @param <P> The parameter type.
+     */
     public static <P> P getParameterValue() {
         long threadId = Thread.currentThread().threadId();
         return (P) parameterMap.get(threadId);
@@ -45,15 +54,10 @@ public final class ClassUtils {
      * @param fieldObject The field object.
      * @return The field object or null.
      */
-    public static String getClassFieldName(Object parentObject, Object fieldObject) {
+    public static String getObjectFieldName(Object parentObject, Object fieldObject) {
         DataValidationUtils.validateNotNull(parentObject, "parentObject");
         DataValidationUtils.validateNotNull(fieldObject, "fieldObject");
 
-        if (parentObject == null || fieldObject == null) {
-            log.debug("Field name is null for parent object {} and field object {}.",
-                    parentObject, fieldObject);
-            return null;
-        }
         try {
             Field[] fields = parentObject.getClass().getDeclaredFields();
 
