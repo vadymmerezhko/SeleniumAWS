@@ -418,6 +418,8 @@ public class SmartType {
     }
 
     private void setUp() {
+        validateParent();
+
         if (name == null) {
             parentName = parent.getName();
             fieldName = ClassUtils.getObjectFieldName(parent, this);
@@ -596,5 +598,18 @@ public class SmartType {
             }
         }
         return valueTemplate;
+    }
+
+    private void validateParent() {
+        if (parent == null) {
+            throw new SmartRuntimeException("""
+                            Please add method initialize(); to data object class constructor like this:
+                            
+                            public YourDataObject() {
+                                super();
+                                initialize();
+                            }
+                            """.stripIndent());
+        }
     }
 }
