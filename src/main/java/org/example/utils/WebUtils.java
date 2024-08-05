@@ -654,7 +654,8 @@ public class WebUtils {
      * @return The selector template.
      */
     public static String getSelectorTemplate(String selector, String keyword) {
-        String template = selector.replace(String.format("'%s'", keyword), KEYWORD_PLACEHOLDER);
+        String template = selector.replace(String.format("'%s'", keyword), KEYWORD_PLACEHOLDER)
+                .replace(String.format("\"%s\"", keyword), KEYWORD_PLACEHOLDER);
         log.debug("Element selector {} with text '{}' template is: {}",
                 selector, keyword, template);
         return template;
