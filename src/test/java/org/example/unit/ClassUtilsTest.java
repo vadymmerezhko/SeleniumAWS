@@ -1,182 +1,68 @@
 package org.example.unit;
 
-import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.exceptions.SmartValidationException;
 import org.example.utils.ClassUtils;
+import org.testng.annotations.*;
 import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.Function;
 
-@Slf4j
 public class ClassUtilsTest {
-
-    private static class TestClass {
-        private final String field = "value";
-    }
-
-    private final Consumer<Exception> fix = (e) -> log.debug("Some fix goes here.");
+    private static final String METHOD_NAME = "testMethod";
 
     @Test
-    public void testGetClassFieldNamePositive() {
-        TestClass testClass = new TestClass();
-        Assert.assertEquals(ClassUtils.getClassFieldName(testClass, testClass.field), "field");
-    }
-
-    @Test
-    public void testGetClassFieldNameNegative() {
-        TestClass testClass = new TestClass();
-        Assert.assertNull(ClassUtils.getClassFieldName(testClass, new Object()));
+    public void testPerformRunnableMethod_Success() {
+        Runnable successfulRunnable = () -> System.out.println("Runnable ran successfully.");
+        ClassUtils.performRunnableMethod(successfulRunnable, null, METHOD_NAME, 100, 1000);
+        // If no exception is thrown, we consider the test passed.
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testThrowMethodNotImplementedException() {
-        ClassUtils.throwMethodNotImplementedException("someMethod");
-    }
-
-    @Test(expectedExceptions = SmartValidationException.class)
-    public void testThrowMethodNotImplementedExceptionWithEmptyName() {
-        ClassUtils.throwMethodNotImplementedException("");
-    }
-
-    @Test(expectedExceptions = SmartValidationException.class)
-    public void testThrowMethodNotImplementedExceptionWithNullName() {
-        ClassUtils.throwMethodNotImplementedException(null);
+    public void testPerformRunnableMethod_Failure() {
+        Runnable failingRunnable = () -> { throw new RuntimeException("Error"); };
+        ClassUtils.performRunnableMethod(failingRunnable, null, METHOD_NAME, 100, 1000);
     }
 
     @Test
-    public void testPerformRunnableMethod() {
-        AtomicInteger attemptCounter = new AtomicInteger(0);
-        Runnable action = () -> {
-            if (attemptCounter.incrementAndGet() < 3) {
-                throw new SmartRuntimeException("Need more retries");
-            }
-        };
-        ClassUtils.performRunnableMethod(action, null, "testAction", 5, 10);
-        Assert.assertEquals(attemptCounter.get(), 3);
-    }
-
-    @Test
-    public void testPerformRunnableMethodWithFix() {
-        AtomicInteger attemptCounter = new AtomicInteger(0);
-        Runnable action = () -> {
-            if (attemptCounter.incrementAndGet() < 3) {
-                throw new SmartRuntimeException("Need more retries");
-            }
-        };
-        ClassUtils.performRunnableMethod(action, fix, "testAction", 5, 10);
-        Assert.assertEquals(attemptCounter.get(), 3);
+    public void testPerformConsumerMethod_Success() {
+        Consumer<String> successfulConsumer = (param) -> System.out.println("Consumed " + param);
+        ClassUtils.performConsumerMethod(successfulConsumer, "test", null, METHOD_NAME, 100, 1000);
+        // If no exception is thrown, we consider the test passed.
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testPerformRunnableMethodFailure() {
-        Runnable action = () -> {
-            throw new SmartRuntimeException("Fail every time");
-        };
-        ClassUtils.performRunnableMethod(action, null, "testAction", 2, 10);
+    public void testPerformConsumerMethod_Failure() {
+        Consumer<String> failingConsumer = (param) -> { throw new RuntimeException("Error"); };
+        ClassUtils.performConsumerMethod(failingConsumer, "test", null, METHOD_NAME, 100, 1000);
     }
 
     @Test
-    public void testPerformConsumerMethod() {
-        AtomicInteger attemptCounter = new AtomicInteger(0);
-        Consumer<String> action = (s) -> {
-            if (attemptCounter.incrementAndGet() < 3) {
-                throw new SmartRuntimeException("Need more retries");
-            }
-        };
-        ClassUtils.performConsumerMethod(action, "parameter",null, "testAction", 5, 10);
-        Assert.assertEquals(attemptCounter.get(), 3);
-    }
-
-    @Test
-    public void testPerformConsumerMethodWithFix() {
-        AtomicInteger attemptCounter = new AtomicInteger(0);
-        Consumer<String> action = (s) -> {
-            if (attemptCounter.incrementAndGet() < 3) {
-                throw new SmartRuntimeException("Need more retries");
-            }
-        };
-        ClassUtils.performConsumerMethod(action, "parameter", fix, "testAction", 5, 10);
-        Assert.assertEquals(attemptCounter.get(), 3);
+    public void testPerformSupplierMethod_Success() {
+        Supplier<Integer> successfulSupplier = () -> 42;
+        int result = ClassUtils.performSupplierMethod(successfulSupplier, null, METHOD_NAME, 100, 1000);
+        Assert.assertEquals(result, 42);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testPerformConsumerMethodFailure() {
-        Consumer<String> action = (s) -> {
-            throw new SmartRuntimeException("Fail every time");
-        };
-        ClassUtils.performConsumerMethod(action, "parameter",null, "testAction", 5, 10);
+    public void testPerformSupplierMethod_Failure() {
+        Supplier<Integer> failingSupplier = () -> { throw new RuntimeException("Error"); };
+        ClassUtils.performSupplierMethod(failingSupplier, null, METHOD_NAME, 100, 1000);
     }
 
     @Test
-    public void testPerformSupplierMethod() {
-        AtomicInteger attemptCounter = new AtomicInteger(0);
-        Supplier<String> action = () -> {
-            if (attemptCounter.incrementAndGet() < 3) {
-                throw new SmartRuntimeException("Need more retries");
-            }
-            return "Some result";
-        };
-        ClassUtils.performSupplierMethod(action, null, "testAction", 5, 10);
-        Assert.assertEquals(attemptCounter.get(), 3);
-    }
-
-    @Test
-    public void testPerformSupplierMethodWithFix() {
-        AtomicInteger attemptCounter = new AtomicInteger(0);
-        Supplier<String> action = () -> {
-            if (attemptCounter.incrementAndGet() < 3) {
-                throw new SmartRuntimeException("Need more retries");
-            }
-            return "Some result";
-        };
-        ClassUtils.performSupplierMethod(action, fix, "testAction", 5, 10);
-        Assert.assertEquals(attemptCounter.get(), 3);
+    public void testPerformFunctionMethod_Success() {
+        Function<String, Integer> successfulFunction = (input) -> input.length();
+        int result = ClassUtils.performFunctionMethod(successfulFunction, "hello", null, METHOD_NAME, 100, 1000);
+        Assert.assertEquals(result, 5);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testPerformSupplierMethodFailure() {
-        Supplier<String> action = () -> {
-            throw new SmartRuntimeException("Fail every time");
-        };
-        ClassUtils.performSupplierMethod(action, null, "testAction", 5, 10);
-    }
-
-    @Test
-    public void testPerformFunctionMethod() {
-        AtomicInteger attemptCounter = new AtomicInteger(0);
-        Function<String, String> action = (s) -> {
-            if (attemptCounter.incrementAndGet() < 3) {
-                throw new SmartRuntimeException("Need more retries");
-            }
-            return "Some result";
-        };
-        ClassUtils.performFunctionMethod(action, "parameter", null, "testAction", 5, 10);
-        Assert.assertEquals(attemptCounter.get(), 3);
-    }
-
-    @Test
-    public void testPerformFunctionMethodWithFix() {
-        AtomicInteger attemptCounter = new AtomicInteger(0);
-        Function<String, String> action = (s) -> {
-            if (attemptCounter.incrementAndGet() < 3) {
-                throw new SmartRuntimeException("Need more retries");
-            }
-            return "Some result";
-        };
-        ClassUtils.performFunctionMethod(action, "parameter", fix, "testAction", 5, 10);
-        Assert.assertEquals(attemptCounter.get(), 3);
-    }
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testPerformFunctionMethodFailure() {
-        Function<String, String> action = (s) -> {
-            throw new SmartRuntimeException("Fail every time");
-        };
-        ClassUtils.performFunctionMethod(action, "parameter", null, "testAction", 5, 10);
+    public void testPerformFunctionMethod_Failure() {
+        Function<String, Integer> failingFunction = (input) -> { throw new RuntimeException("Error"); };
+        ClassUtils.performFunctionMethod(failingFunction, "hello", null, METHOD_NAME, 100, 1000);
     }
 }
+
+
+

@@ -1,9 +1,17 @@
 package org.example.unit;
 
+import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
 import org.example.utils.ConverterUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.w3c.dom.Document;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class ConverterUtilsTest {
     @Test
@@ -32,5 +40,240 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testEscapeJavaScriptExceptSingleQuotesNullInput() {
         ConverterUtils.escapeJavaScriptExceptSingleQuotes(null);
+    }
+    
+    @Test
+    public void testStringToIntegerWithValidInput() {
+        Assert.assertEquals(ConverterUtils.stringToInteger("123"), 123);
+    }
+
+    @Test
+    public void testStringToLongWithValidInput() {
+        Assert.assertEquals(ConverterUtils.stringToLong("12345678910"), 12345678910L);
+    }
+
+    @Test
+    public void testStringToFloatWithValidInput() {
+        Assert.assertEquals(ConverterUtils.stringToFloat("123.45"), 123.45f);
+    }
+
+    @Test
+    public void testStringToDoubleWithValidInput() {
+        Assert.assertEquals(ConverterUtils.stringToDouble("123.456"), 123.456);
+    }
+
+    @Test
+    public void testStringToBooleanWithValidInputTrue() {
+        Assert.assertTrue(ConverterUtils.stringToBoolean("true"));
+    }
+
+    @Test
+    public void testStringToBooleanWithValidInputFalse() {
+        Assert.assertFalse(ConverterUtils.stringToBoolean("false"));
+    }
+    
+    @Test(expectedExceptions = SmartRuntimeException.class,
+            expectedExceptionsMessageRegExp = "Invalid integer format: .*")
+    public void testStringToIntegerWithInvalidInput() {
+        ConverterUtils.stringToInteger("abc");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class,
+            expectedExceptionsMessageRegExp = "Invalid long format: .*")
+    public void testStringToLongWithInvalidInput() {
+        ConverterUtils.stringToLong("abc");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class,
+            expectedExceptionsMessageRegExp = "Invalid float format: .*")
+    public void testStringToFloatWithInvalidInput() {
+        ConverterUtils.stringToFloat("abc");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class,
+            expectedExceptionsMessageRegExp = "Invalid double format: .*")
+    public void testStringToDoubleWithInvalidInput() {
+        ConverterUtils.stringToDouble("abc");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class,
+            expectedExceptionsMessageRegExp = "Invalid boolean format: .*")
+    public void testStringToBooleanWithInvalidInput() {
+        ConverterUtils.stringToBoolean("maybe");
+    }
+
+    @Test
+    public void testConvertSimpleDate() throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        TimeZone timeZone = TimeZone.getDefault();
+        sdf.setTimeZone(timeZone);
+        String dateString = "2020-12-31";
+        Date expectedDate = sdf.parse(dateString);
+        Date actualDate = ConverterUtils.stringToDate(dateString);
+        Assert.assertEquals(actualDate, expectedDate);
+    }
+
+    @Test
+    public void testConvertDateTimeWithTimeZone() throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+        TimeZone timeZone = TimeZone.getDefault();
+        sdf.setTimeZone(timeZone);
+        String dateString = "2020-01-01T12:00:00+0200";
+        Date expectedDate = sdf.parse(dateString);
+        Date actualDate = ConverterUtils.stringToDate(dateString);
+        Assert.assertEquals(actualDate, expectedDate);
+    }
+
+    @Test
+    public void testConvertDateTime() throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        TimeZone timeZone = TimeZone.getDefault();
+        sdf.setTimeZone(timeZone);
+        String dateString = "2020-11-30 23:21:20";
+        Date expectedDate = sdf.parse(dateString);
+        Date actualDate = ConverterUtils.stringToDate(dateString);
+        Assert.assertEquals(actualDate, expectedDate);
+    }
+
+    @Test
+    public void testConvertTimeOnly() throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        TimeZone timeZone = TimeZone.getDefault();
+        sdf.setTimeZone(timeZone);
+        String dateString = "23:59:59";
+        Date expectedDate = sdf.parse(dateString);
+        Date actualDate = ConverterUtils.stringToDate(dateString);
+        Assert.assertEquals(actualDate, expectedDate);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testInvalidDateFormat() {
+        String dateString = "Month 30, 1981";
+        Date date = ConverterUtils.stringToDate(dateString);
+        System.out.println(date.toString());
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testIncompleteDate() {
+        String dateString = "2020-01";
+        ConverterUtils.stringToDate(dateString);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testBlankDate() {
+        String dateString = "";
+        ConverterUtils.stringToDate(dateString);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testNullDate() {
+        ConverterUtils.stringToDate(null);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testRandomStringAsDate() {
+        ConverterUtils.stringToDate("not a date");
+    }
+
+    @Test
+    public void testValidJsonArray() {
+        String validJsonArray = "[{\"name\":\"John\"}, {\"name\":\"Doe\"}]";
+        JSONArray result = ConverterUtils.stringToJasonArray(validJsonArray);
+        Assert.assertNotNull(result, "The result should not be null.");
+        Assert.assertEquals(result.length(), 2, "There should be two elements.");
+        Assert.assertEquals(result.getJSONObject(0).getString("name"), "John", "The first name should be John.");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testInvalidJsonArray() {
+        String invalidJsonArray = "[{name:\"John'}, {name:\"Doe\"}]";
+        ConverterUtils.stringToJasonArray(invalidJsonArray);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testBlankJsonArray() {
+        String invalidJsonArray = " ";
+        ConverterUtils.stringToJasonArray(invalidJsonArray);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testNullJsonArray() {
+        ConverterUtils.stringToJasonArray(null);
+    }
+
+    @Test
+    public void testValidJsonObject() {
+        String validJson = "{\"name\":\"John\", \"age\":30}";
+        JSONObject result = ConverterUtils.stringToJasonObject(validJson);
+        Assert.assertNotNull(result, "The result should not be null.");
+        Assert.assertEquals(result.getString("name"), "John", "The name should be John.");
+        Assert.assertEquals(result.getInt("age"), 30, "The age should be 30.");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testInvalidJsonObject() {
+        String invalidJson = "{name:\"John\" age:30}";
+        ConverterUtils.stringToJasonObject(invalidJson);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testBlankJsonObject() {
+        String invalidJson = "  ";
+        ConverterUtils.stringToJasonObject(invalidJson);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testNullJsonObject() {
+        ConverterUtils.stringToJasonObject(null);
+    }
+
+    @Test
+    public void testValidXmlObject() {
+        String validXml = "<person><name>John</name></person>";
+        Document result = ConverterUtils.stringToXmlObject(validXml);
+        Assert.assertNotNull(result, "The result should not be null.");
+        Assert.assertEquals(result.getElementsByTagName("name").item(0).getTextContent(), "John", "The name should be John.");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testInvalidXmlObject() {
+        String invalidXml = "<person><name>John</name>";
+        ConverterUtils.stringToXmlObject(invalidXml);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testBlankXmlObject() {
+        ConverterUtils.stringToXmlObject(" ");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testNullXmlObject() {
+        ConverterUtils.stringToXmlObject(null);
+    }
+
+    @Test
+    public void testDateToStringValid() {
+        Date now = new Date();
+        String expectedFormat = "yyyy-MM-dd HH:mm:ss";
+        SimpleDateFormat sdf = new SimpleDateFormat(expectedFormat);
+        String expectedDateString = sdf.format(now);
+        String result = ConverterUtils.dateToString(now, expectedFormat);
+
+        Assert.assertEquals(result, expectedDateString, "The formatted date string does not match expected output.");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class, expectedExceptionsMessageRegExp = ".*date.*")
+    public void testDateToStringNullDate() {
+        ConverterUtils.dateToString(null, "yyyy-MM-dd");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class, expectedExceptionsMessageRegExp = ".*dateFormat.*")
+    public void testDateToStringBlankDateFormat() {
+        ConverterUtils.dateToString(new Date(), " ");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testDateToStringInvalidFormat() {
+        ConverterUtils.dateToString(new Date(), "invalid-format");
     }
 }

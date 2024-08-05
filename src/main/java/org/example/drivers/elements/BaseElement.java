@@ -320,7 +320,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     private void setElementName() {
         elementName = String.format("%s.%s",
                 page.getClass().getSimpleName(),
-                ClassUtils.getClassFieldName(page, this));
+                ClassUtils.getObjectFieldName(page, this));
     }
 
     private void setElementSelector(SmartBy smartBy) {

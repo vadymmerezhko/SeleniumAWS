@@ -34,6 +34,7 @@ public class Config extends BaseConfig {
     private static final String STEP_DELAY = "stepDelay";
     private static final String BROWSER_SIZE = "browserSize";
     private static final String PAGES_FOLDER_PATH = "pagesFolderPath";
+    private static final String DATA_FOLDER_PATH = "dataFolderPath";
     private static final String RETAIN_BROWSER = "retainBrowser";
     private static final String RETRY_WAIT = "retryWait";
     private static final String RETRY_TIMEOUT = "retryTimeout";
@@ -277,6 +278,14 @@ public class Config extends BaseConfig {
      */
     synchronized public String getPagesFolderPath() {
         return getStringProperty(PAGES_FOLDER_PATH);
+    }
+
+    /**
+     * Returns data objects folder path.
+     * @return The AWS secret key.
+     */
+    synchronized public String getDataObjectsFolderPath() {
+        return getStringProperty(DATA_FOLDER_PATH);
     }
 
     /**

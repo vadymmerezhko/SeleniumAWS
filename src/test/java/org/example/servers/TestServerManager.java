@@ -4,7 +4,6 @@ package org.example.servers;
  * Test server manager class.
  */
 public class TestServerManager {
-
     private TestServerManager() {}
 
     /**

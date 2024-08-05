@@ -83,16 +83,19 @@ public abstract class BaseTest {
     }
 
     private static void showDebugConfirm(String testName, String errorMessage) {
-        String message = String.format(
-                "TEST FAILURE\n\nTest '%s' has failed.\n" +
-                "Error: %s\n\n" +
-                "Press OK to continue.\n" +
-                "Or press CANCEL to terminate tests.",
+        String message = String.format("""
+            TEST FAILURE
+            
+            Test method: %s
+            Message: %s
+            
+            Press OK to continue.
+            Or press CANCEL to terminate tests.
+                        """.stripIndent(),
                 testName, errorMessage);
         if (!WebUtils.showConfirm(message)) {
-            WebDriverFactory.hardSystemExit();
             log.info("User made hard system exit on test failure confirm popup.");
-            System.exit(-1);
+            WebDriverFactory.hardSystemExit();
         }
     }
 

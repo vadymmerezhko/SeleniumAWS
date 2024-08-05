@@ -1,9 +1,8 @@
 package org.example.e2e;
 
-import org.example.data.FillWebFormTestInput;
-import org.example.data.FillWebFormTestResult;
+import org.example.asserts.SmartAssert;
+import org.example.data.*;
 import org.example.configs.TestConfig;
-import org.example.data.SubmitWebFormTestResult;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.servers.TestServerInterface;
 import org.example.servers.TestServerManager;
@@ -11,9 +10,6 @@ import org.example.tests.BaseTest;
 import org.testng.Assert;
 import org.testng.Reporter;
 import org.testng.annotations.AfterSuite;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class CommonTest extends BaseTest {
     static private final TestConfig config = TestConfig.getInstance();
@@ -24,23 +20,9 @@ public class CommonTest extends BaseTest {
     }
 
     protected void fillWebForm() {
-        Path currentRelativePath = Paths.get("pom.xml");
-        String currentFolderPath = currentRelativePath.toAbsolutePath().toString();
-        FillWebFormTestInput testInput = new FillWebFormTestInput(
-                "Selenium",
-                "Selenium WebDriver", // Multiline text cause failure on Safari.
-                "Two",
-                "Chicago",
-                currentFolderPath,
-                false,
-                true,
-                false,
-                true,
-                "#0088ff",
-                "05/23/1970",
-                2);
-
-        fillWebForm(testInput);
+        WebFormPageInput webFormPageInput = new WebFormPageInput()
+                .initialize().initialize();
+       fillWebForm(webFormPageInput);
     }
 
     protected void failFillWebForm() {
@@ -52,31 +34,40 @@ public class CommonTest extends BaseTest {
 
     protected void submitWebForm() {
         TestServerInterface testServer = TestServerManager.getTestServer();
-        SubmitWebFormTestResult testResult = testServer.submitWebForm();
+        TargetPageOutput targetPageOutput = testServer.submitWebForm();
+        TargetPageOutput expectedOutput = new TargetPageOutput()
+                .initialize();
 
-        Assert.assertEquals(testResult.header(), "Form submitted");
-        Assert.assertEquals(testResult.status(), "Received!");
+        Assert.assertEquals(targetPageOutput.getHeader(), expectedOutput.getHeader());
+        Assert.assertEquals(targetPageOutput.getStatus(), expectedOutput.getStatus());
     }
 
-    private void fillWebForm(FillWebFormTestInput testInput) {
+    private void fillWebForm(WebFormPageInput input) {
         Reporter.log("<b>fillWebForm test execution started.</b>");
 
         TestServerInterface testServer = TestServerManager.getTestServer();
-        FillWebFormTestResult testResult = testServer.fillWebForm(testInput);
+        WebFormPageOutput output = testServer.fillWebForm(input);
+        WebFormPageOutput expected = new WebFormPageOutput().initialize();
 
-        Assert.assertEquals(testResult.textInput(), testInput.textInput());
-        Assert.assertEquals(testResult.textareaInput(), testInput.textareaInput());
-        Assert.assertEquals(testResult.dropdownSelectedOption(), testInput.dropdownSelectedOption());
-        Assert.assertEquals(testResult.dataListSelectOption(), testInput.dataListSelectOption());
+        SmartAssert.assertDataObjects(expected, output);
+
+/*        Assert.assertEquals(output.getTextInput(), expected.getTextInput(), "Text input.");
+        Assert.assertEquals(output.getTextareaInput(), expected.getTextareaInput(), "Textarea input.");
+        Assert.assertEquals(output.getDropdownSelectedOption(), expected.getDropdownSelectedOption(), "Dropdown.");
+        Assert.assertEquals(output.getDataListSelectOption(), expected.getDataListSelectOption(), "Data list.");
         // TODO: Fix file path for remote run.
         //Assert.assertTrue((testResult.filePath().contains("pom.xml")));
         //TODO: fix checkbox value for Android
-        Assert.assertEquals(testResult.checkbox1Value(), testInput.checkbox1Value());
-        Assert.assertEquals(testResult.radiobutton1Value(), testInput.radiobutton1Value());
-        Assert.assertEquals(testResult.radiobutton2Value(), testInput.radiobutton2Value());
-        Assert.assertEquals(testResult.color(), testInput.color());
-        Assert.assertEquals(testResult.date(), testInput.date());
-        Assert.assertEquals(testResult.range(), testInput.range());
+        Assert.assertEquals(output.getCheckbox1Value(), expected.getCheckbox1Value(), "Checkbox 1.");
+        Assert.assertEquals(output.getRadiobutton1Value(), expected.getRadiobutton1Value(), "Checkbox 2.");
+        Assert.assertEquals(output.getRadiobutton2Value(), expected.getRadiobutton2Value());
+        Assert.assertEquals(output.getColor(), expected.getColor(), "Color.");
+
+        String outputDate = output.getDate();
+        String expectedDate = expected.getDate();
+
+        Assert.assertEquals(output.getDate(), expected.getDate(), "Date.");
+        Assert.assertEquals(output.getRange(), expected.getRange(), "Range.");*/
 
         Reporter.log("<b>fillWebForm test execution finished.</b>");
     }
