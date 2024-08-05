@@ -1,16 +1,21 @@
 package org.example.drivers.elements;
 
-import org.example.pages.BasePage;
 import org.openqa.selenium.By;
 
 public class Label extends BaseElement {
+
     /**
-     * Base element constructor by its page and selector.
-     *
-     * @param page The element page.
+     * Label element constructor with auto selector.
+     */
+    public Label() {
+        super();
+    }
+
+    /**
+     * Label element constructor by its selector.
      * @param by   The element selector.
      */
-    public Label(BasePage page, By by) {
-        super(page, by);
+    public Label(By by) {
+        super(by);
     }
 }

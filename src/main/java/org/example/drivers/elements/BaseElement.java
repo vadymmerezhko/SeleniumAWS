@@ -27,7 +27,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     static protected final Config config = Config.getInstance();
     private WebElement element = null;
     protected By by;
-    protected final BasePage page;
+    protected BasePage page;
     protected WebDriver driver;
     protected String elementName;
 
@@ -35,14 +35,19 @@ public abstract class BaseElement implements WebElement, WrapsElement {
         return elementSelectorMap;
     }
 
+    /**
+     * Base element constructor by its page and auto selector.
+     */
+    public BaseElement() {
+        this.by = SmartBy.auto();
+        driver = WebDriverFactory.getDriver();
+    }
 
     /**
-     * Base element constructor by its page and selector.
-     * @param page The element page.
+     * Base element constructor by its selector.
      * @param by The element selector.
      */
-    public BaseElement(BasePage page, By by) {
-        this.page = page;
+    public BaseElement(By by) {
         this.by = by;
         driver = WebDriverFactory.getDriver();
     }
@@ -264,6 +269,8 @@ public abstract class BaseElement implements WebElement, WrapsElement {
      * @return The WebElement instance.
      */
     protected WebElement getElement() {
+        validatePage();
+
         try {
             if (element == null) {
                 if (by instanceof SmartBy smartBy) {
@@ -302,6 +309,14 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             }
             WaiterUtils.waitMilliSeconds(config.getStepDelay());
         }
+    }
+
+    /**
+     * Sets parent web page.
+     * @param page The web page.
+     */
+    public void setPage(BasePage page) {
+        this.page = page;
     }
 
     /**
@@ -389,6 +404,20 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             WebUtils.saveElementSelectorToFile(
                     config.getPagesFolderPath(), elementName, selectorTemplate);
             elementSelectorMap.put(elementName, selector);
+        }
+    }
+
+    private void validatePage() {
+
+        if (page == null) {
+            throw new SmartRuntimeException("""
+                            Please add method initialize(); to page class constructor like this:
+                            
+                            public YourPage() {
+                                super();
+                                initialize();
+                            }
+                            """.stripIndent());
         }
     }
 }

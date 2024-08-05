@@ -1,12 +1,19 @@
 package org.example.pages;
 
 import org.example.drivers.elements.Label;
-import org.example.drivers.selectors.SmartBy;
 
 public class TargetPage extends BasePage {
 
-    private final Label header = new Label(this, SmartBy.auto());
-    private final Label status = new Label(this, SmartBy.auto());
+    private final Label header = new Label();
+    private final Label status = new Label();
+
+    /**
+     * TargetPage constructor that initializes web elements.
+     */
+    public TargetPage() {
+        super();
+        initialize();
+    }
 
     /**
      * Returns Result page header text.

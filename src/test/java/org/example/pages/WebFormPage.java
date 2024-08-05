@@ -1,6 +1,5 @@
 package org.example.pages;
 
-import org.example.drivers.selectors.SmartBy;
 import org.example.drivers.elements.*;
 
 /**
@@ -8,20 +7,28 @@ import org.example.drivers.elements.*;
  */
 public class WebFormPage extends BasePage {
 
-    private final TextInput textInput = new TextInput(this, SmartBy.auto());
-    private final Password password = new Password(this, SmartBy.auto());
-    private final Textarea textarea = new Textarea(this, SmartBy.auto());
-    private final Dropdown dropdown = new Dropdown(this, SmartBy.auto());
-    private final FileInput fileInput = new FileInput(this, SmartBy.auto());
-    private final DataList dataList = new DataList(this, SmartBy.auto());
-    private final Checkbox checkbox1 = new Checkbox(this, SmartBy.auto());
-    private final Checkbox checkbox2 = new Checkbox(this, SmartBy.auto());
-    private final Radiobutton radiobutton1 = new Radiobutton(this, SmartBy.auto());
-    private final Radiobutton radiobutton2 = new Radiobutton(this, SmartBy.auto());
-    private final ColorPicker colorPicker = new ColorPicker(this, SmartBy.auto());
-    private final DatePicker datePicker = new DatePicker(this, SmartBy.auto());
-    private final RangeSlider rangeSlider = new RangeSlider(this, SmartBy.auto());
-    private final Button submitButton = new Button(this, SmartBy.auto());
+    private final TextInput textInput = new TextInput();
+    private final Password password = new Password();
+    private final Textarea textarea = new Textarea();
+    private final Dropdown dropdown = new Dropdown();
+    private final FileInput fileInput = new FileInput();
+    private final DataList dataList = new DataList();
+    private final Checkbox checkbox1 = new Checkbox();
+    private final Checkbox checkbox2 = new Checkbox();
+    private final Radiobutton radiobutton1 = new Radiobutton();
+    private final Radiobutton radiobutton2 = new Radiobutton();
+    private final ColorPicker colorPicker = new ColorPicker();
+    private final DatePicker datePicker = new DatePicker();
+    private final RangeSlider rangeSlider = new RangeSlider();
+    private final Button submitButton = new Button();
+
+    /**
+     * WebFormPage constructor that initializes web elements.
+     */
+    public WebFormPage() {
+        super();
+        initialize();
+    }
 
     /**
      * Enters text to text input.

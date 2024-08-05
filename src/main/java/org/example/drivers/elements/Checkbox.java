@@ -1,6 +1,5 @@
 package org.example.drivers.elements;
 
-import org.example.pages.BasePage;
 import org.openqa.selenium.By;
 
 /**
@@ -9,12 +8,18 @@ import org.openqa.selenium.By;
 public class Checkbox extends BaseElement {
 
     /**
-     * The checkbox element constructor by its page and selector.
-     * @param page The element page.
+     * The checkbox element constructor with auto selector.
+     */
+    public Checkbox() {
+        super();
+    }
+
+    /**
+     * The checkbox element constructor by its selector.
      * @param by The element selector.
      */
-    public Checkbox(BasePage page, By by) {
-        super(page, by);
+    public Checkbox(By by) {
+        super(by);
     }
 
     /**

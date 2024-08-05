@@ -1,7 +1,6 @@
 package org.example.drivers.elements;
 
 import org.example.drivers.playwright.PlaywrightElement;
-import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -13,12 +12,18 @@ import org.openqa.selenium.WebElement;
 public class DatePicker extends BaseElement {
 
     /**
-     * The date picker element constructor by its page and selector.
-     * @param page The element page.
+     * The date picker element constructor with auto selector.
+     */
+    public DatePicker() {
+        super();
+    }
+
+    /**
+     * The date picker element constructor by its selector.
      * @param by The element selector.
      */
-    public DatePicker(BasePage page, By by) {
-        super(page, by);
+    public DatePicker(By by) {
+        super(by);
     }
 
     /**

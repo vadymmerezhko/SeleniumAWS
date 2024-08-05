@@ -1,6 +1,5 @@
 package org.example.drivers.elements;
 
-import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -13,16 +12,22 @@ import java.util.stream.Collectors;
  * The multiselect element class.
  */
 public class Multiselect extends BaseElement {
-
     private final Select select;
 
     /**
-     * The multiselect element constructor by its page and selector.
-     * @param page The element page.
+     * The multiselect element constructor with auto selector.
+     */
+    public Multiselect() {
+        super();
+        select = new Select(getElement());
+    }
+
+    /**
+     * The multiselect element constructor by its selector.
      * @param by The element selector.
      */
-    public Multiselect(BasePage page, By by) {
-        super(page, by);
+    public Multiselect(By by) {
+        super(by);
         select = new Select(getElement());
     }
 

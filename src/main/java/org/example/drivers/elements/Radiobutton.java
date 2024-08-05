@@ -1,6 +1,5 @@
 package org.example.drivers.elements;
 
-import org.example.pages.BasePage;
 import org.openqa.selenium.By;
 
 /**
@@ -9,12 +8,18 @@ import org.openqa.selenium.By;
 public class Radiobutton extends BaseElement {
 
     /**
-     * The radio button element constructor by its page and selector.
-     * @param page The element page.
+     * The radio button element constructor with auto selector.
+     */
+    public Radiobutton() {
+        super();
+    }
+
+    /**
+     * The radio button element constructor by its selector.
      * @param by The element selector.
      */
-    public Radiobutton(BasePage page, By by) {
-        super(page, by);
+    public Radiobutton(By by) {
+        super(by);
     }
 
     /**
