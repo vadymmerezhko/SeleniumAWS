@@ -19,7 +19,7 @@ public class SmartBy extends By {
      * - Image.
      * @return The selector.
      */
-    public static SmartBy magic() {
+    public static SmartBy auto() {
         return new SmartBy();
     }
 
@@ -31,7 +31,7 @@ public class SmartBy extends By {
      * @param keyword The keyword.
      * @return The selector.
      */
-    public static SmartBy magicKeyword(String keyword) {
+    public static SmartBy keyword(String keyword) {
         return new SmartBy(keyword);
     }
 

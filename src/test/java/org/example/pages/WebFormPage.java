@@ -8,20 +8,20 @@ import org.example.drivers.elements.*;
  */
 public class WebFormPage extends BasePage {
 
-    private final TextInput textInput = new TextInput(this, SmartBy.magic());
-    private final Password password = new Password(this, SmartBy.magic());
-    private final Textarea textarea = new Textarea(this, SmartBy.magic());
-    private final Dropdown dropdown = new Dropdown(this, SmartBy.magic());
-    private final FileInput fileInput = new FileInput(this, SmartBy.magic());
-    private final DataList dataList = new DataList(this, SmartBy.magic());
-    private final Checkbox checkbox1 = new Checkbox(this, SmartBy.magic());
-    private final Checkbox checkbox2 = new Checkbox(this, SmartBy.magic());
-    private final Radiobutton radiobutton1 = new Radiobutton(this, SmartBy.magic());
-    private final Radiobutton radiobutton2 = new Radiobutton(this, SmartBy.magic());
-    private final ColorPicker colorPicker = new ColorPicker(this, SmartBy.magic());
-    private final DatePicker datePicker = new DatePicker(this, SmartBy.magic());
-    private final RangeSlider rangeSlider = new RangeSlider(this, SmartBy.magic());
-    private final Button submitButton = new Button(this, SmartBy.magic());
+    private final TextInput textInput = new TextInput(this, SmartBy.auto());
+    private final Password password = new Password(this, SmartBy.auto());
+    private final Textarea textarea = new Textarea(this, SmartBy.auto());
+    private final Dropdown dropdown = new Dropdown(this, SmartBy.auto());
+    private final FileInput fileInput = new FileInput(this, SmartBy.auto());
+    private final DataList dataList = new DataList(this, SmartBy.auto());
+    private final Checkbox checkbox1 = new Checkbox(this, SmartBy.auto());
+    private final Checkbox checkbox2 = new Checkbox(this, SmartBy.auto());
+    private final Radiobutton radiobutton1 = new Radiobutton(this, SmartBy.auto());
+    private final Radiobutton radiobutton2 = new Radiobutton(this, SmartBy.auto());
+    private final ColorPicker colorPicker = new ColorPicker(this, SmartBy.auto());
+    private final DatePicker datePicker = new DatePicker(this, SmartBy.auto());
+    private final RangeSlider rangeSlider = new RangeSlider(this, SmartBy.auto());
+    private final Button submitButton = new Button(this, SmartBy.auto());
 
     /**
      * Enters text to text input.

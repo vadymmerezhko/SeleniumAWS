@@ -32,16 +32,6 @@ public class CommonTest extends BaseTest {
         }
     }
 
-    protected void submitWebForm() {
-        TestServerInterface testServer = TestServerManager.getTestServer();
-        TargetPageOutput targetPageOutput = testServer.submitWebForm();
-        TargetPageOutput expectedOutput = new TargetPageOutput()
-                .initialize();
-
-        Assert.assertEquals(targetPageOutput.getHeader(), expectedOutput.getHeader());
-        Assert.assertEquals(targetPageOutput.getStatus(), expectedOutput.getStatus());
-    }
-
     private void fillWebForm(WebFormPageInput input) {
         Reporter.log("<b>fillWebForm test execution started.</b>");
 
@@ -50,25 +40,18 @@ public class CommonTest extends BaseTest {
         WebFormPageOutput expected = new WebFormPageOutput().initialize();
 
         SmartAssert.assertDataObjects(expected, output);
-
-/*        Assert.assertEquals(output.getTextInput(), expected.getTextInput(), "Text input.");
-        Assert.assertEquals(output.getTextareaInput(), expected.getTextareaInput(), "Textarea input.");
-        Assert.assertEquals(output.getDropdownSelectedOption(), expected.getDropdownSelectedOption(), "Dropdown.");
-        Assert.assertEquals(output.getDataListSelectOption(), expected.getDataListSelectOption(), "Data list.");
-        // TODO: Fix file path for remote run.
-        //Assert.assertTrue((testResult.filePath().contains("pom.xml")));
-        //TODO: fix checkbox value for Android
-        Assert.assertEquals(output.getCheckbox1Value(), expected.getCheckbox1Value(), "Checkbox 1.");
-        Assert.assertEquals(output.getRadiobutton1Value(), expected.getRadiobutton1Value(), "Checkbox 2.");
-        Assert.assertEquals(output.getRadiobutton2Value(), expected.getRadiobutton2Value());
-        Assert.assertEquals(output.getColor(), expected.getColor(), "Color.");
-
-        String outputDate = output.getDate();
-        String expectedDate = expected.getDate();
-
-        Assert.assertEquals(output.getDate(), expected.getDate(), "Date.");
-        Assert.assertEquals(output.getRange(), expected.getRange(), "Range.");*/
-
         Reporter.log("<b>fillWebForm test execution finished.</b>");
+    }
+
+    protected void submitWebForm() {
+        Reporter.log("<b>submitWebForm test execution started.</b>");
+
+        TestServerInterface testServer = TestServerManager.getTestServer();
+        TargetPageOutput targetPageOutput = testServer.submitWebForm();
+        TargetPageOutput expectedOutput = new TargetPageOutput()
+                .initialize();
+
+        SmartAssert.assertDataObjects(targetPageOutput, expectedOutput);
+        Reporter.log("<b>submitWebForm test execution finished.</b>");
     }
 }
