@@ -18,7 +18,7 @@ public class WebFormPageOutput extends SmartDataObject {
     private SmartType range;
 
     public WebFormPageOutput initialize() {
-        textInput = new SmartType(this);
+        textInput = new SmartType("Text input", this);
         textareaInput = new SmartType(this);
         dropdownSelectedOption = new SmartType(this);
         dataListSelectOption = new SmartType(this);

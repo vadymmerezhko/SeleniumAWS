@@ -23,7 +23,9 @@ import static org.example.constants.Settings.DATA_OBJECTS_FOLDER_PATH;
 public class SmartType {
     static final ConcurrentMap<String, String> valuesMap = readAllDataObjectsFromFiles();
     private static final String SOME_VALUE = "Some value";
+    private static final String KEYWORD_PLACEHOLDER = "#KEYWORD#";
     private String value;
+    private String keyword;
     private final SmartDataObject parent;
     private String parentName;
     private String fieldName;
@@ -76,6 +78,16 @@ public class SmartType {
      */
     public SmartType(SmartDataObject parent) {
         DataValidationUtils.validateNotNull(parent, "parent");
+        this.parent = parent;
+    }
+
+    /**
+     * Smart type constructor with parent object parameter.
+     */
+    public SmartType(String keyword, SmartDataObject parent) {
+        DataValidationUtils.validateNotBlank(keyword, "keyword");
+        DataValidationUtils.validateNotNull(parent, "parent");
+        this.keyword = keyword;
         this.parent = parent;
     }
 
@@ -359,7 +371,7 @@ public class SmartType {
 
             if (value == null && Config.getInstance().getDebugMode()) {
 
-                while (value.equals(SOME_VALUE)) {
+                while (value == null || value.equals(SOME_VALUE)) {
                     value = WebUtils.showPrompt(String.format("""
                             DATA TYPE
                                                     
@@ -372,7 +384,8 @@ public class SmartType {
                         WebDriverFactory.quiteAllBrowsersAndServers();
                         System.exit(-1);
                     }
-                    else if (value.equals(SOME_VALUE)) {
+
+                    if (value.equals(SOME_VALUE)) {
                         WebElement element = WebUtils.selectWebElement("DATA VALUE");
                         value = WebUtils.getElementValueOrText(element);
                         value = WebUtils.showPrompt(String.format("""
@@ -387,8 +400,32 @@ public class SmartType {
                             System.exit(-1);
                         }
                     }
-                    saveStringValueToFile();
-                    break;
+
+                    if (keyword != null && !value.contains(keyword)) {
+                        String previousValue = value;
+                        value = WebUtils.showPrompt(String.format("""
+                            DATA TYPE
+                                         
+                            %s value does not contain the keyword.
+                            Value: '%s'
+                            Keyword: '%s'
+                                                  
+                            Please enter value with keyword and click OK.
+                            OR just click OK to select value on the page.
+                            OR click CANCEL to exit the test
+                            """.stripTrailing(), name, value, keyword), value);
+
+                        if (value == null) {
+                            WebDriverFactory.quiteAllBrowsersAndServers();
+                            System.exit(-1);
+                        } else if (value.equals(previousValue)) {
+                            value = SOME_VALUE;
+                        }
+                    }
+                    else {
+                        saveStringValueToFile();
+                        break;
+                    }
                 }
             }
             if (value == null) {
@@ -397,6 +434,7 @@ public class SmartType {
             }
             valuesMap.put(name, value);
         }
+        value = replaceKeywordPlaceholder(value, keyword);
     }
 
     private void saveStringValueToFile() {
@@ -413,7 +451,21 @@ public class SmartType {
             } else {
                 json = new JSONObject();
             }
-            json.put(fieldName, value);
+
+            String valueTemplate = value;
+
+            if (keyword != null) {
+                if (value.contains(keyword)) {
+                    valueTemplate = value.replace(keyword, KEYWORD_PLACEHOLDER);
+                }
+                else {
+                    throw new SmartRuntimeException(String.format(
+                            "Smart type value '%s' does not contain keyword '%s'",
+                            value, keyword));
+                }
+            }
+
+            json.put(fieldName, valueTemplate);
             String jsonString = json.toString();
             FileSystemUtils.createFile(filePath, jsonString);
             log.debug("String {} value '{}' is saved to data object file {}.",
@@ -460,8 +512,22 @@ public class SmartType {
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
-                    "Can not read smart string %s.%s value from object file file %s",
+                    "Can not read smart string %s.%s value from object file file %s.",
                     parentName, fieldName, filePath), e);
         }
+    }
+
+    private String replaceKeywordPlaceholder(String valueTemplate, String keyword) {
+        if (keyword != null) {
+            if (valueTemplate.contains(KEYWORD_PLACEHOLDER)) {
+                return valueTemplate.replace(KEYWORD_PLACEHOLDER, keyword);
+            }
+            else {
+                throw new SmartRuntimeException(String.format(
+                        "Data object %s field does not contain keyword '%s' placeholder.",
+                        name, keyword));
+            }
+        }
+        return valueTemplate;
     }
 }

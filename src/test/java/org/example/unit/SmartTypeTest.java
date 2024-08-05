@@ -28,7 +28,7 @@ public class SmartTypeTest {
         parent.setSmartType(smartType);
         Assert.assertEquals(smartType.toString(), value);
     }
-
+    
     // Negative test for the string constructor with null parent
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringConstructorNullParent() {

@@ -30,6 +30,8 @@ public class WebUtils {
     static private final int SELECT_ELEMENT_TIMEOUT_SECONDS = 10 * 60;
     static private final int SHOW_POPUP_TIMEOUT_SECONDS = 10 * 60;
     static private final int MAX_OPEN_AI_REQUEST_REPEATS = 10;
+    static private final String SITE_HOST_PLACEHOLDER = "#SITE_HOST#";
+    static private final String KEYWORD_PLACEHOLDER = "#KEYWORD#";
     private static final String HIGHLIGHT_BORDER_STYLE = "3px solid red";
     private static final List<String> reliableAttributes = Arrays.asList(
             "id", "name", "type", "class", "alt", "placeholder", "title",
@@ -648,40 +650,38 @@ public class WebUtils {
      * Converts string web element selector to selector template
      * by replacing unique text with "%s" placeholder.
      * @param selector The selector string.
-     * @param text The text.
+     * @param keyword The text.
      * @return The selector template.
      */
-    public static String getSelectorTemplate(String selector, String text) {
-        String template = selector.replace(String.format("'%s'", text), "'%s'")
-                        .replace(String.format("\"%s\"", text), "'%s'");
-        log.debug("Element selector {} with text '{}' is: {}",
-                selector, text, selector);
+    public static String getSelectorTemplate(String selector, String keyword) {
+        String template = selector.replace(String.format("'%s'", keyword), KEYWORD_PLACEHOLDER);
+        log.debug("Element selector {} with text '{}' template is: {}",
+                selector, keyword, template);
         return template;
     }
 
     /**
      * Converts xpath or css selector template that may content unique text identifier.
      * @param selector The selector template (may contain text placeholder "%s").
-     * @param text The text (can be NULL).
+     * @param keyword The text (can be NULL).
      * @return The By selector.
      */
-     public static By convertSelectorTemplateToBy(String selector, String text) {
-        if (text != null) {
+     public static By convertSelectorTemplateToBy(String selector, String keyword) {
+        if (keyword != null) {
             // Replace text placeholder with actual text (if any).
             // It can be more than one replacement.
-            String jsSelector =  ConverterUtils.escapeJavaScriptExceptDoubleQuote(text);
-            selector = selector.replace("'%s'", String.format("'%s'", jsSelector))
-                    .replace("\"%s\"", String.format("'%s'", jsSelector));
+            String jsKeyword =  ConverterUtils.escapeJavaScriptExceptDoubleQuote(keyword);
+            selector = selector.replace(KEYWORD_PLACEHOLDER, String.format("'%s'", jsKeyword));
         }
         if (isXpath(selector)) {
             By by = By.xpath(selector);
             log.debug("Element XPATH selector {} with text '{}' converted to By {}",
-                    selector, text, by);
+                    selector, keyword, by);
             return by;
         } else {
             By by = By.cssSelector(selector);
             log.debug("Element CSS selector {} with text '{}' converted to By {}",
-                    selector, text, by);
+                    selector, keyword, by);
             return by;
         }
     }
@@ -801,7 +801,7 @@ public class WebUtils {
             } else {
                 json = new JSONObject();
             }
-            String urlFormat = url.replace(siteHost, "%s");
+            String urlFormat = url.replace(siteHost, SITE_HOST_PLACEHOLDER);
             json.put(PAGE_URL_FIELD_NAME, urlFormat);
             FileSystemUtils.createFile(filePath, json.toString());
             log.debug("Page {} URL {} is saved to file {}.",
@@ -876,7 +876,7 @@ public class WebUtils {
                     String urlFormat = json.get(PAGE_URL_FIELD_NAME).toString();
                     log.debug("Page URL format {} is read from file {}.",
                             urlFormat, fileName);
-                    String url = urlFormat.replace("%s", siteHost);
+                    String url = urlFormat.replace(SITE_HOST_PLACEHOLDER, siteHost);
                     log.debug("Page URL {} is read from file {}.",
                             url, fileName);
 
