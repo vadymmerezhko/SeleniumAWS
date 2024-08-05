@@ -20,8 +20,7 @@ public class CommonTest extends BaseTest {
     }
 
     protected void fillWebForm() {
-        WebFormPageInput webFormPageInput = new WebFormPageInput()
-                .initialize().initialize();
+        WebFormPageInput webFormPageInput = new WebFormPageInput();
        fillWebForm(webFormPageInput);
     }
 
@@ -35,8 +34,7 @@ public class CommonTest extends BaseTest {
     protected void submitWebForm() {
         TestServerInterface testServer = TestServerManager.getTestServer();
         TargetPageOutput targetPageOutput = testServer.submitWebForm();
-        TargetPageOutput expectedOutput = new TargetPageOutput()
-                .initialize();
+        TargetPageOutput expectedOutput = new TargetPageOutput();
 
         Assert.assertEquals(targetPageOutput.getHeader(), expectedOutput.getHeader());
         Assert.assertEquals(targetPageOutput.getStatus(), expectedOutput.getStatus());
@@ -47,7 +45,7 @@ public class CommonTest extends BaseTest {
 
         TestServerInterface testServer = TestServerManager.getTestServer();
         WebFormPageOutput output = testServer.fillWebForm(input);
-        WebFormPageOutput expected = new WebFormPageOutput().initialize();
+        WebFormPageOutput expected = new WebFormPageOutput();
 
         SmartAssert.assertDataObjects(expected, output);
 

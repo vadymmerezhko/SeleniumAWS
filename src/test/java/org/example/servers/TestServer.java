@@ -90,8 +90,7 @@ public class TestServer implements TestServerInterface {
         webFormPage.submit();
 
         TargetPage targetPage = new TargetPage();
-        TargetPageOutput output = new TargetPageOutput();
-        output.initialize()
+        TargetPageOutput output = new TargetPageOutput()
                 .setHeader(targetPage.getHeaderText())
                 .setStatus(targetPage.getStatusText());
         log.debug("Target page output data is returned: {}", output);

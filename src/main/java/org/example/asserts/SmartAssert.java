@@ -132,7 +132,7 @@ public abstract class SmartAssert {
             log.debug("User exited the test.");
             WebDriverFactory.hardSystemExit();
         }
-        expectedType.setAndSaveValue(newValue);
+        expectedType.setAndSaveString(newValue);
         log.debug("Expected dta object {} field value was updated to '{}'",
                 expectedType.getName(), newValue);
     }

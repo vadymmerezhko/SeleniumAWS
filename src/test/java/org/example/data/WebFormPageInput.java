@@ -4,35 +4,24 @@ package org.example.data;
  * The Web Form input data class.
  */
 public class WebFormPageInput extends SmartDataObject {
-    private SmartType texInput;
-    private SmartType textareaInput;
-    private SmartType dropdownSelectedOption;
-    private SmartType dataListSelectOption;
-    private SmartType filePath;
-    private SmartType checkbox1Value;
-    private SmartType checkbox2Value;
-    private SmartType radiobutton1Value;
-    private SmartType radiobutton2Value;
-    private SmartType color;
-    private SmartType date;
-    private SmartType range;
+    private final SmartType texInput = SmartType.auto();
+    private final SmartType textareaInput = SmartType.auto();
+    private final SmartType dropdownSelectedOption = SmartType.auto();
+    private final SmartType dataListSelectOption = SmartType.auto();
+    private final SmartType filePath = SmartType.auto();
+    private final SmartType checkbox1Value = SmartType.auto();
+    private final SmartType checkbox2Value = SmartType.auto();
+    private final SmartType radiobutton1Value = SmartType.auto();
+    private final SmartType radiobutton2Value = SmartType.auto();
+    private final SmartType color = SmartType.auto();
+    private final SmartType date = SmartType.auto();
+    private final SmartType range = SmartType.auto();
 
-    public WebFormPageInput initialize() {
-        texInput = new SmartType(this);
-        textareaInput = new SmartType(this);
-        dropdownSelectedOption = new SmartType(this);
-        dataListSelectOption = new SmartType(this);
-        filePath = new SmartType(this);
-        checkbox1Value = new SmartType(this);
-        checkbox2Value = new SmartType(this);
-        radiobutton1Value = new SmartType(this);
-        radiobutton2Value = new SmartType(this);
-        color = new SmartType(this);
-        date = new SmartType(this);
-        range = new SmartType(this);
-        return this;
+    public  WebFormPageInput() {
+        super();
+        initialize();
     }
-
+    
     public String getTextInput() {
         return texInput.toString();
     }
