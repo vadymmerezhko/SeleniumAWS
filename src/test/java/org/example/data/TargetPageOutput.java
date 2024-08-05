@@ -1,21 +1,20 @@
 package org.example.data;
 
 public class TargetPageOutput extends SmartDataObject {
-    private SmartType header;
-    private SmartType status;
+    private final SmartType header = SmartType.auto();
+    private final SmartType status = SmartType.auto();
+
+    public TargetPageOutput() {
+        super();
+        initialize();
+    }
 
     public String getHeader() {
         return header.toString();
     }
 
     public TargetPageOutput setHeader(String header) {
-        this.header.setValue(header);
-        return this;
-    }
-
-    public TargetPageOutput initialize() {
-        header = new SmartType(this);
-        status = new SmartType(this);
+        this.header.setString(header);
         return this;
     }
 
@@ -24,7 +23,7 @@ public class TargetPageOutput extends SmartDataObject {
     }
 
     public TargetPageOutput setStatus(String status) {
-        this.status.setValue(status);
+        this.status.setString(status);
         return this;
     }
 }

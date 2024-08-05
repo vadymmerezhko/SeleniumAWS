@@ -20,9 +20,8 @@ public class CommonTest extends BaseTest {
     }
 
     protected void fillWebForm() {
-        WebFormPageInput webFormPageInput = new WebFormPageInput()
-                .initialize().initialize();
-       fillWebForm(webFormPageInput);
+        WebFormPageInput webFormPageInput = new WebFormPageInput();
+        fillWebForm(webFormPageInput);
     }
 
     protected void failFillWebForm() {
@@ -37,7 +36,7 @@ public class CommonTest extends BaseTest {
 
         TestServerInterface testServer = TestServerManager.getTestServer();
         WebFormPageOutput output = testServer.fillWebForm(input);
-        WebFormPageOutput expected = new WebFormPageOutput().initialize();
+        WebFormPageOutput expected = new WebFormPageOutput();
 
         SmartAssert.assertDataObjects(expected, output);
         Reporter.log("<b>fillWebForm test execution finished.</b>");
@@ -48,8 +47,7 @@ public class CommonTest extends BaseTest {
 
         TestServerInterface testServer = TestServerManager.getTestServer();
         TargetPageOutput targetPageOutput = testServer.submitWebForm();
-        TargetPageOutput expectedOutput = new TargetPageOutput()
-                .initialize();
+        TargetPageOutput expectedOutput = new TargetPageOutput();
 
         SmartAssert.assertDataObjects(targetPageOutput, expectedOutput);
         Reporter.log("<b>submitWebForm test execution finished.</b>");

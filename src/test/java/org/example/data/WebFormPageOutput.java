@@ -4,82 +4,71 @@ package org.example.data;
  * The Web Form output data class.
  */
 public class WebFormPageOutput extends SmartDataObject {
-    private SmartType textInput;
-    private SmartType textareaInput;
-    private SmartType dropdownSelectedOption;
-    private SmartType dataListSelectOption;
-    private SmartType filePath;
-    private SmartType checkbox1Value;
-    private SmartType checkbox2Value;
-    private SmartType radiobutton1Value;
-    private SmartType radiobutton2Value;
-    private SmartType color;
-    private SmartType date;
-    private SmartType range;
+    private final SmartType textInput = SmartType.auto();
+    private final SmartType textareaInput = SmartType.auto();
+    private final SmartType dropdownSelectedOption = SmartType.auto();
+    private final SmartType dataListSelectOption = SmartType.auto();
+    private final SmartType filePath = SmartType.auto();
+    private final SmartType checkbox1Value = SmartType.auto();
+    private final SmartType checkbox2Value = SmartType.auto();
+    private final SmartType radiobutton1Value = SmartType.auto();
+    private final SmartType radiobutton2Value = SmartType.auto();
+    private final SmartType color = SmartType.auto();
+    private final SmartType date = SmartType.auto();
+    private final SmartType range = SmartType.auto();
 
-    public WebFormPageOutput initialize() {
-        textInput = new SmartType("Text input", this);
-        textareaInput = new SmartType(this);
-        dropdownSelectedOption = new SmartType(this);
-        dataListSelectOption = new SmartType(this);
-        filePath = new SmartType(this);
-        checkbox1Value = new SmartType(this);
-        checkbox2Value = new SmartType(this);
-        radiobutton1Value = new SmartType(this);
-        radiobutton2Value = new SmartType(this);
-        color = new SmartType(this);
-        date = new SmartType(this);
-        range = new SmartType(this);
-        return this;
+    public WebFormPageOutput() {
+        super();
+        initialize();
     }
 
     public WebFormPageOutput setTexInput(String value) {
-        textInput.setValue(value);
+        textInput.setString(value);
         return this;
     }
 
     public WebFormPageOutput setTextareaInput(String value) {
-        textareaInput.setValue(value);
+        textareaInput.setString(value);
         return this;
     }
 
     public WebFormPageOutput setDropdownSelectedOption(String value) {
-        dropdownSelectedOption.setValue(value);
+        dropdownSelectedOption.setString(value);
         return this;
     }
 
     public WebFormPageOutput setDataListSelectOption(String value) {
-        dataListSelectOption.setValue(value);
+        dataListSelectOption.setString(value);
         return this;
     }
 
     public WebFormPageOutput setFilePath(String value) {
-        filePath.setValue(value);
+        filePath.setString(value);
         return this;
     }
 
     public WebFormPageOutput setCheckbox1Value(boolean value) {
-        checkbox1Value.setValue(value);
+        checkbox1Value.setBoolean(value);
         return this;
     }
 
     public WebFormPageOutput setCheckbox2Value(boolean value) {
-        checkbox2Value.setValue(value);
+        checkbox2Value.setBoolean(value);
         return this;
     }
 
     public WebFormPageOutput setRadiobutton1Value(boolean value) {
-        radiobutton1Value.setValue(value);
+        radiobutton1Value.setBoolean(value);
         return this;
     }
 
     public WebFormPageOutput setRadiobutton2Value(boolean value) {
-        radiobutton2Value.setValue(value);
+        radiobutton2Value.setBoolean(value);
         return this;
     }
 
     public WebFormPageOutput setColor(String value) {
-        color.setValue(value);
+        color.setString(value);
         return this;
     }
 
@@ -88,7 +77,7 @@ public class WebFormPageOutput extends SmartDataObject {
     }
 
     public WebFormPageOutput setDate(String value) {
-        date.setValue(value);
+        date.setString(value);
         return this;
     }
 
@@ -97,7 +86,7 @@ public class WebFormPageOutput extends SmartDataObject {
     }
 
     public WebFormPageOutput setRange(int value) {
-        range.setValue(value);
+        range.setInteger(value);
         return this;
     }
 }

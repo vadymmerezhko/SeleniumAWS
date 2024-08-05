@@ -24,12 +24,93 @@ public class SmartType {
     static final ConcurrentMap<String, String> valuesMap = readAllDataObjectsFromFiles();
     private static final String SOME_VALUE = "Some value";
     private static final String KEYWORD_PLACEHOLDER = "#KEYWORD#";
+    private SmartDataObject parent;
+    private SmartType keyword;
     private String value;
-    private String keyword;
-    private final SmartDataObject parent;
     private String parentName;
     private String fieldName;
     private String name;
+
+    /**
+     * Creates auto smart type.
+     * @return Returns smart type instance.
+     */
+    public static SmartType auto() {
+        return new SmartType();
+    }
+
+    /**
+     * Creates auto smart type with keyword.
+     * @param keyword The keyword value.
+     * @return Returns smart type instance.
+     */
+    public static SmartType withKeyword(String keyword) {
+        return new SmartType(new SmartType(keyword));
+    }
+
+    /**
+     * Creates auto smart type with string value.
+     * @param value The value.
+     * @return Returns smart type instance.
+     */
+    public static SmartType withString(String value) {
+        return new SmartType(value);
+    }
+
+    /**
+     * Creates auto smart type with integer value.
+     * @param value The value.
+     * @return Returns smart type instance.
+     */
+    public static SmartType withInteger(int value) {
+        return new SmartType(value);
+    }
+
+    /**
+     * Creates auto smart type with long value.
+     * @param value The value.
+     * @return Returns smart type instance.
+     */
+    public static SmartType withLong(long value) {
+        return new SmartType(value);
+    }
+
+    /**
+     * Creates auto smart type with float value.
+     * @param value The value.
+     * @return Returns smart type instance.
+     */
+    public static SmartType withFloat(float value) {
+        return new SmartType(value);
+    }
+
+    /**
+     * Creates auto smart type with double value.
+     * @param value The value.
+     * @return Returns smart type instance.
+     */
+    public static SmartType withDouble(double value) {
+        return new SmartType(value);
+    }
+
+    /**
+     * Creates auto smart type with boolean value.
+     * @param value The value.
+     * @return Returns smart type instance.
+     */
+    public static SmartType withBoolean(boolean value) {
+        return new SmartType(value);
+    }
+
+    /**
+     * Creates auto smart type with date value and date format.
+     * @param date The date.
+     * @param dateFormat The date format.
+     * @return Returns smart type instance.
+     */
+    public static SmartType withDate(Date date, String dateFormat) {
+        return new SmartType(date, dateFormat);
+    }
 
     /**
      * Reads asynchronously all data objects from JSON file
@@ -76,19 +157,16 @@ public class SmartType {
     /**
      * Smart type constructor with parent object parameter.
      */
-    public SmartType(SmartDataObject parent) {
-        DataValidationUtils.validateNotNull(parent, "parent");
-        this.parent = parent;
+    private SmartType() {
     }
 
     /**
      * Smart type constructor with parent object parameter.
      */
-    public SmartType(String keyword, SmartDataObject parent) {
-        DataValidationUtils.validateNotBlank(keyword, "keyword");
-        DataValidationUtils.validateNotNull(parent, "parent");
+    private SmartType(SmartType keyword) {
+        DataValidationUtils.validateNotNull(keyword, "keyword");
+        DataValidationUtils.validateNotBlank(keyword.toString(), "keyword");
         this.keyword = keyword;
-        this.parent = parent;
     }
 
     /**
@@ -96,10 +174,8 @@ public class SmartType {
      * and string value.
      * @param value The value.
      */
-    public SmartType(SmartDataObject parent, String value) {
-        DataValidationUtils.validateNotNull(parent, "parent");
+    private SmartType(String value) {
         DataValidationUtils.validateNotNull(value, "value");
-        this.parent = parent;
         this.value = value;
     }
 
@@ -108,10 +184,8 @@ public class SmartType {
      * and integer value.
      * @param value The value.
      */
-    public SmartType(SmartDataObject parent, int value) {
-        DataValidationUtils.validateNotNull(parent, "parent");
+    public SmartType(int value) {
         DataValidationUtils.validateNotNull(value, "value");
-        this.parent = parent;
         this.value = String.valueOf(value);
     }
 
@@ -120,10 +194,8 @@ public class SmartType {
      * and long value.
      * @param value The value.
      */
-    public SmartType(SmartDataObject parent, long value) {
-        DataValidationUtils.validateNotNull(parent, "parent");
+    public SmartType(long value) {
         DataValidationUtils.validateNotNull(value, "value");
-        this.parent = parent;
         this.value = String.valueOf(value);
     }
 
@@ -132,10 +204,8 @@ public class SmartType {
      * and float value.
      * @param value The value.
      */
-    public SmartType(SmartDataObject parent, float value) {
-        DataValidationUtils.validateNotNull(parent, "parent");
+    public SmartType(float value) {
         DataValidationUtils.validateNotNull(value, "value");
-        this.parent = parent;
         this.value = String.valueOf(value);
     }
 
@@ -144,10 +214,8 @@ public class SmartType {
      * and double value.
      * @param value The value.
      */
-    public SmartType(SmartDataObject parent, double value) {
-        DataValidationUtils.validateNotNull(parent, "parent");
+    public SmartType(double value) {
         DataValidationUtils.validateNotNull(value, "value");
-        this.parent = parent;
         this.value = String.valueOf(value);
     }
 
@@ -156,10 +224,8 @@ public class SmartType {
      * and boolean value.
      * @param value The value.
      */
-    public SmartType(SmartDataObject parent, boolean value) {
-        DataValidationUtils.validateNotNull(parent, "parent");
+    public SmartType(boolean value) {
         DataValidationUtils.validateNotNull(value, "value");
-        this.parent = parent;
         this.value = String.valueOf(value);
     }
 
@@ -169,10 +235,8 @@ public class SmartType {
      * @param date The value.
      * @param dateFormat The date format.
      */
-    public SmartType(SmartDataObject parent, Date date, String dateFormat) {
-        DataValidationUtils.validateNotNull(parent, "parent");
+    public SmartType(Date date, String dateFormat) {
         DataValidationUtils.validateNotNull(date, "value");
-        this.parent = parent;
         this.value = ConverterUtils.dateToString(date, dateFormat);
     }
 
@@ -213,7 +277,7 @@ public class SmartType {
      * Sets string value.
      * @param value The value.
      */
-    public void setValue(String value) {
+    public void setString(String value) {
         this.value = value;
     }
 
@@ -221,7 +285,7 @@ public class SmartType {
      * Sets integer value.
      * @param value The value.
      */
-    public void setValue(int value) {
+    public void setInteger(int value) {
         this.value = String.valueOf(value);
     }
 
@@ -229,7 +293,7 @@ public class SmartType {
      * Sets long value.
      * @param value The value.
      */
-    public void setValue(long value) {
+    public void setLong(long value) {
         this.value = String.valueOf(value);
     }
 
@@ -237,7 +301,7 @@ public class SmartType {
      * Sets float value.
      * @param value The value.
      */
-    public void setValue(float value) {
+    public void setFloat(float value) {
         this.value = String.valueOf(value);
     }
 
@@ -245,7 +309,7 @@ public class SmartType {
      * Sets double value.
      * @param value The value.
      */
-    public void setValue(double value) {
+    public void setDouble(double value) {
         this.value = String.valueOf(value);
     }
 
@@ -253,7 +317,7 @@ public class SmartType {
      * Sets boolean value.
      * @param value The value.
      */
-    public void setValue(boolean value) {
+    public void setBoolean(boolean value) {
         this.value = String.valueOf(value);
     }
 
@@ -263,15 +327,15 @@ public class SmartType {
      * @param dateFormat The date format.
      *
      */
-    public void setValue(Date date, String dateFormat) {
+    public void setDate(Date date, String dateFormat) {
         this.value = ConverterUtils.dateToString(date, dateFormat);
     }
 
     /**
-     * Sets string value.
+     * Sets string value and saves it to the file.
      * @param value The value.
      */
-    public void setAndSaveValue(String value) {
+    public void setAndSaveString(String value) {
         this.value = value;
         valuesMap.put(name, value);
         saveStringValueToFile();
@@ -344,12 +408,18 @@ public class SmartType {
         return result;
     }
 
+    void setParent(SmartDataObject parent) {
+        this.parent = parent;
+    }
+
     private String getValue() {
         setUp();
         return value;
     }
 
     private void setUp() {
+        validateParent();
+
         if (name == null) {
             parentName = parent.getName();
             fieldName = ClassUtils.getObjectFieldName(parent, this);
@@ -362,6 +432,7 @@ public class SmartType {
     }
 
     private void setUpValue() {
+        String keywordValue = keyword == null ? null : keyword.toString();
 
         if (valuesMap.containsKey(name)) {
             value = valuesMap.get(name);
@@ -400,8 +471,7 @@ public class SmartType {
                             System.exit(-1);
                         }
                     }
-
-                    if (keyword != null && !value.contains(keyword)) {
+                    if (keywordValue != null && !value.contains(keywordValue)) {
                         String previousValue = value;
                         value = WebUtils.showPrompt(String.format("""
                             DATA TYPE
@@ -413,7 +483,7 @@ public class SmartType {
                             Please enter value with keyword and click OK.
                             OR just click OK to select value on the page.
                             OR click CANCEL to exit the test
-                            """.stripTrailing(), name, value, keyword), value);
+                            """.stripTrailing(), name, value, keywordValue), value);
 
                         if (value == null) {
                             WebDriverFactory.quiteAllBrowsersAndServers();
@@ -434,7 +504,7 @@ public class SmartType {
             }
             valuesMap.put(name, value);
         }
-        value = replaceKeywordPlaceholder(value, keyword);
+        value = replaceKeywordPlaceholder(value, keywordValue);
     }
 
     private void saveStringValueToFile() {
@@ -451,20 +521,19 @@ public class SmartType {
             } else {
                 json = new JSONObject();
             }
-
             String valueTemplate = value;
+            String keywordValue = keyword == null ? null : keyword.toString();
 
-            if (keyword != null) {
-                if (value.contains(keyword)) {
-                    valueTemplate = value.replace(keyword, KEYWORD_PLACEHOLDER);
+            if (keywordValue != null) {
+                if (value.contains(keywordValue)) {
+                    valueTemplate = value.replace(keywordValue, KEYWORD_PLACEHOLDER);
                 }
                 else {
                     throw new SmartRuntimeException(String.format(
                             "Smart type value '%s' does not contain keyword '%s'",
-                            value, keyword));
+                            value, keywordValue));
                 }
             }
-
             json.put(fieldName, valueTemplate);
             String jsonString = json.toString();
             FileSystemUtils.createFile(filePath, jsonString);
@@ -529,5 +598,18 @@ public class SmartType {
             }
         }
         return valueTemplate;
+    }
+
+    private void validateParent() {
+        if (parent == null) {
+            throw new SmartRuntimeException("""
+                            Please add method initialize(); to data object class constructor like this:
+                            
+                            public YourDataObject() {
+                                super();
+                                initialize();
+                            }
+                            """.stripIndent());
+        }
     }
 }
