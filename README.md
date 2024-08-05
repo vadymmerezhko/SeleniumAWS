@@ -1,4 +1,4 @@
-## SeleniumAWS 1.10.20
+## SeleniumAWS 1.11.0
 ### Command line parameters
 #### -DsiteHost
 AUT site host to switch between DEV, QA and PROD environments:
