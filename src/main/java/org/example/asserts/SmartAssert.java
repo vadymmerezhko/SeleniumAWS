@@ -60,17 +60,12 @@ public abstract class SmartAssert {
                                 "Expected data object %s field value is NULL.",
                                 expectedName));
                     }
-
                     for (Field actualField : actualFields) {
                         actualField.setAccessible(true);
                         Object actuaalObject = actualField.get(actual);
 
                         if (actuaalObject instanceof SmartType actualType) {
                             String actualName = actualType.getName();
-
-                            if (expectedValue == null) {
-                                SmartAssert.updateExpectedValue(expectedType, actualType);
-                            }
 
                             if (expectedName.equals(actualName)) {
                                 String actualValue = actualType.toString();
@@ -80,12 +75,10 @@ public abstract class SmartAssert {
                                             "Actual data object %s field value is NULL.",
                                             expectedName));
                                 }
-
                                 if (Config.getInstance().getDebugMode() &&
                                         !expectedValue.equals(actualValue)) {
                                     SmartAssert.updateExpectedValue(expectedType, actualType);
                                 }
-
                                 Assert.assertEquals(expectedValue, actualValue, expectedName);
                                 typeFound = true;
                                 log.debug("Expected smart type {} expected '{}' equals to actual '{}'.",
@@ -139,7 +132,6 @@ public abstract class SmartAssert {
             log.debug("User exited the test.");
             WebDriverFactory.hardSystemExit();
         }
-
         expectedType.setAndSaveValue(newValue);
         log.debug("Expected dta object {} field value was updated to '{}'",
                 expectedType.getName(), newValue);

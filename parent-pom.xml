@@ -4,7 +4,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>SeleniumTestNGParentPom</artifactId>
-  <version>1.10.12</version>
+  <version>1.10.13</version>
   <packaging>pom</packaging>
 
   <name>SeleniumTestNGParentPom</name>
@@ -179,11 +179,12 @@
       <artifactId>jnativehook</artifactId>
       <version>2.2.2</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.32</version>
-      <scope>compile</scope>
+      <version>1.18.34</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>

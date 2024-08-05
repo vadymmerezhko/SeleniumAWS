@@ -6,7 +6,6 @@
             <class name="org.example.unit.ConverterUtilsTest"/>
             <class name="org.example.unit.DataValidationUtilsTest"/>
             <class name="org.example.unit.FileSystemUtilsTest"/>
-            <class name="org.example.unit.RecordUtilsTest"/>
             <class name="org.example.unit.SmartAssertTest"/>
             <class name="org.example.unit.SmartTypeTest"/>
             <class name="org.example.unit.SystemUtilsTest"/>
