@@ -1,6 +1,5 @@
 package org.example.drivers.elements;
 
-import org.example.pages.BasePage;
 import org.openqa.selenium.By;
 
 /**
@@ -9,11 +8,17 @@ import org.openqa.selenium.By;
 public class FileInput extends TextInput {
 
     /**
-     * File input element constructor by its page and selector.
-     * @param page The element page.
+     * File input element constructor with auto selector.
+     */
+    public FileInput() {
+        super();
+    }
+
+    /**
+     * File input element constructor by its selector.
      * @param by The element selector.
      */
-    public FileInput(BasePage page, By by) {
-        super(page, by);
+    public FileInput(By by) {
+        super(by);
     }
 }

@@ -1,7 +1,6 @@
 package org.example.drivers.elements;
 
 import org.example.drivers.playwright.PlaywrightElement;
-import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -13,12 +12,18 @@ import org.openqa.selenium.support.ui.Select;
 public class Dropdown extends BaseElement {
 
     /**
-     * The dropdown constructor by its page and selector.
-     * @param page The element page.
+     * The dropdown constructor with auto selector.
+     */
+    public Dropdown() {
+        super();
+    }
+
+    /**
+     * The dropdown constructor by its selector.
      * @param by The element selector.
      */
-    public Dropdown(BasePage page, By by) {
-        super(page, by);
+    public Dropdown(By by) {
+        super(by);
     }
 
     /**

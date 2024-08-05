@@ -3,11 +3,13 @@ package org.example.pages;
 import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
 import org.example.configs.TestConfig;
+import org.example.drivers.elements.BaseElement;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.WebUtils;
 import org.openqa.selenium.*;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -39,7 +41,7 @@ public abstract class BasePage {
         }
         catch (WebDriverException e) {
             if (Config.getInstance().getDebugMode()) {
-                url = handlePageOPenError();
+                url = handlePageOpenError();
             }
             else {
                 throw e;
@@ -135,6 +137,25 @@ public abstract class BasePage {
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
     }
 
+    protected void initialize() {
+        try {
+            Field[] fields = getClass().getDeclaredFields();
+
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Object fieldObject = field.get(this);
+
+                if (fieldObject instanceof BaseElement) {
+                    ((BaseElement) fieldObject).setPage(this);
+                }
+            }
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot initialize web page %s.", getClass().getSimpleName()), e);
+        }
+    }
+
     private String getPageUrl() {
         String url;
         String pageName = this.getClass().getSimpleName();
@@ -223,7 +244,7 @@ public abstract class BasePage {
         return url;
     }
 
-    private String handlePageOPenError() {
+    private String handlePageOpenError() {
         String pageName = getClass().getSimpleName();
         String siteHost = TestConfig.getInstance().getSiteHost();
         String folderPath = Config.getInstance().getPagesFolderPath();

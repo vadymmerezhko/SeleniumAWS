@@ -2,7 +2,6 @@ package org.example.drivers.elements;
 
 import org.example.drivers.playwright.PlaywrightElement;
 import org.example.drivers.wrappers.SmartWebElement;
-import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -13,12 +12,18 @@ import org.openqa.selenium.WebElement;
 public class ColorPicker extends BaseElement {
 
     /**
-     * The color picker element constructor by its page and selector.
-     * @param page The element page.
+     * The color picker element constructor with auto selector.
+     */
+    public ColorPicker() {
+        super();
+    }
+
+    /**
+     * The color picker element constructor by its selector.
      * @param by The element selector.
      */
-    public ColorPicker(BasePage page, By by) {
-        super(page, by);
+    public ColorPicker(By by) {
+        super(by);
     }
 
     /**

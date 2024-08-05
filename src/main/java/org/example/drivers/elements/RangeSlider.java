@@ -1,7 +1,6 @@
 package org.example.drivers.elements;
 
 import org.example.drivers.playwright.PlaywrightElement;
-import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -13,12 +12,18 @@ import org.openqa.selenium.WebElement;
 public class RangeSlider extends BaseElement {
 
     /**
-     * The range slider constructor by its page and selector.
-     * @param page The element page.
+     * The range slider constructor by itsselector.
+     */
+    public RangeSlider() {
+        super();
+    }
+
+    /**
+     * The range slider constructor by itsselector.
      * @param by The element selector.
      */
-    public RangeSlider(BasePage page, By by) {
-        super(page, by);
+    public RangeSlider(By by) {
+        super(by);
     }
 
     /**

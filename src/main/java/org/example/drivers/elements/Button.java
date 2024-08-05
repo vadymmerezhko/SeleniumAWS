@@ -1,6 +1,5 @@
 package org.example.drivers.elements;
 
-import org.example.pages.BasePage;
 import org.openqa.selenium.By;
 
 /**
@@ -9,11 +8,17 @@ import org.openqa.selenium.By;
 public class Button extends BaseElement {
 
     /**
-     * Button element constructor by its page and selector.
-     * @param page The element page.
+     * Button element constructor with auto selector.
+     */
+    public Button() {
+        super();
+    }
+
+    /**
+     * Button element constructor by its selector.
      * @param by The element selector.
      */
-    public Button(BasePage page, By by) {
-        super(page, by);
+    public Button(By by) {
+        super(by);
     }
 }

@@ -1,6 +1,5 @@
 package org.example.drivers.elements;
 
-import org.example.pages.BasePage;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -11,12 +10,18 @@ import org.openqa.selenium.Keys;
 public abstract class BaseTextElement extends BaseElement {
 
     /**
-     * Base text element constructor by its page and selector.
-     * @param page The element page.
+     * Base text element constructor with auto selector.
+     */
+    public BaseTextElement() {
+        super();
+    }
+
+    /**
+     * Base text element constructor by its selector.
      * @param by The element selector.
      */
-    public BaseTextElement(BasePage page, By by) {
-        super(page, by);
+    public BaseTextElement(By by) {
+        super(by);
     }
 
     /**
