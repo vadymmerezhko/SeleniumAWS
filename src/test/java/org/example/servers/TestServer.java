@@ -31,11 +31,9 @@ public class TestServer implements TestServerInterface {
      */
     @Override
     public WebFormPageOutput fillWebForm(WebFormPageInput input) {
-
         try {
             WebFormPage webFormPage = new WebFormPage();
             WebFormPageOutput output = new WebFormPageOutput();
-            output.initialize();
 
             webFormPage.open();
             webFormPage.enterIntoTextInput(input.getTextInput());

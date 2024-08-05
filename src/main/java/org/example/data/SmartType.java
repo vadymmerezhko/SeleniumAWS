@@ -430,7 +430,7 @@ public class SmartType {
     }
 
     private void setUpValue() {
-        String keywordValue = keyword.toString();
+        String keywordValue = keyword == null ? null : keyword.toString();
 
         if (valuesMap.containsKey(name)) {
             value = valuesMap.get(name);
@@ -519,9 +519,8 @@ public class SmartType {
             } else {
                 json = new JSONObject();
             }
-
             String valueTemplate = value;
-            String keywordValue = keyword.toString();
+            String keywordValue = keyword == null ? null : keyword.toString();
 
             if (keywordValue != null) {
                 if (value.contains(keywordValue)) {
@@ -533,7 +532,6 @@ public class SmartType {
                             value, keywordValue));
                 }
             }
-
             json.put(fieldName, valueTemplate);
             String jsonString = json.toString();
             FileSystemUtils.createFile(filePath, jsonString);
