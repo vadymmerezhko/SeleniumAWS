@@ -115,7 +115,7 @@ public class SmartType {
     /**
      * Reads asynchronously all data objects from JSON file
      */
-    public static ConcurrentMap<String, String> readAllDataObjectsFromFiles() {
+    private static ConcurrentMap<String, String> readAllDataObjectsFromFiles() {
         Set<String> fileNames = FileSystemUtils.getFileNamesInFolder(DATA_OBJECTS_FOLDER_PATH);
         ConcurrentMap<String, String> map = new ConcurrentHashMap<>();
 

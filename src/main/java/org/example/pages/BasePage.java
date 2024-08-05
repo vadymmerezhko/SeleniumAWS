@@ -6,12 +6,17 @@ import org.example.configs.TestConfig;
 import org.example.drivers.elements.BaseElement;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.exceptions.SmartRuntimeException;
+import org.example.utils.FileSystemUtils;
 import org.example.utils.WebUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.openqa.selenium.*;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static org.example.constants.Settings.PAGE_URL_FIELD_NAME;
 
 /**
  * Base page class.
@@ -20,6 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 @Slf4j
 public abstract class BasePage {
     private static final ConcurrentMap<String, String> pageUrlMap = new ConcurrentHashMap<>();
+    static private final String SITE_HOST_PLACEHOLDER = "#SITE_HOST#";
 
     protected WebDriver driver;
 
@@ -156,6 +162,91 @@ public abstract class BasePage {
         }
     }
 
+    /**
+     * Saves element selector to JSON file.
+     * @param pageName The page name.
+     * @param url The page URL.
+     */
+    private void savePageUrlToFile(String folderPath, String pageName, String url, String siteHost) {
+        String filePath = null;
+
+        try {
+            String fileName = String.format("%s.json", pageName);
+            JSONObject json;
+            filePath = String.format("%s/%s", folderPath, fileName);
+
+            if (FileSystemUtils.fileExists(filePath)) {
+                String jsonString = FileSystemUtils.readFile(filePath);
+                json = new JSONObject(jsonString);
+            } else {
+                json = new JSONObject();
+            }
+            String urlFormat = url.replace(siteHost, SITE_HOST_PLACEHOLDER);
+            json.put(PAGE_URL_FIELD_NAME, urlFormat);
+            FileSystemUtils.createFile(filePath, json.toString());
+            log.debug("Page {} URL {} is saved to file {}.",
+                    pageName, url, filePath);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Can not save web page %s URL %s to file: %s",
+                    pageName, url, filePath), e);
+        }
+    }
+
+    /**
+     * Reads page URL from file.
+     * @param folderPath The folder path.
+     * @param pageName The page name.
+     * @param siteHost The site host.
+     * @return The page URL.
+     */
+    private String readPageUrlFromFile(String folderPath, String pageName, String siteHost) {
+        String filePath = null;
+        try {
+            String fileName = String.format("%s.json", pageName);
+            JSONObject json;
+            filePath = String.format("%s/%s", folderPath, fileName);
+
+            if (FileSystemUtils.fileExists(filePath)) {
+                String jsonString = FileSystemUtils.readFile(filePath);
+
+                if (jsonString.trim().isEmpty()) {
+                    return null;
+                }
+                json = new JSONObject(jsonString);
+                try {
+                    String urlFormat = json.get(PAGE_URL_FIELD_NAME).toString();
+                    log.debug("Page URL format {} is read from file {}.",
+                            urlFormat, fileName);
+                    String url = urlFormat.replace(SITE_HOST_PLACEHOLDER, siteHost);
+                    log.debug("Page URL {} is read from file {}.",
+                            url, fileName);
+
+                    if (url.trim().isEmpty()) {
+                        return null;
+                    }
+                    return url;
+                }
+                catch (JSONException e) {
+                    log.debug("File {} has invalid JSON object format: {}",
+                            filePath, jsonString);
+                    return null;
+                }
+            }
+            else {
+                log.debug("Page object {} file {} does not exist.",
+                        pageName, filePath);
+                return null;
+            }
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Can not read web page %s URL from file: %s",
+                    pageName, filePath), e);
+        }
+    }
+
     private String getPageUrl() {
         String url;
         String pageName = this.getClass().getSimpleName();
@@ -166,7 +257,7 @@ public abstract class BasePage {
             url = pageUrlMap.get(pageName);
         }
         else {
-            url = WebUtils.readPageUrlFromFile(pagesFolderPath, pageName, siteHost);
+            url = readPageUrlFromFile(pagesFolderPath, pageName, siteHost);
 
             if (url != null) {
                 if (!url.trim().startsWith(siteHost)) {
@@ -230,8 +321,7 @@ public abstract class BasePage {
                     url = null;
                     continue;
                 }
-
-                WebUtils.savePageUrlToFile(pagesFolderPath, pageName, url, siteHost);
+                savePageUrlToFile(pagesFolderPath, pageName, url, siteHost);
                 pageUrlMap.put(pageName, url);
                 break;
             }
@@ -249,7 +339,7 @@ public abstract class BasePage {
         String siteHost = TestConfig.getInstance().getSiteHost();
         String folderPath = Config.getInstance().getPagesFolderPath();
         // Save empty URL to fix it in debug mode.
-        WebUtils.savePageUrlToFile(folderPath, pageName, "", siteHost);
+        savePageUrlToFile(folderPath, pageName, "", siteHost);
         pageUrlMap.remove(pageName);
         return getPageUrl();
     }

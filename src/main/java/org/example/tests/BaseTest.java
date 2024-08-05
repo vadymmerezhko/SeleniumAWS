@@ -3,7 +3,6 @@ package org.example.tests;
 import lombok.extern.slf4j.Slf4j;
 import org.example.balancers.LoadBalancer;
 import org.example.configs.Config;
-import org.example.drivers.elements.BaseElement;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.FileSystemUtils;
@@ -27,9 +26,6 @@ public abstract class BaseTest {
 
     @BeforeSuite
     public void beforeSuite() {
-        WebUtils.readAllElementSelectorsFromFiles(
-                config.getPagesFolderPath(),
-                BaseElement.getElementSelectorMap());
         FileSystemUtils.deleteFolder(VIDEOS_FOLDER_PATH);
         FileSystemUtils.deleteFolder(SCREENSHOTS_FOLDER_PATH);
     }
