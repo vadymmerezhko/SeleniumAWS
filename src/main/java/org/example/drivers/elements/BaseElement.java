@@ -16,7 +16,6 @@ import org.json.JSONObject;
 import org.openqa.selenium.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -98,6 +97,22 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     public BaseElement(By by) {
         this.by = by;
         driver = WebDriverFactory.getDriver();
+    }
+
+    /**
+     * Sets keyword.
+     * @param keyword The keyword.
+     */
+    public void setKeyword(String keyword) {
+        if (by instanceof SmartBy) {
+            ((SmartBy) by).setKeyword(keyword);
+            log.debug("Element keyword is set: {}", keyword);
+        }
+        else {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot set keyword '%s' for element %s. Use SmartBy to use keywords.",
+                    keyword, elementName));
+        }
     }
 
     /**
@@ -477,7 +492,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     }
 
     private void setElementSelector(SmartBy smartBy) {
-        String text = smartBy.getText();
+        String keywod = smartBy.getKeyword();
         boolean isSelectorUpdated = false;
         boolean isReadFromFile = true;
 
@@ -494,7 +509,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
             }
             if (selector == null) {
                 if (config.getDebugMode()) {
-                    selector = WebUtils.selectElementAndGetSelector(elementName, text);
+                    selector = WebUtils.selectElementAndGetSelector(elementName, keywod);
                     isSelectorUpdated = true;
                     isReadFromFile = false;
                 }
@@ -503,9 +518,9 @@ public abstract class BaseElement implements WebElement, WrapsElement {
                 throw new SmartRuntimeException(String.format(
                         "'%s' element selector is not detected.", elementName));
             }
-            By bySelector = WebUtils.convertSelectorTemplateToBy(selector, text);
+            By bySelector = WebUtils.convertSelectorTemplateToBy(selector, keywod);
             smartBy.setBy(bySelector);
-            String selectorTemplate = WebUtils.getSelectorTemplate(selector, text);
+            String selectorTemplate = WebUtils.getSelectorTemplate(selector, keywod);
 
             if (isSelectorUpdated) {
                 elementSelectorMap.put(elementName, selectorTemplate);
@@ -526,19 +541,17 @@ public abstract class BaseElement implements WebElement, WrapsElement {
 
         if (by instanceof SmartBy smartBy) {
             String elementName = smartBy.getElementName();
-            String text = smartBy.getText();
-            String selector = WebUtils.selectElementAndGetSelector(elementName, text);
-            if (selector == null) {
-                return;
-            }
+            String keyword = smartBy.getKeyword();
+            String selector = WebUtils.selectElementAndGetSelector(elementName, keyword);
+
             try {
-                element = WebUtils.getElementBySelector(selector, text);
+                element = WebUtils.getElementBySelector(selector, keyword);
             } catch (Exception e) {
                 // Ignore exception
             }
-            By bySelector = WebUtils.convertSelectorTemplateToBy(selector, text);
+            By bySelector = WebUtils.convertSelectorTemplateToBy(selector, keyword);
             smartBy.setBy(bySelector);
-            String selectorTemplate = WebUtils.getSelectorTemplate(selector, text);
+            String selectorTemplate = WebUtils.getSelectorTemplate(selector, keyword);
             saveElementSelectorToFile(
                     config.getPagesFolderPath(), elementName, selectorTemplate);
             elementSelectorMap.put(elementName, selector);

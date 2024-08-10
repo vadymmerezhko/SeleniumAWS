@@ -410,10 +410,10 @@ public class WebUtils {
      * or by OpenAI request;
      * or by manual input.
      * @param elementName The element name.
-     * @param text The text (optional - can eb NULL).
+     * @param keyword The keyword (optional - can eb NULL).
      * @return The element selector or NULL
      */
-    public static String selectElementAndGetSelector(String elementName, String text) {
+    public static String selectElementAndGetSelector(String elementName, String keyword) {
         try {
             WebUtils.showAlert(String.format("""
                 WEB ELEMENT
@@ -422,7 +422,7 @@ public class WebUtils {
                 """.stripIndent(), elementName));
 
             WebElement element = WebUtils.selectWebElement(elementName);
-            String selector = WebUtils.getElementSelector(element, text);
+            String selector = WebUtils.getElementSelector(element, keyword);
             String format = null;
             String errorLog = """
                    
@@ -432,20 +432,62 @@ public class WebUtils {
                    """.stripIndent();
 
 
-            log.debug("Element {} selector with text {} is detected by algorithm: {}",
-                    element, text, selector);
+            log.debug("Element {} selector with keyword {} is detected by algorithm: {}",
+                    element, keyword, selector);
 
             if (selector == null) {
-                selector = WebUtils.getSelectorWithAI(element, text);
-                log.debug("Element {} selector with text '{}' is detected by OpenAI: {}",
-                        element, text, selector);
+                selector = WebUtils.getSelectorWithAI(element, keyword);
+                log.debug("Element {} selector with keyword '{}' is detected by OpenAI: {}",
+                        element, keyword, selector);
             }
+
+            if (keyword != null && !selector.contains(keyword) ||
+                    (selector.contains("not(contains("))) {
+                selector = null;
+            }
+
             if (selector == null) {
-                selector = WebUtils.showPrompt(
-                        String.format(
-                                "WEB ELEMENT\n\nPlease enter '%s' element selector",
-                                elementName),
-                        null);
+                if (keyword == null) {
+                    selector = WebUtils.showPrompt(
+                            String.format("""
+                                    WEB ELEMENT
+                                    
+                                    Please enter '%s' element selector.
+                                    
+                                    Click OK to save selector.
+                                    OR press CANCEL button to exit the test.
+                                    """.stripIndent(),
+                                    elementName),
+                            "");
+
+                    if (selector == null || selector.trim().isEmpty()) {
+                        log.debug("User exited test while entering {} element selector", elementName);
+                        WebDriverFactory.hardSystemExit();
+                    }
+                }
+                else {
+                    selector = WebUtils.showPrompt(
+                            String.format("""
+                                    WEB ELEMENT
+                                    
+                                    Please enter '%s' element selector with keyword.
+                                    It should contain the keyword: '%s'
+                                    
+                                    Click OK to save selector.
+                                    OR press CANCEL button to exit the test.
+                                    """.stripIndent(),
+                                    elementName, keyword),
+                            "");
+
+                    if (selector == null || selector.trim().isEmpty()) {
+                        log.debug("User exited test while entering {} element selector with keyword '{}'",
+                                elementName, keyword);
+                        WebDriverFactory.hardSystemExit();
+                    }
+                    if (selector != null && !selector.contains(keyword)) {
+                        selector = null;
+                    }
+                }
             }
             String formatFormat = """
                     %s
@@ -455,7 +497,7 @@ public class WebUtils {
 
             while (true) {
 
-                if (WebUtils.isSelectorValidAndUnique(element, text, selector)) {
+                if (selector != null && WebUtils.isSelectorValidAndUnique(element, keyword, selector)) {
                     selector = selector.trim();
                     selector = showPrompt(String.format("""
                            WEB ELEMENT
@@ -473,43 +515,47 @@ public class WebUtils {
                     }
                 }
 
-                if (WebUtils.isSelectorValidAndUnique(element, text, selector)) {
+                if (selector == null) {
+                     format = String.format(formatFormat,
+                             "WEB ELEMENT\n\n%s element is not defined.");
+                }
+                else if (WebUtils.isSelectorValidAndUnique(element, keyword, selector)) {
                     log.debug("Valid element {} selector with text '{}' is: {}",
-                            element, text, selector);
+                            element, keyword, selector);
                     return selector;
                 }
                 else if (!WebUtils.isValidElementSelectorFormat(selector)) {
                     format = String.format(formatFormat,
                             "WEB ELEMENT\n\nInvalid '%s' element selector format.");
                 }
-                else if (WebUtils.numberOfElementsFoundBySelector(selector, text) > 1) {
+                else if (WebUtils.numberOfElementsFoundBySelector(selector, keyword) > 1) {
                     format = String.format(formatFormat,
                             "WEB ELEMENT\n\nMore than one '%s' element is found by selector.");
                 }
-                else if (WebUtils.numberOfElementsFoundBySelector(selector, text) == 1) {
+                else if (WebUtils.numberOfElementsFoundBySelector(selector, keyword) == 1) {
                     format = String.format(formatFormat,
                             "WEB ELEMENT\n\nWrong '%s' element is found by selector.");
                 }
-                else if (WebUtils.numberOfElementsFoundBySelector(selector, text) == 0) {
+                else if (WebUtils.numberOfElementsFoundBySelector(selector, keyword) == 0) {
                     format = String.format(formatFormat,
                             "WEB ELEMENT\n\nNo '%s' element is found by selector.");
                 }
                 String previousSelector = selector;
                 selector = showPrompt(String.format(format, elementName), selector);
 
-                if (selector.isEmpty()) {
+                if (selector == null || selector.isEmpty()) {
                     log.error(errorLog);
                     WebDriverFactory.hardSystemExit();
                 }
-                if (selector.equals(previousSelector)) {
+                else if (selector.equals(previousSelector)) {
                     WebUtils.showAlert(String.format("""
                         WEB ELEMENT
                 
-                        Please select '%s' element and click left CTRL.
+                        Please select '%s' element and press CTRL.
                         """.stripIndent(), elementName));
 
                     element = WebUtils.selectWebElement(elementName);
-                    selector = WebUtils.getElementSelector(element, text);
+                    selector = WebUtils.getElementSelector(element, keyword);
                 }
             }
         }
@@ -523,62 +569,62 @@ public class WebUtils {
     /**
      * Detects web element CSS selector or Xpath selector by unique text.
      * @param element The element.
-     * @param text The unique text.
+     * @param keyword The unique text.
      * @return The element CSS selector or Xpath selector.
      */
-    public static String getElementSelector(WebElement element, String text) {
-        if (text == null) {
-            String cssSelector = getCssOrXpathElementSelector(element, true, true);
+    public static String getElementSelector(WebElement element, String keyword) {
+        String xpathSelector;
+        String cssSelector;
+
+        if (keyword == null) {
+            cssSelector = getCssOrXpathElementSelector(element, true, true);
 
             if (cssSelector == null) {
                 cssSelector = getElementCssSelectorByParent(element);
             }
-
             if (cssSelector == null) {
                 cssSelector = getElementCssSelectorBySibling(element);
             }
-
             if (cssSelector == null) {
                 cssSelector = getElementCssSelectorByChild(element);
             }
-            log.debug("Element {} CSS selector with text '{}' is: {}", element, text, cssSelector);
+            if (cssSelector == null) {
+                cssSelector = getElementXpathSelectorByIndex(element);
+            }
+
+            if (cssSelector == null) {
+                xpathSelector = getElementXpathSelectorByIndex(element);
+                log.debug("Element {} XPATH selector with keyword '{}' is: {}", element, keyword, cssSelector);
+                return xpathSelector;
+            }
+            log.debug("Element {} CSS selector with keyword '{}' is: {}", element, keyword, cssSelector);
             return cssSelector;
         }
 
-        String xpathSelector = getElementXpathSelectorByText(element, text, false);
+        xpathSelector = getElementXpathSelectorByText(element, keyword, false);
 
         if (xpathSelector == null) {
-            xpathSelector = getElementXpathSelectorByText(element, text, true);
+            xpathSelector = getElementXpathSelectorByText(element, keyword, true);
         }
-
         if (xpathSelector == null) {
-            xpathSelector = getElementXpathSelectorByParentText(element, text, false);
+            xpathSelector = getElementXpathSelectorByParentText(element, keyword, false);
         }
-
         if (xpathSelector == null) {
-            xpathSelector = getElementXpathSelectorByParentText(element, text, true);
+            xpathSelector = getElementXpathSelectorByParentText(element, keyword, true);
         }
-
         if (xpathSelector == null) {
-            xpathSelector = getElementXpathSelectorBySiblingText(element, text, false);
+            xpathSelector = getElementXpathSelectorBySiblingText(element, keyword, false);
         }
-
         if (xpathSelector == null) {
-            xpathSelector = getElementXpathSelectorBySiblingText(element, text, true);
+            xpathSelector = getElementXpathSelectorBySiblingText(element, keyword, true);
         }
-
         if (xpathSelector == null) {
-            xpathSelector = getElementXpathSelectorByChildText(element, text, false);
+            xpathSelector = getElementXpathSelectorByChildText(element, keyword, false);
         }
-
         if (xpathSelector == null) {
-            xpathSelector = getElementXpathSelectorByChildText(element, text, true);
+            xpathSelector = getElementXpathSelectorByChildText(element, keyword, true);
         }
-
-        if (xpathSelector == null) {
-            xpathSelector = getElementXpathSelectorByIndex(element);
-        }
-        log.debug("Element {} Xpath selector with text '{}' is: {}", element, text, xpathSelector);
+        log.debug("Element {} Xpath selector with keyword '{}' is: {}", element, keyword, xpathSelector);
         return xpathSelector;
     }
 
@@ -638,7 +684,7 @@ public class WebUtils {
         }
         while (!isSelectorValidAndUnique(element, text, selector));
 
-        log.debug("OpenAI detedted element {} selector with text '{}' is: {}",
+        log.debug("OpenAI detedted element {} selector with keyword '{}' is: {}",
                 element, text, selector);
         return selector;
     }
@@ -653,7 +699,7 @@ public class WebUtils {
     public static String getSelectorTemplate(String selector, String keyword) {
         String template = selector.replace(String.format("'%s'", keyword), KEYWORD_PLACEHOLDER)
                 .replace(String.format("\"%s\"", keyword), KEYWORD_PLACEHOLDER);
-        log.debug("Element selector {} with text '{}' template is: {}",
+        log.debug("Element selector {} with keyword '{}' template is: {}",
                 selector, keyword, template);
         return template;
     }
@@ -673,12 +719,12 @@ public class WebUtils {
         }
         if (isXpath(selector)) {
             By by = By.xpath(selector);
-            log.debug("Element XPATH selector {} with text '{}' converted to By {}",
+            log.debug("Element XPATH selector {} with keyword '{}' converted to By {}",
                     selector, keyword, by);
             return by;
         } else {
             By by = By.cssSelector(selector);
-            log.debug("Element CSS selector {} with text '{}' converted to By {}",
+            log.debug("Element CSS selector {} with keyword '{}' converted to By {}",
                     selector, keyword, by);
             return by;
         }
@@ -693,7 +739,7 @@ public class WebUtils {
     public static int numberOfElementsFoundBySelector(String selector, String text) {
          By by = convertSelectorTemplateToBy(selector, text);
          int size = WebDriverFactory.getDriver().findElements(by).size();
-         log.debug("{} element(s) found by selector {} with text '{}'.",
+         log.debug("{} element(s) found by selector {} with keyword '{}'.",
                 size, selector, text);
          return size;
     }

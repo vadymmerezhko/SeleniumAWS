@@ -9,7 +9,7 @@ import java.util.List;
 
 public class SmartBy extends By {
     private By by;
-    private final String text;
+    private String keyword;
     private String elementName;
 
     /**
@@ -37,12 +37,12 @@ public class SmartBy extends By {
 
     private SmartBy() {
         super();
-        this.text = null;
+        this.keyword = null;
     }
 
     private SmartBy(String keyword) {
         super();
-        this.text = keyword;
+        this.keyword = keyword;
     }
 
     /**
@@ -65,8 +65,16 @@ public class SmartBy extends By {
      * Returns text identifier string.
      * @return The text.
      */
-    public String getText() {
-        return text;
+    public String getKeyword() {
+        return keyword;
+    }
+
+    /**
+     * Returns text identifier string.
+     * @return The text.
+     */
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 
     /**

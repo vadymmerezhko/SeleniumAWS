@@ -94,7 +94,7 @@ public class ConverterUtils {
      * @return The escaped JavaScript string.
      */
     public static String escapeJavaScriptExceptDoubleQuote(String javaScript) {
-        DataValidationUtils.validateNotBlank(javaScript, "javaScript");
+        DataValidationUtils.validateNotNull(javaScript, "javaScript");
 
         String escapedJson = escapeJavaScriptExcept(javaScript, '"');
         log.debug("JavaScript {} after escape: {}.", javaScript, escapedJson);
@@ -107,7 +107,7 @@ public class ConverterUtils {
      * @return The escaped JavaScript string.
      */
     public static String escapeJavaScriptExceptSingleQuotes(String javaScript) {
-        DataValidationUtils.validateNotBlank(javaScript, "javaScript");
+        DataValidationUtils.validateNotNull(javaScript, "javaScript");
 
         String escapedJson = escapeJavaScriptExcept(javaScript, '\'');
         log.debug("JavaScript {} after escape: {}.", javaScript, escapedJson);
@@ -120,7 +120,7 @@ public class ConverterUtils {
      * @return The escaped script.
      */
     public static String escapeJavaScript(String script) {
-        DataValidationUtils.validateNotBlank(script, "script");
+        DataValidationUtils.validateNotNull(script, "script");
 
         return escapeJavaScriptExcept(script, 'a');
     }

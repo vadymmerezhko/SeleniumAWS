@@ -50,7 +50,8 @@ public class WebFormPage extends BasePage {
      * Enters text to text area.
      * @param text The text to enter.
      */
-    public void enterIntoTextarea(String text) {
+    public void enterIntoTextarea(String keyword, String text) {
+        textarea.setKeyword(keyword);
         textarea.enterText(text);
     }
 
@@ -66,7 +67,8 @@ public class WebFormPage extends BasePage {
      * Returns text value from text area.
      * @return The text value.
      */
-    public String getTextareaValue() {
+    public String getTextareaValue(String keyword) {
+        textarea.setKeyword(keyword);
         return textarea.getValue();
     }
 

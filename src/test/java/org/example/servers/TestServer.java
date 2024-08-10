@@ -38,7 +38,7 @@ public class TestServer implements TestServerInterface {
             webFormPage.open();
             webFormPage.enterIntoTextInput(input.getTextInput());
             webFormPage.enterPassword("Password123");
-            webFormPage.enterIntoTextarea(input.getTextareaInput());
+            webFormPage.enterIntoTextarea("Textarea", input.getTextareaInput());
             webFormPage.selectDropdownOption(input.getDropdownSelectedOption());
             webFormPage.selectDataListOption(input.getDataListSelectOption());
             // TODO: Fix file path for remote run.
@@ -58,7 +58,7 @@ public class TestServer implements TestServerInterface {
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
             output.setTexInput(webFormPage.getTextInputValue())
-            .setTextareaInput(webFormPage.getTextareaValue())
+            .setTextareaInput(webFormPage.getTextareaValue("Textarea"))
             .setDropdownSelectedOption(webFormPage.getDropdownSelectedOption())
             .setDataListSelectOption(webFormPage.getDataListSelectedOption())
             // TODO fix file path on remote driver.
