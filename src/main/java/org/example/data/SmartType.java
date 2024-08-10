@@ -158,6 +158,7 @@ public class SmartType {
      * Smart type constructor with parent object parameter.
      */
     private SmartType() {
+        keyword = null;
     }
 
     /**
@@ -184,7 +185,7 @@ public class SmartType {
      * and integer value.
      * @param value The value.
      */
-    public SmartType(int value) {
+    private SmartType(int value) {
         DataValidationUtils.validateNotNull(value, "value");
         this.value = String.valueOf(value);
     }
@@ -194,7 +195,7 @@ public class SmartType {
      * and long value.
      * @param value The value.
      */
-    public SmartType(long value) {
+    private SmartType(long value) {
         DataValidationUtils.validateNotNull(value, "value");
         this.value = String.valueOf(value);
     }
@@ -204,7 +205,7 @@ public class SmartType {
      * and float value.
      * @param value The value.
      */
-    public SmartType(float value) {
+    private SmartType(float value) {
         DataValidationUtils.validateNotNull(value, "value");
         this.value = String.valueOf(value);
     }
@@ -214,7 +215,7 @@ public class SmartType {
      * and double value.
      * @param value The value.
      */
-    public SmartType(double value) {
+    private SmartType(double value) {
         DataValidationUtils.validateNotNull(value, "value");
         this.value = String.valueOf(value);
     }
@@ -224,7 +225,7 @@ public class SmartType {
      * and boolean value.
      * @param value The value.
      */
-    public SmartType(boolean value) {
+    private SmartType(boolean value) {
         DataValidationUtils.validateNotNull(value, "value");
         this.value = String.valueOf(value);
     }
@@ -235,7 +236,7 @@ public class SmartType {
      * @param date The value.
      * @param dateFormat The date format.
      */
-    public SmartType(Date date, String dateFormat) {
+    private SmartType(Date date, String dateFormat) {
         DataValidationUtils.validateNotNull(date, "value");
         this.value = ConverterUtils.dateToString(date, dateFormat);
     }
@@ -271,6 +272,14 @@ public class SmartType {
         setUp();
         log.debug("Returned smart type name: {}.", name);
         return name;
+    }
+
+    /**
+     * Sets keyword.
+     * @param keyword The keyword.
+     */
+    public void setKeyword(String keyword) {
+        this.keyword = new SmartType(keyword);
     }
 
     /**

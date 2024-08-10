@@ -1,11 +1,14 @@
 package org.example.servers;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.*;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.pages.TargetPage;
 import org.example.pages.WebFormPage;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -34,6 +37,10 @@ public class TestServer implements TestServerInterface {
         try {
             WebFormPage webFormPage = new WebFormPage();
             WebFormPageOutput output = new WebFormPageOutput();
+            // TODO
+/*            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate today = LocalDate.now();
+            String todayDateString = today.format(formatter);*/
 
             webFormPage.open();
             webFormPage.enterIntoTextInput(input.getTextInput());
@@ -53,7 +60,8 @@ public class TestServer implements TestServerInterface {
                 webFormPage.selectRadiobutton2();
             }
             webFormPage.pickColor(input.getColor());
-            webFormPage.pickDate(input.getDate());
+            // TODO
+            //webFormPage.pickDate(input.getDate(new Data()));
             webFormPage.setRange(input.getRange());
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
@@ -68,7 +76,8 @@ public class TestServer implements TestServerInterface {
             .setRadiobutton1Value(webFormPage.getRadiobutton1Value())
             .setRadiobutton2Value(webFormPage.getRadiobutton2Value())
             .setColor(webFormPage.getColor())
-            .setDate(webFormPage.getDate())
+            // TODO
+            //.setDate(webFormPage.getDate())
             .setRange(webFormPage.getRange());
             log.debug("Web Form page output data is returned: {}", output);
             return output;

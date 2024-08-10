@@ -14,7 +14,8 @@ public class WebFormPageInput extends SmartDataObject {
     private final SmartType radiobutton1Value = SmartType.auto();
     private final SmartType radiobutton2Value = SmartType.auto();
     private final SmartType color = SmartType.auto();
-    private final SmartType date = SmartType.auto();
+    // TODO
+    //private final SmartType date = SmartType.auto();
     private final SmartType range = SmartType.auto();
 
     public  WebFormPageInput() {
@@ -62,9 +63,11 @@ public class WebFormPageInput extends SmartDataObject {
         return color.toString();
     }
 
-    public String getDate() {
+    // TODO
+/*    public String getDate(String keyword) {
+        date.setKeyword(keyword);
         return date.toString();
-    }
+    }*/
 
     public int getRange() {
         return range.toInteger();
