@@ -35,23 +35,21 @@ public class CommonTest extends BaseTest {
 
     private void fillWebForm(WebFormPageInput input) {
         Reporter.log("<b>fillWebForm test execution started.</b>");
-
         TestServerInterface testServer = TestServerManager.getTestServer();
-        WebFormPageOutput output = testServer.fillWebForm(input);
+        WebFormPageOutput actual = testServer.fillWebForm(input);
         WebFormPageOutput expected = new WebFormPageOutput();
 
-        SmartAssert.assertDataObjects(expected, output);
+        SmartAssert.assertDataObjects(expected, actual);
         Reporter.log("<b>fillWebForm test execution finished.</b>");
     }
 
     protected void submitWebForm() {
         Reporter.log("<b>submitWebForm test execution started.</b>");
-
         TestServerInterface testServer = TestServerManager.getTestServer();
-        TargetPageOutput targetPageOutput = testServer.submitWebForm();
-        TargetPageOutput expectedOutput = new TargetPageOutput();
+        TargetPageOutput actual = testServer.submitWebForm();
+        TargetPageOutput expected = new TargetPageOutput();
 
-        SmartAssert.assertDataObjects(targetPageOutput, expectedOutput);
+        SmartAssert.assertDataObjects(expected, actual);
         Reporter.log("<b>submitWebForm test execution finished.</b>");
     }
 }

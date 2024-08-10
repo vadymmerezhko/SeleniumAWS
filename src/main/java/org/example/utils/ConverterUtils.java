@@ -29,6 +29,7 @@ public class ConverterUtils {
             "MM/dd/yyyy",
             "dd/MM/yyyy",
             "dd-MM-yyyy",
+            "dd-MM-yyyy",
             "yyyy/MM/dd",
             "yyyyMMdd",
             "dd MMM yyyy",

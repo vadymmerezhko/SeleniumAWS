@@ -31,7 +31,7 @@ public class DatePicker extends BaseElement {
      * @param date The date to pick.
      */
     public void pickDate(String date) {
-        DataValidationUtils.validateMmDdYyyyDateValue(date, this.getClass().getSimpleName());
+        DataValidationUtils.validateDateValue(date, "date");
         WebElement element = getElement();
 
         if (element instanceof PlaywrightElement) {

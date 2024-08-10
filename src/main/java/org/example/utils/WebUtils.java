@@ -205,7 +205,7 @@ public class WebUtils {
             return style;
         }
         catch (Exception e) {
-            throw new SmartRuntimeException(String.format(
+            throw new RuntimeException(String.format(
                     "Cannot get web element style '%s'.",
                     propertyName), e);
         }
@@ -228,9 +228,9 @@ public class WebUtils {
                     element, propertyName, propertyValue);
         }
         catch (Exception e) {
-            throw new SmartRuntimeException(String.format(
-                    "Cannot set web element style %s = '%s'.",
-                    propertyName, propertyValue), e);
+            throw new RuntimeException(String.format(
+                    "Cannot set web element %s style property %s value '%s'.",
+                    element, propertyName, propertyValue), e);
         }
     }
 
@@ -251,7 +251,8 @@ public class WebUtils {
             String style;
             try {
                 style = getElementStyle(element, "border");
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 // Ignore exception if style is not available.
                 style = "";
             }
@@ -261,14 +262,14 @@ public class WebUtils {
                 setElementStyle(element, "border", HIGHLIGHT_BORDER_STYLE);
                 highlightedElementMap.put(threadId, element);
                 log.debug("{} element is highlighted.", element);
-            } catch (Throwable e) {
+            }
+            catch (Exception e) {
                 // Ignore exception is previous element is not available.
                 log.debug("Exception {} when {} element is highlighted.", e.getMessage(), element);
             }
         }
         catch (Exception e) {
-            throw new SmartRuntimeException(String.format(
-                    "Cannot highlight web element %s.", element),  e);
+            log.debug("Cannot highlight web element {}.", element);
         }
     }
 
@@ -277,16 +278,16 @@ public class WebUtils {
      */
     public static void unhighlightElement() {
         long threadId = Thread.currentThread().threadId();
-        WebElement element = highlightedElementMap.get(threadId);
+        WebElement element = null;
 
         try {
+            element = highlightedElementMap.get(threadId);
             String style = prevElementStyleMap.get(threadId);
             setElementStyle(element, "border", style);
             log.debug("{} element is unhighlighted.", element);
-        } catch (Throwable e) {
-            // Ignore exception if not possible to restore style.
-            log.debug("Exception {} when {} element is unhighlighted.",
-                    e.getMessage(), element);
+        }
+        catch (Exception e) {
+            log.debug("Cannot unhighlight web element {}.", element);
         }
     }
 

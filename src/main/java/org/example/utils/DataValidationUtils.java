@@ -72,9 +72,11 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param dataName The data name.
      */
-    public static void validateMmDdYyyyDateValue(String value, String dataName) {
-        validateNotNull(value, dataName);
-        if (!value.matches("([0-9]{2})/([0-9]{2})/([0-9]{4})")) {
+    public static void validateDateValue(String value, String dataName) {
+        try {
+            ConverterUtils.stringToDate(value);
+        }
+        catch (Exception e) {
             handleError(String.format("%s has invalid date format: '%s'", dataName, value));
         }
     }
