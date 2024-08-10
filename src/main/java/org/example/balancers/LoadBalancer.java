@@ -2,6 +2,7 @@ package org.example.balancers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.constants.Settings;
+import org.example.drivers.factories.WebDriverFactory;
 import org.example.enums.BrowserName;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ServerUtils;
@@ -123,11 +124,13 @@ public class LoadBalancer {
                         Settings.SECURITY_GROUP_NAME,
                         encodedUserData);
             } catch (Exception e) {
-                log.error("///////////////////////////////////////////////////////////\n\n" +
-                        "Cannot create all servers:\n{}\n\n" +
-                        "///////////////////////////////////////////////////////////",
-                        e.getMessage());
-                System.exit(-1);
+                log.error("""
+                       \n///////////////////////////////////////////////////////////
+                       Cannot create all servers!
+                       ///////////////////////////////////////////////////////////
+                       Message: {}
+                       """.stripIndent(), e.getMessage());
+                WebDriverFactory.hardSystemExit();
             }
         }
         return serverIdPublicIpMap.get(serverId);

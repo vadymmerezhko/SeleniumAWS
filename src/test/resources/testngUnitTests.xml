@@ -3,13 +3,16 @@
     <test name="Test">
         <classes>
             <class name="org.example.unit.ClassUtilsTest"/>
+            <class name="org.example.unit.ConfigTest"/>
             <class name="org.example.unit.ConverterUtilsTest"/>
             <class name="org.example.unit.DataValidationUtilsTest"/>
+            <class name="org.example.unit.ImageUtilsTest"/>
             <class name="org.example.unit.FileSystemUtilsTest"/>
             <class name="org.example.unit.SmartAssertTest"/>
             <class name="org.example.unit.SmartTypeTest"/>
             <class name="org.example.unit.SystemUtilsTest"/>
             <class name="org.example.unit.TimeOutTest"/>
+            <class name="org.example.unit.TestConfigTest"/>
             <class name="org.example.unit.WaiterUtilsTest"/>
             <class name="org.example.unit.ZipFileUtilsTest"/>
         </classes>

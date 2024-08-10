@@ -2,6 +2,7 @@ package org.example.unit;
 
 import org.example.exceptions.SmartValidationException;
 import org.example.utils.DataValidationUtils;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class DataValidationUtilsTest {
@@ -155,5 +156,49 @@ public class DataValidationUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testValidateMaxInvalid() {
         DataValidationUtils.validateMax(51, 50, "minData");
+    }
+
+    @Test
+    public void testValidateRangeWithinRange() {
+        // Positive test cases
+        DataValidationUtils.validateRange(5.0, 1.0, 10.0, "Test Value");
+        DataValidationUtils.validateRange(1.0, 1.0, 10.0, "Test Value");
+        DataValidationUtils.validateRange(10.0, 1.0, 10.0, "Test Value");
+    }
+
+    @Test
+    public void testValidateRangeBelowRange() {
+        // Negative test case: value below range
+        String expectedMessage = "Test Value has invalid [1.000000:10.000000] range value: 0.000000";
+        expectHandleError(() -> DataValidationUtils.validateRange(0.0, 1.0, 10.0, "Test Value"), expectedMessage);
+    }
+
+    @Test
+    public void testValidateRangeAboveRange() {
+        // Negative test case: value above range
+        String expectedMessage = "Test Value has invalid [1.000000:10.000000] range value: 11.000000";
+        expectHandleError(() -> DataValidationUtils.validateRange(11.0, 1.0, 10.0, "Test Value"), expectedMessage);
+    }
+
+    @Test
+    public void testValidateRangeExactLowerBound() {
+        // Positive test case: value exactly at lower bound
+        DataValidationUtils.validateRange(1.0, 1.0, 10.0, "Test Value");
+    }
+
+    @Test
+    public void testValidateRangeExactUpperBound() {
+        // Positive test case: value exactly at upper bound
+        DataValidationUtils.validateRange(10.0, 1.0, 10.0, "Test Value");
+    }
+
+    // Helper method to capture the handleError exception
+    private void expectHandleError(Runnable action, String expectedMessage) {
+        try {
+            action.run();
+            Assert.fail("Expected SmartRuntimeException was not thrown.");
+        } catch (SmartValidationException e) {
+            Assert.assertEquals(e.getMessage(), expectedMessage);
+        }
     }
 }

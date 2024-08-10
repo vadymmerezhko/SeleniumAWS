@@ -3,6 +3,8 @@ package org.example.constants;
 import com.amazonaws.regions.Regions;
 import org.example.configs.Config;
 
+import java.awt.*;
+
 /**
  * The setting constants.
  */
@@ -19,11 +21,21 @@ public class Settings {
     public static final String SECURITY_KEY_PAIR_NAME = "SeleniumKeyPair";
     public static final String SECURITY_GROUP_NAME = "Selenium Test Security Group";
     public static final String PAGE_URL_FIELD_NAME = "PAGE_URL";
-    public static final String DATA_OBJECTS_FOLDER_PATH = Config.getInstance().getDataObjectsFolderPath();
+    public static final String SITE_HOST_PLACEHOLDER = "#SITE_HOST#";
+    public static final String PAGE_OBJECTS_FOLDER_PATH = Config.getInstance().getPagesFolderPath();
+    public static final String DATA_OBJECTS_FOLDER_PATH = Config.getInstance().getDataFolderPath();
+    public static final String IMAGE_FOLDER_PATH = Config.getInstance().getImagesFolderPath();
+    public static final String TEST_WEBSITE_URL = "https://www.selenium.dev/selenium/web/web-form.html";
+    public static final String TEST_CONFIG_FILE_PATH = "test-config.properties";
     public static int TEST_RETRY_LIMIT = 3;
     public static final int AWS_URL_EXPIRES_SECONDS = 60 * 15;
     public static final int REMOTE_WEB_DRIVER_PORT = 4444;
     public static final int SERVER_WAIT_TIMEOUT_SECONDS = 120;
+    public static final int MIN_COLOURS_THRESHOLD_PERCENTAGE = 70;
+    public static final int MIN_PIXELS_THRESHOLD_PERCENTAGE = 70;
+    public static final int MAX_SIZE_THRESHOLD_PIXELS = 3;
+    public static final int MAX_SCREEN_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width;
+    public static final int MAX_SCREEN_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height;
     public static final int RETRY_WAIT_MILLISECONDS = Config.getInstance().getRetryWaitMSec();
     public static final int RETRY_TIMEOUT_MILLISECONDS = Config.getInstance().getRetryTimeoutSec();
     public static final int WAIT_ELEMENT_CHANGING_MILLISECONDS = 20;

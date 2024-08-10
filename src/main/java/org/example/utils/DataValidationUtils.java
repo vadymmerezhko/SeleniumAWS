@@ -80,7 +80,7 @@ public final class DataValidationUtils {
     }
 
     /**
-     * Validates that numeric range is correct.
+     * Validates that long range is correct.
      * @param value The data value.
      * @param from The range beginning.
      * @param to The range ending.
@@ -89,6 +89,20 @@ public final class DataValidationUtils {
     public static void validateRange(long value, long from, long to, String dataName) {
         if (value < from || value > to) {
             handleError(String.format("%s has invalid [%d:%d] range value: %d",
+                    dataName, from, to, value));
+        }
+    }
+
+    /**
+     * Validates that double range is correct.
+     * @param value The data value.
+     * @param from The range beginning.
+     * @param to The range ending.
+     * @param dataName The data name.
+     */
+    public static void validateRange(double value, double from, double to, String dataName) {
+        if (value < from || value > to) {
+            handleError(String.format("%s has invalid [%f:%f] range value: %f",
                     dataName, from, to, value));
         }
     }
@@ -128,7 +142,7 @@ public final class DataValidationUtils {
         validateNotBlank(filePath, dataName);
         try {
             Paths.get(filePath);
-        } catch (Exception e){
+        } catch (Exception e) {
             handleError(String.format("Invalid file path: %s", filePath));
         }
     }

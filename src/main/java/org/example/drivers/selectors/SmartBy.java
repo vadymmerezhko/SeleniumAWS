@@ -24,6 +24,13 @@ public class SmartBy extends By {
     }
 
     /**
+     * Returns smart by selector for Selenium By selector :
+     */
+    public static SmartBy selector(By nativeBy) {
+        return new SmartBy(nativeBy);
+    }
+
+    /**
      * Returns selector with keyword found by nest order:
      * - Algorithm;
      * - OpenAI;
@@ -35,12 +42,26 @@ public class SmartBy extends By {
         return new SmartBy(keyword);
     }
 
-    private SmartBy() {
+    /**
+     * Returns selector found by image.
+     * @return The selector.
+     */
+    public static SmartBy image() {
+        return new SmartByImage();
+    }
+
+    SmartBy() {
         super();
         this.text = null;
     }
 
-    private SmartBy(String keyword) {
+    SmartBy(By by) {
+        super();
+        this.by = by;
+        this.text = null;
+    }
+
+    SmartBy(String keyword) {
         super();
         this.text = keyword;
     }
@@ -104,6 +125,10 @@ public class SmartBy extends By {
      */
     @Override
     public String toString() {
+        if (by == null) {
+            throw new SmartRuntimeException(String.format(
+                    "Element %s smart selector is undefined.", elementName));
+        }
         return by.toString();
     }
 }

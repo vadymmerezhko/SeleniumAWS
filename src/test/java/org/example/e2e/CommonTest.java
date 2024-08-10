@@ -11,8 +11,10 @@ import org.testng.Assert;
 import org.testng.Reporter;
 import org.testng.annotations.AfterSuite;
 
+import static org.example.constants.Settings.TEST_CONFIG_FILE_PATH;
+
 public class CommonTest extends BaseTest {
-    static private final TestConfig config = TestConfig.getInstance();
+    static private final TestConfig config = TestConfig.getInstance(TEST_CONFIG_FILE_PATH);
 
     @AfterSuite()
     public void afterSuite() {

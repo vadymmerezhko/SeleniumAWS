@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 
 @Slf4j
 public class BaseSmartException extends RuntimeException {
-    private static final int MAX_MESSAGE_LENGTH = 300;
 
     public BaseSmartException() {
         super();
@@ -38,19 +37,14 @@ public class BaseSmartException extends RuntimeException {
             String message = String.format("Message: %s\nStack trace:\n%s",
                     getMessage(), stackTrace);
 
-            if (message.length() > MAX_MESSAGE_LENGTH) {
-                message = message.substring(0, MAX_MESSAGE_LENGTH);
-            }
             String confirmMessage = String.format("""
                     EXCEPTION
                     
+                    Click OK to continue.
+                    Or click CANCEL to exit the test.
                     Message:
                     %s
-                    ...
-                    
-                    Click OK to continue.
-                    Or click CANCEL to exit the test.      
-                    """.stripIndent(), message);
+                     """.stripIndent(), message);
 
             if (!WebUtils.showConfirm(confirmMessage)) {
                 log.info("User made hard system exit on exception confirm popup.");

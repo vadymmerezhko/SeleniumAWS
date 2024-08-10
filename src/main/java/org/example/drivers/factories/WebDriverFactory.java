@@ -389,7 +389,7 @@ public class WebDriverFactory {
     public static void hardSystemExit() {
         quiteAllBrowsersAndServers();
         log.info("""
-            ///////////////////////////////////////////////////////////
+            \n///////////////////////////////////////////////////////////
             Hard system exit after all browsers and servers are quit.
             ///////////////////////////////////////////////////////////
             """.stripIndent());
@@ -522,7 +522,7 @@ public class WebDriverFactory {
         }
         catch (Exception e) {
             log.error("""
-                ///////////////////////////////////////////////////////////
+                \n///////////////////////////////////////////////////////////
                 Hard system exit after AWS Device Farm exception:
                 {}
                 ///////////////////////////////////////////////////////////

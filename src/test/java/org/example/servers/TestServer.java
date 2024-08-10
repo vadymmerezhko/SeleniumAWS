@@ -34,8 +34,8 @@ public class TestServer implements TestServerInterface {
         try {
             WebFormPage webFormPage = new WebFormPage();
             WebFormPageOutput output = new WebFormPageOutput();
-
             webFormPage.open();
+
             webFormPage.enterIntoTextInput(input.getTextInput());
             webFormPage.enterPassword("Password123");
             webFormPage.enterIntoTextarea(input.getTextareaInput());
@@ -53,8 +53,8 @@ public class TestServer implements TestServerInterface {
                 webFormPage.selectRadiobutton2();
             }
             webFormPage.pickColor(input.getColor());
-            webFormPage.pickDate(input.getDate());
             webFormPage.setRange(input.getRange());
+            webFormPage.pickDate(input.getDate());
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
             output.setTexInput(webFormPage.getTextInputValue())
@@ -68,8 +68,9 @@ public class TestServer implements TestServerInterface {
             .setRadiobutton1Value(webFormPage.getRadiobutton1Value())
             .setRadiobutton2Value(webFormPage.getRadiobutton2Value())
             .setColor(webFormPage.getColor())
-            .setDate(webFormPage.getDate())
-            .setRange(webFormPage.getRange());
+            .setRange(webFormPage.getRange())
+            .setDate(webFormPage.getDate());
+
             log.debug("Web Form page output data is returned: {}", output);
             return output;
         }

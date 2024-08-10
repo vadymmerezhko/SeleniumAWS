@@ -4,7 +4,7 @@ package org.example.configs;
 import org.example.data.BaseConfig;
 import org.example.enums.TestMode;
 
-import static org.example.constants.TestSettings.TEST_CONFIG_FILE_PATH;
+import static org.example.constants.Settings.TEST_CONFIG_FILE_PATH;
 
 /**
  * The test configuration file class.
@@ -14,8 +14,21 @@ public class TestConfig extends BaseConfig {
     private static final String DEBUG_FAIL = "debugFail";
     private static final String SITE_HOST = "siteHost";
 
+    /**
+     * Creates test config instance.
+     * @return The test config instance.
+     */
     public static TestConfig getInstance() {
         return new TestConfig(TEST_CONFIG_FILE_PATH);
+    }
+
+    /**
+     * Creates test config instance from the config file.
+     * @param configFilePath The config file path.
+     * @return The test config instance.
+     */
+    public static TestConfig getInstance(String configFilePath) {
+        return new TestConfig(configFilePath);
     }
 
     /**
@@ -23,7 +36,7 @@ public class TestConfig extends BaseConfig {
      *
      * @param filePath The config file path.
      */
-    public TestConfig(String filePath) {
+    private TestConfig(String filePath) {
         super(filePath);
     }
 

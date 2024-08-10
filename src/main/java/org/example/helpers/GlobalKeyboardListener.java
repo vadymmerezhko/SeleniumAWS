@@ -10,14 +10,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class GlobalKeyboardListener implements NativeKeyListener {
 
-    public static AtomicBoolean leftCtrlKeyPressed = new AtomicBoolean(false);
+    public static AtomicBoolean ctrlKeyPressed = new AtomicBoolean(false);
     public static AtomicBoolean escKeyPressed = new AtomicBoolean(false);
     public static AtomicInteger keyTypedChar = new AtomicInteger();
 
-    private static final int LEFT_CTRL_KEY_CODE = 29;
 
     public GlobalKeyboardListener() {
-        leftCtrlKeyPressed.set(false);
+        ctrlKeyPressed.set(false);
         escKeyPressed.set(false);
         keyTypedChar.set(0);
     }
@@ -28,8 +27,8 @@ public class GlobalKeyboardListener implements NativeKeyListener {
             escKeyPressed.set(true);
         }
 
-        if (e.getKeyCode() == LEFT_CTRL_KEY_CODE) {
-            leftCtrlKeyPressed.set(true);
+        if (e.getKeyCode() == NativeKeyEvent.VC_CONTROL) {
+            ctrlKeyPressed.set(true);
         }
     }
 
@@ -39,8 +38,8 @@ public class GlobalKeyboardListener implements NativeKeyListener {
             escKeyPressed.set(false);
         }
 
-        if (e.getKeyCode() == LEFT_CTRL_KEY_CODE) {
-            leftCtrlKeyPressed.set(false);
+        if (e.getKeyCode() == NativeKeyEvent.VC_CONTROL) {
+            ctrlKeyPressed.set(false);
         }
     }
 
@@ -59,17 +58,5 @@ public class GlobalKeyboardListener implements NativeKeyListener {
         }
 
         GlobalScreen.addNativeKeyListener(new GlobalKeyboardListener());
-    }
-
-    public void deinitialize() {
-        try {
-            GlobalScreen.unregisterNativeHook();
-            leftCtrlKeyPressed.set(false);
-            escKeyPressed.set(false);
-            keyTypedChar.set(0);
-        }
-        catch (NativeHookException e) {
-            e.printStackTrace();
-        }
     }
 }

@@ -6,16 +6,19 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.PlaywrightException;
-import com.microsoft.playwright.options.ScreenshotType;
+import com.microsoft.playwright.options.BoundingBox;
 import lombok.extern.slf4j.Slf4j;
 import org.example.drivers.selectors.SmartByParser;
+import org.example.drivers.wrappers.PlaywrightLocatorParser;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ClassUtils;
-import org.example.utils.ScreenshotUtils;
 import org.example.utils.WaiterUtils;
+import org.example.utils.WebUtils;
 import org.openqa.selenium.*;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -133,11 +136,28 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
         String locatorString = SmartByParser.getLocatorString(by);
         PlaywrightException exception = null;
+        List<WebElement> playwrightElements = new ArrayList<>();
         List<Locator> locators;
+        Locator foundLocator;
 
         while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
+
+            if (WebUtils.isImageSelector(locatorString)) {
+                List<WebElement> webElements = WebUtils.findWebElementsByImage(locatorString, null);
+
+                if (webElements.size() != 1) {
+                    continue;
+                }
+                for (WebElement webElement : webElements) {
+                    foundLocator = getLocatorByWebElement(page, webElement);
+                    locatorString = PlaywrightLocatorParser.locatorToString(foundLocator);
+                    By bySelector = SmartByParser.getByFromStringSelector(locatorString);
+                    playwrightElements.add(new PlaywrightElement(bySelector, foundLocator, this));
+                }
+                return playwrightElements;
+            }
             try {
-                locators = page.locator(locatorString).all();
+                    locators = page.locator(locatorString).all();
                 log.debug("Elements found by {}: {}", by, locators);
                 return locators.stream()
                         .map(locator -> new PlaywrightElement(by, locator, this))
@@ -167,6 +187,16 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
         Locator foundLocator;
 
         while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
+
+            if (WebUtils.isImageSelector(locatorString)) {
+                List<WebElement> elements = WebUtils.findWebElementsByImage(locatorString, null);
+                if (elements.size() != 1) {
+                    continue;
+                }
+                foundLocator = getLocatorByWebElement(page, elements.get(0));
+                By bySelector = SmartByParser.getByFromStringSelector(locatorString);
+                return new PlaywrightElement(bySelector, foundLocator, this);
+            }
             try {
                 foundLocator = page.locator(locatorString);
                 log.debug("{}.findElement by {}: {}", page, by, foundLocator);
@@ -315,16 +345,63 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
             return null;
         }
         try {
-            byte[] data = page.screenshot(new Page.ScreenshotOptions().setType(ScreenshotType.JPEG));
-            log.debug("Screenshot was taken.");
-            return ScreenshotUtils.convertScreenshotBytes(target, data);
+            byte[] data = page.screenshot(new Page.ScreenshotOptions());
+
+            if (target == OutputType.BYTES) {
+                log.debug("Screenshot bytes are returned.");
+                return (X) data;
+            } else if (target == OutputType.BASE64) {
+                X base64 = (X) Base64.getEncoder().encodeToString(data);
+                log.debug("Base 64 screenshot is returned.");
+                return base64;
+            } else if (target == OutputType.FILE) {
+                File file = OutputType.FILE.convertFromBase64Png(Base64.getEncoder().encodeToString(data));
+                log.debug("Screenshot file  is returned: {}", file.getPath());
+                return (X) file;
+            } else {
+                throw new WebDriverException("Unsupported OutputType: " + target);
+            }
         }
         catch (Exception e) {
             if (e.getMessage().contains("Object doesn't exist:")) {
                 // Workaround to fix Playwright issue.
                 return null;
             }
-            throw new RuntimeException(e);
+            throw new SmartRuntimeException(String.format(
+                    "Cannot take pag screenshot fot target %s", target.toString()));
         }
+    }
+
+    private Locator getLocatorByWebElement(Page page, WebElement element) {
+        String tagName = element.getTagName();
+        Locator allElementsLocator = page.locator(tagName);
+        return getLocatorByWebElement(allElementsLocator, element);
+    }
+
+    static Locator getLocatorByWebElement(Locator allElementsLocator, WebElement element) {
+        Locator locator;
+        String tagName = element.getTagName();
+        Rectangle rect = element.getRect();
+        int elementCount = allElementsLocator.count();
+
+        for (int i = 0; i < elementCount; i++) {
+            locator = allElementsLocator.nth(i);
+            BoundingBox boundingBox = locator.boundingBox();
+
+            if (boundingBox != null) {
+                int actualX = (int) Math.round(boundingBox.x);
+                int actualY = (int) Math.round(boundingBox.y);
+                int actualWidth = (int) Math.round(boundingBox.width);
+                int actualHeight = (int) Math.round(boundingBox.height);
+
+                if (actualX == rect.x && actualY == rect.y &&
+                        actualWidth == rect.width && actualHeight == rect.height) {
+                    return locator;
+                }
+            }
+        }
+        throw new SmartRuntimeException(String.format(
+                "Cannot find Playwright locator by web element tag '%s' and rect %s",
+                tagName, rect.toString()));
     }
 }
