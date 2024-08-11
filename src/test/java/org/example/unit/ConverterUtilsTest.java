@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -275,5 +276,53 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testDateToStringInvalidFormat() {
         ConverterUtils.dateToString(new Date(), "invalid-format");
+    }
+
+    @Test
+    public void testLocalDateToString_Positive() {
+        LocalDate localDate = LocalDate.of(2024, 8, 8);
+        String dateFormat = "dd/MM/yyyy";
+        String expectedDateString = "08/08/2024";
+
+        String actualDateString = ConverterUtils.localDateToString(localDate, dateFormat);
+        Assert.assertEquals(actualDateString, expectedDateString, "The date string should match the expected format.");
+    }
+
+    @Test
+    public void testLocalDateToString_Positive_DifferentFormat() {
+        LocalDate localDate = LocalDate.of(2024, 8, 8);
+        String dateFormat = "yyyy-MM-dd";
+        String expectedDateString = "2024-08-08";
+
+        String actualDateString = ConverterUtils.localDateToString(localDate, dateFormat);
+        Assert.assertEquals(actualDateString, expectedDateString, "The date string should match the expected format.");
+    }
+
+    @Test
+    public void testLocalDateToString_NullLocalDate() {
+        LocalDate localDate = null;
+        String dateFormat = "dd/MM/yyyy";
+
+        try {
+            ConverterUtils.localDateToString(localDate, dateFormat);
+            Assert.fail("Expected an exception to be thrown when LocalDate is null.");
+        } catch (SmartRuntimeException e) {
+            Assert.assertTrue(e.getMessage().contains("Cannot convert LocalDate object"),
+                    "Exception message should indicate the LocalDate conversion issue.");
+        }
+    }
+
+    @Test
+    public void testLocalDateToString_InvalidDateFormat() {
+        LocalDate localDate = LocalDate.of(2024, 8, 8);
+        String dateFormat = "invalid-format";
+
+        try {
+            ConverterUtils.localDateToString(localDate, dateFormat);
+            Assert.fail("Expected an exception to be thrown for an invalid date format.");
+        } catch (SmartRuntimeException e) {
+            Assert.assertTrue(e.getMessage().contains("Cannot convert LocalDate object"),
+                    "Exception message should indicate the date format issue.");
+        }
     }
 }

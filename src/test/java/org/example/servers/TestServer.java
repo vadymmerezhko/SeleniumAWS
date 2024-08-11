@@ -1,6 +1,5 @@
 package org.example.servers;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.*;
 import org.example.exceptions.SmartRuntimeException;
@@ -8,7 +7,6 @@ import org.example.pages.TargetPage;
 import org.example.pages.WebFormPage;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -37,13 +35,10 @@ public class TestServer implements TestServerInterface {
         try {
             WebFormPage webFormPage = new WebFormPage();
             WebFormPageOutput output = new WebFormPageOutput();
-            // TODO
-/*            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            LocalDate today = LocalDate.now();
-            String todayDateString = today.format(formatter);*/
+            String thisYear = String.valueOf(LocalDate.now().getYear());
 
             webFormPage.open();
-            webFormPage.enterIntoTextInput(input.getTextInput());
+            webFormPage.enterIntoTextInput(input.getTexInput());
             webFormPage.enterPassword("Password123");
             webFormPage.enterIntoTextarea("Textarea", input.getTextareaInput());
             webFormPage.selectDropdownOption(input.getDropdownSelectedOption());
@@ -53,32 +48,33 @@ public class TestServer implements TestServerInterface {
             webFormPage.setCheckbox1Value(input.getCheckbox1Value());
             webFormPage.setCheckbox2Value(input.getCheckbox2Value());
 
-            if (input.getRadiobutton1Value()) {
+            if (input.getRadiobutton1Value().toBoolean()) {
                 webFormPage.selectRadiobutton1();
             }
-            if (input.getRadiobutton2Value()) {
+            if (input.getRadiobutton2Value().toBoolean()) {
                 webFormPage.selectRadiobutton2();
             }
             webFormPage.pickColor(input.getColor());
-            // TODO
-            //webFormPage.pickDate(input.getDate(new Data()));
+            input.getDate().setKeyword(thisYear);
+            webFormPage.pickDate(input.getDate());
             webFormPage.setRange(input.getRange());
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
-            output.setTexInput(webFormPage.getTextInputValue())
-            .setTextareaInput(webFormPage.getTextareaValue("Textarea"))
-            .setDropdownSelectedOption(webFormPage.getDropdownSelectedOption())
-            .setDataListSelectOption(webFormPage.getDataListSelectedOption())
+            output.getTextareaInput().setString(webFormPage.getTextInputValue());
+            output.getTextareaInput().setKeyword("Textarea");
+            output.getTextareaInput().setString(webFormPage.getTextareaValue());
+            output.getDropdownSelectedOption().setString(webFormPage.getDropdownSelectedOption());
+            output.getDataListSelectOption().setString(webFormPage.getDataListSelectedOption());
             // TODO fix file path on remote driver.
-            //.setFilePath(webFormPage.getFilePath())
-            .setCheckbox1Value(webFormPage.getCheckbox1Value())
-            .setCheckbox2Value(webFormPage.getCheckbox2Value())
-            .setRadiobutton1Value(webFormPage.getRadiobutton1Value())
-            .setRadiobutton2Value(webFormPage.getRadiobutton2Value())
-            .setColor(webFormPage.getColor())
-            // TODO
-            //.setDate(webFormPage.getDate())
-            .setRange(webFormPage.getRange());
+            //output.getFilePath().setString(webFormPage.getFilePath())
+            output.getCheckbox1Value().setBoolean(webFormPage.getCheckbox1Value());
+            output.getCheckbox2Value().setBoolean(webFormPage.getCheckbox2Value());
+            output.getRadiobutton1Value().setBoolean(webFormPage.getRadiobutton1Value());
+            output.getRadiobutton2Value().setBoolean(webFormPage.getRadiobutton2Value());
+            output.getColor().setString(webFormPage.getColor());
+            output.getDate().setKeyword(thisYear);
+            output.getDate().setString(webFormPage.getDate());
+            output.getRange().setInteger(webFormPage.getRange());
             log.debug("Web Form page output data is returned: {}", output);
             return output;
         }
@@ -97,9 +93,9 @@ public class TestServer implements TestServerInterface {
         webFormPage.submit();
 
         TargetPage targetPage = new TargetPage();
-        TargetPageOutput output = new TargetPageOutput()
-                .setHeader(targetPage.getHeaderText())
-                .setStatus(targetPage.getStatusText());
+        TargetPageOutput output = new TargetPageOutput();
+        output.getHeader().setString(targetPage.getHeaderText());
+        output.getStatus().setString(targetPage.getStatusText());
         log.debug("Target page output data is returned: {}", output);
         return output;
     }

@@ -1,5 +1,6 @@
 package org.example.pages;
 
+import org.example.data.SmartType;
 import org.example.drivers.elements.*;
 
 /**
@@ -34,8 +35,8 @@ public class WebFormPage extends BasePage {
      * Enters text to text input.
      * @param text The text to enter.
      */
-    public void enterIntoTextInput(String text) {
-        textInput.enterText(text);
+    public void enterIntoTextInput(SmartType text) {
+        textInput.enterText(text.toString());
     }
 
     /**
@@ -50,9 +51,9 @@ public class WebFormPage extends BasePage {
      * Enters text to text area.
      * @param text The text to enter.
      */
-    public void enterIntoTextarea(String keyword, String text) {
+    public void enterIntoTextarea(String keyword, SmartType text) {
         textarea.setKeyword(keyword);
-        textarea.enterText(text);
+        textarea.enterText(text.toString());
     }
 
     /**
@@ -67,8 +68,7 @@ public class WebFormPage extends BasePage {
      * Returns text value from text area.
      * @return The text value.
      */
-    public String getTextareaValue(String keyword) {
-        textarea.setKeyword(keyword);
+    public String getTextareaValue() {
         return textarea.getValue();
     }
 
@@ -76,8 +76,8 @@ public class WebFormPage extends BasePage {
      * Selects dropdown option by its text.
      * @param option The option text.
      */
-    public void selectDropdownOption(String option) {
-        dropdown.selectOptionByText(option);
+    public void selectDropdownOption(SmartType option) {
+        dropdown.selectOptionByText(option.toString());
     }
 
     /**
@@ -92,8 +92,8 @@ public class WebFormPage extends BasePage {
      * Selects data list option by its text.
      * @param option The option text.
      */
-    public void selectDataListOption(String option) {
-        dataList.selectOptionByText(option);
+    public void selectDataListOption(SmartType option) {
+        dataList.selectOptionByText(option.toString());
     }
 
     /**
@@ -108,8 +108,8 @@ public class WebFormPage extends BasePage {
      * Enters file path into file brows input.
      * @param filePath The file path to enter.
      */
-    public void enterFilePath(String filePath) {
-        fileInput.enterText(filePath);
+    public void enterFilePath(SmartType filePath) {
+        fileInput.enterText(filePath.toString());
     }
 
     /**
@@ -124,8 +124,8 @@ public class WebFormPage extends BasePage {
      * Sets the first checkbox true/false value.
      * @param value The value to set.
      */
-    public void setCheckbox1Value(boolean value) {
-        checkbox1.setValue(value);
+    public void setCheckbox1Value(SmartType value) {
+        checkbox1.setValue(value.toBoolean());
     }
 
     /**
@@ -140,8 +140,8 @@ public class WebFormPage extends BasePage {
      * Sets the second checkbox true/false value.
      * @param value The value to set.
      */
-    public void setCheckbox2Value(boolean value) {
-        checkbox2.setValue(value);
+    public void setCheckbox2Value(SmartType value) {
+        checkbox2.setValue(value.toBoolean());
     }
 
     /**
@@ -186,8 +186,8 @@ public class WebFormPage extends BasePage {
      * Sets color picker value in format "#RRGGBB" like "#0088ff".
      * @param color The color value to set.
      */
-    public void pickColor(String color) {
-        colorPicker.pickColor(color);
+    public void pickColor(SmartType color) {
+        colorPicker.pickColor(color.toString());
     }
 
     /**
@@ -202,8 +202,8 @@ public class WebFormPage extends BasePage {
      * Sets data picker value in format "mm/DD/YYYY" like "05/23/1970".
      * @param date The data value to set.
      */
-    public void pickDate(String date) {
-        datePicker.pickDate(date);
+    public void pickDate(SmartType date) {
+        datePicker.pickDate(date.toString());
     }
 
     /**
@@ -218,8 +218,8 @@ public class WebFormPage extends BasePage {
      * Sets range slider value.
      * @param range The range value to set.
      */
-    public void setRange(int range) {
-        rangeSlider.setValue(range);
+    public void setRange(SmartType range) {
+        rangeSlider.setValue(range.toInteger());
     }
 
     /**

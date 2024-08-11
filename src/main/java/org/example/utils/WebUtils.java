@@ -182,7 +182,7 @@ public class WebUtils {
             return style;
         }
         catch (Exception e) {
-            throw new SmartRuntimeException(String.format(
+            throw new RuntimeException(String.format(
                     "Cannot get web element style '%s'.",
                     propertyName), e);
         }
@@ -205,7 +205,7 @@ public class WebUtils {
                     element, propertyName, propertyValue);
         }
         catch (Exception e) {
-            throw new SmartRuntimeException(String.format(
+            throw new RuntimeException(String.format(
                     "Cannot set web element style %s = '%s'.",
                     propertyName, propertyValue), e);
         }
@@ -425,8 +425,7 @@ public class WebUtils {
             String selector = WebUtils.getElementSelector(element, keyword);
             String format = null;
             String errorLog = """
-                   
-                   ////////////////////////////////////////////////////////////
+                   \n////////////////////////////////////////////////////////////
                    User made hard system exit on element selector prompt popup.
                    "///////////////////////////////////////////////////////////
                    """.stripIndent();
@@ -509,7 +508,7 @@ public class WebUtils {
                            """.stripIndent(),
                             elementName), selector);
 
-                    if (selector.isEmpty()) {
+                    if (selector.trim().isEmpty()) {
                         log.error(errorLog);
                         WebDriverFactory.hardSystemExit();
                     }

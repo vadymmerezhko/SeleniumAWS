@@ -123,10 +123,11 @@ public class LoadBalancer {
                         Settings.SECURITY_GROUP_NAME,
                         encodedUserData);
             } catch (Exception e) {
-                log.error("///////////////////////////////////////////////////////////\n\n" +
-                        "Cannot create all servers:\n{}\n\n" +
-                        "///////////////////////////////////////////////////////////",
-                        e.getMessage());
+                log.error("""
+                        \n///////////////////////////////////////////////////////////
+                        Cannot create all servers: {}
+                        ///////////////////////////////////////////////////////////
+                        """.stripIndent(), e.getMessage());
                 System.exit(-1);
             }
         }

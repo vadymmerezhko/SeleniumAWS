@@ -16,6 +16,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -283,6 +285,46 @@ public class ConverterUtils {
     }
 
     /**
+     * Converts local date object to date..
+     * @param localDate The date.
+     * @return The date.
+     */
+    public static Date localDateToDate(LocalDate localDate) {
+        try {
+            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            log.debug("LocalDate object {} to Date object: '{}'.",
+                    localDate, date);
+            return date;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot convert LocalDate object %s to Date object.'",
+                    localDate));
+        }
+    }
+
+    /**
+     * Converts local date object to string by date format.
+     * @param localDate The date.
+     * @param dateFormat The date format.
+     * @return The date string.
+     */
+    public static String localDateToString(LocalDate localDate, String dateFormat) {
+        try {
+            Date date = localDateToDate(localDate);
+            String dataString = dateToString(date, dateFormat);
+            log.debug("LocalDate object {} with format '{}' converted to date string: '{}'.",
+                    localDate, dateFormat, dataString);
+            return dataString;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot convert LocalDate object %s to string with date format '%s'",
+                    localDate, dateFormat));
+        }
+    }
+
+    /**
      * Converts date object to string by date format.
      * @param date The date.
      * @param dateFormat The date format.
@@ -301,7 +343,7 @@ public class ConverterUtils {
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
-                    "Cannot convert Date object %s to string with date format '{%s'",
+                    "Cannot convert Date object %s to string with date format '%s'",
                     date, dateFormat));
         }
     }

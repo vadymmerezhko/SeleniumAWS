@@ -1,29 +1,15 @@
 package org.example.data;
 
+import lombok.Getter;
+
 public class TargetPageOutput extends SmartDataObject {
+    @Getter
     private final SmartType header = SmartType.auto();
+    @Getter
     private final SmartType status = SmartType.auto();
 
     public TargetPageOutput() {
         super();
         initialize();
-    }
-
-    public String getHeader() {
-        return header.toString();
-    }
-
-    public TargetPageOutput setHeader(String header) {
-        this.header.setString(header);
-        return this;
-    }
-
-    public String getStatus() {
-        return status.toString();
-    }
-
-    public TargetPageOutput setStatus(String status) {
-        this.status.setString(status);
-        return this;
     }
 }

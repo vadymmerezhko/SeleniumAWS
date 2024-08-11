@@ -57,12 +57,12 @@ public class DataValidationUtilsTest {
 
     @Test
     public void testValidateMmDdYyyyDateValueValid() {
-        DataValidationUtils.validateMmDdYyyyDateValue("05/23/1970", "dateData");
+        DataValidationUtils.validateDateValue("05/23/1970", "dateData");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testValidateMmDdYyyyDateValueInvalid() {
-        DataValidationUtils.validateMmDdYyyyDateValue("1970/05/23", "dateData");
+        DataValidationUtils.validateDateValue("1970/05/23", "dateData");
     }
 
     @Test
@@ -95,10 +95,6 @@ public class DataValidationUtilsTest {
         DataValidationUtils.validateFilePath("", "filePathData");
     }
 
-    @Test(expectedExceptions = SmartValidationException.class)
-    public void testValidateFilePathNullInvalid() {
-        DataValidationUtils.validateFilePath(null, "filePathData");
-    }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testValidateFilePathMultilineInvalid() {

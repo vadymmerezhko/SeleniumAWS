@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 
 @Slf4j
 public class BaseSmartException extends RuntimeException {
-    private static final int MAX_MESSAGE_LENGTH = 300;
 
     public BaseSmartException() {
         super();
@@ -33,29 +32,37 @@ public class BaseSmartException extends RuntimeException {
     }
 
     private void handleException() {
+        log.error(String.format("""
+                \n//////////////////////////////////////////////////////////////////////////
+                EXCEPTION
+                Message:
+                %s
+                Stack trace:
+                %s
+                //////////////////////////////////////////////////////////////////////////
+                
+                """.stripIndent(), getMessage(), getStackTraceString()));
+
         if (Config.getInstance().getDebugMode()) {
             String stackTrace = String.join(",", getStackTraceString());
             String message = String.format("Message: %s\nStack trace:\n%s",
                     getMessage(), stackTrace);
-
-            if (message.length() > MAX_MESSAGE_LENGTH) {
-                message = message.substring(0, MAX_MESSAGE_LENGTH);
-            }
-            String confirmMessage = String.format("""
+            String alertMessage = String.format("""
                     EXCEPTION
                     
+                    Click OK to exit the test.
                     Message:
                     %s
-                    ...
-                    
-                    Click OK to continue.
-                    Or click CANCEL to exit the test.      
                     """.stripIndent(), message);
 
-            if (!WebUtils.showConfirm(confirmMessage)) {
-                log.info("User made hard system exit on exception confirm popup.");
-                WebDriverFactory.hardSystemExit();
-            }
+            WebUtils.showAlert(alertMessage);
+            log.error("""
+                      \n//////////////////////////////////////////////////////////////////////////
+                      Hard system exit after user closed EXCEPTION confirm popup.
+                      //////////////////////////////////////////////////////////////////////////
+                      
+                      """.stripIndent());
+            WebDriverFactory.hardSystemExit();
         }
     }
 

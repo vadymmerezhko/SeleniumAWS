@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.openqa.selenium.WebElement;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,8 +26,9 @@ public class SmartType {
     private static final String SOME_VALUE = "Some value";
     private static final String KEYWORD_PLACEHOLDER = "#KEYWORD#";
     private SmartDataObject parent;
-    private SmartType keyword;
-    private String value;
+    private Object value;
+    private String keyword;
+    private String stringValue;
     private String parentName;
     private String fieldName;
     private String name;
@@ -40,20 +42,11 @@ public class SmartType {
     }
 
     /**
-     * Creates auto smart type with keyword.
-     * @param keyword The keyword value.
-     * @return Returns smart type instance.
-     */
-    public static SmartType withKeyword(String keyword) {
-        return new SmartType(new SmartType(keyword));
-    }
-
-    /**
      * Creates auto smart type with string value.
      * @param value The value.
      * @return Returns smart type instance.
      */
-    public static SmartType withString(String value) {
+    public static SmartType fromString(String value) {
         return new SmartType(value);
     }
 
@@ -62,7 +55,7 @@ public class SmartType {
      * @param value The value.
      * @return Returns smart type instance.
      */
-    public static SmartType withInteger(int value) {
+    public static SmartType fromInteger(int value) {
         return new SmartType(value);
     }
 
@@ -71,7 +64,7 @@ public class SmartType {
      * @param value The value.
      * @return Returns smart type instance.
      */
-    public static SmartType withLong(long value) {
+    public static SmartType fromLong(long value) {
         return new SmartType(value);
     }
 
@@ -80,7 +73,7 @@ public class SmartType {
      * @param value The value.
      * @return Returns smart type instance.
      */
-    public static SmartType withFloat(float value) {
+    public static SmartType fromFloat(float value) {
         return new SmartType(value);
     }
 
@@ -89,7 +82,7 @@ public class SmartType {
      * @param value The value.
      * @return Returns smart type instance.
      */
-    public static SmartType withDouble(double value) {
+    public static SmartType fromDouble(double value) {
         return new SmartType(value);
     }
 
@@ -98,7 +91,7 @@ public class SmartType {
      * @param value The value.
      * @return Returns smart type instance.
      */
-    public static SmartType withBoolean(boolean value) {
+    public static SmartType fromBoolean(boolean value) {
         return new SmartType(value);
     }
 
@@ -108,8 +101,32 @@ public class SmartType {
      * @param dateFormat The date format.
      * @return Returns smart type instance.
      */
-    public static SmartType withDate(Date date, String dateFormat) {
-        return new SmartType(date, dateFormat);
+    public static SmartType fromDate(Date date, String dateFormat) {
+        SmartType smartType = new SmartType(date, dateFormat);
+        log.debug("Smart date: '{}'", smartType.stringValue);
+        return smartType;
+    }
+
+    /**
+     * Creates auto smart type string with date value and date format.
+     * @param date The date.
+     * @return Returns smart type instance.
+     */
+    public static SmartType fromDate(String date) {
+        SmartType smartType = new SmartType(date);
+        log.debug("Smart date: '{}'", smartType.stringValue);
+        return smartType;
+    }
+
+    /**
+     * Creates auto smart type string with local date and date format.
+     * @param localDate The date.
+     * @return Returns smart type instance.
+     */
+    public static SmartType fromLocalDate(LocalDate localDate, String dateFormat) {
+        SmartType smartType = new SmartType(localDate);
+        log.debug("Smart local date: '{}'", smartType.stringValue);
+        return smartType;
     }
 
     /**
@@ -155,95 +172,96 @@ public class SmartType {
     }
 
     /**
-     * Smart type constructor with parent object parameter.
+     * Smart type constructor.
      */
     private SmartType() {
         keyword = null;
     }
 
     /**
-     * Smart type constructor with parent object parameter.
+     * Smart type constructor with string value.
      */
-    private SmartType(SmartType keyword) {
+    private SmartType(String keyword) {
         DataValidationUtils.validateNotNull(keyword, "keyword");
-        DataValidationUtils.validateNotBlank(keyword.toString(), "keyword");
         this.keyword = keyword;
     }
 
     /**
-     * Smart type constructor with parent object parameter
-     * and string value.
+     * Smart type constructor string value.
      * @param value The value.
      */
-    private SmartType(String value) {
-        DataValidationUtils.validateNotNull(value, "value");
-        this.value = value;
+    private SmartType(String value, String keyword) {
+        this.stringValue = value;
+        this.keyword = keyword;
     }
 
     /**
-     * Smart type constructor with parent object parameter
-     * and integer value.
+     * Smart type constructor with parent int value.
      * @param value The value.
      */
     private SmartType(int value) {
         DataValidationUtils.validateNotNull(value, "value");
-        this.value = String.valueOf(value);
+        this.stringValue = String.valueOf(value);
     }
 
     /**
-     * Smart type constructor with parent object parameter
-     * and long value.
+     * Smart type constructor with long value.
      * @param value The value.
      */
     private SmartType(long value) {
         DataValidationUtils.validateNotNull(value, "value");
-        this.value = String.valueOf(value);
+        this.stringValue = String.valueOf(value);
     }
 
     /**
-     * Smart type constructor with parent object parameter
-     * and float value.
+     * Smart type constructor with float value.
      * @param value The value.
      */
     private SmartType(float value) {
         DataValidationUtils.validateNotNull(value, "value");
-        this.value = String.valueOf(value);
+        this.stringValue = String.valueOf(value);
     }
 
     /**
-     * Smart type constructor with parent object parameter
-     * and double value.
+     * Smart type constructor with double value.
      * @param value The value.
      */
     private SmartType(double value) {
         DataValidationUtils.validateNotNull(value, "value");
-        this.value = String.valueOf(value);
+        this.stringValue = String.valueOf(value);
     }
 
     /**
-     * Smart type constructor with parent object parameter
-     * and boolean value.
+     * Smart type constructor with  boolean value.
      * @param value The value.
      */
     private SmartType(boolean value) {
         DataValidationUtils.validateNotNull(value, "value");
-        this.value = String.valueOf(value);
+        this.stringValue = String.valueOf(value);
     }
 
     /**
-     * Smart type constructor with parent object parameter
-     * and date value and its format.
+     * Smart type constructor with date value and its format.
      * @param date The value.
      * @param dateFormat The date format.
      */
     private SmartType(Date date, String dateFormat) {
         DataValidationUtils.validateNotNull(date, "value");
-        this.value = ConverterUtils.dateToString(date, dateFormat);
+        this.stringValue = ConverterUtils.dateToString(date, dateFormat);
+    }
+
+    /**
+     * Smart type constructor with  local date value and its format.
+     * @param localDate The value.
+     */
+    private SmartType(LocalDate localDate) {
+        DataValidationUtils.validateNotNull(localDate, "localDate");
+        this.value = ConverterUtils.localDateToDate(localDate);
     }
 
     @Override
     public String toString() {
-        return getValue();
+        return getStringValue();
     }
 
     @Override
@@ -251,7 +269,7 @@ public class SmartType {
         DataValidationUtils.validateNotNull(object, "object");
 
         if (object instanceof  String) {
-            return getValue().equals(object);
+            return getStringValue().equals(object);
         }
         else {
             throw new SmartRuntimeException(String.format(
@@ -262,7 +280,7 @@ public class SmartType {
 
     @Override
     public int hashCode() {
-        return getValue().hashCode();
+        return getStringValue().hashCode();
     }
 
     /**
@@ -279,7 +297,18 @@ public class SmartType {
      * @param keyword The keyword.
      */
     public void setKeyword(String keyword) {
-        this.keyword = new SmartType(keyword);
+        this.keyword = keyword;
+        log.debug("Smart type keyword is set: '{}'", keyword);
+    }
+
+    /**
+     * Gets keyword.
+     * @return The keyword.
+     */
+    public String getKeyword() {
+        String keyWord = keyword.toString();
+        log.debug("Smart type keyword is set: '{}'", keyword.toString());
+        return keyWord;
     }
 
     /**
@@ -287,7 +316,7 @@ public class SmartType {
      * @param value The value.
      */
     public void setString(String value) {
-        this.value = value;
+        this.stringValue = value;
     }
 
     /**
@@ -295,7 +324,7 @@ public class SmartType {
      * @param value The value.
      */
     public void setInteger(int value) {
-        this.value = String.valueOf(value);
+        this.stringValue = String.valueOf(value);
     }
 
     /**
@@ -303,7 +332,7 @@ public class SmartType {
      * @param value The value.
      */
     public void setLong(long value) {
-        this.value = String.valueOf(value);
+        this.stringValue = String.valueOf(value);
     }
 
     /**
@@ -311,7 +340,7 @@ public class SmartType {
      * @param value The value.
      */
     public void setFloat(float value) {
-        this.value = String.valueOf(value);
+        this.stringValue = String.valueOf(value);
     }
 
     /**
@@ -319,7 +348,7 @@ public class SmartType {
      * @param value The value.
      */
     public void setDouble(double value) {
-        this.value = String.valueOf(value);
+        this.stringValue = String.valueOf(value);
     }
 
     /**
@@ -327,7 +356,7 @@ public class SmartType {
      * @param value The value.
      */
     public void setBoolean(boolean value) {
-        this.value = String.valueOf(value);
+        this.stringValue = String.valueOf(value);
     }
 
     /**
@@ -337,7 +366,20 @@ public class SmartType {
      *
      */
     public void setDate(Date date, String dateFormat) {
-        this.value = ConverterUtils.dateToString(date, dateFormat);
+        this.stringValue = ConverterUtils.dateToString(date, dateFormat);
+        value = date;
+    }
+
+    /**
+     * Sets Date value.
+     * @param localDate The date value.
+     * @param dateFormat The date format.
+     *
+     */
+    public void setLocalDate(LocalDate localDate, String dateFormat) {
+        Date date = ConverterUtils.localDateToDate(localDate);
+        this.stringValue = ConverterUtils.dateToString(date, dateFormat);
+        value = date;
     }
 
     /**
@@ -345,7 +387,7 @@ public class SmartType {
      * @param value The value.
      */
     public void setAndSaveString(String value) {
-        this.value = value;
+        this.stringValue = value;
         valuesMap.put(name, value);
         saveStringValueToFile();
     }
@@ -356,9 +398,9 @@ public class SmartType {
      * @return The integer value.
      */
     public int toInteger() {
-        int result = ConverterUtils.stringToInteger(getValue());
+        int result = ConverterUtils.stringToInteger(getStringValue());
         log.debug("String {} value '{}' converted to integer: {}.",
-                name, getValue(), result);
+                name, getStringValue(), result);
         return result;
     }
 
@@ -367,9 +409,9 @@ public class SmartType {
      * @return The long value.
      */
     public long toLong() {
-        long result = ConverterUtils.stringToLong(getValue());
+        long result = ConverterUtils.stringToLong(getStringValue());
         log.debug("String {} value '{}' converted to long: {}.",
-                name, getValue(), result);
+                name, getStringValue(), result);
         return result;
     }
 
@@ -378,9 +420,9 @@ public class SmartType {
      * @return The float value.
      */
     public float toFloat() {
-        float result = ConverterUtils.stringToFloat(getValue());
+        float result = ConverterUtils.stringToFloat(getStringValue());
         log.debug("String {} value '{}' converted to float: {}.",
-                name, getValue(), result);
+                name, getStringValue(), result);
         return result;
     }
 
@@ -389,9 +431,9 @@ public class SmartType {
      * @return The double value.
      */
     public double toDouble() {
-        double result = ConverterUtils.stringToDouble(getValue());
+        double result = ConverterUtils.stringToDouble(getStringValue());
         log.debug("String {} value '{}' converted to double: {}.",
-                name, getValue(), result);
+                name, getStringValue(), result);
         return result;
     }
 
@@ -400,9 +442,9 @@ public class SmartType {
      * @return The double value.
      */
     public boolean toBoolean() {
-        boolean result = ConverterUtils.stringToBoolean(getValue());
+        boolean result = ConverterUtils.stringToBoolean(getStringValue());
         log.debug("String {} value '{}' converted to boolean: {}.",
-                name, getValue(), result);
+                name, getStringValue(), result);
         return result;
     }
 
@@ -411,9 +453,9 @@ public class SmartType {
      * @return The date value.
      */
     public Date toDate() {
-        Date result = ConverterUtils.stringToDate(getValue());
+        Date result = ConverterUtils.stringToDate(getStringValue());
         log.debug("String {} value '{}' converted to Date: {}.",
-                name, getValue(), result);
+                name, getStringValue(), result);
         return result;
     }
 
@@ -421,99 +463,147 @@ public class SmartType {
         this.parent = parent;
     }
 
-    private String getValue() {
+    private String getStringValue() {
         setUp();
-        return value;
+        return replaceKeywordPlaceholderIfDefined();
     }
 
     private void setUp() {
         validateParent();
 
         if (name == null) {
-            parentName = parent.getName();
+            parentName = parent.getClass().getSimpleName();
             fieldName = ClassUtils.getObjectFieldName(parent, this);
             name = String.format("%s.%s", parentName, fieldName);
 
-            if (value == null) {
+            if (stringValue == null) {
                 setUpValue();
             }
         }
     }
 
     private void setUpValue() {
-        String keywordValue = keyword == null ? null : keyword.toString();
 
         if (valuesMap.containsKey(name)) {
-            value = valuesMap.get(name);
+            stringValue = valuesMap.get(name);
         }
         else {
             readStringValueFromFile();
 
-            if (value == null && Config.getInstance().getDebugMode()) {
+            if (stringValue == null && Config.getInstance().getDebugMode()) {
 
-                while (value == null || value.equals(SOME_VALUE)) {
-                    value = WebUtils.showPrompt(String.format("""
-                            DATA TYPE
-                                                    
-                            Please enter %s value and click OK.
-                            OR just click OK to select value on the page.
-                            OR click CANCEL to exit the test
-                            """.stripTrailing(), name), SOME_VALUE);
+                while (stringValue == null || stringValue.equals(SOME_VALUE)) {
+                    String message;
 
-                    if (value == null) {
-                        WebDriverFactory.quiteAllBrowsersAndServers();
-                        System.exit(-1);
-                    }
-
-                    if (value.equals(SOME_VALUE)) {
-                        WebElement element = WebUtils.selectWebElement("DATA VALUE");
-                        value = WebUtils.getElementValueOrText(element);
-                        value = WebUtils.showPrompt(String.format("""
-                        DATA TYPE
-                                                
-                        Edit %s value or just click OK to save it.
-                        OR click CANCEL to exit the test
-                        """.stripTrailing(), name), value);
-
-                        if (value == null) {
-                            WebDriverFactory.quiteAllBrowsersAndServers();
-                            System.exit(-1);
-                        }
-                    }
-                    if (keywordValue != null && !value.contains(keywordValue)) {
-                        String previousValue = value;
-                        value = WebUtils.showPrompt(String.format("""
-                            DATA TYPE
-                                         
-                            %s value does not contain the keyword.
-                            Value: '%s'
-                            Keyword: '%s'
-                                                  
-                            Please enter value with keyword and click OK.
-                            OR just click OK to select value on the page.
-                            OR click CANCEL to exit the test
-                            """.stripTrailing(), name, value, keywordValue), value);
-
-                        if (value == null) {
-                            WebDriverFactory.quiteAllBrowsersAndServers();
-                            System.exit(-1);
-                        } else if (value.equals(previousValue)) {
-                            value = SOME_VALUE;
-                        }
+                    if (keyword == null) {
+                        message = String.format("""
+                                UNDEFINED DATA VALUE
+                                                        
+                                Enter %s value.
+                                                            
+                                Click OK to save.
+                                OR just click OK ro select it on the page.
+                                OR click CANCEL to exit the test.
+                                """.stripIndent(), name);
                     }
                     else {
+                        message = String.format("""
+                                UNDEFINED DATA VALUE
+                                                        
+                                Enter %s value with keyword.
+                                Keyword: '%s'
+                                                            
+                                Click OK to save.
+                                OR just click OK ro select it on the page.
+                                OR click CANCEL to exit the test.
+                                """.stripIndent(), name, this.keyword);
+                    }
+                    stringValue = WebUtils.showPrompt(message, SOME_VALUE);
+
+                    if (stringValue.isEmpty()) {
+                        WebDriverFactory.hardSystemExit();
+                    }
+
+                    if (stringValue.equals(SOME_VALUE)) {
+                        WebElement element = WebUtils.selectWebElement("DATA VALUE");
+                        stringValue = WebUtils.getElementValueOrText(element);
+                    }
+
+                    if (validValue()) {
+                        stringValue = WebUtils.showPrompt(String.format("""
+                            VALID DATA VALUE
+                            
+                            %s data value is valid.
+                                                                 
+                            Click OK to save.
+                            OR click CANCEL to exit the test.
+                            """.stripIndent(), name), stringValue);
+                    }
+                    else {
+                        WebUtils.showAlert(String.format("""
+                            INVALID DATA VALUE
+                                                    
+                            %s data value does not contain the keyword.
+                            Keyword: '%s'
+                            
+                            Click OK to update the data value.
+                            """.stripIndent(), name, keyword));
+                    }
+
+                    if (validValue()) {
+                        replaceKeywordPlaceholderIfDefined();
                         saveStringValueToFile();
                         break;
                     }
+                    if (stringValue.isEmpty()) {
+                        WebDriverFactory.hardSystemExit();
+                    }
+                    stringValue = SOME_VALUE;
                 }
             }
-            if (value == null) {
+            if (stringValue == null) {
                 throw new RuntimeException(String.format(
                         "Smart type %s is undefined.", name));
             }
-            valuesMap.put(name, value);
+            valuesMap.put(name, stringValue);
         }
-        value = replaceKeywordPlaceholder(value, keywordValue);
+    }
+
+    private boolean validValue() {
+        if (stringValue != null) {
+            if (keyword != null) {
+                if (numberOfKeywordsInValue() == 1) {
+                    return true;
+                }
+                else {
+                    throw new SmartRuntimeException(String.format(
+                            "Keyword value '%s' contains more than one keyword '%s' : %d.",
+                            stringValue, keyword, numberOfKeywordsInValue()));
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public int numberOfKeywordsInValue() {
+        if (stringValue == null || keyword == null || stringValue.isEmpty() || keyword.isEmpty()) {
+            return 0;
+        }
+        int count = 0;
+        int index = 0;
+
+        while ((index = stringValue.indexOf(keyword, index)) != -1) {
+            count++;
+            index += keyword.length();
+        }
+        return count;
+    }
+
+    void validKeyword() {
+        if (keyword != null) {
+            throw new SmartRuntimeException("Keyword value is empty. Update the keyword.");
+        }
     }
 
     private void saveStringValueToFile() {
@@ -530,29 +620,27 @@ public class SmartType {
             } else {
                 json = new JSONObject();
             }
-            String valueTemplate = value;
-            String keywordValue = keyword == null ? null : keyword.toString();
 
-            if (keywordValue != null) {
-                if (value.contains(keywordValue)) {
-                    valueTemplate = value.replace(keywordValue, KEYWORD_PLACEHOLDER);
+            if (keyword != null) {
+                if (stringValue.contains(keyword)) {
+                    stringValue = stringValue.replace(keyword, KEYWORD_PLACEHOLDER);
                 }
                 else {
                     throw new SmartRuntimeException(String.format(
                             "Smart type value '%s' does not contain keyword '%s'",
-                            value, keywordValue));
+                            stringValue, keyword));
                 }
             }
-            json.put(fieldName, valueTemplate);
+            json.put(fieldName, stringValue);
             String jsonString = json.toString();
             FileSystemUtils.createFile(filePath, jsonString);
             log.debug("String {} value '{}' is saved to data object file {}.",
-                    fileName, value, filePath);
+                    fileName, this.stringValue, filePath);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Can not save string %s.%s value %s to data object file: %s",
-                    parentName, fieldName, value, filePath), e);
+                    parentName, fieldName, stringValue, filePath), e);
         }
     }
 
@@ -573,9 +661,9 @@ public class SmartType {
 
                 if (json.has(fieldName)) {
                     try {
-                        value = json.get(fieldName).toString();
+                        stringValue = json.get(fieldName).toString();
                         log.debug("Smart string {} value '{}' is read from data object file {}.",
-                                fieldName, value, fileName);
+                                fieldName, stringValue, fileName);
                     } catch (JSONException e) {
                         throw new SmartRuntimeException(String.format(
                                 "Data object file %s has invalid JSON object format: %s",
@@ -595,18 +683,13 @@ public class SmartType {
         }
     }
 
-    private String replaceKeywordPlaceholder(String valueTemplate, String keyword) {
+    private String replaceKeywordPlaceholderIfDefined() {
         if (keyword != null) {
-            if (valueTemplate.contains(KEYWORD_PLACEHOLDER)) {
-                return valueTemplate.replace(KEYWORD_PLACEHOLDER, keyword);
-            }
-            else {
-                throw new SmartRuntimeException(String.format(
-                        "Data object %s field does not contain keyword '%s' placeholder.",
-                        name, keyword));
+            if (stringValue.contains(KEYWORD_PLACEHOLDER)) {
+                return stringValue.replace(KEYWORD_PLACEHOLDER, keyword);
             }
         }
-        return valueTemplate;
+        return stringValue;
     }
 
     private void validateParent() {
