@@ -433,7 +433,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     }
 
     /**
-     * Reads element selector from JSON file or returns NULL
+     * Reads element selector from JSON file or returns null
      * if file does not exist or element selector undefined.
      * @param folderPath The folder path.
      * @param elementName The element name.

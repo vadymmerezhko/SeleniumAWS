@@ -144,8 +144,8 @@ public class WebUtils {
 
     /**
      * Returns the current web element under the mouse cursor
-     * or NULL if element not found.
-     * @return The web element or NULL.
+     * or null if element not found.
+     * @return The web element or null.
      */
     public static WebElement getWebElementUnderMouse() {
         JavascriptExecutor js = (JavascriptExecutor) WebDriverFactory.getDriver();
@@ -410,8 +410,8 @@ public class WebUtils {
      * or by OpenAI request;
      * or by manual input.
      * @param elementName The element name.
-     * @param keyword The keyword (optional - can eb NULL).
-     * @return The element selector or NULL
+     * @param keyword The keyword (optional - can eb null).
+     * @return The element selector or null
      */
     public static String selectElementAndGetSelector(String elementName, String keyword) {
         try {
@@ -645,7 +645,7 @@ public class WebUtils {
 
     /**
      * Gets web element CSS selector or XPath selector by text with AI
-     * or NULL if unique selector is not detected.
+     * or null if unique selector is not detected.
      * @param element The element.
      * @param text The text for Xpath selector.
      * @return The element selector or selector.
@@ -706,7 +706,7 @@ public class WebUtils {
     /**
      * Converts xpath or css selector template that may content unique text identifier.
      * @param selector The selector template (may contain text placeholder "%s").
-     * @param keyword The text (can be NULL).
+     * @param keyword The text (can be null).
      * @return The By selector.
      */
      public static By convertSelectorTemplateToBy(String selector, String keyword) {
@@ -732,7 +732,7 @@ public class WebUtils {
     /**
      * Returns number elements found by selector.
      * @param selector The selector.
-     * @param text The text (optional - can be NULL).
+     * @param text The text (optional - can be null).
      * @return The tru/false flag.
      */
     public static int numberOfElementsFoundBySelector(String selector, String text) {
@@ -880,7 +880,7 @@ public class WebUtils {
      */
     public static boolean isXpath(String selector) {
         if (selector == null) {
-            throw new SmartRuntimeException("Selector string is NULL.");
+            throw new SmartRuntimeException("Selector string is null.");
         }
         selector = selector.trim();
         boolean result = selector.startsWith("//") || selector.startsWith("(//");

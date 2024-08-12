@@ -101,7 +101,7 @@ public class SmartBy extends By {
     @Override
     public List<WebElement> findElements(SearchContext context) {
         if (by == null) {
-            throw new SmartRuntimeException("By selector is NULL.");
+            throw new SmartRuntimeException("By selector is null.");
         }
         return by.findElements(context);
     }

@@ -60,21 +60,21 @@ public class TestServer implements TestServerInterface {
             webFormPage.setRange(input.getRange());
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
-            output.getTextareaInput().setString(webFormPage.getTextInputValue());
+            output.getTextareaInput().setValue(webFormPage.getTextInputValue());
             output.getTextareaInput().setKeyword("Textarea");
-            output.getTextareaInput().setString(webFormPage.getTextareaValue());
-            output.getDropdownSelectedOption().setString(webFormPage.getDropdownSelectedOption());
-            output.getDataListSelectOption().setString(webFormPage.getDataListSelectedOption());
+            output.getTextareaInput().setValue(webFormPage.getTextareaValue());
+            output.getDropdownSelectedOption().setValue(webFormPage.getDropdownSelectedOption());
+            output.getDataListSelectOption().setValue(webFormPage.getDataListSelectedOption());
             // TODO fix file path on remote driver.
             //output.getFilePath().setString(webFormPage.getFilePath())
-            output.getCheckbox1Value().setBoolean(webFormPage.getCheckbox1Value());
-            output.getCheckbox2Value().setBoolean(webFormPage.getCheckbox2Value());
-            output.getRadiobutton1Value().setBoolean(webFormPage.getRadiobutton1Value());
-            output.getRadiobutton2Value().setBoolean(webFormPage.getRadiobutton2Value());
-            output.getColor().setString(webFormPage.getColor());
+            output.getCheckbox1Value().setValue(webFormPage.getCheckbox1Value());
+            output.getCheckbox2Value().setValue(webFormPage.getCheckbox2Value());
+            output.getRadiobutton1Value().setValue(webFormPage.getRadiobutton1Value());
+            output.getRadiobutton2Value().setValue(webFormPage.getRadiobutton2Value());
+            output.getColor().setValue(webFormPage.getColor());
             output.getDate().setKeyword(thisYear);
-            output.getDate().setString(webFormPage.getDate());
-            output.getRange().setInteger(webFormPage.getRange());
+            output.getDate().setValue(webFormPage.getDate());
+            output.getRange().setValue(webFormPage.getRange());
             log.debug("Web Form page output data is returned: {}", output);
             return output;
         }
@@ -94,8 +94,8 @@ public class TestServer implements TestServerInterface {
 
         TargetPage targetPage = new TargetPage();
         TargetPageOutput output = new TargetPageOutput();
-        output.getHeader().setString(targetPage.getHeaderText());
-        output.getStatus().setString(targetPage.getStatusText());
+        output.getHeader().setValue(targetPage.getHeaderText());
+        output.getStatus().setValue(targetPage.getStatusText());
         log.debug("Target page output data is returned: {}", output);
         return output;
     }

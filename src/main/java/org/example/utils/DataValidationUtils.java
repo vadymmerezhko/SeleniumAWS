@@ -16,7 +16,45 @@ public final class DataValidationUtils {
      */
     public static void validateNotNull(Object value, String valueName) {
         if (value == null) {
-            handleError(String.format("%s has NULL value.", valueName));
+            handleError(String.format("%s has null value.", valueName));
+        }
+    }
+
+    /**
+     * Validates that two data objects are not the same.
+     * @param value1 The data value 1.
+     * @param value2 The data value 2.
+     * @param valueName1 The value 1 name.
+     * @param valueName2 The value 2 name.
+     */
+    public static void validateNotTheSame(Object value1, Object value2,
+                                          String valueName1, String valueName2) {
+        if (value1 == value2) {
+            handleError(String.format("Object %s and object %s are the same.", valueName1, valueName2));
+        }
+    }
+
+    /**
+     * Validates that two data objects have the same type.
+     * @param expected The object value1.
+     * @param actual The object value2.
+     * @param valueName The value name.
+     */
+    public static void validateTheSameType(Object expected, Object actual,
+                                           String expectedName, String actualName) {
+        validateNotNull(expected, expectedName);
+        validateNotNull(actual, actualName);
+        String actualClassName = actual.getClass().getName();
+        String expectedClassName = expected.getClass().getName();
+
+        if (!expectedClassName.equals(actualClassName)) {
+            handleError(String.format("""
+                    Actual object type does not equal expected object type.
+                    Expected: %s
+                    Actual: %s
+                    """.stripIndent(),
+                    expectedClassName,
+                    actualClassName));
         }
     }
     
