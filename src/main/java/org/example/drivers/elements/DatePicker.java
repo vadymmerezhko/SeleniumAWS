@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 /**
  * The date picker element class.
  */
-public class DatePicker extends BaseElement {
+public class DatePicker extends SmartElement {
 
     /**
      * The date picker element constructor with auto selector.

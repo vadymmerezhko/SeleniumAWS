@@ -5,7 +5,7 @@ import org.openqa.selenium.By;
 /**
  * Button element class.
  */
-public class Button extends BaseElement {
+public class Button extends SmartElement {
 
     /**
      * Button element constructor with auto selector.

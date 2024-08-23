@@ -3,6 +3,10 @@
         "type": {"objectType": "String"},
         "value": "08/24/2024"
     },
+    "textInput": {
+        "type": {"objectType": "String"},
+        "value": "Text input"
+    },
     "checkbox1Value": {
         "type": {"objectType": "Boolean"},
         "value": "false"
@@ -17,11 +21,7 @@
     },
     "checkbox2Value": {
         "type": {"objectType": "Boolean"},
-        "value": "true"
-    },
-    "texInput": {
-        "type": {"objectType": "String"},
-        "value": "Text input"
+        "value": "false"
     },
     "textareaInput": {
         "type": {"objectType": "String"},

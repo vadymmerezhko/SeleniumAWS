@@ -1,6 +1,7 @@
 package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.data.SmartValue;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.drivers.playwright.PlaywrightElement;
 import org.example.drivers.wrappers.SmartWebElement;
@@ -23,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.example.constants.Settings.*;
 
 @Slf4j
-public class WebUtils {
+public final class WebUtils {
     static private final AtomicReference<GlobalKeyboardListener> keyboardListener = new AtomicReference<>();
     static private final int SELECT_ELEMENT_TIMEOUT_SECONDS = 10 * 60;
     static private final int SHOW_POPUP_TIMEOUT_SECONDS = 10 * 60;
@@ -324,7 +325,8 @@ public class WebUtils {
             if (userChoice.equals("OK")) {
                 log.debug("User clicked 'OK' button on confirm popup.");
                 return true;
-            } else {
+            }
+            else {
                 log.debug("User clicked 'CANCEL' button on confirm popup.");
                 return false;
             }
@@ -962,34 +964,62 @@ public class WebUtils {
     }
 
     /**
-     * Returns element value or text.
-     * Check-box and radio-box value "on" converted to "true",
-     * and "off" to "false".
+     * Returns element smart value.
      * @param element The element.
-     * @return The value or text.
+     * @return The smart value.
      */
-    public static String getElementValueOrText(WebElement element) {
+    public static SmartValue getElementSmartValue(WebElement element) {
         try {
-            String elementValue = element.getAttribute("value");
-            String elementText = element.getText();
             String elementTag = element.getTagName();
+            Object elementValue = null;
 
-            if (elementValue != null) {
+            // Get input value
+            if (elementTag.equals("input")) {
+                String type = element.getAttribute("type");
+                String value = element.getDomProperty("value");
 
-                if (elementTag.equals("input") &&
-                   (element.getAttribute("type").equals("checkbox") ||
-                    element.getAttribute("type").equals("radio"))) {
-                    elementValue = String.valueOf(element.isSelected());
-                }
-                else if (elementTag.equals("select")) {
-                    Select select = new Select(element);
-                    elementValue = select.getFirstSelectedOption().getText();
+                elementValue = switch (type) {
+                    // Get boolean value for checkbox or radio button
+                    case "checkbox", "radio" -> element.isSelected();
+                    // Get file value
+                    case "url" -> ConverterUtils.stringToFile(value);
+                    // Gets number value
+                    case "number", "range" -> ConverterUtils.stringToNumber(value);
+                    // Get local date value
+                    case "date", "week", "month" -> ConverterUtils.stringToSmartLocalDate(value);
+                    // Get local date time value
+                    case "datetime-local" -> ConverterUtils.stringToSmartLocalDateTime(value);
+                    // Get local time value
+                    case "time" -> ConverterUtils.stringToSmartLocalTime(value);
+                    default ->
+                        // Get input text value
+                        value;
+                };
+            }
+            // Get text value from select
+            else if (elementTag.equals("select")) {
+                Select select = new Select(element);
+                elementValue = select.getFirstSelectedOption().getText();
+            }
+            // Get element text if not empty
+            if (elementValue == null && !element.getText().isEmpty()) {
+                elementValue = element.getText();
+            }
+            // Get text value from text attributes
+            if (elementValue == null) {
+                for (String textAttribute : textAttributes) {
+                    String attributeValue = element.getAttribute(textAttribute);
+
+                    if (attributeValue != null && !attributeValue.isEmpty()) {
+                        elementValue = attributeValue;
+                        break;
+                    }
                 }
             }
-            else if (!elementText.isEmpty()) {
-                elementValue = elementText;
-            }
-            return elementValue;
+            // Return smart value
+            SmartValue elementSmartValue = new SmartValue(elementValue);
+            log.debug("Element smart value returned: {}", elementSmartValue);
+            return elementSmartValue;
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(

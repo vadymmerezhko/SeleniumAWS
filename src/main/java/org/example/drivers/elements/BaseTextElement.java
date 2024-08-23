@@ -7,7 +7,7 @@ import org.openqa.selenium.Keys;
 /**
  * Base text element class.
  */
-public abstract class BaseTextElement extends BaseElement {
+public abstract class BaseTextElement extends SmartElement {
 
     /**
      * Base text element constructor with auto selector.

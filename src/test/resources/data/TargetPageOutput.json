@@ -1,0 +1,10 @@
+{
+    "header": {
+        "type": {"objectType": "String"},
+        "value": "Form submitted"
+    },
+    "status": {
+        "type": {"objectType": "String"},
+        "value": "Received!"
+    }
+}

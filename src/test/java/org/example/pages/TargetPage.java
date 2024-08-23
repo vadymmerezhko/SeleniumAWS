@@ -2,7 +2,7 @@ package org.example.pages;
 
 import org.example.drivers.elements.Label;
 
-public class TargetPage extends BasePage {
+public class TargetPage extends SmartPage {
 
     private final Label header = new Label();
     private final Label status = new Label();

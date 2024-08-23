@@ -1,698 +1,469 @@
 package org.example.data;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.example.configs.Config;
-import org.example.drivers.factories.WebDriverFactory;
+import org.example.enums.ValueType;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.*;
-import org.json.JSONException;
+import org.example.utils.DataValidationUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
-import org.openqa.selenium.WebElement;
-import org.w3c.dom.Node;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.nio.file.Path;
+import java.time.temporal.Temporal;
+import java.util.*;
 
-import static org.example.constants.Settings.DATA_OBJECTS_FOLDER_PATH;
+import static org.apache.commons.lang3.ObjectUtils.isArray;
+import static org.example.enums.ValueType.*;
 
 /**
- * Smart type class.
+ * Smart value type. Encapsulates:
+ * Object type of the value object.
+ * Key value type for Map object type;
+ * Value type for Map and Collections object types like:
+ * List
+ * Set
+ * Queue
+ * Array
  */
 @Slf4j
-public class SmartType {
-    static final ConcurrentMap<String, String> valuesMap = readAllDataObjectsFromFiles();
-    private static final String SOME_VALUE = "Some value";
-    private static final String KEYWORD_PLACEHOLDER = "#KEYWORD#";
-    private static final String TYPE = "type";
-    private static final String VALUE = "value";
-    private SmartDataObject parent;
-    private Object value;
-    private Object keyword;
-    private String name;
-    private String typeName;
-    private String keywordString;
-    private String valueString;
-    private String parentName;
-    private String fieldName;
+@SuppressWarnings("unchecked")
+public final class SmartType {
+    @Getter
+    private final ValueType objectType;
+    @Getter
+    private ValueType keyType;
+    @Getter
+    private SmartType valueSmartType;
+    @Getter
+    private String className;
+    @Getter
+    private Map<String, SmartType> fieldTypesMap;
 
     /**
-     * Reads asynchronously all data objects from JSON file
+     * Class to get collection element type (class).
+     * @param <T> Element type.
      */
-    private static ConcurrentMap<String, String> readAllDataObjectsFromFiles() {
-        Set<String> fileNames = FileSystemUtils.getFileNamesInFolder(DATA_OBJECTS_FOLDER_PATH);
-        ConcurrentMap<String, String> valuesMap = new ConcurrentHashMap<>();
+    static class GenericCollection<T> {
+        private final Collection<T> collection;
 
-        Thread thread = new Thread(() -> {
-            try {
-                log.debug("Asynchronous data object files reading began.");
+        public GenericCollection(Collection<T> collection) {
+            this.collection = collection;
+        }
 
-                for (String fileName : fileNames) {
-                    if (FileSystemUtils.getFileExtension(fileName).equals("json")) {
-                        String filePath = String.format("%s/%s", DATA_OBJECTS_FOLDER_PATH, fileName);
-                        String parentName = FileSystemUtils.getFileNameWithoutExtension(fileName);
-                        String fileContent = FileSystemUtils.readFile(filePath);
+        public Class<?> getElementClass() {
+            Type type = getClass().getGenericSuperclass();
+            if (type instanceof ParameterizedType paramType) {
+                Type[] typeArguments = paramType.getActualTypeArguments();
 
-                        if (fileContent.trim().isEmpty()) {
-                            continue;
-                        }
-                        JSONObject json = new JSONObject(fileContent);
-
-                        for (String fieldName : json.keySet()) {
-                            String valueName = String.format("%s.%s", parentName, fieldName);
-                            JSONObject valueJson = (JSONObject) json.get(fieldName);
-                            String valueTemplate = valueJson.getString(VALUE);
-                            String type = valueJson.getString(TYPE);
-
-
-                            valuesMap.put(valueName, valueTemplate);
-                            log.debug("Smart string {} value {} is asynchronously read from file {}.",
-                                    valueName, value, filePath);
-                        }
-                    }
-                    log.debug("Asynchronous reading data objects from files finished.");
+                if (typeArguments.length > 0) {
+                    return (Class<?>) typeArguments[0];
                 }
-            } catch (Exception e) {
-                throw new SmartRuntimeException(String.format(
-                        "Cannot read all data object files from: %s", DATA_OBJECTS_FOLDER_PATH), e);
             }
-        });
-        thread.start();
-        return valuesMap;
+            // Default case if type cannot be determined
+            return Object.class;
+        }
     }
 
     /**
-     * Smart type constructor.
+     * Class to get map element type (class).
+     * @param <K> The element key type.
+     * @param <V> The element value type.
      */
-    public SmartType() {
-        log.debug("Smart object {} is created.", name);
+    static class GenericMap<K, V> {
+        private final Map<K, V> map;
+        private final Class<K> keyClass;
+        private final Class<V> valueClass;
+
+        @SuppressWarnings("unchecked")
+        public GenericMap(Map<K, V> map) {
+            this.map = map;
+
+            if (!map.isEmpty()) {
+                Map.Entry<K, V> firstEntry = map.entrySet().iterator().next();
+                this.keyClass = (Class<K>) firstEntry.getKey().getClass();
+                this.valueClass = (Class<V>) firstEntry.getValue().getClass();
+            } else {
+                this.keyClass = null;
+                this.valueClass = null;
+            }
+        }
+
+        public Class<K> getKeyClass() {
+            return keyClass;
+        }
+
+        public Class<V> getValueClass() {
+            return valueClass;
+        }
+
+        public void put(K key, V value) {
+            map.put(key, value);
+        }
+
+        public V get(K key) {
+            return map.get(key);
+        }
+
+        public Map<K, V> getMap() {
+            return map;
+        }
     }
 
     /**
-     * Creates smart type object  constructor from object value with keyword object.
-     * @param value The value.
+     * Gets smart type from object;
+     * @param object The object;
+     * @return The smart type.
      */
-    private SmartType(Object value, Object keyword) {
-        DataValidationUtils.validateNotNull(value, "value");
-        DataValidationUtils.validateNotNull(keyword, "keyword");
+    public static SmartType fromObject(Object object) {
+        SmartType type;
 
-        this.value = value;
-        this.keyword = keyword;
-        typeName = getTypeName(value);
-        valueString = ConverterUtils.objectToSting(value);
-        keywordString = ConverterUtils.objectToSting(keyword);
-        validateValue();
-        validateKeyword();
+        if (object == null) {
+            type = new SmartType(NULL);
+        }
+        else {
+            Class<?> objectClass = object.getClass();
+
+            try {
+                if (object instanceof Collection) {
+                    type = getCollectionType(object);
+                }
+                else if (isArray(object)) {
+                    type = getArrayType(object);
+                }
+                else if (object instanceof Map) {
+                    type = getMapType(object);
+                }
+                else if (objectClass == String.class ||
+                        objectClass == StringBuffer.class ||
+                        objectClass == SmartValue.class ||
+                        objectClass == Boolean.class ||
+                        object instanceof Number ||
+                        object instanceof Date ||
+                        object instanceof Temporal ||
+                        object instanceof SmartDateInterface ||
+                        object instanceof Path ||
+                        object instanceof Enum ||
+                        objectClass == JSONObject.class ||
+                        objectClass == JSONArray.class ||
+                        objectClass == File.class ||
+                        objectClass == java.net.URL.class ||
+                        objectClass == java.net.URI.class ||
+                        objectClass == Character.class) {
+                    String className = object.getClass().getSimpleName();
+                    type = new SmartType(ValueType.fromString(className));
+                }
+                else {
+                    type = getClassType(object);
+                }
+            }
+            catch (Exception e) {
+                throw new SmartRuntimeException(String.format("""
+                    Cannot get smart type from object.
+                    Object:
+                    {}
+                    """.stripIndent(),
+                        object));
+            }
+        }
         log.debug("""
-                Smart type object {} created with value and keyword.
-                Value:
+                Object smart type returned.
+                Object:
                 {}
-                Keyword:
+                Type:
                 {}
-                """, name, value, keyword);
+                """.stripIndent(),
+                object, type);
+        return type;
     }
 
     /**
-     * Creates smart type object  constructor from object value.
-     * @param value The smart value.
+     * Constructs smart value type with object type.
+     * @param objectType The object type.
      */
-    private SmartType(Object value) {
-        DataValidationUtils.validateNotNull(value, "value");
+    public SmartType(ValueType objectType) {
+        DataValidationUtils.validateNotNull(objectType, "objectType");
 
-        this.value = value;
-        valueString = ConverterUtils.objectToSting(value);
-        typeName = getTypeName(value);
-        validateValue();
+        this.objectType = objectType;
         log.debug("""
-                Smart type object {} created with value.
-                Value:
-                {}
-                """, name, value);
+            Smart value type created with:
+            Object type: {}
+            """.stripIndent(),
+            objectType);
     }
 
-    @Override
-    public String toString() {
-        setUp();
-        String string = getStringValue();
-        log.debug("Smart type object {} converted to string:\n{}", name, string);
-        return string;
+    /**
+     * Constructs smart value type with object type
+     * and object value type.
+     * @param objectType The object type.
+     * @param valueSmartType The value type.
+     */
+    public SmartType(ValueType objectType, SmartType valueSmartType) {
+        DataValidationUtils.validateNotNull(objectType, "objectType");
+        DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
+
+        this.objectType = objectType;
+        this.valueSmartType = valueSmartType;
+        log.debug("""
+            Smart value type created with:
+            Object type: {}
+            Value type:
+            """.stripIndent(),
+            objectType, valueSmartType);
+    }
+
+    /**
+     * Constructs smart value type with object type
+     * and object value type.
+     * @param objectType The object type.
+     * @param valueSmartType The value type.
+     */
+   public SmartType(ValueType objectType, ValueType keyType, SmartType valueSmartType) {
+       DataValidationUtils.validateNotNull(objectType, "objectType");
+       DataValidationUtils.validateNotNull(keyType, "keyType");
+       DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
+
+        this.objectType = objectType;
+        this.keyType = keyType;
+        this.valueSmartType = valueSmartType;
+        log.debug("""
+            Smart value type created with:
+            Object type: {}
+            Key type: {}
+            Value type: {}
+            """.stripIndent(),
+            objectType, keyType, valueSmartType);
+    }
+
+    /**
+     * Constructs smart value type for Java POJO class
+     * and class field types.
+     * @param className The class name
+     * @param fieldTypesMap The field types.
+     */
+    public SmartType(String className, Map<String, SmartType> fieldTypesMap) {
+        DataValidationUtils.validateNotBlank(className, "className");
+        DataValidationUtils.validateNotNull(fieldTypesMap, "fieldTypesMap");
+
+        this.className = className;
+        this.objectType = CLASS;
+        this.fieldTypesMap = fieldTypesMap;
+        log.debug("""
+            Smart value type created with:
+            Class name: {}
+            Object type:
+            {}
+            Fields:
+            {}
+            """.stripIndent(),
+            className, objectType, fieldTypesMap);
+    }
+
+    /**
+     * Constructs smart value type by enum value.
+     * and class field types.
+     * @param enumValue The enum value.
+     */
+    public SmartType(Enum enumValue) {
+        DataValidationUtils.validateNotNull(enumValue, "enumValue");
+
+        this.className = enumValue.getClass().getName();
+        this.objectType = CLASS;
+        log.debug("""
+            Smart value type created with:
+            Class name: {}
+            Object type:
+            {}
+            Fields:
+            {}
+            """.stripIndent(),
+                className, objectType, fieldTypesMap);
+    }
+
+
+    private static <T> SmartType getCollectionType(Object collectionObject) {
+        DataValidationUtils.validateNotNull(collectionObject, "collectionObject");
+
+        Collection<T> collection = (Collection<T>) collectionObject;
+        ValueType objectType = ValueType.fromClass(collection.getClass());
+        GenericCollection<T> genericCollection = new GenericCollection<>(collection);
+        ValueType valueType = ValueType.fromClass(genericCollection.getElementClass());
+        SmartType valueSmartType = fromSmartType(new SmartType(valueType));
+        SmartType collectionSmartType = new SmartType(objectType, valueSmartType);
+        log.debug("""
+                Collection smart type returned.
+                Collection:
+                {}
+                Type: {}
+                """.stripIndent(),
+                collection, collectionSmartType);
+        return collectionSmartType;
+    }
+
+    private static <K,V> SmartType getMapType(Object mapObject) {
+        DataValidationUtils.validateNotNull(mapObject, "mapObject");
+
+        Map<K,V> map = (Map<K,V>) mapObject;
+        ValueType objectType = ValueType.fromClass(map.getClass());
+        GenericMap<K, V> genericMap = new GenericMap<>(map);
+        ValueType keyType = ValueType.fromClass(genericMap.getKeyClass());
+        ValueType valueType = ValueType.fromClass(genericMap.getValueClass());
+        SmartType valueSmartType = fromSmartType(new SmartType(valueType));
+        SmartType mapSmartType = new SmartType(objectType, keyType, valueSmartType);
+        log.debug("""
+                Map smart type returned.
+                Collection:
+                {}
+                Type: {}
+                """.stripIndent(),
+                map, mapSmartType);
+        return mapSmartType;
+    }
+
+    private static <T> SmartType getArrayType(Object arrayObject) {
+        DataValidationUtils.validateNotNull(arrayObject, "arrayObject");
+
+        T[] array = (T[]) arrayObject;
+        ValueType objectType = ValueType.fromClass(array.getClass());
+        Class<?> elementClass = array.getClass().getComponentType();
+        ValueType valueType = ValueType.fromClass(elementClass);
+        SmartType valueSmartType = fromSmartType(new SmartType(valueType));
+        SmartType arraySmartType = new SmartType(objectType, valueSmartType);
+        log.debug("""
+                Array smart object type returned.
+                Array:
+                {}
+                Type: {}
+                """.stripIndent(),
+                array, arraySmartType);
+        return arraySmartType;
+    }
+
+
+    private static SmartType fromSmartType(SmartType sourceSmartType) {
+        SmartType targetSmartType;
+        ValueType sourceObjectType = sourceSmartType.getObjectType();
+        ValueType sourceKeyType = sourceSmartType.getKeyType();
+        SmartType valueSmartType = sourceSmartType.getValueSmartType();
+
+        if (sourceObjectType.isCollection() ||
+                sourceObjectType == MAP ||
+                sourceObjectType == ValueType.ARRAY) {
+
+            valueSmartType = fromSmartType(valueSmartType);
+
+            if (sourceObjectType == MAP) {
+                targetSmartType = new SmartType(sourceObjectType, sourceKeyType, valueSmartType);
+            }
+            else {
+                targetSmartType = new SmartType(sourceObjectType, valueSmartType);
+            }
+        }
+        else {
+            targetSmartType = sourceSmartType;
+        }
+        log.debug("""
+                Source smart type converted to target smart type..
+                Source:
+                {}
+                Target:
+                {}
+                """.stripIndent(),
+                sourceSmartType, targetSmartType);
+        return targetSmartType;
+    }
+
+    private static SmartType getClassType(Object object) {
+        Map<String, SmartType> fieldTypes = new HashMap<>();
+        Field[] fields = object.getClass().getDeclaredFields();
+        String className = object.getClass().getName();
+
+        for (Field field : fields) {
+            field.setAccessible(true);
+            Object fieldValue;
+
+            try {
+                fieldValue = field.get(object);
+            }
+            catch (IllegalAccessException e) {
+                throw new SmartRuntimeException(e);
+            }
+            SmartType fieldType = fromObject(fieldValue);
+            String fieldName = field.getName();
+            fieldTypes.put(fieldName, fieldType);
+        }
+        SmartType classSmartType = new SmartType(className, fieldTypes);
+        log.debug("""
+                Class objet smart type returned.
+                Class name: {}
+                Object:
+                {}
+                Type:
+                {}
+                """.stripIndent(),
+                className, object, classSmartType);
+        return classSmartType;
     }
 
     @Override
     public boolean equals(Object object) {
-        boolean result;
 
-        if (!(object instanceof SmartType)) {
-            throw new SmartRuntimeException(String.format(
-                    "Not a SmartType object type: %s", object.getClass().getName()));
+        if (object == null) {
+            log.debug("The actual smart type object is null.");
+            return false;
         }
-        Object actualValue = ((SmartType) object).value;
-        DataValidationUtils.validateTheSameType(value, actualValue, "expectedValue", "actualValue");
-
-        if (actualValue.getClass() != value.getClass()) {
-            throw new SmartRuntimeException(String.format(
-                    "Expected object type is: %s,\n" +
-                    "but actual object type is %sActual object has wrong type: %s", object.getClass().getName()));
+        if (this == object) {
+            log.debug("Two smart type objects are compared. They are the same object.");
+            return true;
         }
+        if (object instanceof SmartType actual) {
 
-        try {
-            if (actualValue instanceof Node) {
-                result = ComparatorUtils.compareXmlNodes((Node) value, (Node) actualValue);
-            }
-            else {
-                result = value.equals(actualValue);
-            }
-            log.debug("""
-                    Two objects were compared.
+            boolean result = getObjectType().equals(actual.objectType) &&
+                    getObjectType().equals(actual.getObjectType()) &&
+                    (getKeyType() != null && getKeyType().equals(actual.getKeyType())) &&
+                    (getValueSmartType() != null && getValueSmartType().equals(actual.valueSmartType)) &&
+                    (getClassName() != null && getClassName().equals(actual.getClassName())) &&
+                    (getFieldTypesMap() != null && getFieldTypesMap().equals(actual.fieldTypesMap));
+
+            log.debug(String.format("""
+                    Smart type equals() called.
+                    Result: {}
                     Expected:
                     {}
                     Actual:
                     {}
-                    Result:
-                    {}
                     """.stripIndent(),
-                    value, object, result);
+                    result, this, actual));
             return result;
         }
-        catch (Exception e) {
-            throw new SmartRuntimeException(String.format("""
-                            Cannot compare two smart type objects.
-                            Expected:
-                            %s
-                            Actual:
-                            %s
-                            """.stripIndent(),
-                    value.toString(),
-                    actualValue.toString()), e);
+        else {
+            return false;
         }
     }
 
     @Override
+    public String toString() {
+        return String.format("""
+                Smart type class: %s
+                Object type: %s
+                Value type: %s
+                Key type: %s
+                Field types:
+                %s
+                """.stripIndent(),
+                this.getClass().getName(),
+                objectType,
+                valueSmartType,
+                keyType,
+                fieldTypesMap);
+    }
+
+    @Override
     public int hashCode() {
-        int hashCode = value.hashCode();
-        log.debug("Smart type object {} hash code: {}", name, hashCode);
-        return hashCode;
-    }
-
-    /**
-     * Converts date object to date string with date format.
-     * @param dateFormat The date format.
-     * @return The date string.
-     */
-    public String toDateString(String dateFormat) {
-        String dateString;
-
-        if (value instanceof Date) {
-            dateString = ConverterUtils.dateToString((Date) value, dateFormat);
-        }
-        else if (value instanceof LocalDate) {
-            dateString = ConverterUtils.localDateToString((LocalDate) value, dateFormat);
-        }
-        else {
-            throw new SmartRuntimeException(String.format(
-                    "Cannot convert %s object to date string.", value.getClass().getName()));
-        }
-        log.debug("Smart type object {} converted to date string with format '{}': {}",
-                value, dateFormat, dateString);
-        return dateString;
-    }
-
-    /**
-     * Gets smart type name.
-     */
-    public String getName() {
-        setUp();
-        log.debug("Returned smart type object name: {}.", name);
-        return name;
-    }
-
-    /**
-     * Sets value object.
-     * @param value The value.
-     */
-    public void setValue(Object value) {
-        setUp();
-        this.value = value;
-        typeName = getTypeName(value);
-    }
-
-    /**
-     * Sets smart type keyword.
-     * @param keyword The keyword.
-     */
-    public Object setKeyword(Object keyword) {
-        this.keyword = keyword;
-        keywordString = ConverterUtils.objectToSting(keyword);
-        log.debug("Returned smart type keyword: {}.", keyword);
-        return keyword;
-    }
-
-    /**
-     * Gets smart type keyword.
-     */
-    public Object getKeyword() {
-        setUp();
-        log.debug("Returned smart type keyword: {}.", keyword);
-        return keyword;
-    }
-
-    /**
-     * Gets smart type keyword.
-     */
-    protected Object getValue() {
-        setUp();
-        log.debug("Returned smart type keyword: {}.", value);
-        return value;
-    }
-
-    /**
-     * Gets smart type keyword.
-     */
-    public String getKeywordString() {
-        setUp();
-        log.debug("Returned smart type keyword string: {}.", keyword);
-        return keywordString;
-    }
-
-    /**
-     * Sets Date value.
-     * @param localDate The date value.
-     * @param dateFormat The date format.
-     *
-     */
-    public void setLocalDate(LocalDate localDate, String dateFormat) {
-        this.valueString = ConverterUtils.localDateToString(localDate, dateFormat);
-        value = localDate;
-        typeName = getTypeName(value);
-    }
-
-    /**
-     * Sets string value and saves it to the file.
-     * @param value The value.
-     */
-    public void setAndSaveString(String value) {
-        this.value = value;
-        valueString = value;
-        typeName = getTypeName(value);
-        valuesMap.put(name, value);
-        saveStringValueToFile();
-    }
-
-    /**
-     * Converts value to integer value.
-     * @return The integer value.
-     */
-    public Integer toInteger() {
-        setUp();
-        Integer result = ConverterUtils.objectToInteger(value);
-        log.debug("Smart type object {} converted to integer: {}.", name, result);
-        return result;
-    }
-
-    /**
-     * Converts value to long value.
-     * @return The long value.
-     */
-    public Long toLong() {
-        setUp();
-        Long result = ConverterUtils.objectToLong(value);
-        log.debug("Smart type object {} converted to long: {}.", name, result);
-        return result;
-    }
-
-    /**
-     * Converts value to big integer value.
-     * @return The long value.
-     */
-    public BigInteger toBigInteger() {
-        setUp();
-        BigInteger result = ConverterUtils.objectToBigInteger(value);
-        log.debug("Smart type object {} converted to big integer: {}.", name, result);
-        return result;
-    }
-
-    /**
-     * Converts value to float value.
-     * @return The float value.
-     */
-    public Float toFloat() {
-        setUp();
-        Float result = ConverterUtils.objectToFloat(value);
-        log.debug("Smart type object {} converted to float: {}.", name, result);
-        return result;
-    }
-
-    /**
-     * Converts value to double value.
-     * @return The double value.
-     */
-    public Double toDouble() {
-        setUp();
-        Double result = ConverterUtils.objectToDouble(value);
-        log.debug("Smart type object {} converted to double: {}.", name, result);
-        return result;
-    }
-
-    /**
-     * Converts value to big decimal value.
-     * @return The big decimal value.
-     */
-    public BigDecimal toBigDecimal() {
-        setUp();
-        BigDecimal result = ConverterUtils.objetToBigDecimal(value);
-        log.debug("Smart type object {} converted to big decimal: {}.", name, result);
-        return result;
-    }
-
-    /**
-     * Converts value to boolean value.
-     * @return The boolean value.
-     */
-    public Boolean toBoolean() {
-        setUp();
-        Boolean result = ConverterUtils.objectToBoolean(value);
-        log.debug("Smart type object {} converted to boolean: {}.", name, result);
-        return result;
-    }
-
-    /**
-     * Converts value to date value.
-     * @return The date value.
-     */
-    public Date toDate() {
-        setUp();
-        Date result = ConverterUtils.objectToDate(value);
-        log.debug("Smart type object {} converted to date: {}.", name, result);
-        return result;
-    }
-
-    /**
-     * Converts value to local date value.
-     * @return The date value.
-     */
-    public LocalDate toLocalDate() {
-        setUp();
-        LocalDate result = ConverterUtils.objectToLocalDate(value);
-        log.debug("Smart type object {} converted to local date: {}.", name, result);
-        return result;
-    }
-
-    void setParent(SmartDataObject parent) {
-        this.parent = parent;
-    }
-
-    private String getStringValue() {
-        setUp();
-        return replaceKeywordPlaceholderIfDefined();
-    }
-
-    private void setUp() {
-
-        if (name == null) {
-            validateParent();
-            parentName = parent.getClass().getSimpleName();
-            fieldName = ClassUtils.getObjectFieldName(parent, this);
-            name = String.format("%s.%s", parentName, fieldName);
-
-            if (valueString == null) {
-                setUpValue();
-            }
-        }
-    }
-
-    private void setUpValue() {
-
-        if (valuesMap.containsKey(name)) {
-            valueString = valuesMap.get(name);
-        }
-        else {
-            readStringValueFromFile();
-
-            if (valueString == null && Config.getInstance().getDebugMode()) {
-
-                while (valueString == null || valueString.equals(SOME_VALUE)) {
-                    String message;
-
-                    if (keywordString == null) {
-                        message = String.format("""
-                                UNDEFINED DATA VALUE
-                                                        
-                                Enter %s value.
-                                                            
-                                Click OK to save.
-                                OR just click OK ro select it on the page.
-                                OR click CANCEL to exit the test.
-                                """.stripIndent(), name);
-                    }
-                    else {
-                        message = String.format("""
-                                UNDEFINED DATA VALUE
-                                                        
-                                Enter %s value with keyword.
-                                Keyword: '%s'
-                                                            
-                                Click OK to save.
-                                OR just click OK ro select it on the page.
-                                OR click CANCEL to exit the test.
-                                """.stripIndent(), name, this.keywordString);
-                    }
-                    valueString = WebUtils.showPrompt(message, SOME_VALUE);
-
-                    if (valueString.isEmpty()) {
-                        WebDriverFactory.hardSystemExit();
-                    }
-
-                    if (valueString.equals(SOME_VALUE)) {
-                        WebElement element = WebUtils.selectWebElement("DATA VALUE");
-                        valueString = WebUtils.getElementValueOrText(element);
-                    }
-
-                    if (validValue()) {
-                        valueString = WebUtils.showPrompt(String.format("""
-                            VALID DATA VALUE
-                            
-                            %s data value is valid.
-                                                                 
-                            Click OK to save.
-                            OR click CANCEL to exit the test.
-                            """.stripIndent(), name), valueString);
-                    }
-                    else {
-                        if (valueDoesNotContainKeyword()) {
-                            message = String.format("%s data value does not contain the keyword.",
-                                    name);
-                        }
-                        else if (valueContainsMoreThanOneKeyword()) {
-                            message = String.format("%s data value contains more than one keyword.",
-                                    name);
-                        }
-                        WebUtils.showAlert(String.format("""
-                                    INVALID DATA VALUE
-                                                            
-                                    %s
-                                    Value: '%s'
-                                    Keyword: '%s'
-                                                                
-                                    Click OK to update the data value.
-                                    """.stripIndent(), message, valueString, keywordString));
-                    }
-                    if (validValue()) {
-                        replaceKeywordPlaceholderIfDefined();
-                        saveStringValueToFile();
-                        break;
-                    }
-                    if (valueString.isEmpty()) {
-                        WebDriverFactory.hardSystemExit();
-                    }
-                    valueString = SOME_VALUE;
-                }
-            }
-            if (valueString == null) {
-                throw new RuntimeException(String.format(
-                        "Smart type %s is undefined.", name));
-            }
-            valuesMap.put(name, valueString);
-            value = valueString;
-            typeName = getTypeName(value);
-        }
-    }
-
-    private boolean validValue() {
-        if (valueString != null) {
-            if (keywordString != null) {
-                return  !valueContainsMoreThanOneKeyword() && !valueDoesNotContainKeyword();
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public int numberOfKeywordsInValue() {
-        if (valueString == null || keywordString == null || valueString.isEmpty() || keywordString.isEmpty()) {
-            return 0;
-        }
-        int count = 0;
-        int index = 0;
-
-        while ((index = valueString.indexOf(keywordString, index)) != -1) {
-            count++;
-            index += keywordString.length();
-        }
-        return count;
-    }
-
-    void validateKeyword() {
-        if (keywordString != null) {
-            throw new SmartRuntimeException("Keyword value is empty. Update the keyword.");
-        }
-    }
-
-    private boolean valueContainsMoreThanOneKeyword() {
-        return numberOfKeywordsInValue() > 1;
-    }
-
-    private boolean valueDoesNotContainKeyword() {
-        return numberOfKeywordsInValue() == 0;
-    }
-
-    private void validateValue() {
-        if (keywordString != null) {
-
-            if (valueContainsMoreThanOneKeyword()) {
-                throw new SmartRuntimeException(String.format(
-                        "String value '%s' contains more that one keyword '%s'.",
-                        valueString, keywordString));
-            }
-            else if (valueDoesNotContainKeyword()) {
-                throw new SmartRuntimeException(String.format(
-                        "String value '%s' does not contain keyword '%s'.",
-                        valueString, keywordString));
-            }
-        }
-    }
-
-    private void saveStringValueToFile() {
-        String filePath = null;
-
-        try {
-            String fileName = String.format("%s.json", parentName);
-            JSONObject json;
-            filePath = String.format("%s/%s", DATA_OBJECTS_FOLDER_PATH, fileName);
-
-            if (FileSystemUtils.fileExists(filePath)) {
-                String jsonString = FileSystemUtils.readFile(filePath);
-                json = new JSONObject(jsonString);
-            } else {
-                json = new JSONObject();
-            }
-            String valueTemplate = valueString;
-
-            if (keywordString != null) {
-                if (valueString.contains(keywordString)) {
-                    valueTemplate = valueString.replace(keywordString, KEYWORD_PLACEHOLDER);
-                }
-                else {
-                    throw new SmartRuntimeException(String.format(
-                            "Smart type value '%s' does not contain keyword '%s'",
-                            valueString, keywordString));
-                }
-            }
-            JSONObject valueJson = new JSONObject();
-            valueJson.put(TYPE, typeName);
-            valueJson.put(VALUE, valueTemplate);
-
-            json.put(fieldName, valueJson);
-            String jsonString = json.toString();
-            FileSystemUtils.createFile(filePath, jsonString);
-            log.debug("String {} value '{}' is saved to data object file {}.",
-                    fileName, this.valueString, filePath);
-        }
-        catch (Exception e) {
-            throw new SmartRuntimeException(String.format(
-                    "Can not save string %s.%s value %s to data object file: %s",
-                    parentName, fieldName, valueString, filePath), e);
-        }
-    }
-
-    private void readStringValueFromFile() {
-        String filePath = null;
-        try {
-            String fileName = String.format("%s.json", parentName);
-            filePath = String.format("%s/%s", DATA_OBJECTS_FOLDER_PATH, fileName);
-
-            if (FileSystemUtils.fileExists(filePath)) {
-                String jsonString = FileSystemUtils.readFile(filePath);
-
-                if (jsonString.trim().isEmpty()) {
-                    throw new RuntimeException(String.format(
-                            "Data object file %s is empty.", filePath));
-                }
-                JSONObject json = new JSONObject(jsonString);
-
-                if (json.has(fieldName)) {
-                    try {
-                        JSONObject valueJson = (JSONObject) json.get(fieldName);
-                        String valueTemplate = valueJson.getString(VALUE);
-                        typeName = valueJson.getString(TYPE);
-
-                        log.debug("Smart string {} value template '{}' is read from data object file {}.",
-                                fieldName, valueTemplate, fileName);
-
-                        if (keywordString != null) {
-                            valueString = valueTemplate.replace(KEYWORD_PLACEHOLDER, keywordString);
-                        }
-                        else {
-                            valueString = valueTemplate;
-                        }
-                        value = valueString;
-                        log.debug("Smart string {} value '{}' is read from data object file {}.",
-                                fieldName, valueString, fileName);
-                    } catch (JSONException e) {
-                        throw new SmartRuntimeException(String.format(
-                                "Data object file %s has invalid JSON object format: %s",
-                                filePath, jsonString));
-                    }
-                }
-            }
-            else {
-                log.debug("Data object {} file {} does not exist.",
-                        parentName, filePath);
-            }
-        }
-        catch (Exception e) {
-            throw new SmartRuntimeException(String.format(
-                    "Can not read smart string %s.%s value from object file file %s.",
-                    parentName, fieldName, filePath), e);
-        }
-    }
-
-    private String replaceKeywordPlaceholderIfDefined() {
-        if (keywordString != null) {
-            if (valueString.contains(KEYWORD_PLACEHOLDER)) {
-                return valueString.replace(KEYWORD_PLACEHOLDER, keywordString);
-            }
-        }
-        return valueString;
-    }
-
-    private void validateParent() {
-        if (parent == null) {
-            throw new SmartRuntimeException("""
-                            Please add method initialize(); to data object class constructor like this:
-                            
-                            public YourDataObject() {
-                                super();
-                                initialize();
-                            }
-                            """.stripIndent());
-        }
-    }
-
-    private String getTypeName(Object object) {
-        return object.getClass().getSimpleName();
+        return Objects.hash(objectType, valueSmartType,
+                keyType, className, fieldTypesMap);
     }
 }

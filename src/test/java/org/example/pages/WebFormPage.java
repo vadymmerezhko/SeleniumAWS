@@ -1,12 +1,12 @@
 package org.example.pages;
 
-import org.example.data.SmartType;
+import org.example.data.SmartClass;
 import org.example.drivers.elements.*;
 
 /**
  * Web form class.
  */
-public class WebFormPage extends BasePage {
+public class WebFormPage extends SmartPage {
 
     private final TextInput textInput = new TextInput();
     private final Password password = new Password();
@@ -35,7 +35,7 @@ public class WebFormPage extends BasePage {
      * Enters text to text input.
      * @param text The text to enter.
      */
-    public void enterIntoTextInput(SmartType text) {
+    public void enterIntoTextInput(SmartClass text) {
         textInput.enterText(text.toString());
     }
 
@@ -51,8 +51,7 @@ public class WebFormPage extends BasePage {
      * Enters text to text area.
      * @param text The text to enter.
      */
-    public void enterIntoTextarea(String keyword, SmartType text) {
-        textarea.setKeyword(keyword);
+    public void enterIntoTextarea(SmartClass text) {
         textarea.enterText(text.toString());
     }
 
@@ -76,7 +75,7 @@ public class WebFormPage extends BasePage {
      * Selects dropdown option by its text.
      * @param option The option text.
      */
-    public void selectDropdownOption(SmartType option) {
+    public void selectDropdownOption(SmartClass option) {
         dropdown.selectOptionByText(option.toString());
     }
 
@@ -92,7 +91,7 @@ public class WebFormPage extends BasePage {
      * Selects data list option by its text.
      * @param option The option text.
      */
-    public void selectDataListOption(SmartType option) {
+    public void selectDataListOption(SmartClass option) {
         dataList.selectOptionByText(option.toString());
     }
 
@@ -108,7 +107,7 @@ public class WebFormPage extends BasePage {
      * Enters file path into file brows input.
      * @param filePath The file path to enter.
      */
-    public void enterFilePath(SmartType filePath) {
+    public void enterFilePath(SmartClass filePath) {
         fileInput.enterText(filePath.toString());
     }
 
@@ -124,7 +123,7 @@ public class WebFormPage extends BasePage {
      * Sets the first checkbox true/false value.
      * @param value The value to set.
      */
-    public void setCheckbox1Value(SmartType value) {
+    public void setCheckbox1Value(SmartClass value) {
         checkbox1.setValue(value.toBoolean());
     }
 
@@ -140,7 +139,7 @@ public class WebFormPage extends BasePage {
      * Sets the second checkbox true/false value.
      * @param value The value to set.
      */
-    public void setCheckbox2Value(SmartType value) {
+    public void setCheckbox2Value(SmartClass value) {
         checkbox2.setValue(value.toBoolean());
     }
 
@@ -186,7 +185,7 @@ public class WebFormPage extends BasePage {
      * Sets color picker value in format "#RRGGBB" like "#0088ff".
      * @param color The color value to set.
      */
-    public void pickColor(SmartType color) {
+    public void pickColor(SmartClass color) {
         colorPicker.pickColor(color.toString());
     }
 
@@ -202,7 +201,7 @@ public class WebFormPage extends BasePage {
      * Sets data picker value in format "mm/DD/YYYY" like "05/23/1970".
      * @param date The data value to set.
      */
-    public void pickDate(SmartType date) {
+    public void pickDate(SmartClass date) {
         datePicker.pickDate(date.toString());
     }
 
@@ -218,7 +217,7 @@ public class WebFormPage extends BasePage {
      * Sets range slider value.
      * @param range The range value to set.
      */
-    public void setRange(SmartType range) {
+    public void setRange(SmartClass range) {
         rangeSlider.setValue(range.toInteger());
     }
 

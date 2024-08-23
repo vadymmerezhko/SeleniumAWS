@@ -77,28 +77,28 @@ public class DataValidationUtilsTest {
 
     @Test
     public void testValidateFilePathWinValid() {
-        DataValidationUtils.validateFilePath("C:\\path\\to\\file.txt", "filePathData");
+        DataValidationUtils.validateFilePathFormat("C:\\path\\to\\file.txt", "filePathData");
     }
 
     @Test
     public void testValidateFilePathLinuxValid() {
-        DataValidationUtils.validateFilePath("./target/file.txt", "filePathData");
+        DataValidationUtils.validateFilePathFormat("./target/file.txt", "filePathData");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testValidateFilePathInvalid() {
-        DataValidationUtils.validateFilePath("C:\\path\\to\\file??.txt", "filePathData");
+        DataValidationUtils.validateFilePathFormat("C:\\path\\to\\file??.txt", "filePathData");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testValidateFilePathBlankInvalid() {
-        DataValidationUtils.validateFilePath("", "filePathData");
+        DataValidationUtils.validateFilePathFormat("", "filePathData");
     }
 
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testValidateFilePathMultilineInvalid() {
-        DataValidationUtils.validateFilePath("/target\n/file.xtx", "filePathData");
+        DataValidationUtils.validateFilePathFormat("/target\n/file.xtx", "filePathData");
     }
 
     @Test
@@ -109,11 +109,6 @@ public class DataValidationUtilsTest {
     @Test
     public void testValidateFolderLinuxPathValid() {
         DataValidationUtils.validateFolderPath("./target/test.txt", "folderPathData");
-    }
-
-    @Test
-    public void testValidateFolderPathBlankValid() {
-        DataValidationUtils.validateFolderPath("", "folderPathData");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)

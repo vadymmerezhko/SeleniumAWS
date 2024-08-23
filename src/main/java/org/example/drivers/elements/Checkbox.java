@@ -5,7 +5,7 @@ import org.openqa.selenium.By;
 /**
  * The checkbox element class.
  */
-public class Checkbox extends BaseElement {
+public class Checkbox extends SmartElement {
 
     /**
      * The checkbox element constructor with auto selector.

@@ -6,7 +6,7 @@ import org.example.drivers.factories.WebDriverFactory;
 import org.example.drivers.selectors.SmartBy;
 import org.example.drivers.wrappers.SmartWebElement;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.pages.BasePage;
+import org.example.pages.SmartPage;
 import org.example.utils.ClassUtils;
 import org.example.utils.FileSystemUtils;
 import org.example.utils.WebUtils;
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentMap;
  * Base web element class.
  */
 @Slf4j
-public abstract class BaseElement implements WebElement, WrapsElement {
+public abstract class SmartElement implements WebElement, WrapsElement {
     private static final ConcurrentMap<Long, WebElement> handledElementMap = new ConcurrentHashMap<>();
     private static final ConcurrentMap<String, String> elementSelectorMap =
             readAllElementSelectorsFromFiles(Config.getInstance().getPagesFolderPath());
@@ -33,7 +33,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     static protected final Config config = Config.getInstance();
     private WebElement element = null;
     protected By by;
-    protected BasePage page;
+    protected SmartPage page;
     protected WebDriver driver;
     protected String elementName;
 
@@ -85,7 +85,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
     /**
      * Base element constructor by its page and auto selector.
      */
-    public BaseElement() {
+    public SmartElement() {
         this.by = SmartBy.auto();
         driver = WebDriverFactory.getDriver();
     }
@@ -94,7 +94,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
      * Base element constructor by its selector.
      * @param by The element selector.
      */
-    public BaseElement(By by) {
+    public SmartElement(By by) {
         this.by = by;
         driver = WebDriverFactory.getDriver();
     }
@@ -378,7 +378,7 @@ public abstract class BaseElement implements WebElement, WrapsElement {
      * Sets parent web page.
      * @param page The web page.
      */
-    public void setPage(BasePage page) {
+    public void setPage(SmartPage page) {
         this.page = page;
     }
 

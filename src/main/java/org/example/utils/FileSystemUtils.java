@@ -28,7 +28,7 @@ public final class FileSystemUtils {
     public static synchronized void createFile(String folderPath, String fileName, String fileContent) {
         try {
             DataValidationUtils.validateFolderPath(folderPath, "folderPath");
-            DataValidationUtils.validateFilePath(fileName, "fileName");
+            DataValidationUtils.validateFilePathFormat(fileName, "fileName");
             DataValidationUtils.validateNotNull(fileContent, "fileContent");
 
             Writer fileWriter = new FileWriter(String.format("%s/%s", folderPath, fileName), false);
@@ -49,7 +49,7 @@ public final class FileSystemUtils {
      * @param fileContent The file content.
      */
     public static synchronized void createFile(String filePath, String fileContent) {
-        DataValidationUtils.validateFilePath(filePath, "filePath");
+        DataValidationUtils.validateFilePathFormat(filePath, "filePath");
         DataValidationUtils.validateNotNull(fileContent, "fileContent");
 
         try {
@@ -92,7 +92,7 @@ public final class FileSystemUtils {
      * @return The file content.
      */
     public static synchronized String readFile(String filePath) {
-        DataValidationUtils.validateFilePath(filePath, "filePath");
+        DataValidationUtils.validateFilePathFormat(filePath, "filePath");
 
         try {
             String fileContent = Files.readString(Paths.get(filePath));
@@ -110,7 +110,7 @@ public final class FileSystemUtils {
      * @param filePath The file path.
      */
     public static synchronized void deleteFile(String filePath) {
-        DataValidationUtils.validateFilePath(filePath, "filePath");
+        DataValidationUtils.validateFilePathFormat(filePath, "filePath");
         try {
             // Validate file path.
             Paths.get(filePath);
@@ -154,8 +154,8 @@ public final class FileSystemUtils {
      * @param toPath The target path.
      */
     public static synchronized void moveFile(String fromPath, String toPath) {
-        DataValidationUtils.validateFilePath(fromPath, "fromPath");
-        DataValidationUtils.validateFilePath(toPath, "toPath");
+        DataValidationUtils.validateFilePathFormat(fromPath, "fromPath");
+        DataValidationUtils.validateFilePathFormat(toPath, "toPath");
 
         try {
             FileUtils.moveFile(FileUtils.getFile(fromPath), FileUtils.getFile(toPath));
@@ -226,7 +226,7 @@ public final class FileSystemUtils {
      * @return The file extension, or an empty string if no extension found.
      */
     public static String getFileExtension(String fileName) {
-        DataValidationUtils.validateFilePath(fileName, "fileName");
+        DataValidationUtils.validateFilePathFormat(fileName, "fileName");
 
         String extension = "";
         try {
@@ -253,7 +253,7 @@ public final class FileSystemUtils {
      * @return The file name without extension.
      */
     public static String getFileNameWithoutExtension(String fileName) {
-        DataValidationUtils.validateFilePath(fileName, "fileName");
+        DataValidationUtils.validateFilePathFormat(fileName, "fileName");
 
         try {
             // Check file name format.

@@ -9,7 +9,7 @@ import org.openqa.selenium.support.ui.Select;
 /**
  * The dropdown element class.
  */
-public class Dropdown extends BaseElement {
+public class Dropdown extends SmartElement {
 
     /**
      * The dropdown constructor with auto selector.

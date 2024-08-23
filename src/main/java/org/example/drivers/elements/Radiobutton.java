@@ -5,7 +5,7 @@ import org.openqa.selenium.By;
 /**
  * The radio button element class.
  */
-public class Radiobutton extends BaseElement {
+public class Radiobutton extends SmartElement {
 
     /**
      * The radio button element constructor with auto selector.

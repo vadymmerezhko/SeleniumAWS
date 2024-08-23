@@ -3,7 +3,8 @@ package org.example.pages;
 import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
 import org.example.configs.TestConfig;
-import org.example.drivers.elements.BaseElement;
+import org.example.data.SmartObject;
+import org.example.drivers.elements.SmartElement;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.FileSystemUtils;
@@ -23,7 +24,7 @@ import static org.example.constants.Settings.PAGE_URL_FIELD_NAME;
  * Contains common functionality for all page classes.
  */
 @Slf4j
-public abstract class BasePage {
+public abstract class SmartPage extends SmartObject {
     private static final ConcurrentMap<String, String> pageUrlMap = new ConcurrentHashMap<>();
     static private final String SITE_HOST_PLACEHOLDER = "#SITE_HOST#";
 
@@ -32,7 +33,7 @@ public abstract class BasePage {
     /**
      * Base page constructor.
      */
-    BasePage() {
+    SmartPage() {
         driver = WebDriverFactory.getDriver();
     }
 
@@ -151,8 +152,8 @@ public abstract class BasePage {
                 field.setAccessible(true);
                 Object fieldObject = field.get(this);
 
-                if (fieldObject instanceof BaseElement) {
-                    ((BaseElement) fieldObject).setPage(this);
+                if (fieldObject instanceof SmartElement) {
+                    ((SmartElement) fieldObject).setPage(this);
                 }
             }
         }

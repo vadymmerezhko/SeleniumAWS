@@ -153,15 +153,21 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public String getAttribute(String name) {
-        String tagAttribute = ClassUtils.performFunctionMethod(
-                this::doGetAttribute,
-                name,
-                this::fixVisibleWebElement,
-                "getAttribute",
-                RETRY_COUNT,
-                RETRY_WAIT_MILLISECONDS);
-        log.debug("{}.getAttribute('{}'): {}", element, name, tagAttribute);
-        return tagAttribute;
+        try {
+            String tagAttribute = ClassUtils.performFunctionMethod(
+                    this::doGetAttribute,
+                    name,
+                    this::fixVisibleWebElement,
+                    "getAttribute",
+                    RETRY_COUNT,
+                    RETRY_WAIT_MILLISECONDS);
+            log.debug("{}.getAttribute('{}'): {}", element, name, tagAttribute);
+            return tagAttribute;
+        }
+        catch (Exception e) {
+            log.debug("{}.getAttribute('{}'): null", element, name);
+            return null;
+        }
     }
 
     private String doGetAttribute(String name) {

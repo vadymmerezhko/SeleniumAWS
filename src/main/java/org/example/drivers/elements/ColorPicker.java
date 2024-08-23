@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 /**
  * The color picker element class.
  */
-public class ColorPicker extends BaseElement {
+public class ColorPicker extends SmartElement {
 
     /**
      * The color picker element constructor with auto selector.

@@ -2,7 +2,7 @@ package org.example.drivers.elements;
 
 import org.openqa.selenium.By;
 
-public class Label extends BaseElement {
+public class Label extends SmartElement {
 
     /**
      * Label element constructor with auto selector.

@@ -24,8 +24,8 @@ public final class ZipFileUtils {
      * @param folderPath The unzipped file path.
      */
     public static void unzip(String zipFilePath, String folderPath) {
-        DataValidationUtils.validateFilePath(zipFilePath, "zipFilePath");
-        DataValidationUtils.validateFilePath(folderPath, "folderPath");
+        DataValidationUtils.validateFilePathFormat(zipFilePath, "zipFilePath");
+        DataValidationUtils.validateFilePathFormat(folderPath, "folderPath");
 
         unzip(zipFilePath, folderPath, null);
     }
@@ -37,7 +37,7 @@ public final class ZipFileUtils {
      * @param password The password.
      */
     public static void unzip(String zipFilePath, String folderPath, String password) {
-        DataValidationUtils.validateFilePath(zipFilePath, "zipFilePath");
+        DataValidationUtils.validateFilePathFormat(zipFilePath, "zipFilePath");
         DataValidationUtils.validateFolderPath(folderPath, "folderPath");
 
         try {
@@ -72,7 +72,7 @@ public final class ZipFileUtils {
      */
     public static void zip(String folderPath, String zipFilePath, String password) {
         DataValidationUtils.validateFolderPath(folderPath, "folderPath");
-        DataValidationUtils.validateFilePath(zipFilePath, "zipFilePath");
+        DataValidationUtils.validateFilePathFormat(zipFilePath, "zipFilePath");
 
         try {
             ZipFile zipFile;

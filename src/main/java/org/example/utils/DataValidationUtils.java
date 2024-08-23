@@ -1,6 +1,6 @@
 package org.example.utils;
 
-import org.example.data.SmartType;
+import org.example.data.SmartClass;
 import org.example.exceptions.SmartValidationException;
 
 import java.nio.file.Paths;
@@ -22,15 +22,26 @@ public final class DataValidationUtils {
 
     /**
      * Validates that two data objects are not the same.
-     * @param value1 The data value 1.
-     * @param value2 The data value 2.
-     * @param valueName1 The value 1 name.
-     * @param valueName2 The value 2 name.
+     * @param expected The data value 1.
+     * @param actual The data value 2.
+     * @param expectedName The value 1 name.
+     * @param actualName The value 2 name.
      */
-    public static void validateNotTheSame(Object value1, Object value2,
-                                          String valueName1, String valueName2) {
-        if (value1 == value2) {
-            handleError(String.format("Object %s and object %s are the same.", valueName1, valueName2));
+    public static void validateNotTheSame(Object expected, Object actual,
+                                          String expectedName, String actualName) {
+        validateNotBlank(expectedName, "expectedName");
+        validateNotBlank(actualName, "actualName");
+
+        if (expected == actual) {
+            handleError(String.format("""
+            Actual value object is the same as expected value object.
+            Expected:
+            %s
+            Actual:
+            %s
+            """.stripIndent(),
+            expected, actual));
+
         }
     }
 
@@ -38,18 +49,22 @@ public final class DataValidationUtils {
      * Validates that two data objects have the same type.
      * @param expected The object value1.
      * @param actual The object value2.
-     * @param valueName The value name.
+     * @param expectedName The value name.
+     * @param actualName The actual name.
      */
     public static void validateTheSameType(Object expected, Object actual,
                                            String expectedName, String actualName) {
+        validateNotBlank(expectedName, "expectedName");
+        validateNotBlank(actualName, "actualName");
         validateNotNull(expected, expectedName);
         validateNotNull(actual, actualName);
+
         String actualClassName = actual.getClass().getName();
         String expectedClassName = expected.getClass().getName();
 
         if (!expectedClassName.equals(actualClassName)) {
             handleError(String.format("""
-                    Actual object type does not equal expected object type.
+                    Actual value class does not equal expected value class.
                     Expected: %s
                     Actual: %s
                     """.stripIndent(),
@@ -65,6 +80,7 @@ public final class DataValidationUtils {
      */
     public static void validateNotEmpty(String value, String valueName) {
         validateNotNull(value, valueName);
+
         if (value.isEmpty()) {
             handleError(String.format("%s has empty value.", valueName));
         }
@@ -75,7 +91,7 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateNotEmpty(SmartType value, String valueName) {
+    public static void validateNotEmpty(SmartClass value, String valueName) {
         validateNotEmpty(value.toString(), valueName);
     }
 
@@ -86,6 +102,7 @@ public final class DataValidationUtils {
      */
     public static void validateNotBlank(String value, String valueName) {
         validateNotNull(value, valueName);
+
         if (value.trim().isEmpty()) {
             handleError(String.format("%s has blank value: '%s'", valueName, value));
         }
@@ -96,7 +113,7 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateNotBlank(SmartType value, String valueName) {
+    public static void validateNotBlank(SmartClass value, String valueName) {
         validateNotNull(value.toString(), valueName);
     }
 
@@ -107,18 +124,10 @@ public final class DataValidationUtils {
      */
     public static void validateNotMultiline(String value, String valueName) {
         validateNotNull(value, valueName);
-        if (value.trim().contains("\n")) {
-            handleError(String.format("%s has multiline value: '%s'", valueName, value));
-        }
-    }
 
-    /**
-     * Validates that data value is not multiline.
-     * @param value The data value.
-     * @param valueName The value name.
-     */
-    public static void validateNotMultiline(SmartType value, String valueName) {
-        validateNotMultiline(value.toString(), valueName);
+        if (value.trim().contains("\n")) {
+            handleError(String.format("%s has multiline value:\n'%s'", valueName, value));
+        }
     }
 
     /**
@@ -134,15 +143,6 @@ public final class DataValidationUtils {
     }
 
     /**
-     * Validates that data value has correct color format like '#FF0088'.
-     * @param value The data value.
-     * @param valueName The value name.
-     */
-    public static void validateColorFormat(SmartType value, String valueName) {
-       validateColorFormat(value.toString(), valueName);
-    }
-
-    /**
      * Validates that data value has correct date format like '05/23/1970'.
      * @param value The data value.
      * @param valueName The value name.
@@ -155,15 +155,6 @@ public final class DataValidationUtils {
     }
 
     /**
-     * Validates that data value has correct date format like '05/23/1970'.
-     * @param value The data value.
-     * @param valueName The value name.
-     */
-    public static void validateDateValue(SmartType value, String valueName) {
-        validateDateValue(valueName, valueName);
-    }
-
-    /**
      * Validates that numeric range is correct.
      * @param value The data value.
      * @param from The range beginning.
@@ -171,6 +162,8 @@ public final class DataValidationUtils {
      * @param valueName The value name.
      */
     public static void validateRange(long value, long from, long to, String valueName) {
+        validateNotBlank(valueName, valueName);
+
         if (value < from || value > to) {
             handleError(String.format("%s has invalid [%d:%d] range value: %d",
                     valueName, from, to, value));
@@ -184,6 +177,8 @@ public final class DataValidationUtils {
      * @param valueName The value name.
      */
     public static void validateMin(long value, long min, String valueName) {
+        validateNotBlank(valueName, valueName);
+
         if (value < min) {
             handleError(String.format("%s has value less than MIN=%d: %d",
                     valueName, min, value));
@@ -197,6 +192,8 @@ public final class DataValidationUtils {
      * @param valueName The value name.
      */
     public static void validateMax(long value, long max, String valueName) {
+        validateNotBlank(valueName, valueName);
+
         if (value > max) {
             handleError(String.format("%s has value less than MIN=%d: %d",
                     valueName, max, value));
@@ -206,24 +203,18 @@ public final class DataValidationUtils {
     /**
      * Validates file path.
      * Throws exception if path is invalid.
-     * @param value Yhe file  path.
+     * @param filePath Yhe file  path.
      */
-    public static void validateFilePath(String value, String valueName) {
-        validateNotBlank(value, valueName);
-        try {
-            Paths.get(value);
-        } catch (Exception e){
-            handleError(String.format("Invalid file path: %s", value));
-        }
-    }
+    public static void validateFilePathFormat(String filePath, String valueName) {
+        validateNotBlank(filePath, "filePath");
+        validateNotBlank(filePath, valueName);
 
-    /**
-     * Validates file path.
-     * Throws exception if path is invalid.
-     * @param value Yhe file  path.
-     */
-    public static void validateFilePath(SmartType value, String valueName) {
-        validateFilePath(value.toString(), valueName);
+        try {
+            Paths.get(filePath);
+        }
+        catch (Exception e){
+            handleError(String.format("Invalid file path: %s", filePath));
+        }
     }
 
     /**
@@ -232,11 +223,31 @@ public final class DataValidationUtils {
      * @param folderPath Yhe file  path.
      */
     public static void validateFolderPath(String folderPath, String valueName) {
-        validateNotNull(folderPath, valueName);
+        validateNotBlank(folderPath, valueName);
+        validateNotBlank(valueName, "valueName");
+
         try {
             Paths.get(folderPath);
-        } catch (Exception e){
+        }
+        catch (Exception e) {
             handleError(String.format("Invalid folder path: %s", folderPath));
+        }
+    }
+
+    /**
+     * Validated that value object is instance of exact type.
+     * @param value The value object.
+     * @param type The type class.
+     * @param valueName The
+     */
+    public static void validateInstanceOf(Object value, Class<?> type, String valueName) {
+        validateNotNull(value, valueName);
+        validateNotNull(type, "type");
+        validateNotBlank(valueName, "valueName");
+
+        if (!type.isInstance(value)) {
+            handleError(String.format("Value type %s is not instance of %s.",
+                    value.getClass().getName(), type.getName()));
         }
     }
 

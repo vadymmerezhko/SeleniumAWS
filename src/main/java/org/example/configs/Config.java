@@ -53,7 +53,7 @@ public class Config extends BaseConfig {
     private Config(String filePath) {
         super(filePath);
         log.debug("{} file path: {}", getClass().getSimpleName(), filePath);
-        DataValidationUtils.validateFilePath(filePath, "filePath");
+        DataValidationUtils.validateFilePathFormat(filePath, "filePath");
     }
 
     /**

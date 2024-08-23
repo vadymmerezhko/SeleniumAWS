@@ -3,12 +3,12 @@
     <test name="Test">
         <classes>
             <class name="org.example.unit.ClassUtilsTest"/>
-            <class name="org.example.unit.ComparatorUtilsTest"/>
+            <class name="org.example.unit.CompareUtilsTest"/>
             <class name="org.example.unit.ConverterUtilsTest"/>
             <class name="org.example.unit.DataValidationUtilsTest"/>
             <class name="org.example.unit.FileSystemUtilsTest"/>
             <class name="org.example.unit.SmartAssertTest"/>
-            <class name="org.example.unit.SmartTypeTest"/>
+            <class name="org.example.unit.SmartClassTest"/>
             <class name="org.example.unit.SystemUtilsTest"/>
             <class name="org.example.unit.TimeOutTest"/>
             <class name="org.example.unit.WaiterUtilsTest"/>

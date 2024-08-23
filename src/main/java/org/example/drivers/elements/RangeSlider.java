@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 /**
  * The range slider element class.
  */
-public class RangeSlider extends BaseElement {
+public class RangeSlider extends SmartElement {
 
     /**
      * The range slider constructor by itsselector.

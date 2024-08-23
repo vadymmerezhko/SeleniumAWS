@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * The multiselect element class.
  */
-public class Multiselect extends BaseElement {
+public class Multiselect extends SmartElement {
     private final Select select;
 
     /**

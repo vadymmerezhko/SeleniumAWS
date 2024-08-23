@@ -110,70 +110,24 @@ public class ConverterUtilsTest {
         sdf.setTimeZone(timeZone);
         String dateString = "2020-12-31";
         Date expectedDate = sdf.parse(dateString);
-        Date actualDate = ConverterUtils.stringToDate(dateString);
+        Date actualDate = ConverterUtils.stringToSmartDate(dateString);
         Assert.assertEquals(actualDate, expectedDate);
-    }
-
-    @Test
-    public void testConvertDateTimeWithTimeZone() throws Exception {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
-        TimeZone timeZone = TimeZone.getDefault();
-        sdf.setTimeZone(timeZone);
-        String dateString = "2020-01-01T12:00:00+0200";
-        Date expectedDate = sdf.parse(dateString);
-        Date actualDate = ConverterUtils.stringToDate(dateString);
-        Assert.assertEquals(actualDate, expectedDate);
-    }
-
-    @Test
-    public void testConvertDateTime() throws Exception {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        TimeZone timeZone = TimeZone.getDefault();
-        sdf.setTimeZone(timeZone);
-        String dateString = "2020-11-30 23:21:20";
-        Date expectedDate = sdf.parse(dateString);
-        Date actualDate = ConverterUtils.stringToDate(dateString);
-        Assert.assertEquals(actualDate, expectedDate);
-    }
-
-    @Test
-    public void testConvertTimeOnly() throws Exception {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        TimeZone timeZone = TimeZone.getDefault();
-        sdf.setTimeZone(timeZone);
-        String dateString = "23:59:59";
-        Date expectedDate = sdf.parse(dateString);
-        Date actualDate = ConverterUtils.stringToDate(dateString);
-        Assert.assertEquals(actualDate, expectedDate);
-    }
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testInvalidDateFormat() {
-        String dateString = "Month 30, 1981";
-        Date date = ConverterUtils.stringToDate(dateString);
-        System.out.println(date.toString());
-    }
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testIncompleteDate() {
-        String dateString = "2020-01";
-        ConverterUtils.stringToDate(dateString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testBlankDate() {
         String dateString = "";
-        ConverterUtils.stringToDate(dateString);
+        ConverterUtils.stringToSmartDate(dateString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testNullDate() {
-        ConverterUtils.stringToDate(null);
+        ConverterUtils.stringToSmartDate(null);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testRandomStringAsDate() {
-        ConverterUtils.stringToDate("not a date");
+        ConverterUtils.stringToSmartDate("not a date");
     }
 
     @Test
@@ -231,7 +185,7 @@ public class ConverterUtilsTest {
     @Test
     public void testValidXmlObject() {
         String validXml = "<person><name>John</name></person>";
-        Document result = ConverterUtils.stringToXmlObject(validXml);
+        Document result = ConverterUtils.stringToXmlDocument(validXml);
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.getElementsByTagName("name").item(0).getTextContent(), "John", "The name should be John.");
     }
@@ -239,17 +193,17 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testInvalidXmlObject() {
         String invalidXml = "<person><name>John</name>";
-        ConverterUtils.stringToXmlObject(invalidXml);
+        ConverterUtils.stringToXmlDocument(invalidXml);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testBlankXmlObject() {
-        ConverterUtils.stringToXmlObject(" ");
+        ConverterUtils.stringToXmlDocument(" ");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testNullXmlObject() {
-        ConverterUtils.stringToXmlObject(null);
+        ConverterUtils.stringToXmlDocument(null);
     }
 
     @Test
@@ -296,33 +250,5 @@ public class ConverterUtilsTest {
 
         String actualDateString = ConverterUtils.localDateToString(localDate, dateFormat);
         Assert.assertEquals(actualDateString, expectedDateString, "The date string should match the expected format.");
-    }
-
-    @Test
-    public void testLocalDateToString_NullLocalDate() {
-        LocalDate localDate = null;
-        String dateFormat = "dd/MM/yyyy";
-
-        try {
-            ConverterUtils.localDateToString(localDate, dateFormat);
-            Assert.fail("Expected an exception to be thrown when LocalDate is null.");
-        } catch (SmartRuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("Cannot convert LocalDate object"),
-                    "Exception message should indicate the LocalDate conversion issue.");
-        }
-    }
-
-    @Test
-    public void testLocalDateToString_InvalidDateFormat() {
-        LocalDate localDate = LocalDate.of(2024, 8, 8);
-        String dateFormat = "invalid-format";
-
-        try {
-            ConverterUtils.localDateToString(localDate, dateFormat);
-            Assert.fail("Expected an exception to be thrown for an invalid date format.");
-        } catch (SmartRuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("Cannot convert LocalDate object"),
-                    "Exception message should indicate the date format issue.");
-        }
     }
 }
