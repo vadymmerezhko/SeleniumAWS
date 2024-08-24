@@ -7,30 +7,30 @@ import lombok.Getter;
  */
 public class WebFormPageOutput extends SmartDataObject {
     @Getter
-    private final SmartClass textInput = new SmartClass();
+    private final SmartValue textInput = new SmartValue();
     @Getter
-    private final SmartClass textareaInput = new SmartClass();
+    private final SmartValue textareaInput = new SmartValue();
     @Getter
-    private final SmartClass dropdownSelectedOption = new SmartClass();
+    private final SmartValue dropdownSelectedOption = new SmartValue();
     @Getter
-    private final SmartClass dataListSelectOption = new SmartClass();
+    private final SmartValue dataListSelectOption = new SmartValue();
     // TODO: fix file element for remote web driver
     //@Getter
-    //private final SmartClass filePath = new SmartClass();
+    //private final SmartValue filePath = new SmartValue();
     @Getter
-    private final SmartClass checkbox1Value = new SmartClass();
+    private final SmartValue checkbox1Value = new SmartValue();
     @Getter
-    private final SmartClass checkbox2Value = new SmartClass();
+    private final SmartValue checkbox2Value = new SmartValue();
     @Getter
-    private final SmartClass radiobutton1Value = new SmartClass();
+    private final SmartValue radiobutton1Value = new SmartValue();
     @Getter
-    private final SmartClass radiobutton2Value = new SmartClass();
+    private final SmartValue radiobutton2Value = new SmartValue();
     @Getter
-    private final SmartClass color = new SmartClass();
+    private final SmartValue color = new SmartValue();
     @Getter
-    private final SmartClass date = new SmartClass();
+    private final SmartValue date = new SmartValue();
     @Getter
-    private final SmartClass range = new SmartClass();
+    private final SmartValue range = new SmartValue();
     
     public WebFormPageOutput()  {
         super();

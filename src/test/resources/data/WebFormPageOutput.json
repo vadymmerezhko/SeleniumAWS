@@ -1,7 +1,7 @@
 {
     "date": {
         "type": {"objectType": "String"},
-        "value": "08/24/2024"
+        "value": "08/24/#KEYWORD#"
     },
     "textInput": {
         "type": {"objectType": "String"},

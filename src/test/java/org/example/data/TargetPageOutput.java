@@ -4,9 +4,9 @@ import lombok.Getter;
 
 public class TargetPageOutput extends SmartDataObject {
     @Getter
-    private final SmartClass header = new SmartClass();
+    private final SmartValue header = new SmartValue();
     @Getter
-    private final SmartClass status = new SmartClass();
+    private final SmartValue status = new SmartValue();
 
     public TargetPageOutput() {
         super();

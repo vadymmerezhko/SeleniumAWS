@@ -1,7 +1,6 @@
 package org.example.data;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.asserts.SmartAssert;
 import org.example.exceptions.SmartRuntimeException;
 
 import java.lang.reflect.Field;
@@ -26,8 +25,8 @@ public abstract class SmartDataObject extends SmartObject {
                 field.setAccessible(true);
                 Object fieldObject = field.get(this);
 
-                if (fieldObject instanceof SmartClass) {
-                    ((SmartClass) fieldObject).setParent(this);
+                if (fieldObject instanceof SmartValue) {
+                    ((SmartValue) fieldObject).setParent(this);
                 }
             }
         }

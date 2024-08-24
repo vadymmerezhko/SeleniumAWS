@@ -1,6 +1,6 @@
 package org.example.e2e;
 
-import org.example.asserts.SmartAssert;
+import org.example.data.SmartAssert;
 import org.example.data.*;
 import org.example.configs.TestConfig;
 import org.example.servers.TestServerInterface;

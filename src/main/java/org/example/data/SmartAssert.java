@@ -1,7 +1,6 @@
-package org.example.asserts;
+package org.example.data;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.data.*;
 import org.example.enums.ValueType;
 import org.example.utils.ConverterUtils;
 import org.json.JSONArray;
@@ -97,14 +96,14 @@ public abstract class SmartAssert {
         try {
             for (Field expectdField : expectedFields) {
                 expectdField.setAccessible(true);
-                SmartClass expectedSmartClass = ((SmartClass) expectdField.get(expected));
-                Object expectedValue = expectedSmartClass.getValue();
+                SmartValue expectedSmartValue = ((SmartValue) expectdField.get(expected));
+                Object expectedValue = expectedSmartValue.getValue();
                 Class<?> expectedValueClass = expectedValue.getClass();
                 String fieldName = expectdField.getName();
                 Field actualField = actualClass.getDeclaredField(fieldName);
                 actualField.setAccessible(true);
-                SmartClass actualSmartClass = ((SmartClass) actualField.get(actual));
-                Object actualValue = actualSmartClass.getValue();
+                SmartValue actualSmartValue = ((SmartValue) actualField.get(actual));
+                Object actualValue = actualSmartValue.getValue();
                 Class<?> actualValueClass = actualValue.getClass();
 
                 if (strictType) {
@@ -119,7 +118,7 @@ public abstract class SmartAssert {
                     }
                 }
                 if (Config.getInstance().getDebugMode() && !expectedValue.equals(actualValue)) {
-                    SmartAssert.updateExpectedValue(expectedSmartClass, actualSmartClass);
+                    SmartAssert.updateExpectedValue(expectedSmartValue, actualSmartValue);
                 }
                 // JSONObject
                 if (expectedValueClass == JSONObject.class) {
@@ -224,7 +223,7 @@ public abstract class SmartAssert {
                 diff.toString()), diff.hasDifferences());
     }
 
-    private static void updateExpectedValue(SmartClass expected, SmartClass actual) {
+    private static void updateExpectedValue(SmartValue expected, SmartValue actual) {
         String newValue = WebUtils.showPrompt(String.format("""
                 ASSERT FAIL
                 

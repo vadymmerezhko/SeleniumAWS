@@ -417,11 +417,12 @@ public abstract class SmartElement implements WebElement, WrapsElement {
             if (FileSystemUtils.fileExists(filePath)) {
                 String jsonString = FileSystemUtils.readFile(filePath);
                 json = new JSONObject(jsonString);
-            } else {
+            }
+            else {
                 json = new JSONObject();
             }
             json.put(fieldName, selector);
-            FileSystemUtils.createFile(filePath, json.toString());
+            FileSystemUtils.createFile(filePath, json.toString(4));
             log.debug("Element {} selector {} is saved to file {}.",
                     elementName, selector, filePath);
         }

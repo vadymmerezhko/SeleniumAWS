@@ -1,6 +1,6 @@
 package org.example.pages;
 
-import org.example.data.SmartClass;
+import org.example.data.SmartValue;
 import org.example.drivers.elements.*;
 
 /**
@@ -35,7 +35,7 @@ public class WebFormPage extends SmartPage {
      * Enters text to text input.
      * @param text The text to enter.
      */
-    public void enterIntoTextInput(SmartClass text) {
+    public void enterIntoTextInput(SmartValue text) {
         textInput.enterText(text.toString());
     }
 
@@ -51,7 +51,7 @@ public class WebFormPage extends SmartPage {
      * Enters text to text area.
      * @param text The text to enter.
      */
-    public void enterIntoTextarea(SmartClass text) {
+    public void enterIntoTextarea(SmartValue text) {
         textarea.enterText(text.toString());
     }
 
@@ -75,7 +75,7 @@ public class WebFormPage extends SmartPage {
      * Selects dropdown option by its text.
      * @param option The option text.
      */
-    public void selectDropdownOption(SmartClass option) {
+    public void selectDropdownOption(SmartValue option) {
         dropdown.selectOptionByText(option.toString());
     }
 
@@ -91,7 +91,7 @@ public class WebFormPage extends SmartPage {
      * Selects data list option by its text.
      * @param option The option text.
      */
-    public void selectDataListOption(SmartClass option) {
+    public void selectDataListOption(SmartValue option) {
         dataList.selectOptionByText(option.toString());
     }
 
@@ -107,7 +107,7 @@ public class WebFormPage extends SmartPage {
      * Enters file path into file brows input.
      * @param filePath The file path to enter.
      */
-    public void enterFilePath(SmartClass filePath) {
+    public void enterFilePath(SmartValue filePath) {
         fileInput.enterText(filePath.toString());
     }
 
@@ -123,7 +123,7 @@ public class WebFormPage extends SmartPage {
      * Sets the first checkbox true/false value.
      * @param value The value to set.
      */
-    public void setCheckbox1Value(SmartClass value) {
+    public void setCheckbox1Value(SmartValue value) {
         checkbox1.setValue(value.toBoolean());
     }
 
@@ -139,7 +139,7 @@ public class WebFormPage extends SmartPage {
      * Sets the second checkbox true/false value.
      * @param value The value to set.
      */
-    public void setCheckbox2Value(SmartClass value) {
+    public void setCheckbox2Value(SmartValue value) {
         checkbox2.setValue(value.toBoolean());
     }
 
@@ -185,7 +185,7 @@ public class WebFormPage extends SmartPage {
      * Sets color picker value in format "#RRGGBB" like "#0088ff".
      * @param color The color value to set.
      */
-    public void pickColor(SmartClass color) {
+    public void pickColor(SmartValue color) {
         colorPicker.pickColor(color.toString());
     }
 
@@ -201,7 +201,7 @@ public class WebFormPage extends SmartPage {
      * Sets data picker value in format "mm/DD/YYYY" like "05/23/1970".
      * @param date The data value to set.
      */
-    public void pickDate(SmartClass date) {
+    public void pickDate(SmartValue date) {
         datePicker.pickDate(date.toString());
     }
 
@@ -217,7 +217,7 @@ public class WebFormPage extends SmartPage {
      * Sets range slider value.
      * @param range The range value to set.
      */
-    public void setRange(SmartClass range) {
+    public void setRange(SmartValue range) {
         rangeSlider.setValue(range.toInteger());
     }
 

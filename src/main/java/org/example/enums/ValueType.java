@@ -45,7 +45,7 @@ public enum ValueType {
     POSITIVE_INFINITY("Infinity"),
     NEGATIVE_INFINITY("-Infinity"),
     NAN("NaN"),
-    NULL("null"),
+    NULL("Null"),
     CLASS("Class"),
     ENUM("Enum"),
     SMART_VALUE("SmartValue");

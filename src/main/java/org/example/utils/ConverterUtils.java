@@ -919,7 +919,7 @@ public final class ConverterUtils {
      * @param object The object.
      * @return The object string.
      */
-    public static <T> String objectToSting(Object object) {
+    public static <T> String objectToString(Object object) {
         String string = null;
 
         try {
@@ -1040,7 +1040,7 @@ public final class ConverterUtils {
         DataValidationUtils.validateNotNull(sourceObject, "object");
         T targetObject;
         try {
-            String stringValue = objectToSting(sourceObject);
+            String stringValue = objectToString(sourceObject);
             targetObject = (T) stringToObject(targetType, stringValue);
             log.debug("""
                             Source object converted to other object.
@@ -1307,7 +1307,7 @@ public final class ConverterUtils {
      */
     public static StringBuffer objectToStringBuffer(Object object) {
         try {
-            StringBuffer stringBuffer = new StringBuffer(objectToSting(object));
+            StringBuffer stringBuffer = new StringBuffer(objectToString(object));
             log.debug("""
                             Object converted to string buffer.
                             Object:
@@ -2139,7 +2139,7 @@ public final class ConverterUtils {
         DataValidationUtils.validateNotNull(array, "array");
 
         try {
-            String arrayString = objectToSting(array);
+            String arrayString = objectToString(array);
             log.debug("Array {} converted to string '{}'", Arrays.toString(array), arrayString);
             return arrayString;
         } catch (Exception e) {
@@ -2209,7 +2209,7 @@ public final class ConverterUtils {
      * @return The set.
      */
     public static <T> List<T> objectToQueue(SmartType type, Object object) {
-        String string = objectToSting(object);
+        String string = objectToString(object);
         List<T> list = stringToList(type, string);
         log.debug("""
                         Object converted to set.

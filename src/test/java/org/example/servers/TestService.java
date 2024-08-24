@@ -14,13 +14,13 @@ import java.util.concurrent.ConcurrentMap;
  * Test server implementation class.
  */
 @Slf4j
-public class TestServer implements TestServerInterface {
+public class TestService implements TestServerInterface {
     static private final ConcurrentMap<Long, Boolean> threadMap = new ConcurrentHashMap<>();
 
     /**
      * Test server implementation constructor.
      */
-    TestServer() {
+    TestService() {
         threadMap.put(Thread.currentThread().threadId(), true);
         log.info("Thread count: {}", threadMap.size());
     }
@@ -35,11 +35,13 @@ public class TestServer implements TestServerInterface {
         try {
             WebFormPage webFormPage = new WebFormPage();
             WebFormPageOutput output = new WebFormPageOutput();
-            String thisYear = String.valueOf(LocalDate.now().getYear());
+            int thisYear = LocalDate.now().getYear();
+            String textAreaKeyword = "area";
 
             webFormPage.open();
             webFormPage.enterIntoTextInput(input.getTexInput());
             webFormPage.enterPassword("Password123");
+            input.getTextareaInput().setKeyword(textAreaKeyword);
             webFormPage.enterIntoTextarea(input.getTextareaInput());
             webFormPage.selectDropdownOption(input.getDropdownSelectedOption());
             webFormPage.selectDataListOption(input.getDataListSelectOption());
@@ -55,13 +57,13 @@ public class TestServer implements TestServerInterface {
                 webFormPage.selectRadiobutton2();
             }
             webFormPage.pickColor(input.getColor());
-            //input.getDate().setKeyword(thisYear);
+            input.getDate().setKeyword(thisYear);
             webFormPage.pickDate(input.getDate());
             webFormPage.setRange(input.getRange());
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
             output.getTextareaInput().setValue(webFormPage.getTextInputValue());
-            //output.getTextareaInput().setKeyword("Textarea");
+            output.getTextareaInput().setKeyword(textAreaKeyword);
             output.getTextareaInput().setValue(webFormPage.getTextareaValue());
             output.getDropdownSelectedOption().setValue(webFormPage.getDropdownSelectedOption());
             output.getDataListSelectOption().setValue(webFormPage.getDataListSelectedOption());
@@ -72,7 +74,7 @@ public class TestServer implements TestServerInterface {
             output.getRadiobutton1Value().setValue(webFormPage.getRadiobutton1Value());
             output.getRadiobutton2Value().setValue(webFormPage.getRadiobutton2Value());
             output.getColor().setValue(webFormPage.getColor());
-            //output.getDate().setKeyword(thisYear);
+            output.getDate().setKeyword(thisYear);
             output.getDate().setValue(webFormPage.getDate());
             output.getRange().setValue(webFormPage.getRange());
             log.debug("Web Form page output data is returned: {}", output);

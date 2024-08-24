@@ -28,16 +28,16 @@ public class DatePicker extends SmartElement {
 
     /**
      * Picks the date in format "mm/DD/YYYY".
-     * @param date The date to pick.
+     * @param dateString The date to pick.
      */
-    public void pickDate(String date) {
+    public void pickDate(String dateString) {
         WebElement element = getElement();
-        DataValidationUtils.validateDateValue(date, this.getClass().getSimpleName());
+        DataValidationUtils.validateDateValue(dateString, this.getClass().getSimpleName());
         if (element instanceof PlaywrightElement) {
-            ((PlaywrightElement)element).setValue(date);
+            ((PlaywrightElement)element).setValue(dateString);
             return;
         }
-        element.sendKeys(date, Keys.ESCAPE);
+        element.sendKeys(dateString, Keys.ESCAPE);
     }
 
     /**

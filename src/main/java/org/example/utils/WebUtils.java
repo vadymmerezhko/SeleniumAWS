@@ -1,7 +1,6 @@
 package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.data.SmartValue;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.drivers.playwright.PlaywrightElement;
 import org.example.drivers.wrappers.SmartWebElement;
@@ -968,7 +967,7 @@ public final class WebUtils {
      * @param element The element.
      * @return The smart value.
      */
-    public static SmartValue getElementSmartValue(WebElement element) {
+    public static Object getElementSmartValue(WebElement element) {
         try {
             String elementTag = element.getTagName();
             Object elementValue = null;
@@ -1016,10 +1015,8 @@ public final class WebUtils {
                     }
                 }
             }
-            // Return smart value
-            SmartValue elementSmartValue = new SmartValue(elementValue);
-            log.debug("Element smart value returned: {}", elementSmartValue);
-            return elementSmartValue;
+            log.debug("Element value or text returned: {}", elementValue);
+            return elementValue;
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(

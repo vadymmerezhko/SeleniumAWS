@@ -1,6 +1,6 @@
 package org.example.utils;
 
-import org.example.data.SmartClass;
+import org.example.data.SmartValue;
 import org.example.exceptions.SmartValidationException;
 
 import java.nio.file.Paths;
@@ -91,7 +91,7 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateNotEmpty(SmartClass value, String valueName) {
+    public static void validateNotEmpty(SmartValue value, String valueName) {
         validateNotEmpty(value.toString(), valueName);
     }
 
@@ -113,7 +113,7 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateNotBlank(SmartClass value, String valueName) {
+    public static void validateNotBlank(SmartValue value, String valueName) {
         validateNotNull(value.toString(), valueName);
     }
 

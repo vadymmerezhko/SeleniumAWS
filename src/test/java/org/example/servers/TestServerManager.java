@@ -12,6 +12,6 @@ public class TestServerManager {
      * @return Test server instance.
      */
     public static synchronized TestServerInterface getTestServer() {
-        return new TestServer();
+        return new TestService();
     }
 }
