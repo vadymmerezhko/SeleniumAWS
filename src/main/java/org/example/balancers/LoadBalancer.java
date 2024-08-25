@@ -125,7 +125,7 @@ public class LoadBalancer {
             } catch (Exception e) {
                 log.error("""
                         \n///////////////////////////////////////////////////////////
-                        Cannot create all servers: {}
+                        Cannot create all servers:\n{}
                         ///////////////////////////////////////////////////////////
                         """.stripIndent(), e.getMessage());
                 System.exit(-1);

@@ -2,6 +2,7 @@ package org.example.drivers.wrappers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
+import org.example.drivers.selectors.SmartByParser;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ClassUtils;
 import org.example.utils.WaiterUtils;
@@ -325,9 +326,21 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public List<WebElement> findElements(By childBy) {
-        return element.findElements(childBy).stream().map(childElement ->
-                        new SmartWebElement(childElement, this, childBy, driver, waiter))
+        String selector = SmartByParser.getLocatorString(childBy);
+        List<WebElement> elements;
+
+        if (WebUtils.isImageSelector(selector)) {
+            elements =  WebUtils.findWebElementsByImage(selector, element);
+        }
+        else {
+            elements = element.findElements(childBy);
+        }
+        List<WebElement> smartElements = elements.stream().map(childElement ->
+                new SmartWebElement(childElement, this, childBy, driver, waiter))
                 .collect(Collectors.toList());
+        log.debug("{} child web elements are found by selector{}:\n{}.",
+                smartElements.size(), by, smartElements);
+        return smartElements;
     }
 
     /**
@@ -339,25 +352,30 @@ public class SmartWebElement extends BaseSmartWebElement {
     public WebElement findElement(By childBy) {
         long startMilliseconds = System.currentTimeMillis();
         long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
-        WebElement childElement;
+        String selector = SmartByParser.getLocatorString(childBy);
+        List<WebElement> elements;
+        WebElement foundElement;
 
         while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
-            List<WebElement> elements = findElements(by);
+
+            if (WebUtils.isImageSelector(selector)) {
+                elements = WebUtils.findWebElementsByImage(selector, element);
+            }
+            else {
+                elements = element.findElements(childBy);
+            }
             int size = elements.size();
 
             if (size == 1) {
-                childElement = elements.get(0);
-                log.debug("Web element {} is found by selector {}.", childElement, by);
-                return new SmartWebElement(childElement, null, by, driver, waiter);
-            }
-            else if (elements.size() > 0) {
-                break;
+                foundElement = elements.get(0);
+                log.debug("Child web element {} is found by selector {}.", foundElement, by);
+                return new SmartWebElement(foundElement, null, by, driver, waiter);
             }
             WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_DELAY_MILLISECONDS);
         }
-        childElement = new SmartWebElement(element.findElement(by), null, by, driver, waiter);
-        log.debug("Web element {} is found by selector {}.", childElement, by);
-        return childElement;
+        foundElement = new SmartWebElement(driver.findElement(by), null, by, driver, waiter);
+        log.debug("Child web element {} is not found by selector {}.", foundElement, by);
+        return foundElement;
     }
 
     /**
@@ -597,6 +615,7 @@ public class SmartWebElement extends BaseSmartWebElement {
             }
             WebUtils.waitForElementNotMoving(fixedElement);
             WebUtils.waitForElementNotSizing(fixedElement);
+            WebUtils.waitForElementStableStyle(fixedElement);
             element = fixedElement;
         }
     }

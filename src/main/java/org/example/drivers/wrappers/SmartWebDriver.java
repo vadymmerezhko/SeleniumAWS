@@ -2,7 +2,9 @@ package org.example.drivers.wrappers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
+import org.example.drivers.selectors.SmartByParser;
 import org.example.utils.WaiterUtils;
+import org.example.utils.WebUtils;
 import org.openqa.selenium.*;
 
 import java.util.List;
@@ -78,7 +80,15 @@ public class SmartWebDriver implements WebDriver, JavascriptExecutor, TakesScree
      */
     @Override
     public List<WebElement> findElements(By by) {
-        List<WebElement> elements = driver.findElements(by);
+        String selector = SmartByParser.getLocatorString(by);
+        List<WebElement> elements;
+
+        if (WebUtils.isImageSelector(selector)) {
+            elements = WebUtils.findWebElementsByImage(selector, null);
+        }
+        else {
+            elements = driver.findElements(by);
+        }
         List<WebElement> smartElements = elements.stream().map(element ->
                 new SmartWebElement(element, null, by, driver, waiter))
                 .collect(Collectors.toList());
@@ -96,19 +106,24 @@ public class SmartWebDriver implements WebDriver, JavascriptExecutor, TakesScree
     public WebElement findElement(By by) {
         long startMilliseconds = System.currentTimeMillis();
         long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
+        String selector = SmartByParser.getLocatorString(by);
+        List<WebElement> elements;
         WebElement element;
 
         while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
-            List<WebElement> elements = findElements(by);
+
+            if (WebUtils.isImageSelector(selector)) {
+                elements = WebUtils.findWebElementsByImage(selector, null);
+            }
+            else {
+                elements = driver.findElements(by);
+            }
             int size = elements.size();
 
             if (size == 1) {
                 element = elements.get(0);
                 log.debug("Web element {} is found by selector {}.", element, by);
                 return new SmartWebElement(element, null, by, driver, waiter);
-            }
-            else if (elements.size() > 0) {
-                break;
             }
             WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_DELAY_MILLISECONDS);
             waitForPageLoad();

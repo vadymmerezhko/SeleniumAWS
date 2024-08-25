@@ -6,6 +6,8 @@ import org.example.configs.TestConfig;
 import org.example.data.SmartObject;
 import org.example.drivers.elements.SmartElement;
 import org.example.drivers.factories.WebDriverFactory;
+import org.example.drivers.selectors.Selector;
+import org.example.drivers.selectors.SelectorType;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.FileSystemUtils;
 import org.example.utils.WebUtils;
@@ -17,7 +19,7 @@ import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.example.constants.Settings.PAGE_URL_FIELD_NAME;
+import static org.example.constants.Settings.*;
 
 /**
  * Base page class.
@@ -26,7 +28,6 @@ import static org.example.constants.Settings.PAGE_URL_FIELD_NAME;
 @Slf4j
 public abstract class SmartPage extends SmartObject {
     private static final ConcurrentMap<String, String> pageUrlMap = new ConcurrentHashMap<>();
-    static private final String SITE_HOST_PLACEHOLDER = "#SITE_HOST#";
 
     protected WebDriver driver;
 
@@ -183,7 +184,8 @@ public abstract class SmartPage extends SmartObject {
                 json = new JSONObject();
             }
             String urlFormat = url.replace(siteHost, SITE_HOST_PLACEHOLDER);
-            json.put(PAGE_URL_FIELD_NAME, urlFormat);
+            Selector selector = new Selector(SelectorType.URL, urlFormat);
+            json.put(PAGE_URL_FIELD_NAME, selector.toString());
             FileSystemUtils.createFile(filePath, json.toString());
             log.debug("Page {} URL {} is saved to file {}.",
                     pageName, url, filePath);
@@ -227,12 +229,20 @@ public abstract class SmartPage extends SmartObject {
                     if (url.trim().isEmpty()) {
                         return null;
                     }
-                    return url;
+                    Selector selector = Selector.parseSelector(url);
+                    return selector.getValue();
                 }
                 catch (JSONException e) {
-                    log.debug("File {} has invalid JSON object format: {}",
-                            filePath, jsonString);
-                    return null;
+                    if (Config.getInstance().getDebugMode()) {
+                        log.debug("File {} has invalid JSON object format: {}",
+                                filePath, jsonString);
+                        return null;
+                    }
+                    else {
+                        throw new SmartRuntimeException(String.format(
+                                "Page %s URL is not defined in the page object file %s.",
+                                pageName, filePath));
+                    }
                 }
             }
             else {
@@ -252,13 +262,12 @@ public abstract class SmartPage extends SmartObject {
         String url;
         String pageName = this.getClass().getSimpleName();
         String siteHost = TestConfig.getInstance().getSiteHost();
-        String pagesFolderPath = Config.getInstance().getPagesFolderPath();
 
         if (pageUrlMap.containsKey(pageName)) {
             url = pageUrlMap.get(pageName);
         }
         else {
-            url = readPageUrlFromFile(pagesFolderPath, pageName, siteHost);
+            url = readPageUrlFromFile(PAGE_OBJECTS_FOLDER_PATH, pageName, siteHost);
 
             if (url != null) {
                 if (!url.trim().startsWith(siteHost)) {
@@ -322,7 +331,7 @@ public abstract class SmartPage extends SmartObject {
                     url = null;
                     continue;
                 }
-                savePageUrlToFile(pagesFolderPath, pageName, url, siteHost);
+                savePageUrlToFile(PAGE_OBJECTS_FOLDER_PATH, pageName, url, siteHost);
                 pageUrlMap.put(pageName, url);
                 break;
             }
@@ -338,9 +347,8 @@ public abstract class SmartPage extends SmartObject {
     private String handlePageOpenError() {
         String pageName = getClass().getSimpleName();
         String siteHost = TestConfig.getInstance().getSiteHost();
-        String folderPath = Config.getInstance().getPagesFolderPath();
         // Save empty URL to fix it in debug mode.
-        savePageUrlToFile(folderPath, pageName, "", siteHost);
+        savePageUrlToFile(PAGE_OBJECTS_FOLDER_PATH, pageName, "", siteHost);
         pageUrlMap.remove(pageName);
         return getPageUrl();
     }

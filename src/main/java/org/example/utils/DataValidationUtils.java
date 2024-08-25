@@ -16,63 +16,10 @@ public final class DataValidationUtils {
      */
     public static void validateNotNull(Object value, String valueName) {
         if (value == null) {
-            handleError(String.format("%s has null value.", valueName));
+            handleError(String.format("%s has NULL value.", dataName));
         }
     }
 
-    /**
-     * Validates that two data objects are not the same.
-     * @param expected The data value 1.
-     * @param actual The data value 2.
-     * @param expectedName The value 1 name.
-     * @param actualName The value 2 name.
-     */
-    public static void validateNotTheSame(Object expected, Object actual,
-                                          String expectedName, String actualName) {
-        validateNotBlank(expectedName, "expectedName");
-        validateNotBlank(actualName, "actualName");
-
-        if (expected == actual) {
-            handleError(String.format("""
-            Actual value object is the same as expected value object.
-            Expected:
-            %s
-            Actual:
-            %s
-            """.stripIndent(),
-            expected, actual));
-
-        }
-    }
-
-    /**
-     * Validates that two data objects have the same type.
-     * @param expected The object value1.
-     * @param actual The object value2.
-     * @param expectedName The value name.
-     * @param actualName The actual name.
-     */
-    public static void validateTheSameType(Object expected, Object actual,
-                                           String expectedName, String actualName) {
-        validateNotBlank(expectedName, "expectedName");
-        validateNotBlank(actualName, "actualName");
-        validateNotNull(expected, expectedName);
-        validateNotNull(actual, actualName);
-
-        String actualClassName = actual.getClass().getName();
-        String expectedClassName = expected.getClass().getName();
-
-        if (!expectedClassName.equals(actualClassName)) {
-            handleError(String.format("""
-                    Actual value class does not equal expected value class.
-                    Expected: %s
-                    Actual: %s
-                    """.stripIndent(),
-                    expectedClassName,
-                    actualClassName));
-        }
-    }
-    
     /**
      * Validates that data value is not empty.
      * @param value The data value.

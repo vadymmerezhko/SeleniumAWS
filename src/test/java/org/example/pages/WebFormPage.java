@@ -2,6 +2,8 @@ package org.example.pages;
 
 import org.example.data.SmartValue;
 import org.example.drivers.elements.*;
+import org.example.drivers.selectors.SmartBy;
+
 
 /**
  * Web form class.
@@ -18,10 +20,10 @@ public class WebFormPage extends SmartPage {
     private final Checkbox checkbox2 = new Checkbox();
     private final Radiobutton radiobutton1 = new Radiobutton();
     private final Radiobutton radiobutton2 = new Radiobutton();
-    private final ColorPicker colorPicker = new ColorPicker();
+    private final ColorPicker colorPicker = new ColorPicker(SmartBy.keyword("Color picker"));
     private final DatePicker datePicker = new DatePicker();
     private final RangeSlider rangeSlider = new RangeSlider();
-    private final Button submitButton = new Button();
+    private final Button submitButton = new Button(SmartBy.image());
 
     /**
      * WebFormPage constructor that initializes web elements.

@@ -35,15 +35,32 @@ public class Config extends BaseConfig {
     private static final String BROWSER_SIZE = "browserSize";
     private static final String PAGES_FOLDER_PATH = "pagesFolderPath";
     private static final String DATA_FOLDER_PATH = "dataFolderPath";
+    public static final String IMAGES_FOLDER_PATH = "imagesFolderPath";
     private static final String RETAIN_BROWSER = "retainBrowser";
     private static final String RETRY_WAIT = "retryWait";
     private static final String RETRY_TIMEOUT = "retryTimeout";
     private static final  String PAGE_WAIT_TIMEOUT = "pageWaitTimeout";
     private static final  String ELEMENT_WAIT_TIMEOUT = "elementWaitTimeout";
     private static final  String ELEMENT_WAIT_DELAY = "elementWaitDelay";
+    private static final String COLORS_THRESHOLD = "colorsThreshold";
+    private static final String PIXELS_THRESHOLD = "pointsThreshold";
+    private static final String SIZE_THRESHOLD = "sizeThreshold";
 
+    /**
+     * Creates config instance.
+     * @return The test config instance.
+     */
     public static Config getInstance() {
         return new Config(CONFIG_PROPERTIES_FILE_PATH);
+    }
+
+    /**
+     * Creates config instance from the config file.
+     * @param configFilePath The config file path.
+     * @return The test config instance.
+     */
+    public static Config getInstance(String configFilePath) {
+        return new Config(configFilePath);
     }
 
     /**
@@ -70,7 +87,7 @@ public class Config extends BaseConfig {
      */
     synchronized public int getThreadCount() {
         validateDebugModeProperty();
-        return getIntegerProperty(THREAD_COUNT);
+        return (int) getLongProperty(THREAD_COUNT);
     }
 
     /**
@@ -118,7 +135,7 @@ public class Config extends BaseConfig {
      * @return The wait milliseconds.
      */
     synchronized public int getRetryWaitMSec() {
-        return getIntegerProperty(RETRY_WAIT);
+        return (int) getLongProperty(RETRY_WAIT);
     }
 
     /**
@@ -126,7 +143,7 @@ public class Config extends BaseConfig {
      * @return The wait milliseconds.
      */
     synchronized public int getRetryTimeoutSec() {
-        return getIntegerProperty(RETRY_TIMEOUT);
+        return (int) getLongProperty(RETRY_TIMEOUT);
     }
 
     /**
@@ -269,7 +286,7 @@ public class Config extends BaseConfig {
      * @return The step delay.
      */
     synchronized public int getStepDelay() {
-        return getIntegerProperty(STEP_DELAY);
+        return (int) getLongProperty(STEP_DELAY);
     }
 
     /**
@@ -284,8 +301,16 @@ public class Config extends BaseConfig {
      * Returns data objects folder path.
      * @return The AWS secret key.
      */
-    synchronized public String getDataObjectsFolderPath() {
+    synchronized public String getDataFolderPath() {
         return getStringProperty(DATA_FOLDER_PATH);
+    }
+
+    /**
+     * Returns images folder path.
+     * @return The AWS secret key.
+     */
+    synchronized public String getImagesFolderPath() {
+        return getStringProperty(IMAGES_FOLDER_PATH);
     }
 
     /**
@@ -302,7 +327,7 @@ public class Config extends BaseConfig {
      * @return The timeout seconds.
      */
     synchronized public int getPageWaitTimeout() {
-        return getIntegerProperty(PAGE_WAIT_TIMEOUT);
+        return (int) getLongProperty(PAGE_WAIT_TIMEOUT);
     }
 
     /**
@@ -310,7 +335,7 @@ public class Config extends BaseConfig {
      * @return The timeout seconds.
      */
     synchronized public int getElementWaitTimeout() {
-        return getIntegerProperty(ELEMENT_WAIT_TIMEOUT);
+        return (int) getLongProperty(ELEMENT_WAIT_TIMEOUT);
     }
 
     /**
@@ -318,7 +343,31 @@ public class Config extends BaseConfig {
      * @return The timeout seconds.
      */
     synchronized public int getElementWaitDelay() {
-        return getIntegerProperty(ELEMENT_WAIT_DELAY);
+        return (int) getLongProperty(ELEMENT_WAIT_DELAY);
+    }
+
+    /**
+     * Returns image comparison colors threshold.
+     * @return The image colors threshold.
+     */
+    synchronized public int getColorsThreshold() {
+        return getPercentageProperty(COLORS_THRESHOLD);
+    }
+
+    /**
+     * Returns image comparison pixels threshold.
+     * @return The image pixels threshold.
+     */
+    synchronized public int getPixelsThreshold() {
+        return getPercentageProperty(PIXELS_THRESHOLD);
+    }
+
+    /**
+     * Returns image comparison element size threshold.
+     * @return The size threshold.
+     */
+    synchronized public int getSizeThreshold() {
+        return (int) getLongProperty(SIZE_THRESHOLD);
     }
 
     private void validateDebugModeProperty() {

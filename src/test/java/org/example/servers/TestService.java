@@ -35,11 +35,9 @@ public class TestService implements TestServerInterface {
         try {
             WebFormPage webFormPage = new WebFormPage();
             WebFormPageOutput output = new WebFormPageOutput();
-            int thisYear = LocalDate.now().getYear();
-            String textAreaKeyword = "area";
 
             webFormPage.open();
-            webFormPage.enterIntoTextInput(input.getTexInput());
+            webFormPage.enterIntoTextInput(input.getTextInput());
             webFormPage.enterPassword("Password123");
             input.getTextareaInput().setKeyword(textAreaKeyword);
             webFormPage.enterIntoTextarea(input.getTextareaInput());

@@ -2,19 +2,16 @@ package org.example.data;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
+import org.example.exceptions.SmartValidationException;
+import org.example.utils.ConverterUtils;
 import org.example.utils.DataValidationUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
 public abstract class BaseConfig {
-    private static final Map<String, String> stringPropertyMap = new HashMap<>();
-    private static final Map<String, Integer> integerPropertyMap = new HashMap<>();
-    private static final Map<String, Boolean> booleanPropertyMap = new HashMap<>();
     protected static final String VALUES_DELIMITER = ":";
 
     private final String filePath;
@@ -30,45 +27,56 @@ public abstract class BaseConfig {
 
     protected String getStringProperty(String propertyName) {
         DataValidationUtils.validateNotBlank(propertyName, "propertyName");
+        String propertyValue = System.getProperty(propertyName);
 
-        if (!stringPropertyMap.containsKey(propertyName)) {
-            String propertyValue = System.getProperty(propertyName);
-
-            if (propertyValue == null) {
-                propertyValue = System.getenv(propertyName);
-            }
-
-            if (propertyValue == null) {
-                propertyValue = getConfigProperties().getProperty(propertyName);
-            }
-
-            if (propertyValue == null) {
-                throw new SmartRuntimeException(String.format(
-                        "configuration property '%s' is undefined.", propertyName));
-            }
-            stringPropertyMap.put(propertyName, propertyValue);
-            log.debug("{} property {}={}", getClass().getSimpleName(), propertyName, propertyValue);
-            return propertyValue;
+        if (propertyValue == null) {
+            propertyValue = System.getenv(propertyName);
         }
-        return stringPropertyMap.get(propertyName);
+
+        if (propertyValue == null) {
+            propertyValue = getConfigProperties().getProperty(propertyName);
+        }
+
+        if (propertyValue == null) {
+            throw new SmartRuntimeException(String.format(
+                    "configuration property '%s' is undefined.", propertyName));
+        }
+        log.debug("{} property {}={}", getClass().getSimpleName(), propertyName, propertyValue);
+        return propertyValue;
     }
 
-    protected int getIntegerProperty(String propertyName) {
-        if (!integerPropertyMap.containsKey(propertyName)) {
-            int integerValue = Integer.parseInt(getStringProperty(propertyName));
-            integerPropertyMap.put(propertyName, integerValue);
-            return integerValue;
+    protected long getLongProperty(String propertyName) {
+        long longValue = Integer.parseInt(getStringProperty(propertyName));
+        log.debug("Config long value: {}", longValue);
+        return longValue;
+    }
+
+    protected int getPercentageProperty(String propertyName) {
+        String propertyValue = getStringProperty(propertyName);
+
+        if (!propertyValue.trim().endsWith("%")) {
+            throw new SmartValidationException(String.format(
+                    "Percentage configuration property '%s' value '%s' should end with %s",
+                    propertyName, propertyValue, "%"));
         }
-        return integerPropertyMap.get(propertyName);
+        String percentageValue = propertyValue.substring(0, propertyValue.indexOf("%"));
+        long longValue = Integer.parseInt(percentageValue);
+        DataValidationUtils.validateRange(longValue, 0, 100, "percentage");
+        log.debug("Config percentage value: {}", longValue);
+        return (int) longValue;
+    }
+
+    protected double getDoubleProperty(String propertyName) {
+        double doubleValue = Double.parseDouble(getStringProperty(propertyName));
+        log.debug("Config double value: {}", doubleValue);
+        return doubleValue;
     }
 
     protected boolean getBooleanProperty(String propertyName) {
-        if (!booleanPropertyMap.containsKey(propertyName)) {
-            boolean booleanValue = Boolean.parseBoolean(getStringProperty(propertyName));
-            booleanPropertyMap.put(propertyName, booleanValue);
-            return booleanValue;
-        }
-        return booleanPropertyMap.get(propertyName);
+        boolean booleanValue = ConverterUtils.stringToBoolean(
+                getStringProperty(propertyName));
+        log.debug("Config boolean value: {}", booleanValue);
+        return booleanValue;
     }
 
     protected String getSubValue(String value, int index) {
@@ -77,12 +85,16 @@ public abstract class BaseConfig {
             throw new SmartRuntimeException(String.format(
                     "Config value '%s' doesn't have the part %d.", value, index + 1));
         }
-        return subValues[index];
+        String subValue = subValues[index];
+        log.debug("Config string sub value value: {}", subValue);
+        return subValue;
     }
 
     protected int getIntegerSubValue(String value, int index) {
         String subValue = getSubValue(value, index);
-        return Integer.parseInt(subValue);
+        int integerValue = Integer.parseInt(subValue);
+        log.debug("Config integer sub value value: {}", integerValue);
+        return integerValue;
     }
 
     protected Properties getConfigProperties() {
@@ -95,6 +107,7 @@ public abstract class BaseConfig {
                         "Cannot initialize config properties file.", e);
             }
         }
+        log.debug("Config properties: {}", configProperties);
         return configProperties;
     }
 }
