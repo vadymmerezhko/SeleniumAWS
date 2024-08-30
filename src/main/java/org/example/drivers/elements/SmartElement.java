@@ -11,16 +11,16 @@ import org.example.utils.ClassUtils;
 import org.example.utils.FileSystemUtils;
 import org.example.utils.WebUtils;
 import org.example.utils.WaiterUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.openqa.selenium.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.example.constants.Settings.PAGE_OBJECTS_FOLDER_PATH;
+import static org.example.constants.Settings.*;
 
 
 /**
@@ -34,7 +34,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
 
     static protected final Config config = Config.getInstance();
     private WebElement element = null;
-    protected By by;
+    protected SmartBy smartBy;
     protected SmartPage page;
     protected WebDriver driver;
     protected String elementName;
@@ -47,7 +47,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      * @return  The element name - selector map.
      */
     private static ConcurrentMap<String, String> readAllElementSelectorsFromFiles(String folderPath) {
-        ConcurrentMap<String, String> elementMap = new ConcurrentHashMap<>();
+        ConcurrentMap<String, String> elementsMap = new ConcurrentHashMap<>();
         Set<String> fileNames = FileSystemUtils.getFileNamesInFolder(folderPath);
 
         Thread thread = new Thread(() -> {
@@ -56,40 +56,25 @@ public abstract class SmartElement implements WebElement, WrapsElement {
 
                 for (String fileName : fileNames) {
                     if (FileSystemUtils.getFileExtension(fileName).equals("json")) {
-                        String filePath = String.format("%s/%s", folderPath, fileName);
-                        String pageName = FileSystemUtils.getFileNameWithoutExtension(fileName);
-                        String fileContent = FileSystemUtils.readFile(filePath);
-
-                        if (fileContent.trim().isEmpty()) {
-                            continue;
-                        }
-                        JSONObject json = new JSONObject(fileContent);
-
-                        for (String fieldName : json.keySet()) {
-                            String selectorTypeAndValue = json.get(fieldName).toString();
-                            String elementName = String.format("%s.%s", pageName, fieldName);
-                            Selector selector = Selector.parseSelector(selectorTypeAndValue);
-                            elementMap.put(elementName, selector.getValue());
-                            log.debug("Element {} selector {} is asynchronously read from file {}",
-                                    elementName, selectorTypeAndValue, filePath);
-                        }
+                        readSelectorTypeAndValueFromFile(fileName, elementsMap);
                     }
-                    log.debug("Asynchronous page object element selectors reading finished.");
                 }
-            } catch (Exception e) {
+                log.debug("Asynchronous page object element selectors reading finished.");
+            }
+            catch (Exception e) {
                 throw new SmartRuntimeException(String.format(
                         "Cannot read all web page files from: %s", folderPath), e);
             }
         });
         thread.start();
-        return elementMap;
+        return elementsMap;
     }
 
     /**
      * Base element constructor by its page and auto selector.
      */
     public SmartElement() {
-        this.by = SmartBy.auto();
+        smartBy = SmartBy.auto();
         driver = WebDriverFactory.getDriver();
     }
 
@@ -98,7 +83,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      * @param by The element selector.
      */
     public SmartElement(By by) {
-        this.by = by;
+        this.smartBy = SmartBy.selector(by);
         driver = WebDriverFactory.getDriver();
     }
 
@@ -106,16 +91,25 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      * Sets keyword.
      * @param keyword The keyword.
      */
-    public void setKeyword(String keyword) {
-        if (by instanceof SmartBy) {
-            ((SmartBy) by).setKeyword(keyword);
-            log.debug("Element keyword is set: {}", keyword);
-        }
-        else {
-            throw new SmartRuntimeException(String.format(
-                    "Cannot set keyword '%s' for element %s. Use SmartBy to use keywords.",
-                    keyword, elementName));
-        }
+    public void setKeyword(Object keyword) {
+        smartBy.setKeyword(keyword);
+        log.debug("Element keyword is set: {}", keyword);
+        log.debug("""
+                Smart element {} updated with keyword and saved to file.
+                Keyword: {}
+                Smart element:
+                {}
+                """.stripIndent(),
+                keyword, this);
+    }
+
+    /**
+     * Gets native web element.
+     * @return The web element.
+     */
+    public WebElement getNativeElement() {
+        log.debug("Native web element returned: {}", element);
+        return element;
     }
 
     /**
@@ -339,22 +333,24 @@ public abstract class SmartElement implements WebElement, WrapsElement {
 
         try {
             if (element == null) {
-                if (by instanceof SmartBy smartBy) {
-                    setElementName();
+                setElementName();
 
-                    if (smartBy.getBy() == null) {
-                        setElementSelector(smartBy);
-                    }
+                if (smartBy == null || smartBy.getSmartByType() == null) {
+                    setElementSelector();
                 }
-                element = driver.findElement(by);
+                element = driver.findElement(smartBy.getBy());
                 handleElement();
             }
             return element;
         }
-        catch (NoSuchElementException | InvalidSelectorException e) {
+        catch (NoSuchElementException |
+               InvalidSelectorException |
+               NoSuchFrameException e) {
+
             if (config.getDebugMode()) {
                 fixElementSelector();
-            } else {
+            }
+            else {
                 throw e;
             }
         }
@@ -391,20 +387,19 @@ public abstract class SmartElement implements WebElement, WrapsElement {
     protected void highlightElement() {
         WebElement webElement = element;
 
-        if (element instanceof SmartWebElement) {
-            webElement = ((SmartWebElement)element).getNativeElement();
+        if (element instanceof SmartWebElement smartWebElement) {
+            webElement = smartWebElement.getNativeElement();
         }
-
         WebUtils.highlightElement(webElement);
     }
 
     /**
      * Saves element selector to JSON file.
-     * @param elementName The element name.
-     * @param selectorString The element selector.
      */
-    private void saveElementSelectorToFile(String folderPath, String elementName, String selectorString) {
+    private void saveElementSelectorToFile() {
         String filePath = null;
+        String  selectorTemplate = null;
+
         try {
             String[] nameParts = elementName.split("\\.");
 
@@ -415,7 +410,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
             String fileName = String.format("%s.json", nameParts[0]);
             String fieldName = nameParts[1];
             JSONObject json;
-            filePath = String.format("%s/%s", folderPath, fileName);
+            filePath = String.format("%s/%s", PAGE_OBJECTS_FOLDER_PATH, fileName);
 
             if (FileSystemUtils.fileExists(filePath)) {
                 String jsonString = FileSystemUtils.readFile(filePath);
@@ -424,28 +419,26 @@ public abstract class SmartElement implements WebElement, WrapsElement {
             else {
                 json = new JSONObject();
             }
-            SelectorType selectorType = SelectorType.parseSelectorString(selectorString);
-            Selector selector = new Selector(selectorType, selectorString);
-            json.put(fieldName, selector.toString());
-            FileSystemUtils.createFile(filePath, json.toString());
+            selectorTemplate = smartBy.toSelectorTemplate();
+            json.put(fieldName, selectorTemplate);
+            FileSystemUtils.createFile(filePath, json.toString(JSON_LAYOUT_SPACES));
             log.debug("Element {} selector {} is saved to file {}.",
-                    elementName, selectorString, filePath);
+                    elementName, selectorTemplate, filePath);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Can not save web %s element selector %s to file: %s",
-                    elementName, selectorString, filePath), e);
+                    elementName, selectorTemplate, filePath), e);
         }
     }
 
     /**
      * Reads element selector from JSON file or returns null
      * if file does not exist or element selector undefined.
-     * @param folderPath The folder path.
      * @param elementName The element name.
      * @return The element selector.
      */
-    private String readElementSelectorFromFile(String folderPath, String elementName) {
+    private String readElementSelectorFromFile(String elementName) {
         String filePath = null;
         try {
             String[] nameParts = elementName.split("\\.");
@@ -455,42 +448,8 @@ public abstract class SmartElement implements WebElement, WrapsElement {
                         "Invalid web element name: '%s'", elementName));
             }
             String fileName = String.format("%s.json", nameParts[0]);
-            String fieldName = nameParts[1];
-            JSONObject json;
-            filePath = String.format("%s/%s", folderPath, fileName);
-
-            if (FileSystemUtils.fileExists(filePath)) {
-                String jsonString = FileSystemUtils.readFile(filePath);
-
-                if (jsonString.trim().isEmpty()) {
-                    return null;
-                }
-                json = new JSONObject(jsonString);
-                try {
-                    String selectorTypeAndValue = json.get(fieldName).toString();
-                    Selector selector = Selector.parseSelector(selectorTypeAndValue);
-                    log.debug("Element {} selector {} is read from file {}",
-                            elementName, selectorTypeAndValue, fileName);
-                    return selector.getValue();
-                }
-                catch (JSONException e) {
-                    if (Config.getInstance().getDebugMode()) {
-                        log.debug("File {} has invalid JSON object format: {}",
-                                filePath, jsonString);
-                        return null;
-                    }
-                    else {
-                        throw new SmartRuntimeException(String.format(
-                                "Element %s selector is not defined in the page object file %s.",
-                                elementName, filePath));
-                    }
-                }
-            }
-            else {
-                log.debug("Page object {} file {} does not exist.",
-                        nameParts[0], filePath);
-                return null;
-            }
+            readSelectorTypeAndValueFromFile(fileName, elementSelectorMap);
+            return elementSelectorMap.get(elementName);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
@@ -503,82 +462,89 @@ public abstract class SmartElement implements WebElement, WrapsElement {
         elementName = String.format("%s.%s",
                 page.getClass().getSimpleName(),
                 ClassUtils.getObjectFieldName(page, this));
+        log.debug("Element name is set: {}", elementName);
     }
 
-    private void setElementSelector(SmartBy smartBy) {
-        String keywod = smartBy.getKeyword();
+    private void setElementSelector() {
         boolean isSelectorUpdated = false;
         boolean isReadFromFile = true;
 
         try {
             smartBy.setElementName(elementName);
-            String selector;
+            String selectorTemplate;
 
             if (elementSelectorMap.containsKey(elementName)) {
-                selector = elementSelectorMap.get(elementName);
+                selectorTemplate = elementSelectorMap.get(elementName);
+                Selector selector = Selector.fromString(selectorTemplate, smartBy.getKeyword());
+                selectorTemplate = selector.totValueString();
             }
             else {
-                selector = readElementSelectorFromFile(
-                        PAGE_OBJECTS_FOLDER_PATH, elementName);
+                selectorTemplate = readElementSelectorFromFile(elementName);
                 isSelectorUpdated = true;
             }
-            if (selector == null) {
-                if (config.getDebugMode()) {
-                    SmartByType selectorType = SmartByType.AUTO;
+            if (selectorTemplate == null) {
 
-                    if (by instanceof SmartByImage) {
-                        selectorType = SmartByType.IMAGE;
+                if (config.getDebugMode()) {
+                    String byString = null;
+
+                    if (smartBy.getSmartByType() != null) {
+                        byString = smartBy.getBy().toString();
                     }
-                    selector = WebUtils.selectElementAndGetSelector(elementName, keyword, selectorType);
+                    if (byString != null && byString.endsWith(String.format(": %s", NULL_VALUE))) {
+                        byString = null;
+                    }
+                    if (byString != null && smartBy.getSmartByType() == SmartByType.LINK_TEXT &&
+                        WebUtils.isPngImage(byString)) {
+                        smartBy = new SmartBy(SmartByType.IMAGE, smartBy.getBy());
+                    }
+                    Object keyword = smartBy.getKeyword();
+                    SmartByType selectorType = smartBy.getSmartByType();
+                    selectorTemplate = WebUtils.selectElementAndGetSelector(
+                            elementName, keyword, selectorType, "");
                     isSelectorUpdated = true;
                     isReadFromFile = false;
                 }
             }
-            if (selector == null) {
+            if (selectorTemplate == null) {
                 throw new SmartRuntimeException(String.format(
                         "'%s' element selector is not defined.", elementName));
             }
-            By bySelector = WebUtils.convertSelectorTemplateToBy(selector, keyword);
+            By bySelector = WebUtils.convertSelectorTemplateToBy(selectorTemplate, smartBy.getKeyword());
             smartBy.setBy(bySelector);
-            String selectorTemplate = WebUtils.getSelectorTemplate(selector, keyword);
 
             if (isSelectorUpdated) {
-                elementSelectorMap.put(elementName, selectorTemplate);
+                elementSelectorMap.put(elementName, smartBy.toSelectorTemplate());
             }
-
             if (!isReadFromFile) {
-                saveElementSelectorToFile(
-                        PAGE_OBJECTS_FOLDER_PATH, elementName, selectorTemplate);
+                saveElementSelectorToFile();
             }
         }
         catch (Throwable e) {
             throw new SmartRuntimeException(String.format(
-                    "Can not set element selector %s.", by), e);
+                    "Can not set element selector from smart by:\n%s.", smartBy), e);
         }
     }
 
     private void fixElementSelector() {
+        Object keyword = smartBy.getKeyword();
+        SmartByType selectorType = smartBy.getSmartByType();
+        String selectorValue = SmartByParser.selectorValueFromBy(smartBy);
+        String selectorString = WebUtils.selectElementAndGetSelector(
+                elementName, keyword, selectorType, selectorValue);
 
-        if (by instanceof SmartBy smartBy) {
-            String elementName = smartBy.getElementName();
-            String keyword = smartBy.getText();
-            SmartByType selectorType = SmartByParser.getByType(by);
-            String selector = WebUtils.selectElementAndGetSelector(elementName, keyword, selectorType);
-            if (selector == null) {
-                return;
-            }
-            try {
-                element = WebUtils.getElementBySelector(selector, keyword);
-            } catch (Exception e) {
-                // Ignore exception
-            }
-            By bySelector = WebUtils.convertSelectorTemplateToBy(selector, keyword);
-            smartBy.setBy(bySelector);
-            String selectorTemplate = WebUtils.getSelectorTemplate(selector, keyword);
-            saveElementSelectorToFile(
-                    PAGE_OBJECTS_FOLDER_PATH, elementName, selectorTemplate);
-            elementSelectorMap.put(elementName, selector);
+        if (selectorString == null) {
+            return;
         }
+        try {
+            element = WebUtils.getElementBySelector(selectorString, keyword);
+        }
+        catch (Exception e) {
+            // Ignore exception
+        }
+        By bySelector = WebUtils.convertSelectorTemplateToBy(selectorString, keyword);
+        smartBy.setBy(bySelector);
+        saveElementSelectorToFile();
+        elementSelectorMap.put(elementName, selectorString);
     }
 
     private void validatePage() {
@@ -592,6 +558,29 @@ public abstract class SmartElement implements WebElement, WrapsElement {
                                 initialize();
                             }
                             """.stripIndent());
+        }
+    }
+
+    private static void readSelectorTypeAndValueFromFile(String fileName, Map<String, String> elementMap) {
+        String filePath = String.format("%s/%s", PAGE_OBJECTS_FOLDER_PATH, fileName);
+
+        if (!FileSystemUtils.fileExists(filePath)) {
+            log.debug("Page object file does not exist: {}", filePath);
+            return;
+        }
+        String pageName = FileSystemUtils.getFileNameWithoutExtension(fileName);
+        String fileContent = FileSystemUtils.readFile(filePath);
+
+        if (!fileContent.trim().isEmpty()) {
+            JSONObject json = new JSONObject(fileContent);
+
+            for (String fieldName : json.keySet()) {
+                String selectorTypeAndValue = json.get(fieldName).toString();
+                String elementName = String.format("%s.%s", pageName, fieldName);
+                elementMap.put(elementName, selectorTypeAndValue);
+                log.debug("Element {} selector {} is asynchronously read from file {}",
+                        elementName, selectorTypeAndValue, filePath);
+            }
         }
     }
 }

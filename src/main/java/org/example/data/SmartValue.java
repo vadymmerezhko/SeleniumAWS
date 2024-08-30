@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.example.constants.Settings.DATA_OBJECTS_FOLDER_PATH;
+import static org.example.constants.Settings.*;
 import static org.example.enums.ValueType.CLASS;
 
 /**
@@ -48,7 +48,6 @@ public class SmartValue {
     private static final String FIELD_TYPES = "fieldTypes";
     private static final String FIELD_VALUES = "fieldValues";
     private static final String CLASS_VALUE = "classValue";
-    private static final String KEYWORD_PLACEHOLDER = "#KEYWORD#";
     private SmartType smartType;
     private String valueString;
     private String format;
@@ -69,6 +68,8 @@ public class SmartValue {
     @Setter @Getter
     private boolean strictType = true;
     private boolean createdFromTemplate = false;
+    private boolean valueSet = false;
+    boolean classField = false;
 
     /**
      * Reads asynchronously all data objects from JSON file
@@ -82,38 +83,9 @@ public class SmartValue {
                 log.debug("Asynchronous data object files reading began.");
 
                 for (String fileName : fileNames) {
-                    if (FileSystemUtils.getFileExtension(fileName).equals("json")) {
-                        String filePath = String.format("%s/%s", DATA_OBJECTS_FOLDER_PATH, fileName);
-                        String parentName = FileSystemUtils.getFileNameWithoutExtension(fileName);
-                        String fileContent = FileSystemUtils.readFile(filePath);
-
-                        if (fileContent.trim().isEmpty()) {
-                            continue;
-                        }
-                        JSONObject json = new JSONObject(fileContent);
-
-                        for (String fieldName : json.keySet()) {
-                            String valueName = String.format("%s.%s", parentName, fieldName);
-                            JSONObject valueJson = (JSONObject) json.get(fieldName);
-                            JSONObject typeJson = valueJson.getJSONObject(TYPE);
-                            SmartType smartType = getSmartTypeFromJson(typeJson);
-                            SmartValue smartValue = getSmartValueFromJson(smartType, valueJson);
-
-                            valuesMap.put(valueName, smartValue);
-                            log.debug("""
-                                    Smart value is read from fle asynchronously.
-                                    File: {}
-                                    Name: {}
-                                    Type:
-                                    {}
-                                    Value:
-                                    {}
-                                    """.stripIndent(),
-                                    filePath, valueName, smartType, smartValue);
-                        }
-                    }
-                    log.debug("Asynchronous reading data objects from files finished.");
+                    readValueFromFile(fileName, valuesMap);
                 }
+                log.debug("Asynchronous reading data objects from files finished.");
             }
             catch (Exception e) {
                 throw new SmartRuntimeException(String.format(
@@ -165,6 +137,7 @@ public class SmartValue {
     SmartValue(String className, Map<String, SmartValue> fieldValuesMap) {
         this.className = className;
         this.fieldValuesMap = fieldValuesMap;
+        classField = true;
         setUpValue();
         log.debug("""
                 Smart type object is created.
@@ -275,7 +248,7 @@ public class SmartValue {
      */
     public void setValue(Object value) {
         this.value = value;
-        setUp();
+        valueSet = true;
         log.debug("Smart type value object is set to: {}", value);
     }
 
@@ -303,7 +276,7 @@ public class SmartValue {
      * Gets value string.
      * @return The value string.
      */
-    String getValueTemplate() {
+    public String getValueTemplate() {
         setUp();
         log.debug("Smart type value template is returned: {}", valueTemplate);
         return valueTemplate;
@@ -343,7 +316,7 @@ public class SmartValue {
      */
     String getKeywordString() {
         setUp();
-        log.debug("Smart type keyword string is returned: {}", keyword);
+        log.debug("Smart type keyword string is returned: {}", keywordString);
         return keywordString;
     }
 
@@ -882,9 +855,29 @@ public class SmartValue {
             if (keywordIsEmpty()) {
                 throw new RuntimeException("Keyword string is empty.");
             }
+            else if (templateDoesNotContainKeywordPlaceholder()) {
+                throw new RuntimeException(String.format("""
+                        Smart value template does not contain keyword placeholder.
+                        Template:
+                        %s
+                        Placeholder:
+                        %s
+                        """.stripIndent(),
+                        valueTemplate, KEYWORD_PLACEHOLDER));
+            }
+            else if (templateContainsMoreThanOneKeywordPlaceholder()) {
+                throw new RuntimeException(String.format("""
+                        Smart value template contains more than one keyword placeholder.
+                        Template:
+                        %s
+                        Placeholder:
+                        %s
+                        """.stripIndent(),
+                        valueTemplate, KEYWORD_PLACEHOLDER));
+            }
             else if (valueContainsMoreThanOneKeyword()) {
                 throw new RuntimeException(String.format("""
-                        Value string contain more then one keyword string.
+                        Smart value contain more then one keyword.
                         Value:
                         %s
                         Keyword:
@@ -894,7 +887,7 @@ public class SmartValue {
             }
             else if (valueDoesNotContainKeyword()) {
                 throw new RuntimeException(String.format("""
-                        Value string does not contain keyword string.
+                        Smart value does not contain keyword.
                         Value:
                         %s
                         Keyword:
@@ -906,6 +899,67 @@ public class SmartValue {
         catch (Exception e) {
             throw new RuntimeException(String.format(
                     "Cannot validate value string: %s", valueString), e);
+        }
+    }
+
+    private void validateClassFields() {
+        int keywordsCount = 0;
+        int keywordPlaceholdersCount = 0;
+
+        for (SmartValue fieldValue : fieldValuesMap.values()) {
+
+            if (keyword != null) {
+                keywordsCount += TextUtils.getNumberOfKeywordsInString(
+                        fieldValue.toString(), keywordString);
+                keywordPlaceholdersCount += TextUtils.getNumberOfKeywordsInString(
+                        fieldValue.getValueTemplate(), KEYWORD_PLACEHOLDER);
+            }
+        }
+        if (keyword != null) {
+            if (keywordsCount == 0) {
+                throw new RuntimeException(String.format("""
+                        None class field contains keyword.
+                        Class name:
+                        Class value:
+                        %s
+                        Keyword:
+                        %s
+                        """.stripIndent(),
+                        className, value, keywordString));
+            }
+            else if (keywordsCount > 1) {
+                throw new RuntimeException(String.format("""
+                        Class fields values contain more than one keyword.
+                        Class name:
+                        Class value:
+                        %s
+                        Keyword:
+                        %s
+                        """.stripIndent(),
+                        className, value, keywordString));
+            }
+            else if (keywordPlaceholdersCount == 0) {
+                throw new RuntimeException(String.format("""
+                        None class field value contain keyword placeholder.
+                        Class name:
+                        Class value:
+                        %s
+                        Keyword placeholder:
+                        %s
+                        """.stripIndent(),
+                        className, value, KEYWORD_PLACEHOLDER));
+            }
+            else if (keywordPlaceholdersCount > 1) {
+                throw new RuntimeException(String.format("""
+                        Class fields values contain more than one keyword placeholder.
+                        Class name:
+                        Class value:
+                        %s
+                        Keyword placeholder:
+                        %s
+                        """.stripIndent(),
+                        className, value, KEYWORD_PLACEHOLDER));
+            }
         }
     }
 
@@ -929,14 +983,14 @@ public class SmartValue {
         if (keywordString == null || valueString == null || valueString.isEmpty()) {
             return 0;
         }
-        int count = 0;
-        int index = 0;
+        return TextUtils.getNumberOfKeywordsInString(valueString, keywordString);
+    }
 
-        while ((index = valueString.indexOf(keywordString, index)) != -1) {
-            count++;
-            index += keywordString.length();
+    int numberOfKeywordPlaceholdersInTemplate() {
+        if (value == null || valueTemplate == null) {
+            return 0;
         }
-        return count;
+        return TextUtils.getNumberOfKeywordsInString(valueTemplate, KEYWORD_PLACEHOLDER);
     }
 
     boolean keywordIsEmpty() {
@@ -956,6 +1010,20 @@ public class SmartValue {
     boolean valueDoesNotContainKeyword() {
         if (keyword != null && value != null) {
             return numberOfKeywordsInValue() == 0;
+        }
+        return false;
+    }
+
+    boolean templateContainsMoreThanOneKeywordPlaceholder() {
+        if (keyword != null && value != null) {
+            return numberOfKeywordPlaceholdersInTemplate() > 1;
+        }
+        return false;
+    }
+
+    boolean templateDoesNotContainKeywordPlaceholder() {
+        if (keyword != null && value != null) {
+            return numberOfKeywordPlaceholdersInTemplate() == 0;
         }
         return false;
     }
@@ -980,12 +1048,14 @@ public class SmartValue {
             replaceKeywordPlaceholderWithValue();
             replaceKeywordValueWithPlaceholder();
             smartType = SmartType.fromObject(value);
+        }
+        if (className != null) {
+            setFieldValues();
+            setClassValueFromFieldValues();
+            validateClassFields();
+        }
+        else {
             validateValue();
-
-            if (className != null) {
-                setFieldValues();
-                setClassValueFromFieldValues();
-            }
         }
     }
 
@@ -1061,7 +1131,10 @@ public class SmartValue {
                 parentName = parent.getClass().getSimpleName();
                 fieldName = ClassUtils.getObjectFieldName(parent, this);
                 name = String.format("%s.%s", parentName, fieldName);
-                setUpValueFromFile();
+
+                if (!valueSet) {
+                    setUpValueFromFile();
+                }
             }
         }
         setUpValue();
@@ -1083,7 +1156,7 @@ public class SmartValue {
 
                 if (value == null && Config.getInstance().getDebugMode()) {
 
-                    while (tempValue.valueString.equals(SOME_VALUE)) {
+                    while (tempValue.toString().equals(SOME_VALUE)) {
                         String promptMessage;
 
                         if (keyword == null) {
@@ -1111,19 +1184,19 @@ public class SmartValue {
                         }
                         tempValue.setValue(WebUtils.showPrompt(promptMessage, SOME_VALUE));
 
-                        if (tempValue.valueString.isEmpty()) {
+                        if (tempValue.toString().isEmpty()) {
                             WebDriverFactory.hardSystemExit();
                         }
-                        if (tempValue.valueString.equals(SOME_VALUE)) {
+                        if (tempValue.toString().equals(SOME_VALUE)) {
                             WebElement element = WebUtils.selectWebElement("DATA SOURCE ELEMENT");
                             tempValue.setValue(WebUtils.getElementSmartValue(element));
                         }
                         String stringValue;
 
                         if (tempValue.validValue()) {
-                            validValueType = tempValue.smartType;
+                            validValueType = tempValue.getSmartType();
                             isValueValid = true;
-                            stringValue = tempValue.valueString;
+                            stringValue = tempValue.toString();
                             stringValue = WebUtils.showPrompt(String.format("""
                                     VALID DATA VALUE
                                                                 
@@ -1137,9 +1210,10 @@ public class SmartValue {
                                 WebDriverFactory.hardSystemExit();
                             }
                             else {
-                                if (!tempValue.valueString.equals(stringValue)) {
+                                if (!tempValue.toString().equals(stringValue)) {
                                     isValueValid = false;
-                                    tempValue.setValue(ConverterUtils.stringToObject(validValueType, stringValue));
+                                    tempValue.setValue(ConverterUtils.stringToObject(
+                                            validValueType, stringValue));
                                 }
                             }
                         }
@@ -1165,11 +1239,11 @@ public class SmartValue {
                                     tempValue.value,
                                     keywordString));
                         }
-                        if (tempValue.valueString.isEmpty()) {
+                        if (tempValue.toString().isEmpty()) {
                             WebDriverFactory.hardSystemExit();
                         }
                         else if (isValueValid) {
-                            setValue(tempValue.value);
+                            setValue(tempValue.getValue());
                             valuesMap.put(name, this);
                             saveValueToFile();
                             break;
@@ -1232,7 +1306,7 @@ public class SmartValue {
                 }
             }
             json.put(fieldName, valueJson);
-            jsonString = json.toString(4);
+            jsonString = json.toString(JSON_LAYOUT_SPACES);
             FileSystemUtils.createFile(filePath, jsonString);
             log.debug("""
                     Smart class value is saved to file.
@@ -1263,41 +1337,7 @@ public class SmartValue {
 
         try {
             String fileName = String.format("%s.json", parentName);
-            filePath = String.format("%s/%s", DATA_OBJECTS_FOLDER_PATH, fileName);
-
-            if (FileSystemUtils.fileExists(filePath)) {
-                jsonString = FileSystemUtils.readFile(filePath);
-
-                if (jsonString.trim().isEmpty()) {
-                    throw new RuntimeException(String.format(
-                            "Data object file %s is empty.", filePath));
-                }
-                JSONObject json = new JSONObject(jsonString);
-
-                if (json.has(fieldName)) {
-                    JSONObject valueJson = (JSONObject) json.get(fieldName);
-                    JSONObject typeJson = valueJson.getJSONObject(TYPE);
-                    SmartType smartType = getSmartTypeFromJson(typeJson);
-
-                    SmartValue smartValue = getSmartValueFromJson(smartType, valueJson);
-                    valuesMap.put(fieldName, smartValue);
-                    setValue(smartValue.getValue());
-                    log.debug("""
-                            Smart class value is read from file.
-                            File: {}
-                            Name: {}
-                            Type:
-                            {}
-                            Value:
-                            {}
-                            """.stripIndent(),
-                            name, smartType, getValue(), filePath);
-                }
-            }
-            else {
-                log.debug("Data object {} file {} does not exist.",
-                        parentName, filePath);
-            }
+            readValueFromFile(fileName, valuesMap);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
@@ -1578,6 +1618,41 @@ public class SmartValue {
                     %s
                     """.stripIndent(),
                     smartType, valueJson), e);
+        }
+    }
+
+    private static void readValueFromFile(String fileName, Map<String, SmartValue> valuesMap) {
+        String filePath = String.format("%s/%s", DATA_OBJECTS_FOLDER_PATH, fileName);
+
+        if (!FileSystemUtils.fileExists(filePath)) {
+            log.debug("Data object file does not exist: {}", filePath);
+            return;
+        }
+        String parentName = FileSystemUtils.getFileNameWithoutExtension(fileName);
+        String fileContent = FileSystemUtils.readFile(filePath);
+
+        if (!fileContent.trim().isEmpty()) {
+            JSONObject json = new JSONObject(fileContent);
+
+            for (String fieldName : json.keySet()) {
+                String valueName = String.format("%s.%s", parentName, fieldName);
+                JSONObject valueJson = (JSONObject) json.get(fieldName);
+                JSONObject typeJson = valueJson.getJSONObject(TYPE);
+                SmartType smartType = getSmartTypeFromJson(typeJson);
+                SmartValue smartValue = getSmartValueFromJson(smartType, valueJson);
+
+                valuesMap.put(valueName, smartValue);
+                log.debug("""
+                                Smart value is read from fle asynchronously.
+                                File: {}
+                                Name: {}
+                                Type:
+                                {}
+                                Value:
+                                {}
+                                """.stripIndent(),
+                        filePath, valueName, smartType, smartValue);
+            }
         }
     }
 }

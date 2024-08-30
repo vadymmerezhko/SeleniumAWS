@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * The Web Form output data class.
  */
-public class WebFormPageOutput extends SmartDataObject {
+public class WebFormPageOutput extends SmartData {
     @Getter
     private final SmartValue textInput = new SmartValue();
     @Getter

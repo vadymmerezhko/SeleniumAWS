@@ -1,5 +1,6 @@
 package org.example.pages;
 
+import lombok.Getter;
 import org.example.data.SmartValue;
 import org.example.drivers.elements.*;
 import org.example.drivers.selectors.SmartBy;
@@ -10,19 +11,33 @@ import org.example.drivers.selectors.SmartBy;
  */
 public class WebFormPage extends SmartPage {
 
+    @Getter
     private final TextInput textInput = new TextInput();
+    @Getter
     private final Password password = new Password();
+    @Getter
     private final Textarea textarea = new Textarea();
+    @Getter
     private final Dropdown dropdown = new Dropdown();
+    @Getter
     private final FileInput fileInput = new FileInput();
+    @Getter
     private final DataList dataList = new DataList();
+    @Getter
     private final Checkbox checkbox1 = new Checkbox();
+    @Getter
     private final Checkbox checkbox2 = new Checkbox();
+    @Getter
     private final Radiobutton radiobutton1 = new Radiobutton();
+    @Getter
     private final Radiobutton radiobutton2 = new Radiobutton();
-    private final ColorPicker colorPicker = new ColorPicker(SmartBy.keyword("Color picker"));
+    @Getter
+    private final ColorPicker colorPicker = new ColorPicker();
+    @Getter
     private final DatePicker datePicker = new DatePicker();
+    @Getter
     private final RangeSlider rangeSlider = new RangeSlider();
+    @Getter
     private final Button submitButton = new Button(SmartBy.image());
 
     /**

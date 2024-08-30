@@ -7,6 +7,10 @@
         "type": {"objectType": "Boolean"},
         "value": "false"
     },
+    "textInput": {
+        "type": {"objectType": "String"},
+        "value": "Text input"
+    },
     "radiobutton1Value": {
         "type": {"objectType": "Boolean"},
         "value": "false"
@@ -25,7 +29,7 @@
     },
     "textareaInput": {
         "type": {"objectType": "String"},
-        "value": "Text#KEYWORD#"
+        "value": "Textarea"
     },
     "dataListSelectOption": {
         "type": {"objectType": "String"},

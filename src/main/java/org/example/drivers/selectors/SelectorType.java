@@ -2,7 +2,6 @@ package org.example.drivers.selectors;
 
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.DataValidationUtils;
-import org.example.utils.WebUtils;
 
 /**
  * The By locator type names.
@@ -12,21 +11,6 @@ public enum SelectorType {
     CSS("css"),
     XPATH("xpath"),
     IMAGE("image");
-
-    public static SelectorType parseSelectorString(String selectorString) {
-        SelectorType selectorType;
-
-        if (WebUtils.isXpath(selectorString)) {
-            selectorType = XPATH;
-        } else if (WebUtils.isImageSelector(selectorString)) {
-            selectorType = IMAGE;
-        } else if (WebUtils.isUrl(selectorString)) {
-            selectorType = URL;
-        } else {
-            selectorType = CSS;
-        }
-        return selectorType;
-    }
 
     SelectorType(String selectorTypeName) {
         DataValidationUtils.validateNotBlank(selectorTypeName, "selectorTypeName");
@@ -48,7 +32,10 @@ public enum SelectorType {
                 return value;
             }
         }
-        throw new SmartRuntimeException(String.format(
-                "Cannot convert '%s' to SmartByType enum item.", selectorType));
+        throw new SmartRuntimeException(String.format("""
+                        Cannot convert selector type string to selector type enum item.
+                        Selector type: %s
+                        """.stripIndent(),
+                        selectorType));
     }
 }

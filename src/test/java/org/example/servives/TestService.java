@@ -1,4 +1,4 @@
-package org.example.servers;
+package org.example.servives;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.*;
@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentMap;
  * Test server implementation class.
  */
 @Slf4j
-public class TestService implements TestServerInterface {
+public class TestService implements TestServiceInterface {
     static private final ConcurrentMap<Long, Boolean> threadMap = new ConcurrentHashMap<>();
 
     /**
@@ -35,11 +35,13 @@ public class TestService implements TestServerInterface {
         try {
             WebFormPage webFormPage = new WebFormPage();
             WebFormPageOutput output = new WebFormPageOutput();
+            int thisYear = LocalDate.now().getYear();
+            String textAreaKeyword = "my-textarea";
 
             webFormPage.open();
             webFormPage.enterIntoTextInput(input.getTextInput());
             webFormPage.enterPassword("Password123");
-            input.getTextareaInput().setKeyword(textAreaKeyword);
+            webFormPage.getTextarea().setKeyword(textAreaKeyword);
             webFormPage.enterIntoTextarea(input.getTextareaInput());
             webFormPage.selectDropdownOption(input.getDropdownSelectedOption());
             webFormPage.selectDataListOption(input.getDataListSelectOption());
@@ -61,7 +63,6 @@ public class TestService implements TestServerInterface {
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
             output.getTextareaInput().setValue(webFormPage.getTextInputValue());
-            output.getTextareaInput().setKeyword(textAreaKeyword);
             output.getTextareaInput().setValue(webFormPage.getTextareaValue());
             output.getDropdownSelectedOption().setValue(webFormPage.getDropdownSelectedOption());
             output.getDataListSelectOption().setValue(webFormPage.getDataListSelectedOption());

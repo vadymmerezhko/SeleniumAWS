@@ -36,7 +36,7 @@ public abstract class SmartAssert {
      * @param expected The expected smart type.
      * @param actual The actual one.
      */
-    public static void assertData(SmartDataObject expected, SmartDataObject actual) {
+    public static void assertData(SmartData expected, SmartData actual) {
         assertData(expected, actual, false, false);
     }
 
@@ -48,7 +48,7 @@ public abstract class SmartAssert {
      * @param expected The expected smart type.
      * @param actual The actual one.
      */
-    public static void assertDataStrictType(SmartDataObject expected, SmartDataObject actual) {
+    public static void assertDataStrictType(SmartData expected, SmartData actual) {
         assertData(expected, actual, true, false);
     }
 
@@ -60,7 +60,7 @@ public abstract class SmartAssert {
      * @param expected The expected smart type.
      * @param actual The actual one.
      */
-    public static void assertDataStrictOrder(SmartDataObject expected, SmartDataObject actual) {
+    public static void assertDataStrictOrder(SmartData expected, SmartData actual) {
         assertData(expected, actual, true, true);
     }
 
@@ -72,12 +72,12 @@ public abstract class SmartAssert {
      * @param expected The expected smart type.
      * @param actual The actual one.
      */
-    public static void assertDataStrictTypeAndOrder(SmartDataObject expected, SmartDataObject actual) {
+    public static void assertDataStrictTypeAndOrder(SmartData expected, SmartData actual) {
         assertData(expected, actual, true, true);
     }
 
-    private static void assertData(SmartDataObject expected, SmartDataObject actual,
-                                         boolean strictType, boolean strictOrder) {
+    private static void assertData(SmartData expected, SmartData actual,
+                                   boolean strictType, boolean strictOrder) {
         DataValidationUtils.validateNotNull(expected, "expected");
         DataValidationUtils.validateNotNull(actual, "actual");
         DataValidationUtils.validateNotTheSame(expected, actual, "expected", "actual");
@@ -133,7 +133,7 @@ public abstract class SmartAssert {
                     assertXmlNode((Node) expectedValue, (Node) actualValue, strictOrder);
                 }
                 else {
-                    Assert.assertEquals(actualValue, actualValue, expectedName);
+                    Assert.assertEquals(expectedValue, actualValue, expectedName);
                     log.debug("""
                             Smart assert of the expected and actual smart types passed OK.
                             Strict type: {}

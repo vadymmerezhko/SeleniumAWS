@@ -16,6 +16,7 @@ public enum SmartByType {
     CSS("cssSelector"),
     XPATH("xpath"),
     IMAGE("image"),
+    URL("url"),
     AUTO("auto");
 
     SmartByType(String selectorTypeName) {

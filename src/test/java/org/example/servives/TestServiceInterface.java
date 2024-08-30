@@ -1,11 +1,11 @@
-package org.example.servers;
+package org.example.servives;
 
 import org.example.data.*;
 
 /**
  * Test server interface.
  */
-public interface TestServerInterface {
+public interface TestServiceInterface {
 
     /**
      * Fills the Web Form method interface.

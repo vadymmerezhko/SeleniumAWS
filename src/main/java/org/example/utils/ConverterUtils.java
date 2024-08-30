@@ -36,6 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.apache.commons.lang3.ObjectUtils.isArray;
+import static org.example.constants.Settings.NULL_VALUE;
 import static org.example.enums.ValueType.*;
 
 /**
@@ -436,6 +437,13 @@ public final class ConverterUtils {
                     // Ignore exception
                 }
             }
+            if (date == null) {
+                throw new SmartRuntimeException(String.format("""
+                    Cannot convert string to smart date.
+                    String: {}
+                    """.stripIndent(),
+                        dateString));
+            }
             SmartDate smartDate = new SmartDate(date, dateFormat);
             log.debug("""
                 String converted to smart date.
@@ -447,7 +455,7 @@ public final class ConverterUtils {
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    String converted to smart date.
+                    Cannot convert string to smart date.
                     String: {}
                     """.stripIndent(),
                     dateString), e);
@@ -566,7 +574,8 @@ public final class ConverterUtils {
             JSONArray json = new JSONArray(string);
             log.debug("{} string converted to JSON array {}.", string, json);
             return json;
-        } catch (JSONException | NullPointerException e) {
+        }
+        catch (JSONException | NullPointerException e) {
             throw new SmartRuntimeException(String.format(
                     "Invalid JSON array format: %s.", string));
         }
@@ -925,7 +934,7 @@ public final class ConverterUtils {
 
         try {
             if (object == null) {
-                string = NULL.toString();
+                string = NULL_VALUE;
             }
             else if (isNaN(object)) {
                 string = NAN.toString();
@@ -994,8 +1003,9 @@ public final class ConverterUtils {
             throw new SmartRuntimeException(String.format("""
                     Cannot convert object to string.
                     Object:
-                    {}
-                    """.stripIndent(), object), e);
+                    %s
+                    """.stripIndent(),
+                    object), e);
         }
     }
 

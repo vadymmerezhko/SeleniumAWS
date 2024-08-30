@@ -1,17 +1,17 @@
-package org.example.servers;
+package org.example.servives;
 
 /**
  * Test server manager class.
  */
-public class TestServerManager {
-    private TestServerManager() {}
+public class TestServiceManager {
+    private TestServiceManager() {}
 
     /**
      * Returns test server instance.
      * Test server specific is defined in the Config file.
      * @return Test server instance.
      */
-    public static synchronized TestServerInterface getTestServer() {
+    public static synchronized TestServiceInterface getTestServer() {
         return new TestService();
     }
 }

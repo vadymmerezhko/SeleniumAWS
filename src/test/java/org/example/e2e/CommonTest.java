@@ -3,8 +3,8 @@ package org.example.e2e;
 import org.example.data.SmartAssert;
 import org.example.data.*;
 import org.example.configs.TestConfig;
-import org.example.servers.TestServerInterface;
-import org.example.servers.TestServerManager;
+import org.example.servives.TestServiceInterface;
+import org.example.servives.TestServiceManager;
 import org.example.tests.BaseTest;
 import org.testng.Assert;
 import org.testng.Reporter;
@@ -27,7 +27,7 @@ public class CommonTest extends BaseTest {
     private void fillWebForm(WebFormPageInput input) {
         Reporter.log("<b>fillWebForm test execution started.</b>");
 
-        TestServerInterface testServer = TestServerManager.getTestServer();
+        TestServiceInterface testServer = TestServiceManager.getTestServer();
         WebFormPageOutput actual = testServer.fillWebForm(input);
         WebFormPageOutput expected = new WebFormPageOutput();
         expected.getDate().setKeyword(actual.getDate().getKeyword());
@@ -39,7 +39,7 @@ public class CommonTest extends BaseTest {
     protected void submitWebForm() {
         Reporter.log("<b>submitWebForm test execution started.</b>");
 
-        TestServerInterface testServer = TestServerManager.getTestServer();
+        TestServiceInterface testServer = TestServiceManager.getTestServer();
         TargetPageOutput actual = testServer.submitWebForm();
         TargetPageOutput expected = new TargetPageOutput();
 

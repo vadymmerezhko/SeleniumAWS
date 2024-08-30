@@ -80,10 +80,10 @@ public class SmartWebDriver implements WebDriver, JavascriptExecutor, TakesScree
      */
     @Override
     public List<WebElement> findElements(By by) {
-        String selector = SmartByParser.getLocatorString(by);
+        String selector = SmartByParser.selectorValueFromBy(by);
         List<WebElement> elements;
 
-        if (WebUtils.isImageSelector(selector)) {
+        if (WebUtils.isPngImage(selector)) {
             elements = WebUtils.findWebElementsByImage(selector, null);
         }
         else {
@@ -106,20 +106,27 @@ public class SmartWebDriver implements WebDriver, JavascriptExecutor, TakesScree
     public WebElement findElement(By by) {
         long startMilliseconds = System.currentTimeMillis();
         long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
-        String selector = SmartByParser.getLocatorString(by);
-        List<WebElement> elements;
+        String selector = SmartByParser.selectorValueFromBy(by);
+        List<WebElement> elements = null;
+        int size = 0;
         WebElement element;
 
         while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
 
-            if (WebUtils.isImageSelector(selector)) {
+            if (WebUtils.isPngImage(selector)) {
                 elements = WebUtils.findWebElementsByImage(selector, null);
             }
             else {
-                elements = driver.findElements(by);
+                try {
+                    elements = driver.findElements(by);
+                }
+                catch (NoSuchWindowException | NoSuchFrameException e) {
+                    // Ignore exception.
+                }
             }
-            int size = elements.size();
-
+            if (elements != null) {
+                size = elements.size();
+            }
             if (size == 1) {
                 element = elements.get(0);
                 log.debug("Web element {} is found by selector {}.", element, by);
@@ -129,7 +136,7 @@ public class SmartWebDriver implements WebDriver, JavascriptExecutor, TakesScree
             waitForPageLoad();
         }
         element = new SmartWebElement(driver.findElement(by), null, by, driver, waiter);
-        log.debug("Web element {} is not found by selector {}.", element, by);
+        log.debug("Web element {} is found by selector {}.", element, by);
         return element;
     }
 

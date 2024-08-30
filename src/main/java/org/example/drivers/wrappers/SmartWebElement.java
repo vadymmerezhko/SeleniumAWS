@@ -326,10 +326,10 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     @Override
     public List<WebElement> findElements(By childBy) {
-        String selector = SmartByParser.getLocatorString(childBy);
+        String selector = SmartByParser.selectorValueFromBy(childBy);
         List<WebElement> elements;
 
-        if (WebUtils.isImageSelector(selector)) {
+        if (WebUtils.isPngImage(selector)) {
             elements =  WebUtils.findWebElementsByImage(selector, element);
         }
         else {
@@ -352,13 +352,13 @@ public class SmartWebElement extends BaseSmartWebElement {
     public WebElement findElement(By childBy) {
         long startMilliseconds = System.currentTimeMillis();
         long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
-        String selector = SmartByParser.getLocatorString(childBy);
+        String selector = SmartByParser.selectorValueFromBy(childBy);
         List<WebElement> elements;
         WebElement foundElement;
 
         while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
 
-            if (WebUtils.isImageSelector(selector)) {
+            if (WebUtils.isPngImage(selector)) {
                 elements = WebUtils.findWebElementsByImage(selector, element);
             }
             else {
@@ -528,8 +528,8 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     public void scrollToElement() {
         WebElement nativeElement = element;
-        if (element instanceof SmartWebElement) {
-            nativeElement = ((SmartWebElement) element).getNativeElement();
+        if (element instanceof SmartWebElement smartWebElement) {
+            nativeElement = smartWebElement.getNativeElement();
         }
         try {
             ((JavascriptExecutor)driver).executeScript(
@@ -550,8 +550,8 @@ public class SmartWebElement extends BaseSmartWebElement {
      */
     public void setValue(String value) {
         WebElement nativeElement = element;
-        if (element instanceof SmartWebElement) {
-            nativeElement = ((SmartWebElement) element).getNativeElement();
+        if (element instanceof SmartWebElement smartWebElement) {
+            nativeElement = smartWebElement.getNativeElement();
         }
         ((JavascriptExecutor)driver).executeScript(
                 String.format("arguments[0].value='%s'", value), nativeElement);

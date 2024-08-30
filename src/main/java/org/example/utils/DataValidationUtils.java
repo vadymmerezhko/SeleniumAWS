@@ -1,6 +1,7 @@
 package org.example.utils;
 
 import org.example.data.SmartValue;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
 
 import java.nio.file.Paths;
@@ -16,7 +17,60 @@ public final class DataValidationUtils {
      */
     public static void validateNotNull(Object value, String valueName) {
         if (value == null) {
-            handleError(String.format("%s has NULL value.", dataName));
+            handleError(String.format("%s has null value.", valueName));
+        }
+    }
+
+    /**
+     * Validates that two data objects are not the same.
+     * @param expected The data value 1.
+     * @param actual The data value 2.
+     * @param expectedName The value 1 name.
+     * @param actualName The value 2 name.
+     */
+    public static void validateNotTheSame(Object expected, Object actual,
+                                          String expectedName, String actualName) {
+        validateNotBlank(expectedName, "expectedName");
+        validateNotBlank(actualName, "actualName");
+
+        if (expected == actual) {
+            handleError(String.format("""
+            Actual value object is the same as expected value object.
+            Expected:
+            %s
+            Actual:
+            %s
+            """.stripIndent(),
+            expected, actual));
+
+        }
+    }
+
+    /**
+     * Validates that two data objects have the same type.
+     * @param expected The object value1.
+     * @param actual The object value2.
+     * @param expectedName The value name.
+     * @param actualName The actual name.
+     */
+    public static void validateTheSameType(Object expected, Object actual,
+                                           String expectedName, String actualName) {
+        validateNotBlank(expectedName, "expectedName");
+        validateNotBlank(actualName, "actualName");
+        validateNotNull(expected, expectedName);
+        validateNotNull(actual, actualName);
+
+        String actualClassName = actual.getClass().getName();
+        String expectedClassName = expected.getClass().getName();
+
+        if (!expectedClassName.equals(actualClassName)) {
+            handleError(String.format("""
+                    Actual value class does not equal expected value class.
+                    Expected: %s
+                    Actual: %s
+                    """.stripIndent(),
+                    expectedClassName,
+                    actualClassName));
         }
     }
 
@@ -114,6 +168,20 @@ public final class DataValidationUtils {
         if (value < from || value > to) {
             handleError(String.format("%s has invalid [%d:%d] range value: %d",
                     valueName, from, to, value));
+        }
+    }
+
+    /**
+     * Validates that double range is correct.
+     * @param value The data value.
+     * @param from The range beginning.
+     * @param to The range ending.
+     * @param dataName The data name.
+     */
+    public static void validateRange(double value, double from, double to, String dataName) {
+        if (value < from || value > to) {
+            handleError(String.format("%s has invalid [%f:%f] range value: %f",
+                    dataName, from, to, value));
         }
     }
 

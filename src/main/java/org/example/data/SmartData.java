@@ -10,7 +10,7 @@ import java.util.Objects;
  * Smart data object class.
  */
 @Slf4j
-public abstract class SmartDataObject extends SmartObject {
+public abstract class SmartData extends SmartObject {
     private final String name = getClass().getSimpleName();
 
     public String getName() {
@@ -41,9 +41,9 @@ public abstract class SmartDataObject extends SmartObject {
         if (actual == this) {
             return true;
         }
-        else if (actual instanceof SmartDataObject smartDataObject) {
+        else if (actual instanceof SmartData smartData) {
             try {
-                SmartAssert.assertData(this, smartDataObject);
+                SmartAssert.assertData(this, smartData);
                 return true;
             }
             catch (AssertionError e) {

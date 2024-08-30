@@ -4,18 +4,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
 import org.example.configs.TestConfig;
 import org.example.data.SmartObject;
+import org.example.data.SmartValue;
 import org.example.drivers.elements.SmartElement;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.drivers.selectors.Selector;
 import org.example.drivers.selectors.SelectorType;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.FileSystemUtils;
-import org.example.utils.WebUtils;
-import org.json.JSONException;
+import org.example.utils.*;
 import org.json.JSONObject;
 import org.openqa.selenium.*;
 
 import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,9 +28,40 @@ import static org.example.constants.Settings.*;
  */
 @Slf4j
 public abstract class SmartPage extends SmartObject {
-    private static final ConcurrentMap<String, String> pageUrlMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, String> pageUrlsMap =
+            readPageURLsFromFiles();
+    private static final String UNDEFINED = "undefined";
 
     protected WebDriver driver;
+    protected SmartValue url = new SmartValue();
+
+    /**
+     * Reads asynchronously all pages URLs from JSON files
+     * to URL map.
+     * If no files or they are empty then empty map is returned.
+     * @return  The element name - selector map.
+     */
+    private static ConcurrentMap<String, String> readPageURLsFromFiles() {
+        ConcurrentMap<String, String> pageUrlsMap = new ConcurrentHashMap<>();
+        Set<String> fileNames = FileSystemUtils.getFileNamesInFolder(PAGE_OBJECTS_FOLDER_PATH);
+
+        Thread thread = new Thread(() -> {
+            try {
+                log.debug("Asynchronous page object element selectors reading began.");
+
+                for (String fileName : fileNames) {
+                    getUrlFromPageFile(fileName, pageUrlsMap);
+                }
+                log.debug("Asynchronous page object element selectors reading finished.");
+            }
+            catch (Exception e) {
+                throw new SmartRuntimeException(String.format(
+                        "Cannot read all web page files from: %s", PAGE_OBJECTS_FOLDER_PATH), e);
+            }
+        });
+        thread.start();
+        return pageUrlsMap;
+    }
 
     /**
      * Base page constructor.
@@ -39,23 +71,44 @@ public abstract class SmartPage extends SmartObject {
     }
 
     /**
+     * Sets a keyword.
+     * @param keyword The keyword.
+     */
+    public void setKeyword(String keyword) {
+        url.setKeyword(keyword);
+        log.debug("Page keyword is set: '{}'", keyword);
+    }
+
+    /**
+     * Gets a keyword.
+     * @ keyword The keyword.
+     */
+    public Object getKeyword() {
+        Object keyword = url.getKeyword();
+        log.debug("Page keyword is returned: '{}'", keyword);
+        return keyword;
+    }
+
+    /**
      * Opens web page by its URL.
      */
     public void open() {
-        String url = getPageUrl();
         try {
-            driver.get(url);
+            if (url.getValue() == null) {
+                url.setValue(getPageUrl());
+            }
+            driver.get(url.toString());
             return;
         }
         catch (WebDriverException e) {
             if (Config.getInstance().getDebugMode()) {
-                url = handlePageOpenError();
+                url.setValue(handlePageOpenError());
             }
             else {
                 throw e;
             }
         }
-        driver.get(url);
+        driver.get(url.toString());
     }
 
     /**
@@ -183,10 +236,10 @@ public abstract class SmartPage extends SmartObject {
             } else {
                 json = new JSONObject();
             }
-            String urlFormat = url.replace(siteHost, SITE_HOST_PLACEHOLDER);
-            Selector selector = new Selector(SelectorType.URL, urlFormat);
+            String urlTemplate = url.replace(siteHost, SITE_HOST_PLACEHOLDER);
+            Selector selector = new Selector(SelectorType.URL, urlTemplate, null);
             json.put(PAGE_URL_FIELD_NAME, selector.toString());
-            FileSystemUtils.createFile(filePath, json.toString());
+            FileSystemUtils.createFile(filePath, json.toString(JSON_LAYOUT_SPACES));
             log.debug("Page {} URL {} is saved to file {}.",
                     pageName, url, filePath);
         }
@@ -199,57 +252,16 @@ public abstract class SmartPage extends SmartObject {
 
     /**
      * Reads page URL from file.
-     * @param folderPath The folder path.
      * @param pageName The page name.
-     * @param siteHost The site host.
      * @return The page URL.
      */
-    private String readPageUrlFromFile(String folderPath, String pageName, String siteHost) {
+    private String readPageUrlFromFile(String pageName) {
         String filePath = null;
         try {
             String fileName = String.format("%s.json", pageName);
-            JSONObject json;
-            filePath = String.format("%s/%s", folderPath, fileName);
 
-            if (FileSystemUtils.fileExists(filePath)) {
-                String jsonString = FileSystemUtils.readFile(filePath);
-
-                if (jsonString.trim().isEmpty()) {
-                    return null;
-                }
-                json = new JSONObject(jsonString);
-                try {
-                    String urlFormat = json.get(PAGE_URL_FIELD_NAME).toString();
-                    log.debug("Page URL format {} is read from file {}.",
-                            urlFormat, fileName);
-                    String url = urlFormat.replace(SITE_HOST_PLACEHOLDER, siteHost);
-                    log.debug("Page URL {} is read from file {}.",
-                            url, fileName);
-
-                    if (url.trim().isEmpty()) {
-                        return null;
-                    }
-                    Selector selector = Selector.parseSelector(url);
-                    return selector.getValue();
-                }
-                catch (JSONException e) {
-                    if (Config.getInstance().getDebugMode()) {
-                        log.debug("File {} has invalid JSON object format: {}",
-                                filePath, jsonString);
-                        return null;
-                    }
-                    else {
-                        throw new SmartRuntimeException(String.format(
-                                "Page %s URL is not defined in the page object file %s.",
-                                pageName, filePath));
-                    }
-                }
-            }
-            else {
-                log.debug("Page object {} file {} does not exist.",
-                        pageName, filePath);
-                return null;
-            }
+            getUrlFromPageFile(fileName, pageUrlsMap);
+            return pageUrlsMap.get(pageName);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
@@ -261,26 +273,27 @@ public abstract class SmartPage extends SmartObject {
     private String getPageUrl() {
         String url;
         String pageName = this.getClass().getSimpleName();
-        String siteHost = TestConfig.getInstance().getSiteHost();
 
-        if (pageUrlMap.containsKey(pageName)) {
-            url = pageUrlMap.get(pageName);
+        if (pageUrlsMap.containsKey(pageName)) {
+            url = pageUrlsMap.get(pageName);
         }
         else {
-            url = readPageUrlFromFile(PAGE_OBJECTS_FOLDER_PATH, pageName, siteHost);
+            url = readPageUrlFromFile(pageName);
 
             if (url != null) {
+                String siteHost = TestConfig.getInstance().getSiteHost();
+
                 if (!url.trim().startsWith(siteHost)) {
                     log.debug("{} URL {} does not start with site host {}.", pageName, url, siteHost);
                     url = null;
                 }
             }
         }
-
         while (url == null) {
+            String currentUrl = getCurrentUrl();
+            String siteHost = TestConfig.getInstance().getSiteHost();
 
             if (Config.getInstance().getDebugMode()) {
-                String currentUrl = getCurrentUrl();
                 String promptMessage = String.format(
                        """
                        PAGE
@@ -312,7 +325,6 @@ public abstract class SmartPage extends SmartObject {
                     url = null;
                     continue;
                 }
-
                 if (!url.trim().startsWith(siteHost)) {
                     String wrongHostMessage = String.format("""
                         PAGE
@@ -332,7 +344,7 @@ public abstract class SmartPage extends SmartObject {
                     continue;
                 }
                 savePageUrlToFile(PAGE_OBJECTS_FOLDER_PATH, pageName, url, siteHost);
-                pageUrlMap.put(pageName, url);
+                pageUrlsMap.put(pageName, url);
                 break;
             }
             else {
@@ -347,9 +359,31 @@ public abstract class SmartPage extends SmartObject {
     private String handlePageOpenError() {
         String pageName = getClass().getSimpleName();
         String siteHost = TestConfig.getInstance().getSiteHost();
-        // Save empty URL to fix it in debug mode.
-        savePageUrlToFile(PAGE_OBJECTS_FOLDER_PATH, pageName, "", siteHost);
-        pageUrlMap.remove(pageName);
+        // Save wrong URL to fix it in debug mode.
+        savePageUrlToFile(PAGE_OBJECTS_FOLDER_PATH, pageName, UNDEFINED, siteHost);
+        pageUrlsMap.remove(pageName);
         return getPageUrl();
+    }
+
+    private static void getUrlFromPageFile(String fileName, Map<String, String> urlsMap) {
+        String filePath = String.format("%s/%s", PAGE_OBJECTS_FOLDER_PATH, fileName);
+        String fileContent = FileSystemUtils.readFile(filePath);
+        String pageName = FileSystemUtils.getFileNameWithoutExtension(fileName);
+        String siteHost = TestConfig.getInstance().getSiteHost();
+
+        if (!fileContent.trim().isEmpty()) {
+            JSONObject json = new JSONObject(fileContent);
+
+            if (json.has(PAGE_URL_FIELD_NAME)) {
+                String urlTemplate = json.get(PAGE_URL_FIELD_NAME).toString();
+                urlTemplate = urlTemplate.replace(SITE_HOST_PLACEHOLDER, siteHost);
+                Selector selector = Selector.fromString(urlTemplate);
+                log.debug("{} page URL {} is read from file {}.",
+                        pageName, urlTemplate, filePath);
+                String url = selector.totValueString();
+                urlsMap.put(pageName, url);
+                log.debug("{} page URL: {}", pageName, url);
+            }
+        }
     }
 }

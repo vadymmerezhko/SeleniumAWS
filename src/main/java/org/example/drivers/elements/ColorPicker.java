@@ -36,13 +36,13 @@ public class ColorPicker extends SmartElement {
 
         if (colorPicker instanceof PlaywrightElement) {
             ((PlaywrightElement)colorPicker).setValue(color);
-            return;
         }
-        else if (colorPicker instanceof SmartWebElement) {
-            ((SmartWebElement)colorPicker).setValue(color);
-            return;
+        else if (colorPicker instanceof SmartWebElement smartWebElement){
+            smartWebElement.setValue(color);
         }
-        colorPicker.sendKeys(color);
+        else {
+            colorPicker.sendKeys(color);
+        }
     }
 
     /**

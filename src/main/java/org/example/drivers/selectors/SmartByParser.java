@@ -11,82 +11,129 @@ import org.openqa.selenium.By;
  */
 @Slf4j
 public class SmartByParser {
-    private static final String CSS_TEMPLATE = "css=%s";
-    private static final String XPATH_TEMPLATE = "xpath=%s";
+    private static final String CSS_FORMAT = "%s[%s='%s']";
+    private static final String XML_TEXT_EQUALS_FORMAT = "//%s[text()='%s']";
+    private static final String XML_TEXT_CONTAINS_FORMAT = "//%s[contains(text(), '%s']";
 
     /**
-     * Returns selector type name.
-     * @param elementSelector The By locator instance.
-     * @return The locator type name.
+     * Converts native By selector to smart By selector.
+     * @param nativeBy The native By seelctor.
+     * @return The smart By selector.
      */
-    public static SmartByType getByType(By elementSelector) {
-        DataValidationUtils.validateNotNull(elementSelector, "elementSelector");
+    public static SmartBy fromBy(By nativeBy) {
+        DataValidationUtils.validateNotNull(nativeBy, "nativeBy");
+        SmartBy smartBy;
 
-        String byString = elementSelector.toString();
-        int delimiter1Index = byString.indexOf(".");
-        int delimiter2Index = byString.indexOf(":");
-        SmartByType type = SmartByType.fromString(byString.substring(delimiter1Index + 1, delimiter2Index));
+        try {
+            if (nativeBy instanceof SmartBy wrappedSmartBy) {
+                 smartBy = wrappedSmartBy;
+            }
+            else {
+                String byString = nativeBy.toString();
+                int delimiter1Index = byString.indexOf(".");
+                int delimiter2Index = byString.indexOf(":");
+                SmartByType type = SmartByType.fromString(byString.substring(
+                        delimiter1Index + 1, delimiter2Index));
 
-        if (elementSelector instanceof SmartByImage && type == SmartByType.LINK_TEXT) {
-            type =  SmartByType.IMAGE;
+                if (type == SmartByType.LINK_TEXT && WebUtils.isPngImage(byString)) {
+                    type = SmartByType.IMAGE;
+                }
+                smartBy = new SmartBy(type, nativeBy);
+            }
+            log.debug("""
+                    By selector converted to smart By selector.
+                    By selector: {}
+                    Smart By:
+                    {}
+                    """.stripIndent(),
+                    nativeBy, smartBy);
+            return smartBy;
         }
-        log.debug("SmartByType: {}", type);
-        return type;
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot get smart By type from By selector.
+                    By selector: %s
+                    """.stripIndent(),
+                    nativeBy));
+        }
     }
 
     /**
-     * Returns selector value.
-     * @param elementSelector The By locator instance.
-     * @return The locator value.
+     * Converts selector value to smart By.
+     * @param selectorValue The selector value;
+     * @return The smart by;
      */
-    public static String getByValue(By elementSelector) {
-        DataValidationUtils.validateNotNull(elementSelector, "elementSelector");
+    public static SmartBy fromSelectorValue(String selectorValue) {
+        DataValidationUtils.validateNotBlank(selectorValue, "selectorValue");
+        selectorValue = selectorValue.trim();
+        SmartBy smartBy;
 
-        String byString = elementSelector.toString();
-        int delimiterIndex = byString.indexOf(":");
-        return byString.substring(delimiterIndex + 1).trim();
+        try {
+            if (WebUtils.isXpath(selectorValue)) {
+                smartBy = new SmartBy(SmartBy.xpath(selectorValue));
+            }
+            else if (WebUtils.isPngImage(selectorValue)) {
+                smartBy = new SmartBy(SmartBy.linkText(selectorValue));
+            }
+            else {
+                smartBy = new SmartBy(SmartBy.cssSelector(selectorValue));
+            }
+            log.debug("""
+                    Selector value string converted to smart By selector.
+                    Selector value: {}
+                    Smart By: {}
+                    """.stripIndent(),
+                    selectorValue, smartBy);
+            return smartBy;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot get smart By from selector value string.
+                    Selector value: %s
+                    """.stripIndent(),
+                    selectorValue));
+        }
     }
 
-    /**
-     * Convers By locator to string.
-     * @param elementSelector The By locator instance.
-     * @return The locator string value.
-     */
-    public static String getLocatorString(By elementSelector) {
-        DataValidationUtils.validateNotNull(elementSelector, "elementSelector");
+    public static String selectorValueFromBy(By nativeBy) {
 
-        SmartByType byType = SmartByParser.getByType(elementSelector);
-        String byValue = SmartByParser.getByValue(elementSelector);
+        try {
+            if (nativeBy instanceof SmartBy smartBy) {
+                nativeBy = smartBy.getBy();
+            }
+            if (nativeBy == null) {
+                return null;
+            }
+            SmartByType type = SmartByParser.fromBy(nativeBy).getSmartByType();
+            String byString = nativeBy.toString();
+            int delimiter2Index = byString.indexOf(":");
+            String value = byString.substring(delimiter2Index + 1).trim();
+            String selectorValue;
 
-        return switch (byType) {
-            case CSS, TAG_NAME -> String.format(CSS_TEMPLATE, byValue);
-            case XPATH -> String.format(XPATH_TEMPLATE, byValue);
-            case ID -> String.format("#%s", byValue);
-            case CLASS_NAME -> String.format(".%s]", byValue);
-            case NAME -> String.format("*[name='%s']", byValue);
-            case LINK_TEXT, IMAGE -> WebUtils.isImageSelector(byValue) ?
-                        // PNG image selector
-                        byValue   :
-                        // By link text selector
-                        String.format("//a[text()='%s']", byValue);
-            case PARTIAL_LINK_TEXT -> String.format("//a[contains(.,'%s')]", byValue);
-            default -> throw new SmartRuntimeException(String.format(
-                    "SmartByType is not supported: %s", byType));
-        };
-    }
-
-    public static By getByFromStringSelector(String selector) {
-        DataValidationUtils.validateNotBlank(selector, "selector");
-        selector = selector.trim();
-
-        if (WebUtils.isXpath(selector)) {
-            return SmartBy.selector(By.xpath(selector));
+            switch(type) {
+                case CLASS_NAME ->  selectorValue = String.format(CSS_FORMAT, "*", "class", value);
+                case ID ->  selectorValue = String.format(CSS_FORMAT, "*", "id", value);
+                case LINK_TEXT ->  selectorValue = String.format(XML_TEXT_EQUALS_FORMAT, "a", value);
+                case NAME ->  selectorValue = String.format(CSS_FORMAT, "*", "name", value);
+                case PARTIAL_LINK_TEXT ->  selectorValue = String.format(XML_TEXT_CONTAINS_FORMAT, "a", value);
+                case CSS, TAG_NAME, XPATH, URL, IMAGE ->  selectorValue = value;
+                default -> throw new SmartRuntimeException(String.format(
+                        "Cannot convert %s smart by to selector string.", type));
+            }
+            log.debug("""
+                    By selector converted to selector value string.
+                    By selector: {}
+                    Selector value: {}
+                    """.stripIndent(),
+                    nativeBy, selectorValue);
+            return selectorValue;
         }
-        else if (WebUtils.isImageSelector(selector)) {
-            return SmartBy.selector(By.linkText(selector));
-        }
-        else {
-            return SmartBy.cssSelector(selector);
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot get selector value string from By selector.
+                    By selector: %s
+                    """.stripIndent(),
+                    nativeBy));
         }
     }
 }

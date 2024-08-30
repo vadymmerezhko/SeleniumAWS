@@ -37,7 +37,7 @@ public final class ImageUtils {
      * @return The buffered image.
      */
     public static BufferedImage readBufferImageFromFile(String imageFilePath) {
-        DataValidationUtils.validateFilePath(imageFilePath, "imageFilePath");
+        DataValidationUtils.validateFilePathFormat(imageFilePath, "imageFilePath");
         BufferedImage image = null;
 
         try {
@@ -297,7 +297,7 @@ public final class ImageUtils {
      */
     public static void saveBufferedImageToPngFile(BufferedImage bufferedImage, String imageFilePath) {
         DataValidationUtils.validateNotNull(bufferedImage, "bufferedImage");
-        DataValidationUtils.validateFilePath(imageFilePath, "imageFilePath");
+        DataValidationUtils.validateFilePathFormat(imageFilePath, "imageFilePath");
 
         try {
             File imageFile = new File(imageFilePath);

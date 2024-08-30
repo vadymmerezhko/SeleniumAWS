@@ -134,7 +134,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
     public List<WebElement> findElements(By by) {
         long startMilliseconds = System.currentTimeMillis();
         long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
-        String locatorString = SmartByParser.getLocatorString(by);
+        String locatorString = SmartByParser.selectorValueFromBy(by);
         PlaywrightException exception = null;
         List<WebElement> playwrightElements = new ArrayList<>();
         List<Locator> locators;
@@ -142,7 +142,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
 
         while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
 
-            if (WebUtils.isImageSelector(locatorString)) {
+            if (WebUtils.isPngImage(locatorString)) {
                 List<WebElement> webElements = WebUtils.findWebElementsByImage(locatorString, null);
 
                 if (webElements.size() != 1) {
@@ -151,7 +151,7 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
                 for (WebElement webElement : webElements) {
                     foundLocator = getLocatorByWebElement(page, webElement);
                     locatorString = PlaywrightLocatorParser.locatorToString(foundLocator);
-                    By bySelector = SmartByParser.getByFromStringSelector(locatorString);
+                    By bySelector = SmartByParser.fromSelectorValue(locatorString);
                     playwrightElements.add(new PlaywrightElement(bySelector, foundLocator, this));
                 }
                 return playwrightElements;
@@ -182,19 +182,19 @@ public class PlaywrightDriver implements WebDriver, JavascriptExecutor, TakesScr
     public WebElement findElement(By by) {
         long startMilliseconds = System.currentTimeMillis();
         long waitTimeoutMilliseconds = (long) WAIT_ELEMENT_TIMEOUT_SECONDS * 1000;
-        String locatorString = SmartByParser.getLocatorString(by);
+        String locatorString = SmartByParser.selectorValueFromBy(by);
         PlaywrightException exception = null;
         Locator foundLocator;
 
         while ((System.currentTimeMillis() - startMilliseconds) < waitTimeoutMilliseconds) {
 
-            if (WebUtils.isImageSelector(locatorString)) {
+            if (WebUtils.isPngImage(locatorString)) {
                 List<WebElement> elements = WebUtils.findWebElementsByImage(locatorString, null);
                 if (elements.size() != 1) {
                     continue;
                 }
                 foundLocator = getLocatorByWebElement(page, elements.get(0));
-                By bySelector = SmartByParser.getByFromStringSelector(locatorString);
+                By bySelector = SmartByParser.fromSelectorValue(locatorString);
                 return new PlaywrightElement(bySelector, foundLocator, this);
             }
             try {
