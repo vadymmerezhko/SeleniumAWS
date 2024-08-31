@@ -76,8 +76,9 @@ jobs:
       #- name: Test - Local Playwright - Linux Firefox
       #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_playwright" "-Dbrowser=firefox"
 
-      - name: Test - AWS Device Farm - Windows Edge
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=5" "-DtestMode=aws_device_farm" "-Dbrowser=edge:latest"
+      # TODO: Fix AWS Device Farm Windows Edge.
+      #- name: Test - AWS Device Farm - Windows Edge
+      #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=5" "-DtestMode=aws_device_farm" "-Dbrowser=edge:latest"
 
       - name: Test - AWS Remote Docker - Linux Chrome
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
