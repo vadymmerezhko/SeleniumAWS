@@ -4,7 +4,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>SeleniumTestNGParentPom</artifactId>
-  <version>1.11.19</version>
+  <version>1.12.0</version>
   <packaging>pom</packaging>
 
   <name>SeleniumTestNGParentPom</name>
