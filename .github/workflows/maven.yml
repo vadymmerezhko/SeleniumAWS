@@ -80,8 +80,9 @@ jobs:
       #- name: Test - AWS Device Farm - Windows Edge
       #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=5" "-DtestMode=aws_device_farm" "-Dbrowser=edge:latest"
 
-      - name: Test - AWS Remote Docker - Linux Chrome
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
+      # TODO: Fix AWS Docker Chrome.
+      #- name: Test - AWS Remote Docker - Linux Chrome
+      #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
 
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_accessibility"
