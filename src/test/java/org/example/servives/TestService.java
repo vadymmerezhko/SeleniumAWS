@@ -39,43 +39,43 @@ public class TestService implements TestServiceInterface {
             String textAreaKeyword = "my-textarea";
 
             webFormPage.open();
-            webFormPage.enterIntoTextInput(input.getTextInput());
-            webFormPage.enterPassword("Password123");
+            webFormPage.getTextInput().enterText(input.getTextInput());
+            webFormPage.getPassword().enterText("Password123");
             webFormPage.getTextarea().setKeyword(textAreaKeyword);
-            webFormPage.enterIntoTextarea(input.getTextareaInput());
-            webFormPage.selectDropdownOption(input.getDropdownSelectedOption());
-            webFormPage.selectDataListOption(input.getDataListSelectOption());
+            webFormPage.getTextarea().enterText(input.getTextareaInput());
+            webFormPage.getDropdown().selectOption(input.getDropdownSelectedOption());
+            webFormPage.getDataList().selectOption(input.getDataListSelectOption());
             // TODO: Fix file path for remote run.
-            //webFormPage.enterFilePath(input.getFilePath());
-            webFormPage.setCheckbox1Value(input.getCheckbox1Value());
-            webFormPage.setCheckbox2Value(input.getCheckbox2Value());
+            //webFormPage.getFileInput().enterText(input.getFilePath());
+            webFormPage.getCheckbox1().setValue(input.getCheckbox1Value());
+            webFormPage.getCheckbox2().setValue(input.getCheckbox2Value());
 
             if (input.getRadiobutton1Value().toBoolean()) {
-                webFormPage.selectRadiobutton1();
+                webFormPage.getRadiobutton1().select();
             }
             if (input.getRadiobutton2Value().toBoolean()) {
-                webFormPage.selectRadiobutton2();
+                webFormPage.getRadiobutton2().select();
             }
-            webFormPage.pickColor(input.getColor());
+            webFormPage.getColorPicker().pickColor(input.getColor());
             input.getDate().setKeyword(thisYear);
-            webFormPage.pickDate(input.getDate());
-            webFormPage.setRange(input.getRange());
+            webFormPage.getDatePicker().pickDate(input.getDate());
+            webFormPage.getRangeSlider().setValue(input.getRange());
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
-            output.getTextareaInput().setValue(webFormPage.getTextInputValue());
-            output.getTextareaInput().setValue(webFormPage.getTextareaValue());
-            output.getDropdownSelectedOption().setValue(webFormPage.getDropdownSelectedOption());
-            output.getDataListSelectOption().setValue(webFormPage.getDataListSelectedOption());
+            output.getTextareaInput().setValue(webFormPage.getTextInput().getValue());
+            output.getTextareaInput().setValue(webFormPage.getTextarea().getValue());
+            output.getDropdownSelectedOption().setValue(webFormPage.getDropdown().getValue());
+            output.getDataListSelectOption().setValue(webFormPage.getDataList().getValue());
             // TODO fix file path on remote driver.
-            //output.getFilePath().setString(webFormPage.getFilePath())
-            output.getCheckbox1Value().setValue(webFormPage.getCheckbox1Value());
-            output.getCheckbox2Value().setValue(webFormPage.getCheckbox2Value());
-            output.getRadiobutton1Value().setValue(webFormPage.getRadiobutton1Value());
-            output.getRadiobutton2Value().setValue(webFormPage.getRadiobutton2Value());
-            output.getColor().setValue(webFormPage.getColor());
+            //output.getFilePath().setString(webFormPage.getFileInput().getValue());
+            output.getCheckbox1Value().setValue(webFormPage.getCheckbox1().isChecked());
+            output.getCheckbox2Value().setValue(webFormPage.getCheckbox2().isChecked());
+            output.getRadiobutton1Value().setValue(webFormPage.getRadiobutton1().isSelected());
+            output.getRadiobutton2Value().setValue(webFormPage.getRadiobutton2().isSelected());
+            output.getColor().setValue(webFormPage.getColorPicker().getValue());
             output.getDate().setKeyword(thisYear);
-            output.getDate().setValue(webFormPage.getDate());
-            output.getRange().setValue(webFormPage.getRange());
+            output.getDate().setValue(webFormPage.getDatePicker().getValue());
+            output.getRange().setValue(webFormPage.getRangeSlider().getValue());
             log.debug("Web Form page output data is returned: {}", output);
             return output;
         }
@@ -91,12 +91,12 @@ public class TestService implements TestServiceInterface {
     @Override
     public TargetPageOutput submitWebForm() {
         WebFormPage webFormPage = new WebFormPage();
-        webFormPage.submit();
+        webFormPage.getSubmitButton().click();
 
         TargetPage targetPage = new TargetPage();
         TargetPageOutput output = new TargetPageOutput();
-        output.getHeader().setValue(targetPage.getHeaderText());
-        output.getStatus().setValue(targetPage.getStatusText());
+        output.getHeader().setValue(targetPage.getHeader().getText());
+        output.getStatus().setValue(targetPage.getStatus().getText());
         log.debug("Target page output data is returned: {}", output);
         return output;
     }

@@ -1,5 +1,7 @@
 package org.example.drivers.elements;
 
+import lombok.extern.slf4j.Slf4j;
+import org.example.data.SmartValue;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -7,6 +9,7 @@ import org.openqa.selenium.WebElement;
 /**
  * The data list element class.
  */
+@Slf4j
 public class DataList extends BaseTextElement {
 
     /**
@@ -26,12 +29,32 @@ public class DataList extends BaseTextElement {
 
     /**
      * Selects data list option by its text.
-     * @param text The text of the option to select.
+     * @param option The text of the option to select.
      */
-    public void selectOptionByText(String text) {
+    public void selectOption(SmartValue option) {
+        DataValidationUtils.validateNotNull(option, "option");
+        selectOption(option.toString());
+    }
+
+    /**
+     * Selects data list option by its text.
+     * @param option The text of the option to select.
+     */
+    public void selectOption(String option) {
+        DataValidationUtils.validateNotBlank(option, "option");
         getElement();
-        DataValidationUtils.validateNotNull(text, this.getClass().getSimpleName());
-        enterText(text);
+        enterText(option);
+        log.debug("Data list {} option is selected: {}", elementName, option);
+    }
+
+    /**
+     * Selects data list option by its index.
+     * @param index The data list option index.
+     */
+    public void selectOptionByIndex(SmartValue index) {
+        DataValidationUtils.validateNotNull(index, "index");
+        selectOptionByIndex(index.toInteger());
+
     }
 
     /**
@@ -42,19 +65,24 @@ public class DataList extends BaseTextElement {
         WebElement option = getElement().findElement(By.xpath(
                 String.format("..//option[%d]", index)));
         String optionText = option.getText();
+
         if (optionText == null || optionText.isEmpty()) {
-            String optionValue = option.getDomProperty("value");
-            selectOptionByText(optionValue);
-        } else {
-            selectOptionByText(optionText);
+            SmartValue optionValue = new SmartValue(option.getDomProperty("value"));
+            selectOption(optionValue);
         }
+        else {
+            selectOption(new SmartValue(optionText));
+        }
+        log.debug("Data list {} option {} is selected by index: {}", elementName, option, index);
     }
 
     /**
      * Returns the text of the dat list selected option.
      * @return The selected option text.
      */
-    public String getSelectedOptionText() {
-        return getElement().getDomProperty("value");
+    public String getValue() {
+        String value = getElement().getDomProperty("value");
+        log.debug("Data list {} value is returned: {}", elementName, value);
+        return value;
     }
 }

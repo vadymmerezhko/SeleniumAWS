@@ -1,10 +1,13 @@
 package org.example.drivers.elements;
 
+import lombok.extern.slf4j.Slf4j;
+import org.example.pages.SmartElement;
 import org.openqa.selenium.By;
 
 /**
  * The radio button element class.
  */
+@Slf4j
 public class Radiobutton extends SmartElement {
 
     /**
@@ -29,6 +32,7 @@ public class Radiobutton extends SmartElement {
         if (!getElement().isSelected()) {
             getElement().click();
         }
+        log.debug("Radio button {} is selected.", elementName);
     }
 
     /**
@@ -36,6 +40,8 @@ public class Radiobutton extends SmartElement {
      * @return The radio button value.
      */
     public boolean getValue() {
-        return isSelected();
+        boolean value = isSelected();
+        log.debug("Radio button {} value is returned: {}", elementName, value);
+        return value;
     }
 }

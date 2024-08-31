@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
 import java.util.Date;
@@ -32,12 +33,13 @@ public final class SmartLocalDateTime implements SmartDateInterface,
      * @return The smart local date time.
      */
     public static SmartLocalDateTime parseLocalDateTime(String dateString) {
-        Date date = ConverterUtils.stringToSmartDate(dateString);
-        LocalDateTime localDateTime = ConverterUtils.objectToLocalDateTime(date);
-        SmartLocalDateTime smartDate = new SmartLocalDateTime(localDateTime, dateString);
+        SmartDate smartDate = ConverterUtils.stringToSmartDate(dateString);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(smartDate.getFormat());
+        LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
+        SmartLocalDateTime smartLocalDateTime = new SmartLocalDateTime(localDateTime, smartDate.getFormat());
         log.debug("String '{}' parsed to smart local date time {} with date format '{}'",
-                dateString, smartDate, smartDate.format);
-        return smartDate;
+                dateString, smartDate, smartDate.getFormat());
+        return smartLocalDateTime;
     }
 
     /**

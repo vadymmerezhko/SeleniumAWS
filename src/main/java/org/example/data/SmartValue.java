@@ -1361,7 +1361,6 @@ public class SmartValue {
                         private final SmartType yourDataField = new SmartType();
                         
                         public YourDataObject() {
-                            super();
                             initialize();
                         }
                     }

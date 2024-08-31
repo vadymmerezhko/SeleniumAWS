@@ -1,4 +1,4 @@
-package org.example.drivers.elements;
+package org.example.pages;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
@@ -6,7 +6,6 @@ import org.example.drivers.factories.WebDriverFactory;
 import org.example.drivers.selectors.*;
 import org.example.drivers.wrappers.SmartWebElement;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.pages.SmartPage;
 import org.example.utils.ClassUtils;
 import org.example.utils.FileSystemUtils;
 import org.example.utils.WebUtils;
@@ -377,7 +376,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      * Sets parent web page.
      * @param page The web page.
      */
-    public void setPage(SmartPage page) {
+    void setPage(SmartPage page) {
         this.page = page;
     }
 
@@ -554,7 +553,6 @@ public abstract class SmartElement implements WebElement, WrapsElement {
                             Please add method initialize(); to page class constructor like this:
                             
                             public YourPage() {
-                                super();
                                 initialize();
                             }
                             """.stripIndent());

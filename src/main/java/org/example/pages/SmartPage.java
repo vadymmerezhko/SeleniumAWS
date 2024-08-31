@@ -5,7 +5,6 @@ import org.example.configs.Config;
 import org.example.configs.TestConfig;
 import org.example.data.SmartObject;
 import org.example.data.SmartValue;
-import org.example.drivers.elements.SmartElement;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.drivers.selectors.Selector;
 import org.example.drivers.selectors.SelectorType;
@@ -14,7 +13,6 @@ import org.example.utils.*;
 import org.json.JSONObject;
 import org.openqa.selenium.*;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,6 +66,7 @@ public abstract class SmartPage extends SmartObject {
      */
     SmartPage() {
         driver = WebDriverFactory.getDriver();
+        SmartPageInitializer.initialize(this);
     }
 
     /**
@@ -198,37 +197,18 @@ public abstract class SmartPage extends SmartObject {
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
     }
 
-    protected void initialize() {
-        try {
-            Field[] fields = getClass().getDeclaredFields();
-
-            for (Field field : fields) {
-                field.setAccessible(true);
-                Object fieldObject = field.get(this);
-
-                if (fieldObject instanceof SmartElement) {
-                    ((SmartElement) fieldObject).setPage(this);
-                }
-            }
-        }
-        catch (Exception e) {
-            throw new SmartRuntimeException(String.format(
-                    "Cannot initialize web page %s.", getClass().getSimpleName()), e);
-        }
-    }
-
     /**
      * Saves element selector to JSON file.
      * @param pageName The page name.
      * @param url The page URL.
      */
-    private void savePageUrlToFile(String folderPath, String pageName, String url, String siteHost) {
+    private void savePageUrlToFile(String pageName, String url, String siteHost) {
         String filePath = null;
 
         try {
             String fileName = String.format("%s.json", pageName);
             JSONObject json;
-            filePath = String.format("%s/%s", folderPath, fileName);
+            filePath = String.format("%s/%s", PAGE_OBJECTS_FOLDER_PATH, fileName);
 
             if (FileSystemUtils.fileExists(filePath)) {
                 String jsonString = FileSystemUtils.readFile(filePath);
@@ -343,7 +323,7 @@ public abstract class SmartPage extends SmartObject {
                     url = null;
                     continue;
                 }
-                savePageUrlToFile(PAGE_OBJECTS_FOLDER_PATH, pageName, url, siteHost);
+                savePageUrlToFile(pageName, url, siteHost);
                 pageUrlsMap.put(pageName, url);
                 break;
             }
@@ -360,7 +340,7 @@ public abstract class SmartPage extends SmartObject {
         String pageName = getClass().getSimpleName();
         String siteHost = TestConfig.getInstance().getSiteHost();
         // Save wrong URL to fix it in debug mode.
-        savePageUrlToFile(PAGE_OBJECTS_FOLDER_PATH, pageName, UNDEFINED, siteHost);
+        savePageUrlToFile(pageName, UNDEFINED, siteHost);
         pageUrlsMap.remove(pageName);
         return getPageUrl();
     }

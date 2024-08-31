@@ -8,6 +8,7 @@ import org.example.utils.DataValidationUtils;
 
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
 import java.util.Date;
@@ -30,12 +31,13 @@ public final class SmartLocalTime implements SmartDateInterface,
      * @return The smart local time.
      */
     public static SmartLocalTime parseLocalTime(String dateString) {
-        Date date = ConverterUtils.stringToSmartDate(dateString);
-        LocalTime locaTime = ConverterUtils.objectToLocalTime(date);
-        SmartLocalTime smartDate = new SmartLocalTime(locaTime, dateString);
+        SmartDate smartDate = ConverterUtils.stringToSmartDate(dateString);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(smartDate.getFormat());
+        LocalTime localTime = LocalTime.parse(dateString, formatter);
+        SmartLocalTime smartLocalTime = new SmartLocalTime(localTime, smartDate.getFormat());
         log.debug("String '{}' parsed to smart local date time {} with date format '{}'",
-                dateString, smartDate, smartDate.format);
-        return smartDate;
+                dateString, smartDate, smartDate.getFormat());
+        return smartLocalTime;
     }
 
     /**

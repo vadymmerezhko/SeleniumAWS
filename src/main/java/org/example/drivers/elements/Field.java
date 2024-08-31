@@ -3,20 +3,20 @@ package org.example.drivers.elements;
 import org.example.pages.SmartElement;
 import org.openqa.selenium.By;
 
-public class Label extends SmartElement {
+public class Field extends SmartElement {
 
     /**
-     * Label element constructor with auto selector.
+     * Field element constructor with auto selector.
      */
-    public Label() {
+    public Field() {
         super();
     }
 
     /**
-     * Label element constructor by its selector.
+     * Field element constructor by its selector.
      * @param by   The element selector.
      */
-    public Label(By by) {
+    public Field(By by) {
         super(by);
     }
 }

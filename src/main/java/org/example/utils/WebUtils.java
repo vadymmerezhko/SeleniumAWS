@@ -2,7 +2,7 @@ package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
-import org.example.drivers.elements.SmartElement;
+import org.example.pages.SmartElement;
 import org.example.drivers.factories.WebDriverFactory;
 import org.example.drivers.playwright.PlaywrightElement;
 import org.example.drivers.selectors.SmartByType;

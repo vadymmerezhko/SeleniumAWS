@@ -1,11 +1,13 @@
 package org.example.drivers.elements;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
 /**
  * The text input element class.
  */
+@Slf4j
 public class TextInput extends SingleLineTextInput {
 
     /**
@@ -28,7 +30,9 @@ public class TextInput extends SingleLineTextInput {
      * @return The text input value.
      */
     public String getValue() {
-        return getElement().getDomProperty("value");
+        String value = getElement().getDomProperty("value");
+        log.debug("Text input {} value is returned: {}", elementName, value);
+        return value;
     }
 
     /**
@@ -36,6 +40,7 @@ public class TextInput extends SingleLineTextInput {
      */
     public void selectAllText() {
         sendKeys(Keys.chord(Keys.CONTROL, "a"));
+        log.debug("Text input {} all text is selected.", elementName);
     }
 
     /**
@@ -43,6 +48,7 @@ public class TextInput extends SingleLineTextInput {
      */
     public void copyText() {
         sendKeys(Keys.chord(Keys.CONTROL, "c"));
+        log.debug("Text input {} selected text is copied to buffer.", elementName);
     }
 
     /**
@@ -50,5 +56,6 @@ public class TextInput extends SingleLineTextInput {
      */
     public void cutText() {
         sendKeys(Keys.chord(Keys.CONTROL, "x"));
+        log.debug("Text input {} selected text is cut to buffer.", elementName);
     }
 }

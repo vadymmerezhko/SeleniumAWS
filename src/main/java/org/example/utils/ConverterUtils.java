@@ -470,7 +470,8 @@ public final class ConverterUtils {
     public static SmartLocalDate stringToSmartLocalDate(String dateString) {
         try {
             SmartDate smartDate = stringToSmartDate(dateString);
-            LocalDate localDate = objectToLocalDate(smartDate);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(smartDate.getFormat());
+            LocalDate localDate = LocalDate.parse(dateString, formatter);
             SmartLocalDate smartLocalDate =
                     new SmartLocalDate(localDate, smartDate.getFormat());
             log.debug("""
@@ -483,7 +484,7 @@ public final class ConverterUtils {
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    String converted to smart local date.
+                    Cannot convert string to smart local date.
                     String: {}
                     """.stripIndent(),
                     dateString), e);
@@ -498,7 +499,8 @@ public final class ConverterUtils {
     public static SmartLocalDateTime stringToSmartLocalDateTime(String dateTimeString) {
         try {
             SmartDate smartDate = stringToSmartDate(dateTimeString);
-            LocalDateTime localDateTime = objectToLocalDateTime(smartDate);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(smartDate.getFormat());
+            LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
             SmartLocalDateTime smartLocalDateTime =
                     new SmartLocalDateTime(localDateTime, smartDate.getFormat());
             log.debug("""
@@ -511,7 +513,7 @@ public final class ConverterUtils {
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    String converted to smart local date time.
+                    Cannot convert string to smart local date time.
                     String: {}
                     """.stripIndent(),
                     dateTimeString), e);
@@ -526,11 +528,12 @@ public final class ConverterUtils {
     public static SmartLocalTime stringToSmartLocalTime(String timeString) {
         try {
             SmartDate smartDate = stringToSmartDate(timeString);
-            LocalTime localTime = objectToLocalTime(smartDate);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(smartDate.getFormat());
+            LocalTime localTime = LocalTime.parse(timeString, formatter);
             SmartLocalTime smartLocalTime =
                     new SmartLocalTime(localTime, smartDate.getFormat());
             log.debug("""
-                String converted to smart local time.
+               Cannot convert string to smart local time.
                 String: {}
                 Smart local time: {}
                 """.stripIndent(),
@@ -1039,7 +1042,6 @@ public final class ConverterUtils {
         }
     }
 
-
     /**
      * Converts object to object or throws exception if cannot covert.
      *
@@ -1419,7 +1421,8 @@ public final class ConverterUtils {
                             """.stripIndent(),
                     string, object);
             return (T) object;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
                             Cannot convert string to Java POJO class object.
                             String:

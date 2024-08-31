@@ -1,6 +1,9 @@
 package org.example.drivers.elements;
 
+import lombok.extern.slf4j.Slf4j;
+import org.example.data.SmartValue;
 import org.example.drivers.playwright.PlaywrightElement;
+import org.example.pages.SmartElement;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -9,6 +12,7 @@ import org.openqa.selenium.support.ui.Select;
 /**
  * The dropdown element class.
  */
+@Slf4j
 public class Dropdown extends SmartElement {
 
     /**
@@ -28,33 +32,55 @@ public class Dropdown extends SmartElement {
 
     /**
      * SElects option by its text.
-     * @param text The text of the option to select.
+     * @param option The text of the option to select.
      */
-    public void selectOptionByText(String text) {
+    public void selectOption(SmartValue option) {
         WebElement dropdown = getElement();
-        DataValidationUtils.validateNotBlank(text, this.getClass().getSimpleName());
+        String optionString = option.toString();
+        DataValidationUtils.validateNotBlank(optionString, this.getClass().getSimpleName());
         if (dropdown instanceof PlaywrightElement) {
             click();
-            ((PlaywrightElement)dropdown).selectOptionByText(text);
+            ((PlaywrightElement)dropdown).selectOptionByText(optionString);
             return;
         }
         Select select = new Select(dropdown);
-        select.selectByVisibleText(text);
+        select.selectByVisibleText(optionString);
     }
 
     /**
      * Selects option by its value.
      * @param value The value of the option to select.
      */
-    public void selectOptionByValue(String value) {
+    public void selectOptionByValue(SmartValue value) {
+        DataValidationUtils.validateNotNull(value, "value");
+        selectOptionByValue(value.toString());
+    }
+
+    /**
+     * Selects option by its value.
+     * @param optionString The value of the option to select.
+     */
+    public void selectOptionByValue(String optionString) {
+        DataValidationUtils.validateNotBlank(optionString, "valueString");
         WebElement dropdown = getElement();
+
         if (dropdown instanceof PlaywrightElement) {
             click();
-            ((PlaywrightElement)dropdown).selectOptionByText(value);
+            ((PlaywrightElement)dropdown).selectOptionByText(optionString);
             return;
         }
         Select select = new Select(dropdown);
-        select.selectByValue(value);
+        select.selectByValue(optionString);
+        log.debug("Dropdown {} option is selected: {}", elementName, optionString);
+    }
+
+    /**
+     * Selects option by its index.
+     * @param index The index of the option to select.
+     */
+    public void selectOptionByIndex(SmartValue index) {
+        DataValidationUtils.validateNotNull(index, "index");
+        selectOptionByIndex(index.toInteger());
     }
 
     /**
@@ -64,13 +90,14 @@ public class Dropdown extends SmartElement {
     public void selectOptionByIndex(int index) {
         Select select = new Select(getElement());
         select.selectByIndex(index);
+        log.debug("Dropdown {} option is selected by index: {}", elementName, index);
     }
 
     /**
      * Returns text of the selected option.
      * @return The text of the selected option.
      */
-    public String getSelectedOptionText() {
+    public String getValue() {
         Select select = new Select(getElement());
         return select.getFirstSelectedOption().getText();
     }

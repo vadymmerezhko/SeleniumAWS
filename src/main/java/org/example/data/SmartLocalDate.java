@@ -9,6 +9,7 @@ import org.example.utils.DataValidationUtils;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.chrono.ChronoLocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
 import java.util.Date;
@@ -31,12 +32,13 @@ public final class SmartLocalDate implements SmartDateInterface,
      * @return The smart local date.
      */
     public static SmartLocalDate parseLocalDate(String dateString) {
-        Date date = ConverterUtils.stringToSmartDate(dateString);
-        LocalDate localDate = ConverterUtils.objectToLocalDate(date);
-        SmartLocalDate smartDate = new SmartLocalDate(localDate, dateString);
+        SmartDate smartDate = ConverterUtils.stringToSmartDate(dateString);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(smartDate.getFormat());
+        LocalDate localDate = LocalDate.parse(dateString, formatter);
+        SmartLocalDate smartLocalDate = new SmartLocalDate(localDate, smartDate.getFormat());
         log.debug("String '{}' parsed to smart local date {} with date format '{}'",
-                dateString, smartDate, smartDate.format);
-        return smartDate;
+                dateString, smartDate, smartDate.getFormat());
+        return smartLocalDate;
     }
 
     /**
