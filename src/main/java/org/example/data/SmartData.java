@@ -13,26 +13,19 @@ import java.util.Objects;
 public abstract class SmartData extends SmartObject {
     private final String name = getClass().getSimpleName();
 
-    public String getName() {
-        return name;
+    /**
+     * Constructs data object.
+     */
+    SmartData() {
+        SmartDataInitializer.initialize(this);
     }
 
-    public void initialize() {
-        try {
-            Field[] fields = getClass().getDeclaredFields();
-
-            for (Field field : fields) {
-                field.setAccessible(true);
-                Object fieldObject = field.get(this);
-
-                if (fieldObject instanceof SmartValue) {
-                    ((SmartValue) fieldObject).setParent(this);
-                }
-            }
-        }
-        catch (Exception e) {
-            throw new SmartRuntimeException("Cannot initialize %s data object fields.");
-        }
+    /**
+     * Gets data object name.
+     * @return The name.
+     */
+    public String getName() {
+        return name;
     }
 
     @Override

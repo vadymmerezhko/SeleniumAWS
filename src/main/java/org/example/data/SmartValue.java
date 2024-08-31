@@ -1353,16 +1353,15 @@ public class SmartValue {
         if (parent == null) {
             throw new SmartRuntimeException("""
                     ///////////////////////////////////////////////////////////////////////////
-                    Please add method initialize(); to data object class constructor like this:
+                    Please @SmartValue annotation to initialize your data object like this:
+                    
+                    @SuppressWarnings("unused")                            
+                    @SmartElement
+                    @Getter
+                    public class YourDataObject extends SmartData {
                                                 
-                    public class YourDataObject extends SmartDataObject {
-                                                
-                        @Getter
-                        private final SmartType yourDataField = new SmartType();
-                        
-                        public YourDataObject() {
-                            initialize();
-                        }
+                        private SmartType yourDataField1;
+                        private SmartType yourDataField2;
                     }
                     ///////////////////////////////////////////////////////////////////////////
                     """.stripIndent());

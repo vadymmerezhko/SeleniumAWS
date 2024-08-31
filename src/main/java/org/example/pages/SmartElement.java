@@ -550,11 +550,18 @@ public abstract class SmartElement implements WebElement, WrapsElement {
 
         if (page == null) {
             throw new SmartRuntimeException("""
-                            Please add method initialize(); to page class constructor like this:
+                            ///////////////////////////////////////////////////////////////////////////
+                            Please use @SmartElement annotation to initialize your page object like this:
                             
-                            public YourPage() {
-                                initialize();
+                            @SuppressWarnings("unused")
+                            @SmartElement
+                            @Getter
+                            public class YourPage extends SmartPage {
+                            
+                                private TextInput yourTextInput;
+                                private Button yourButton;
                             }
+                            ///////////////////////////////////////////////////////////////////////////
                             """.stripIndent());
         }
     }

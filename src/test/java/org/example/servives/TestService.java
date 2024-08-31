@@ -62,12 +62,12 @@ public class TestService implements TestServiceInterface {
             webFormPage.getRangeSlider().setValue(input.getRange());
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
-            output.getTextareaInput().setValue(webFormPage.getTextInput().getValue());
+            output.getTextInput().setValue(webFormPage.getTextInput().getValue());
             output.getTextareaInput().setValue(webFormPage.getTextarea().getValue());
             output.getDropdownSelectedOption().setValue(webFormPage.getDropdown().getValue());
             output.getDataListSelectOption().setValue(webFormPage.getDataList().getValue());
             // TODO fix file path on remote driver.
-            //output.getFilePath().setString(webFormPage.getFileInput().getValue());
+            //output.getFilePath().setValue(webFormPage.getFileInput().getValue());
             output.getCheckbox1Value().setValue(webFormPage.getCheckbox1().isChecked());
             output.getCheckbox2Value().setValue(webFormPage.getCheckbox2().isChecked());
             output.getRadiobutton1Value().setValue(webFormPage.getRadiobutton1().isSelected());
