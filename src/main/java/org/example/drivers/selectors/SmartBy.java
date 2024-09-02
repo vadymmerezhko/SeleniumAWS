@@ -11,7 +11,7 @@ import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
-import static org.example.constants.Settings.NULL_VALUE;
+import static org.example.constants.Settings.NULL_VALUE_STRING;
 import static org.example.constants.Settings.SELECTOR_DELIMITER;
 
 /**
@@ -178,7 +178,7 @@ public class SmartBy extends By {
             setUp();
             String selectorValue = SmartByParser.selectorValueFromBy(by);
 
-            if (selectorValue != null && selectorValue.endsWith(String.format(": %s", NULL_VALUE))) {
+            if (selectorValue != null && selectorValue.endsWith(String.format(": %s", NULL_VALUE_STRING))) {
                 log.debug("Undefined smart by selector converted to selector string: null");
                 return null;
             }
@@ -262,7 +262,7 @@ public class SmartBy extends By {
             if (by instanceof SmartBy smartBy) {
 
                 if (smartBy.by != null &&
-                    smartBy.by.toString().endsWith(String.format(": %s", NULL_VALUE))) {
+                    smartBy.by.toString().endsWith(String.format(": %s", NULL_VALUE_STRING))) {
                     by = null;
                     type = null;
                 }

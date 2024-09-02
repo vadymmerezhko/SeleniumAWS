@@ -489,7 +489,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
                     if (smartBy.getSmartByType() != null) {
                         byString = smartBy.getBy().toString();
                     }
-                    if (byString != null && byString.endsWith(String.format(": %s", NULL_VALUE))) {
+                    if (byString != null && byString.endsWith(String.format(": %s", NULL_VALUE_STRING))) {
                         byString = null;
                     }
                     if (byString != null && smartBy.getSmartByType() == SmartByType.LINK_TEXT &&

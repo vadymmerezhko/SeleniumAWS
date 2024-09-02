@@ -20,7 +20,7 @@ import java.util.Objects;
  * Derived from Date class.
  */
 @Slf4j
-public final class SmartLocalDate implements SmartDateInterface,
+public final class SmartLocalDate implements SmartTemporal,
         Temporal, TemporalAdjuster, ChronoLocalDate, Serializable {
     @Delegate
     private final LocalDate localDate;
@@ -90,7 +90,8 @@ public final class SmartLocalDate implements SmartDateInterface,
             return true;
         }
         try {
-            LocalDate actaulLocalDate = ConverterUtils.objectToLocalDate(object);
+            LocalDate actaulLocalDate = ConverterUtils.objectToObject(
+                    new SmartType(LocalDate.class), object);
             boolean result = localDate.equals(actaulLocalDate);
             log.debug("""
                     Smart local date equals() called.

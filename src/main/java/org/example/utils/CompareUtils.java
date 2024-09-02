@@ -25,6 +25,8 @@ public final class CompareUtils {
      * @return The result.
      */
     public static boolean compareXmlNodes(Node expectedXml, Node actualXml, boolean strict) {
+        DataValidationUtils.validateNotNull(expectedXml, "expectedXml");
+        DataValidationUtils.validateNotNull(actualXml, "actualXml");
         boolean result = false;
 
         if (expectedXml == null && actualXml == null) {
@@ -189,7 +191,7 @@ public final class CompareUtils {
         DataValidationUtils.validateNotNull(expected,"expected");
         Class<?> expectedClass = expected.getClass();
         Class<?> actualClass = actual.getClass();
-        SmartType expectedType = new SmartType(ValueType.fromClass(expectedClass));
+        SmartType expectedType = new SmartType(expectedClass);
 
         if (strictType) {
             DataValidationUtils.validateTheSameType(expected, actual,

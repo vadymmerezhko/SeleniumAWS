@@ -47,7 +47,7 @@ public class Settings {
     public static final String TEST_CONFIG_FILE_PATH = "test-config.properties";
     public static final String KEYWORD_PLACEHOLDER = "#KEYWORD#";
     public static final String SELECTOR_DELIMITER = "=";
-    public static final String NULL_VALUE = "null";
+    public static final String NULL_VALUE_STRING = "null";
 
     public static final String AWS_LOCAL_SERVER_USER_DATA_TEMPLATE = """
                 #!/bin/bash

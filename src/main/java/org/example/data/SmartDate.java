@@ -13,12 +13,11 @@ import java.util.Objects;
  * Derived from Date class.
  */
 @Slf4j
-public final class SmartDate extends Date implements SmartDateInterface {
+public final class SmartDate extends Date implements SmartTemporal {
     private final String format;
 
     public static SmartDate parseDate(String dateString) {
-        Date date = ConverterUtils.stringToSmartDate(dateString);
-        SmartDate smartDate = new SmartDate(date, dateString);
+        SmartDate smartDate = ConverterUtils.stringToSmartDate(dateString);
         log.debug("String '{}' parsed to smart date {} with date format '{}'",
                 dateString, smartDate, smartDate.format);
         return smartDate;
@@ -87,6 +86,54 @@ public final class SmartDate extends Date implements SmartDateInterface {
         }
     }
 
+    /**
+     * Converts to smart local date.
+     * @return The smart local date.
+     */
+    public SmartLocalDate toSmartLocalDate() {
+        try {
+            SmartLocalDate smartLocalDate = ConverterUtils.stringToSmartLocalDate(toString());
+            log.debug("Smart date {} converted to smart local date: {}", this, smartLocalDate);
+            return smartLocalDate;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot convert smart date %s to smart local date.", this));
+        }
+    }
+
+    /**
+     * Converts to smart local date time.
+     * @return The smart local date time.
+     */
+    public SmartLocalDateTime toSmartLocalDateTime() {
+        try {
+            SmartLocalDateTime smartLocalDateTime = ConverterUtils.stringToSmartLocalDateTime(toString());
+            log.debug("Smart date {} converted to smart local date time: {}", this, smartLocalDateTime);
+            return smartLocalDateTime;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot convert smart date %s to smart local date time.", this));
+        }
+    }
+
+    /**
+     * Converts to smart local time.
+     * @return The smart local time.
+     */
+    public SmartLocalTime toSmartLocalTime() {
+        try {
+            SmartLocalTime smartLocalTime = ConverterUtils.stringToSmartLocalTime(toString());
+            log.debug("Smart date {} converted to smart local time: {}", this, smartLocalTime);
+            return smartLocalTime;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot convert smart date %s to smart local time.", this));
+        }
+    }
+
     @Override
     public boolean equals(Object object) {
 
@@ -99,15 +146,14 @@ public final class SmartDate extends Date implements SmartDateInterface {
             return true;
         }
         try {
-            Date actualDate = ConverterUtils.objectToDate(object);
-            boolean result = this.equals(actualDate);
+            boolean result = super.equals(object);
             log.debug("""
                     Smart date equals() called.
                     Expected: {}
                     Actual: {}
                     Result: {}
                     """.stripIndent(),
-                    this, actualDate, result);
+                    this, object, result);
             return result;
         }
         catch (Exception e) {

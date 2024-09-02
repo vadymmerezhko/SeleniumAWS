@@ -21,7 +21,7 @@ import java.util.Objects;
  * Derived from Date class.
  */
 @Slf4j
-public final class SmartLocalDateTime implements SmartDateInterface,
+public final class SmartLocalDateTime implements SmartTemporal,
         Temporal, TemporalAdjuster, ChronoLocalDateTime<LocalDate>, Serializable {
     @Delegate
     private final LocalDateTime localDateTime;
@@ -113,7 +113,8 @@ public final class SmartLocalDateTime implements SmartDateInterface,
         }
         try {
             boolean result;
-            LocalDateTime actualLocalDateTime = ConverterUtils.objectToLocalDateTime(object);
+            LocalDateTime actualLocalDateTime = ConverterUtils.objectToObject(
+                    new SmartType(LocalDateTime.class), object);
             result = localDateTime.equals(actualLocalDateTime);
             log.debug("""
                     Smart local date time equals() called.

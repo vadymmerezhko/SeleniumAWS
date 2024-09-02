@@ -2,7 +2,6 @@ package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.*;
-import org.example.enums.ValueType;
 import org.example.exceptions.SmartRuntimeException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +14,7 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -22,6 +22,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -36,19 +37,137 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.apache.commons.lang3.ObjectUtils.isArray;
-import static org.example.constants.Settings.NULL_VALUE;
+import static org.example.constants.Settings.JSON_LAYOUT_SPACES;
+import static org.example.constants.Settings.NULL_VALUE_STRING;
 import static org.example.enums.ValueType.*;
 
 /**
  * Converter utils.
  */
 @Slf4j
+@SuppressWarnings("unchecked")
 public final class ConverterUtils {
-
     private static final String ESCAPED_QUOTE = "\"\"";
     private static final String CLASS = "class";
     private static final String INSTANCE = "instance";
     private static final String[] DATE_FORMATS = {
+            // Date and time with time zone:
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZ", // ISO 8601 with milliseconds and time zoe like +0200
+            "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", // ISO 8601 with timezone offset
+            "yyyy-MM-dd'T'HH:mm:ssZ",
+            "yyyy-MM-dd'T'HH:mm:ssXXX",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            "yyyy-MM-dd'T'HH:mm",
+
+            // Date and Time formats with seconds:
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd hh:mm:ss a", // With AM/PM.
+            "MM/dd/yyyy HH:mm:ss",
+            "dd-MM-yyyy HH:mm:ss",
+            "yyyy/MM/dd HH:mm:ss",
+            "dd MMM yyyy HH:mm:ss",
+            "dd MMMM yyyy HH:mm:ss",
+            "MMM dd, yyyy HH:mm:ss",
+            "MMMM dd, yyyy HH:mm:ss",
+            "yyyy-MM-dd'T'HH:mm:ssX",
+
+            // Date and Time formats without year and with seconds:
+            "EEE, dd MMM yyyy HH:mm:ss z", // RFC 822 date
+            "EEE, dd MMM yyyy HH:mm:ssz", // With time zone like PST
+            "EEE, dd MMMM yyyy HH:mm:ss z", // With time zone like PST
+            "EEE, dd MMMM yyyy HH:mm:ssz", // With time zone like PST
+            "EEE, dd MMMM yyyy HH:mm:ss Z", // With time zoe like +0200
+            "EEE, dd MMMM yyyy HH:mm:ssZ", // With time zoe like +0200
+            "MM/dd/yyyy HH:mm:ss Z", // With time zone like +0200
+            "MM/dd/yyyy HH:mm:ssZ", // With time zone like +0200
+            "dd-MM-yyyy HH:mm:ss Z", // With time zone like +0200
+            "dd-MM-yyyy HH:mm:ssZ", // With time zone like +0200
+            "yyyy-MM-dd HH:mm:ss Z",  // ISO 8601 timezone like +0200
+            "yyyy-MM-dd HH:mm:ssZ", // With time zone like +0200
+            "yyyy-MM-dd hh:mm:ss a Z",  // With AM/PM and timezone like +0200
+            "yyyy-MM-dd hh:mm:ssa Z", // With time zone like +0200
+            "yyyy-MM-dd hh:mm:ssaZ", // With time zone like +0200
+            "yyyy-MM-dd'T'HH:mm:ss z", // With time zoe like PST
+            "yyyy-MM-dd'T'HH:mm:ssz", // With time zoe like PST
+            "yyyy-MM-dd'T'HH:mm:ssZ", // With time zoe like +0200
+            "yyyy-MM-dd'T'HH:mm:ssX", // With time zoe like +02
+            "yyyy-MM-dd'T'HH:mm:ssXXX", // With time zoe like +02:00
+            "MM-dd'T'HH:mm:ssX",
+            "MM-dd'T'HH:mm:ss z", // With time zoe like PST
+            "MM-dd'T'HH:mm:ssz", // With time zoe like PST
+            "MM-dd'T'HH:mm:ssZ", // With time zoe like +0200
+            "MM-dd'T'HH:mm:ssX", // With time zoe like +02
+            "MM-dd'T'HH:mm:ssXXX", // With time zoe like +02:00
+            "MM-dd HH:mm:ss",
+            "MM-dd hh:mm:ss a", // With AM/PM.
+            "MM/dd HH:mm:ss",
+            "dd-MM HH:mm:ss",
+            "dd MMM HH:mm:ss",
+            "MMM dd HH:mm:ss",
+            "MMMM dd HH:mm:ss",
+
+            // Date and Time with timezone and without seconds:
+            "EEE, dd MMM yyyy HH:mm z", // With time zoe like PST
+            "EEE, dd MMMM yyyy HH:mm z", // With time zoe like PST
+            "EEE, dd MMM yyyy HH:mm Z", // With time zoe like +0200
+            "EEE, dd MMMM yyyy HH:mm Z", // With time zoe like +0200
+            "EEE, dd MMM yyyy HH:mmz", // With time zoe like PST
+            "EEE, dd MMMM yyyy HH:mmz", // With time zoe like PST
+            "EEE, dd MMM yyyy HH:mmZ", // With time zoe like +0200
+            "EEE, dd MMMM yyyy HH:mmZ", // With time zoe like +0200
+            "EEE, dd MMMM yyyy HH:mmX", // With time zoe like +02
+            "EEE, dd MMMM yyyy HH:mmXXX", // With time zoe like +02:00
+            "MM/dd/yyyy HH:mm Z", // With time zoe like +0200
+            "dd-MM-yyyy HH:mm Z", // With time zoe like +0200
+            "yyyy-MM-dd HH:mm Z", // With time zoe like +0200
+            "yyyy-MM-dd hh:mm a Z", // With time zoe like +0200
+            "yyyy-MM-dd hh:mma Z", // With time zoe like +0200
+            "yyyy-MM-dd'T'HH:mmZ", // With time zoe like +0200
+            "yyyy-MM-dd'T'HH:mmX", // With time zoe like +02
+            "yyyy-MM-dd'T'HH:mmXXX", // With time zoe like +02:00
+            "MM/dd/yyyy HH:mmZ", // With time zoe like +0200
+            "dd-MM-yyyy HH:mmZ", // With time zoe like +0200
+            "yyyy-MM-dd HH:mmZ", // With time zoe like +0200
+            "yyyy-MM-dd hh:mm aZ", // With time zoe like +0200
+            "yyyy-MM-dd hh:mmaZ", // With time zoe like +0200
+            "yyyy-MM-dd'T'HH:mmZ", // With time zoe like +0200
+            "yyyy-MM-dd'T'HH:mmX", // With time zoe like +02
+            "yyyy-MM-dd'T'HH:mmXXX", // With time zoe like +02:00
+
+            // Date and time with time zone:
+            "yyyy-MM-dd'T'HH:mm z", // With time zoe like PST
+            "yyyy-MM-dd'T'HH:mmz", // With time zoe like PST
+            "yyyy-MM-dd'T'HH:mmZ", // With time zoe like +0200
+            "yyyy-MM-dd'T'HH:mmX", // With time zoe like +02
+            "yyyy-MM-dd'T'HH:mmXXX", // With time zoe like +02:00
+
+            // Date and Time formats without year and without seconds:
+            "MM-dd'T'HH:mmX",
+            "MM-dd'T'HH:mm z", // With time zoe like PST
+            "MM-dd'T'HH:mmz", // With time zoe like PST
+            "MM-dd'T'HH:mmZ", // With time zoe like +0200
+            "MM-dd'T'HH:mmX", // With time zoe like +02
+            "MM-dd'T'HH:mmXXX", // With time zoe like +02:00
+            "MM-dd HH:mm",
+            "MM-dd hh:mma", // With AM/PM.
+            "MM-dd hh:mm a", // With AM/PM.
+            "MM/dd HH:mm",
+            "dd-MM HH:mm",
+            "dd MMM HH:mm",
+            "MMM dd HH:mm",
+            "MMMM dd HH:mm",
+
+            // Date and Time formats without seconds:
+            "yyyy-MM-dd HH:mm",
+            "yyyy-MM-dd hh:mm a", // With AM/PM.
+            "MM/dd/yyyy HH:mm",
+            "dd-MM-yyyy HH:mm",
+            "yyyy/MM/dd HH:mm",
+            "dd MMM yyyy HH:mm",
+            "dd MMMM yyyy HH:mm",
+            "MMM dd, yyyy HH:mm",
+            "MMMM dd, yyyy HH:mm",
+
             // Simple Date formats:
             "yyyy-MM-dd",
             "MM/dd/yyyy",
@@ -72,139 +191,22 @@ public final class ConverterUtils {
             "E",
             "EEEE",
 
-            // Date and Time formats without seconds:
-            "yyyy-MM-dd HH:mm",
-            "yyyy-MM-dd hh:mm a", // With AM/PM.
-            "MM/dd/yyyy HH:mm",
-            "dd-MM-yyyy HH:mm",
-            "yyyy/MM/dd HH:mm",
-            "dd MMM yyyy HH:mm",
-            "dd MMMM yyyy HH:mm",
-            "MMM dd, yyyy HH:mm",
-            "MMMM dd, yyyy HH:mm",
-            "yyyy-MM-dd'T'HH:mm z", // With time zoe like PST
-            "yyyy-MM-dd'T'HH:mmz", // With time zoe like PST
-            "yyyy-MM-dd'T'HH:mmZ", // With time zoe like +0200
-            "yyyy-MM-dd'T'HH:mmX", // With time zoe like +02
-            "yyyy-MM-dd'T'HH:mmXXX", // With time zoe like +02:00
-
-            // Date and Time formats with seconds:
-            "yyyy-MM-dd HH:mm:ss",
-            "yyyy-MM-dd hh:mm:ss a", // With AM/PM.
-            "MM/dd/yyyy HH:mm:ss",
-            "dd-MM-yyyy HH:mm:ss",
-            "yyyy/MM/dd HH:mm:ss",
-            "dd MMM yyyy HH:mm:ss",
-            "dd MMMM yyyy HH:mm:ss",
-            "MMM dd, yyyy HH:mm:ss",
-            "MMMM dd, yyyy HH:mm:ss",
-            "yyyy-MM-dd'T'HH:mm:ssX",
-            "yyyy-MM-dd'T'HH:mm:ss z", // With time zoe like PST
-            "yyyy-MM-dd'T'HH:mm:ssz", // With time zoe like PST
-            "yyyy-MM-dd'T'HH:mm:ssZ", // With time zoe like +0200
-            "yyyy-MM-dd'T'HH:mm:ssX", // With time zoe like +02
-            "yyyy-MM-dd'T'HH:mm:ssXXX", // With time zoe like +02:00
-
-            // Date and Time formats without year and with seconds:
-            "MM-dd HH:mm:ss",
-            "MM-dd hh:mm:ss a", // With AM/PM.
-            "MM/dd HH:mm:ss",
-            "dd-MM HH:mm:ss",
-            "dd MMM HH:mm:ss",
-            "MMM dd HH:mm:ss",
-            "MMMM dd HH:mm:ss",
-            "MM-dd'T'HH:mm:ssX",
-            "MM-dd'T'HH:mm:ss z", // With time zoe like PST
-            "MM-dd'T'HH:mm:ssz", // With time zoe like PST
-            "MM-dd'T'HH:mm:ssZ", // With time zoe like +0200
-            "MM-dd'T'HH:mm:ssX", // With time zoe like +02
-            "MM-dd'T'HH:mm:ssXXX", // With time zoe like +02:00
-
-            // Date and Time formats without year and without seconds:
-            "MM-dd HH:mm",
-            "MM-dd hh:mma", // With AM/PM.
-            "MM-dd hh:mm a", // With AM/PM.
-            "MM/dd HH:mm",
-            "dd-MM HH:mm",
-            "dd MMM HH:mm",
-            "MMM dd HH:mm",
-            "MMMM dd HH:mm",
-            "MM-dd'T'HH:mmX",
-            "MM-dd'T'HH:mm z", // With time zoe like PST
-            "MM-dd'T'HH:mmz", // With time zoe like PST
-            "MM-dd'T'HH:mmZ", // With time zoe like +0200
-            "MM-dd'T'HH:mmX", // With time zoe like +02
-            "MM-dd'T'HH:mmXXX", // With time zoe like +02:00
-
-            // Date and Time with timezone and with seconds:
-            "MM/dd/yyyy HH:mm:ss Z", // With time zone like +0200
-            "MM/dd/yyyy HH:mm:ssZ", // With time zone like +0200
-            "dd-MM-yyyy HH:mm:ss Z", // With time zone like +0200
-            "dd-MM-yyyy HH:mm:ssZ", // With time zone like +0200
-            "yyyy-MM-dd HH:mm:ss Z",  // ISO 8601 timezone like +0200
-            "yyyy-MM-dd HH:mm:ssZ", // With time zone like +0200
-            "yyyy-MM-dd hh:mm:ss a Z",  // With AM/PM and timezone like +0200
-            "yyyy-MM-dd hh:mm:ssa Z", // With time zone like +0200
-            "yyyy-MM-dd hh:mm:ssaZ", // With time zone like +0200
-            "yyyy-MM-dd'T'HH:mm:ss.SSSZ", // ISO 8601 with milliseconds and time zoe like +0200
-            "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", // ISO 8601 with timezone offset
-            "EEE, dd MMM yyyy HH:mm:ss z", // RFC 822 date
-            "EEE, dd MMM yyyy HH:mm:ssz", // With time zone like PST
-            "EEE, dd MMMM yyyy HH:mm:ss z", // With time zone like PST
-            "EEE, dd MMMM yyyy HH:mm:ssz", // With time zone like PST
-            "EEE, dd MMMM yyyy HH:mm:ss Z", // With time zoe like +0200
-            "EEE, dd MMMM yyyy HH:mm:ssZ", // With time zoe like +0200
-
-            // Date and Time with timezone and without seconds:
-            "MM/dd/yyyy HH:mm Z", // With time zoe like +0200
-            "dd-MM-yyyy HH:mm Z", // With time zoe like +0200
-            "yyyy-MM-dd HH:mm Z", // With time zoe like +0200
-            "yyyy-MM-dd hh:mm a Z", // With time zoe like +0200
-            "yyyy-MM-dd hh:mma Z", // With time zoe like +0200
-            "yyyy-MM-dd'T'HH:mmZ", // With time zoe like +0200
-            "yyyy-MM-dd'T'HH:mmX", // With time zoe like +02
-            "yyyy-MM-dd'T'HH:mmXXX", // With time zoe like +02:00
-            "EEE, dd MMM yyyy HH:mm z", // With time zoe like PST
-            "EEE, dd MMMM yyyy HH:mm z", // With time zoe like PST
-            "EEE, dd MMM yyyy HH:mm Z", // With time zoe like +0200
-            "EEE, dd MMMM yyyy HH:mm Z", // With time zoe like +0200
-            "MM/dd/yyyy HH:mmZ", // With time zoe like +0200
-            "dd-MM-yyyy HH:mmZ", // With time zoe like +0200
-            "yyyy-MM-dd HH:mmZ", // With time zoe like +0200
-            "yyyy-MM-dd hh:mm aZ", // With time zoe like +0200
-            "yyyy-MM-dd hh:mmaZ", // With time zoe like +0200
-            "yyyy-MM-dd'T'HH:mmZ", // With time zoe like +0200
-            "yyyy-MM-dd'T'HH:mmX", // With time zoe like +02
-            "yyyy-MM-dd'T'HH:mmXXX", // With time zoe like +02:00
-            "EEE, dd MMM yyyy HH:mmz", // With time zoe like PST
-            "EEE, dd MMMM yyyy HH:mmz", // With time zoe like PST
-            "EEE, dd MMM yyyy HH:mmZ", // With time zoe like +0200
-            "EEE, dd MMMM yyyy HH:mmZ", // With time zoe like +0200
-            "EEE, dd MMMM yyyy HH:mmX", // With time zoe like +02
-            "EEE, dd MMMM yyyy HH:mmXXX", // With time zoe like +02:00
-
             // Time-only formats:
-            "HH:mm",
-            "hh:mm a", // With AM/PM.
-            "hh:mma", // With AM/PM.
-            "HH:mm:ss",
-            "hh:mm:ss a", // With AM/PM.
-            "hh:mm:ssa", // With AM/PM.
-            "HH:mm:ss.SSS", // With milliseconds
-            "hh:mm:ss.SSS a", // With AM/PM and milliseconds.
-            "hh:mm:ss.SSSa", // With AM/PM and milliseconds.
-            "HH:mm:ss Z",  // Time with timezone like +0200.
-            "HH:mm:ssZ",  // Time with timezone like +0200.
-            "HH:mm:ss z",  // Time with timezone like PST.
-            "HH:mm:ssz",  // Time with timezone like PST.
-            "hh:mm:ss a Z",  // Time with timezone like +0200 and AM/PM.
-            "hh:mm:ssa Z",  // Time with timezone like +0200 and AM/PM.
-            "hh:mm:ss a z",  // Time with timezone like PST and AM/PM.
-            "hh:mm:ssa z",  // Time with timezone like PST and AM/PM.
+            "HH:mm:ss.SSSZ",  // Time with milliseconds and timezone like +0200.
+            "HH:mm:ss.SSS Z",  // Time with milliseconds and timezone like +0200.
+            "HH:mm:ss.SSS z",  // Time with milliseconds and timezone like PST.
+            "HH:mm:ss.SSSz",  // Time with milliseconds and timezone like PST.
+            "HH:mm:ss.SSSX",  // Time with milliseconds and timezone like +02.
+            "HH:mm:ss.SSS X",  // Time with milliseconds and timezone like +02.
+            "HH:mm:ss.SSSXXX",  // Time with milliseconds and timezone like +02:00.
+            "HH:mm:ss.SSS XXX",  // Time with milliseconds and timezone like +02:00.
             "HH:mm:ss.SSS Z",  // Time with milliseconds and timezone like +0200.
             "HH:mm:ss.SSSZ",  // Time with milliseconds and timezone like +0200.
             "HH:mm:ss.SSS z",  // Time with milliseconds and timezone like PST.
             "HH:mm:ss.SSSz",  // Time with milliseconds and timezone like PST.
+            "HH:mm:ss.SSS", // With milliseconds
+            "hh:mm:ss.SSS a", // With AM/PM and milliseconds.
+            "hh:mm:ss.SSSa", // With AM/PM and milliseconds.
             "HH:mm:ssZ",  // Time with timezone like +0200.
             "HH:mm:ss Z",  // Time with timezone like +0200.
             "hh:mm:ss a Z",  // Time with timezone and AM/PM.
@@ -221,15 +223,24 @@ public final class ConverterUtils {
             "hh:mm:ss a XXX",  // Time with timezone like +02.00 and AM/PM
             "hh:mm:ssa XXX",  // Time with timezone like +02.00 and AM/PM
             "hh:mm:ssaXXX",  // Time with timezone like +02.00 and AM/PM
-            "HH:mm:ss.SSSZ",  // Time with milliseconds and timezone like +0200.
-            "HH:mm:ss.SSS Z",  // Time with milliseconds and timezone like +0200.
-            "HH:mm:ss.SSS z",  // Time with milliseconds and timezone like PST.
-            "HH:mm:ss.SSSz",  // Time with milliseconds and timezone like PST.
-            "HH:mm:ss.SSSX",  // Time with milliseconds and timezone like +02.
-            "HH:mm:ss.SSS X",  // Time with milliseconds and timezone like +02.
-            "HH:mm:ss.SSSXXX",  // Time with milliseconds and timezone like +02:00.
-            "HH:mm:ss.SSS XXX",  // Time with milliseconds and timezone like +02:00.
-            // Hour only time
+            "HH:mm:ss Z",  // Time with timezone like +0200.
+            "HH:mm:ssZ",  // Time with timezone like +0200.
+            "HH:mm:ss z",  // Time with timezone like PST.
+            "HH:mm:ssz",  // Time with timezone like PST.
+            "hh:mm:ss a Z",  // Time with timezone like +0200 and AM/PM.
+            "hh:mm:ssa Z",  // Time with timezone like +0200 and AM/PM.
+            "hh:mm:ss a z",  // Time with timezone like PST and AM/PM.
+            "hh:mm:ssa z",  // Time with timezone like PST and AM/PM.
+            "HH:mm:ss",
+            "hh:mm:ss a", // With AM/PM.
+            "hh:mm:ssa", // With AM/PM.
+
+            // Simple time:
+            "hh:mm a", // With AM/PM.
+            "hh:mma", // With AM/PM.
+            "HH:mm",
+
+            // Hour only time:
             "HH a", // Hour with AM/PM like 02PM
             "HHa", // Hour with AM/PM like 02PM
             "hh a", // Hour with AM/PM like 2 PM
@@ -325,80 +336,13 @@ public final class ConverterUtils {
     }
 
     /**
-     * Converts string value to integer value.
-     *
-     * @param string The string value.
-     * @return The integer value.
-     */
-    public static int stringToInteger(String string) {
-        try {
-            int result = Integer.parseInt(string);
-            log.debug("{} string converted to integer {}.", string, result);
-            return result;
-        } catch (NumberFormatException e) {
-            throw new SmartRuntimeException(String.format(
-                    "Invalid integer format: %s.", string), e);
-        }
-    }
-
-    /**
-     * Converts string value to long value.
-     *
-     * @param string The string value.
-     * @return The long value.
-     */
-    public static long stringToLong(String string) {
-        try {
-            long result = Long.parseLong(string);
-            log.debug("{} string converted to long {}.", string, result);
-            return result;
-        } catch (NumberFormatException e) {
-            throw new SmartRuntimeException(String.format(
-                    "Invalid long format: %s.", string), e);
-        }
-    }
-
-    /**
-     * Converts string value to float value.
-     *
-     * @param string The string value.
-     * @return The float value.
-     */
-    public static float stringToFloat(String string) {
-        try {
-            float result = Float.parseFloat(string);
-            log.debug("{} string converted to double {}.", string, result);
-            return result;
-        } catch (NumberFormatException e) {
-            throw new SmartRuntimeException(String.format(
-                    "Invalid float format: %s.", string), e);
-        }
-    }
-
-    /**
-     * Converts string value to double value.
-     *
-     * @param string The string value.
-     * @return The double value.
-     */
-    public static double stringToDouble(String string) {
-        try {
-            double result = Double.parseDouble(string);
-            log.debug("{} string converted to double {}.", string, result);
-            return result;
-        } catch (NumberFormatException e) {
-            throw new SmartRuntimeException(String.format(
-                    "Invalid double format: %s.", string), e);
-        }
-    }
-
-    /**
      * Converts string value to boolean value.
      *
      * @param string The string value.
      * @return The boolean value.
      */
     public static boolean stringToBoolean(String string) {
+        DataValidationUtils.validateNotBlank(string, "string");
         boolean result;
 
         switch (string.trim()) {
@@ -418,6 +362,8 @@ public final class ConverterUtils {
      * @return The date value or null if cannot convert.
      */
     public static SmartDate stringToSmartDate(String dateString) {
+        DataValidationUtils.validateNotBlank(dateString, "dateString");
+
         try {
             Date date = null;
             String dateFormat = null;
@@ -485,7 +431,7 @@ public final class ConverterUtils {
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
                     Cannot convert string to smart local date.
-                    String: {}
+                    String: %s
                     """.stripIndent(),
                     dateString), e);
         }
@@ -514,7 +460,7 @@ public final class ConverterUtils {
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
                     Cannot convert string to smart local date time.
-                    String: {}
+                    String: %s
                     """.stripIndent(),
                     dateTimeString), e);
         }
@@ -556,6 +502,8 @@ public final class ConverterUtils {
      * @return The JSON object value.
      */
     public static JSONObject stringToJasonObject(String string) {
+        DataValidationUtils.validateNotBlank(string, "string");
+
         try {
             JSONObject json = new JSONObject(string);
             log.debug("{} string converted to JSON object {}.", string, json);
@@ -573,6 +521,8 @@ public final class ConverterUtils {
      * @return The JSON array value.
      */
     public static JSONArray stringToJasonArray(String string) {
+        DataValidationUtils.validateNotBlank(string, "string");
+
         try {
             JSONArray json = new JSONArray(string);
             log.debug("{} string converted to JSON array {}.", string, json);
@@ -637,7 +587,7 @@ public final class ConverterUtils {
      * @return The URL object;
      */
     public static URL stringToURL(String urlString) {
-        DataValidationUtils.validateFilePathFormat(urlString, "urlString");
+        DataValidationUtils.validateNotBlank(urlString, "urlString");
 
         try {
             URL url = new URL(urlString);
@@ -663,7 +613,7 @@ public final class ConverterUtils {
      * @return The URI object;
      */
     public static URI stringToURI(String uriString) {
-        DataValidationUtils.validateFilePathFormat(uriString, "urlString");
+        DataValidationUtils.validateNotBlank(uriString, "urlString");
 
         try {
             URI uri = new URI(uriString);
@@ -685,7 +635,6 @@ public final class ConverterUtils {
 
     /**
      * Converts file path string to path object.
-     *
      * @param filePath The file path string;
      * @return The file;
      */
@@ -697,7 +646,8 @@ public final class ConverterUtils {
             log.debug("File path string '{}' converted to path object: {}",
                     filePath, path);
             return path;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert string to path object: %s.", filePath));
         }
@@ -705,7 +655,6 @@ public final class ConverterUtils {
 
     /**
      * Converts string value to XML node value.
-     *
      * @param xmlString The string value.
      * @return The XML node value.
      */
@@ -716,7 +665,8 @@ public final class ConverterUtils {
             Node node = stringToXmlDocument(xmlString).getDocumentElement();
             log.debug("{} string converted to XML node:\n{}.", xmlString, node);
             return node;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert string to XML Node:\n%s.", xmlString));
         }
@@ -724,17 +674,19 @@ public final class ConverterUtils {
 
     /**
      * Converts local date object to date.
-     *
      * @param localDate The date.
      * @return The date.
      */
     public static Date localDateToDate(LocalDate localDate) {
+        DataValidationUtils.validateNotNull(localDate, "localDate");
+
         try {
             Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
             log.debug("Local date {} converted to date: '{}'.",
                     localDate, date);
             return date;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert local date %s to date.'",
                     localDate), e);
@@ -743,18 +695,20 @@ public final class ConverterUtils {
 
     /**
      * Converts local date time object to date.
-     *
      * @param localDateTime The date.
      * @return The date.
      */
     public static Date localDateTimeToDate(LocalDateTime localDateTime) {
+        DataValidationUtils.validateNotNull(localDateTime, "LocalDateTime");
+
         try {
             Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
             Date date = Date.from(instant);
             log.debug("Local date time {} converted to date: '{}'.",
                     localDateTime, date);
             return date;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert local date %s to date.'",
                     localDateTime), e);
@@ -763,11 +717,12 @@ public final class ConverterUtils {
 
     /**
      * Converts local time object to date.
-     *
      * @param localTime The local time.
      * @return The date.
      */
     public static Date localTimeToDate(LocalTime localTime) {
+        DataValidationUtils.validateNotNull(localTime, "localTime");
+
         try {
             LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), localTime);
             Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
@@ -775,7 +730,8 @@ public final class ConverterUtils {
             log.debug("Local time {} converted to date: '{}'.",
                     localTime, date);
             return date;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert local time %s to date.'",
                     localTime));
@@ -784,19 +740,22 @@ public final class ConverterUtils {
 
     /**
      * Converts local date object to string by date format.
-     *
-     * @param localDate  The date.
+     * @param localDate  The local date.
      * @param dateFormat The date format.
      * @return The date string.
      */
     public static String localDateToString(LocalDate localDate, String dateFormat) {
+        DataValidationUtils.validateNotNull(localDate, "localDate");
+        DataValidationUtils.validateNotBlank(dateFormat, dateFormat);
+
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
             String dataString = localDate.format(formatter);
             log.debug("Local date object {} with format '{}' converted to date string: '{}'.",
                     localDate, dateFormat, dataString);
             return dataString;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert local date object %s to string with date format '%s'",
                     localDate, dateFormat));
@@ -804,51 +763,56 @@ public final class ConverterUtils {
     }
 
     /**
-     * Converts local date object to string by date format.
-     *
-     * @param localDateTime The date.
-     * @param dateFormat    The date format.
-     * @return The date string.
+     * Converts local date time object to string by date time format.
+     * @param localDateTime The local date time.
+     * @param dateTimeFormat The date time format.
+     * @return The date time string.
      */
-    public static String localDateTimeToString(LocalDateTime localDateTime, String dateFormat) {
+    public static String localDateTimeToString(LocalDateTime localDateTime, String dateTimeFormat) {
+        DataValidationUtils.validateNotNull(localDateTime, "localDate");
+        DataValidationUtils.validateNotBlank(dateTimeFormat, dateTimeFormat);
+
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateTimeFormat);
             String dataString = localDateTime.format(formatter);
             log.debug("Local date time object {} with format '{}' converted to date string: '{}'.",
-                    localDateTime, dateFormat, dataString);
+                    localDateTime, dateTimeFormat, dataString);
             return dataString;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert local date time object %s to string with date format '%s'",
-                    localDateTime, dateFormat));
+                    localDateTime, dateTimeFormat));
         }
     }
 
     /**
-     * Converts local date object to string by date format.
-     *
+     * Converts local time object to string by time format.
      * @param localTime  The date.
-     * @param dateFormat The date format.
-     * @return The date string.
+     * @param timeFormat The time format.
+     * @return The time string.
      */
-    public static String localTimeToString(LocalTime localTime, String dateFormat) {
+    public static String localTimeToString(LocalTime localTime, String timeFormat) {
+        DataValidationUtils.validateNotNull(localTime, "localTime");
+        DataValidationUtils.validateNotBlank(timeFormat, timeFormat);
+
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(timeFormat);
             String dataString = localTime.format(formatter);
             log.debug("Local time object {} with format '{}' converted to date string: '{}'.",
-                    localTime, dateFormat, dataString);
+                    localTime, timeFormat, dataString);
             return dataString;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert local time object %s to string with date format '%s'",
-                    localTime, dateFormat));
+                    localTime, timeFormat));
         }
     }
 
     /**
      * Converts date object to string by date format.
-     *
-     * @param date       The date.
+     * @param date The date.
      * @param dateFormat The date format.
      * @return The date string.
      */
@@ -862,7 +826,8 @@ public final class ConverterUtils {
             log.debug("Date object {} with format '{}' converted to date string: '{}'.",
                     date, dateFormat, dateString);
             return dateString;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert Date object %s to string with date format '%s'",
                     date, dateFormat));
@@ -871,7 +836,6 @@ public final class ConverterUtils {
 
     /**
      * Converts XML node object to string.
-     *
      * @param xml The XML document.
      * @return The XML string.
      */
@@ -881,21 +845,29 @@ public final class ConverterUtils {
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
+
+            // Set the output properties to format the XML with a 4-space indentation
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
             DOMSource domSource = new DOMSource(xml);
             StringWriter writer = new StringWriter();
             StreamResult result = new StreamResult(writer);
             transformer.transform(domSource, result);
+
             String xmlString = writer.toString();
-            log.debug("XML document converted to XML string: {}.", xmlString);
+            log.debug("XML node converted to XML string: {}.", xmlString);
             return xmlString;
-        } catch (Exception e) {
-            throw new SmartRuntimeException("Cannot convert XML document object to string", e);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot convert XML document object to string:\n%s",
+                    xml), e);
         }
     }
 
     /**
      * Converts JSON object to string.
-     *
      * @param jsonObject The XML document.
      * @return The JSON array string.
      */
@@ -903,15 +875,19 @@ public final class ConverterUtils {
         DataValidationUtils.validateNotNull(jsonObject, "jsonObject");
 
         try {
-            return jsonObject.toString();
-        } catch (Exception e) {
-            throw new SmartRuntimeException("Cannot convert JSON object to string", e);
+            String jsonString = jsonObject.toString(JSON_LAYOUT_SPACES);
+            log.debug("JSON object converted to string: {}.", jsonString);
+            return jsonString;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot convert JSON object to string:\n%s",
+                    jsonObject), e);
         }
     }
 
     /**
      * Converts JSON array to string.
-     *
      * @param jsonArray The JSON array.
      * @return The JSON array string.
      */
@@ -919,8 +895,9 @@ public final class ConverterUtils {
         DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
 
         try {
-            return jsonArray.toString();
-        } catch (Exception e) {
+            return jsonArray.toString(JSON_LAYOUT_SPACES);
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException("Cannot convert JSON array to string", e);
         }
     }
@@ -928,7 +905,6 @@ public final class ConverterUtils {
     /**
      * Converts Object to string.
      * Throws exception if Object has default toString() method.
-     *
      * @param object The object.
      * @return The object string.
      */
@@ -937,7 +913,7 @@ public final class ConverterUtils {
 
         try {
             if (object == null) {
-                string = NULL_VALUE;
+                string = NULL_VALUE_STRING;
             }
             else if (isNaN(object)) {
                 string = NAN.toString();
@@ -960,16 +936,12 @@ public final class ConverterUtils {
             else if (object instanceof Enum enumValue) {
                 string = String.valueOf(enumValue);
             }
-
             if (string != null) {
                 log.debug("Object {} converted to string: {}", object, string);
                 return string;
             }
             String clasName = object.getClass().getName();
 
-            if (object.toString().startsWith(String.format("%s@", clasName))) {
-                throw new SmartRuntimeException("You need to override default toString() method of %s class.");
-            }
             if (object instanceof JSONObject jsonObject) {
                 string = ConverterUtils.jsonObjectToString(jsonObject);
             }
@@ -979,8 +951,19 @@ public final class ConverterUtils {
             else if (object instanceof Node node) {
                 string = ConverterUtils.xmlNodeToString(node);
             }
+            else if (object instanceof List list) {
+                JSONArray jsonArray = listToJsonArray(list);
+                string = jsonArrayToString(jsonArray);
+            }
+            else if (object instanceof Map map) {
+                JSONObject jsonObject = mapToJSONObject(map);
+                string = jsonObjectToString(jsonObject);
+            }
             else if (isArray(object)) {
                 string = arrayToString((T[]) object);
+            }
+            else if (object.toString().startsWith(String.format("%s@", clasName))) {
+                throw new SmartRuntimeException("You need to override default toString() method of %s class.");
             }
             else {
                 string = String.valueOf(object);
@@ -1014,55 +997,80 @@ public final class ConverterUtils {
 
     /**
      * Converts string to enum value.
-     * @param enumClassName enum class name.
-     * @param string The string.
+     * @param type enum type.
+     * @param enumName The string.
      * @return The enum value.
      * @param <T> The enum type.
      */
-    public static <T extends Enum<T>> T stringToEnumValue(String enumClassName, String string) {
+    public static <T extends Enum<T>> T stringToEnumValue(SmartType type, String enumName) {
+        DataValidationUtils.validateNotNull(type, "type");
+        DataValidationUtils.validateNotBlank(enumName, "enumName");
+
         try {
-            Class<T> enumClass = (Class<T>) Class.forName(enumClassName);
-            T enumValue = Enum.valueOf(enumClass, string);
+            Class<T> enumClass = (Class<T>) type.getObjectClass();
+            T enumValue = Enum.valueOf(enumClass, enumName);
             log.debug("""
                     String converted to enum value by enum class name.
                     Enum class name:
                     {}
-                    Enum value:
+                    Enum name:
                     {}
                     """.stripIndent(),
-                    enumClassName, string);
+                    enumClass.getName(), enumName);
             return enumValue;
         }
         catch (Exception e) {
                 throw new SmartRuntimeException(String.format("""
                     Cannot convert string to enum value.
-                    String: {}
+                    String: %s
                     """.stripIndent(),
-                    string), e);
+                    enumName), e);
         }
     }
 
     /**
      * Converts object to object or throws exception if cannot covert.
-     *
      * @param targetType   The target object type.
      * @param sourceObject The object to convert.
      * @return The result object.
      */
     public static <T> T objectToObject(SmartType targetType, Object sourceObject) {
-        DataValidationUtils.validateNotNull(sourceObject, "object");
+        DataValidationUtils.validateNotNull(targetType, "targetType");
+        DataValidationUtils.validateNotNull(sourceObject, "sourceObject");
         T targetObject;
+
         try {
-            String stringValue = objectToString(sourceObject);
+            String stringValue;
+
+            if (targetType.getFieldTypesMap() != null) {
+                stringValue = classObjectToString(sourceObject);
+            }
+            else if (List.class.isAssignableFrom(targetType.getObjectClass())) {
+                JSONArray jsonArray = collectionToJsonArray((Collection<?>) sourceObject);
+                stringValue = jsonArrayToString(jsonArray);
+            }
+            else if (Map.class.isAssignableFrom(targetType.getObjectClass())) {
+                JSONObject jsonObject = mapToJSONObject((Map<?,?>) sourceObject);
+                stringValue = jsonObjectToString(jsonObject);
+            }
+            else if (targetType.getObjectClass().isArray()) {
+                JSONArray jsonArray = objectToObject(new SmartType(JSONArray.class), sourceObject);
+                stringValue = jsonArrayToString(jsonArray);
+            }
+            else {
+                stringValue = objectToString(sourceObject);
+            }
             targetObject = (T) stringToObject(targetType, stringValue);
             log.debug("""
-                            Source object converted to other object.
+                            Source object converted to target object.
                             Source:
-                            type: {}
-                            value: {}
+                            class: {}
+                            value:
+                            {}
                             Target:
-                            type: {}
-                            value: {}
+                            class: {}
+                            value:
+                            {}
                             """.stripIndent(),
                     sourceObject.getClass().getName(), sourceObject,
                     targetObject.getClass().getName(), targetObject);
@@ -1070,273 +1078,16 @@ public final class ConverterUtils {
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                            Source object converted to other object.
+                            Cannot convert source object to target object.
                             Source:
-                            type: %s
-                            value: %s
-                            Target:
-                            type: %s
-                            """.stripIndent(),
-                    sourceObject.getClass().getSimpleName(),
-                    sourceObject, targetType.toString()), e);
-        }
-    }
-
-    /**
-     * Converts object to char or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The char value.
-     */
-    public static char objectToCharacter(Object object) {
-        return objectToObject(new SmartType(CHARACTER), object);
-    }
-
-    /**
-     * Converts object to short or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The short value.
-     */
-    public static short objectToShort(Object object) {
-        return objectToObject(new SmartType(SHORT), object);
-    }
-
-    /**
-     * Converts object to integer or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The short value.
-     */
-    public static int objectToInteger(Object object) {
-        return objectToObject(new SmartType(INTEGER), object);
-    }
-
-    /**
-     * Converts object to long or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The long value.
-     */
-    public static long objectToLong(Object object) {
-        return objectToObject(new SmartType(LONG), object);
-    }
-
-    /**
-     * Converts object to big integer or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The big integer value.
-     */
-    public static BigInteger objectToBigInteger(Object object) {
-        return objectToObject(new SmartType(BIG_INTEGER), object);
-    }
-
-    /**
-     * Converts object to float or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return Teh float value.
-     */
-    public static float objectToFloat(Object object) {
-        return objectToObject(new SmartType(FLOAT), object);
-    }
-
-    /**
-     * Converts object to double or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return Teh double value.
-     */
-    public static double objectToDouble(Object object) {
-        return objectToObject(new SmartType(DOUBLE), object);
-    }
-
-    /**
-     * Converts object to big decimal or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return Teh big decimal value.
-     */
-    public static BigDecimal objetToBigDecimal(Object object) {
-        return objectToObject(new SmartType(BIG_DECIMAL), object);
-    }
-
-    /**
-     * Converts object to boolean or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The boolean value.
-     */
-    public static boolean objectToBoolean(Object object) {
-        return objectToObject(new SmartType(BOOLEAN), object);
-    }
-
-    /**
-     * Converts object to date or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The date value.
-     */
-    public static Date objectToDate(Object object) {
-        return objectToObject(new SmartType(DATE), object);
-    }
-
-    /**
-     * Converts object to file or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The file.
-     */
-    public static File objectToFile(Object object) {
-        return objectToObject(new SmartType(FILE), object);
-    }
-
-    /**
-     * Converts URL string to URL object or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The URL.
-     */
-    public static URL objectToURL(Object object) {
-        return objectToObject(new SmartType(URL), object);
-    }
-
-    /**
-     * Converts URI string to URI object or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The URI.
-     */
-    public static URI objectToURI(Object object) {
-        return objectToObject(new SmartType(URI), object);
-    }
-
-    /**
-     * Converts object to path or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The path.
-     */
-    public static Path objectToPath(Object object) {
-        return objectToObject(new SmartType(PATH), object);
-    }
-
-    /**
-     * Converts object to local date or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The local date value.
-     */
-    public static LocalDate objectToLocalDate(Object object) {
-        return objectToObject(new SmartType(LOCAL_DATE), object);
-    }
-
-    /**
-     * Converts object to local date time or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The local date time value.
-     */
-    public static LocalDateTime objectToLocalDateTime(Object object) {
-        return objectToObject(new SmartType(LOCAL_DATE_TIME), object);
-    }
-
-    /**
-     * Converts object to local time or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The local time value.
-     */
-    public static LocalTime objectToLocalTime(Object object) {
-        return objectToObject(new SmartType(LOCAL_TIME), object);
-    }
-
-    /**
-     * Converts object to array or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The array.
-     */
-    public static <T> T[] objectToArray(Object object) {
-        return objectToObject(new SmartType(ARRAY), object);
-    }
-
-    /**
-     * Converts object to list or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The list.
-     */
-    public static <T> List<T> objectToList(Object object) {
-        return objectToObject(new SmartType(LIST), object);
-    }
-
-    /**
-     * Converts object to set or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The set.
-     */
-    public static <T> Set<T> objectToSet(Object object) {
-        return objectToObject(new SmartType(SET), object);
-    }
-
-    /**
-     * Converts object to queue or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The set.
-     */
-    public static <T> Queue<T> objectToQueue(Object object) {
-        return objectToObject(new SmartType(SET), object);
-    }
-
-    /**
-     * Converts object to vector or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The vector.
-     */
-    public static <T> Vector<T> objectToVector(Object object) {
-        return objectToObject(new SmartType(VECTOR), object);
-    }
-
-    /**
-     * Converts object to map or throws exception if cannot covert.
-     *
-     * @param object The object to convert.
-     * @return The map.
-     */
-    public static <K, V> Map<K, V> objectToMap(Object object) {
-        return objectToObject(new SmartType(MAP), object);
-    }
-
-    /**
-     * Coverts object to string buffer.
-     *
-     * @param object The object.
-     * @return The string buffer.
-     */
-    public static StringBuffer objectToStringBuffer(Object object) {
-        try {
-            StringBuffer stringBuffer = new StringBuffer(objectToString(object));
-            log.debug("""
-                            Object converted to string buffer.
-                            Object:
-                            {}
-                            Sting buffer:
-                            {}
-                            """.stripIndent(),
-                    object, stringBuffer);
-            return stringBuffer;
-        } catch (Exception e) {
-            throw new SmartRuntimeException(String.format("""
-                            Cannot convert object to string buffer.
-                            Object:
+                            Class: %s
+                            Source object:
+                            %s
+                            Target type:
                             %s
                             """.stripIndent(),
-                    object), e);
+                    sourceObject.getClass().getName(),
+                    sourceObject, targetType), e);
         }
     }
 
@@ -1348,11 +1099,8 @@ public final class ConverterUtils {
      */
     public static <T> String classObjectToString(T object) {
         try {
-            JSONObject jsonObject = new JSONObject(object);
-            JSONObject jsonClass = new JSONObject();
-            jsonClass.put(CLASS, object.getClass().getName());
-            jsonClass.put(INSTANCE, jsonObject);
-            String string = jsonObjectToString(jsonClass);
+            JSONObject jsonObject = objectToJsonObject(object);
+            String string = jsonObjectToString(jsonObject);
             log.debug("""
                             Java POJO class object  converted to string.
                             Object:
@@ -1362,7 +1110,8 @@ public final class ConverterUtils {
                             """.stripIndent(),
                     string, object);
             return string;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
                             Cannot convert class object to string.
                             Object:
@@ -1379,13 +1128,13 @@ public final class ConverterUtils {
      * @param type   The class type.
      * @return The Java POJO class object.
      */
-    public static <T> T stringToClassObject(SmartType type, String string) {
+    public static <T> T stringToPojoClassObject(SmartType type, String string) {
         DataValidationUtils.validateNotNull(type, "type");
         DataValidationUtils.validateNotBlank(string, "string");
 
         try {
             JSONObject jsonClass = new JSONObject(string);
-            String className = type.getClassName();
+            String className = type.getObjectClass().getName();
             // Load the class by name
             Class<?> customClass = Class.forName(className);
             // Create an instance of the class using the default constructor
@@ -1400,9 +1149,10 @@ public final class ConverterUtils {
 
                 // Set the field value if the JSON has the key
                 if (jsonClass.has(fieldName)) {
-                    Object fieldValue = jsonClass.get(fieldName);
+                    Object jsonValue = jsonClass.get(fieldName);
                     SmartType fieldType = fieldTypesMap.get(fieldName);
-                    field.set(object, objectToObject(fieldType, fieldValue));
+                    Object targetObject = objectToObject(fieldType, jsonValue);
+                    field.set(object, targetObject);
                     continue;
                 }
                 throw new SmartRuntimeException(String.format("""
@@ -1570,65 +1320,135 @@ public final class ConverterUtils {
         DataValidationUtils.validateNotBlank(string, "value");
 
         Object object = null;
-        ValueType objectType = type.getObjectType();
+        Class<?> objectClass = type.getObjectClass();
 
         try {
-            switch (objectType) {
-                case STRING -> object = string;
-                case STRING_BUFFER -> object = stringToStringBuffer(string);
-                case CVS_STRING -> object = csvStringToObject(string);
-                case CHARACTER -> object = stringToCharacter(string);
-                case SHORT -> Short.parseShort(string);
-                case INTEGER -> object = Integer.parseInt(string);
-                case LONG -> object = Long.parseLong(string);
-                case BIG_INTEGER -> object = new BigInteger(string);
-                case FLOAT -> object = Float.parseFloat(string);
-                case DOUBLE -> object = Double.parseDouble(string);
-                case BIG_DECIMAL -> object = new BigDecimal(string);
-                case BOOLEAN -> object = ConverterUtils.stringToBoolean(string);
-                case DATE -> object = stringToSmartDate(string);
-                case LOCAL_DATE -> object = objectToLocalDate(stringToSmartDate(string));
-                case LOCAL_DATE_TIME -> object = objectToLocalDateTime(stringToSmartDate(string));
-                case LOCAL_TIME -> object = objectToLocalTime(stringToSmartDate(string));
-                case SMART_DATE -> object = SmartDate.parseDate(string);
-                case SMART_LOCAL_DATE -> object = SmartLocalDate.parseLocalDate(string);
-                case SMART_LOCAL_DATE_TIME -> object = SmartLocalDateTime.parseLocalDateTime(string);
-                case SMART_LOCAL_TIME -> object = SmartLocalTime.parseLocalTime(string);
-                case ARRAY -> object = ConverterUtils.stringToArray(type, string);
-                case LIST -> object = ConverterUtils.stringToList(type, string);
-                case SET -> object = ConverterUtils.stringToSet(type, string);
-                case QUEUE -> object = ConverterUtils.stringToQueue(type, string);
-                case MAP -> object = ConverterUtils.stringToMap(type, string);
-                case JSON_OBJECT -> object = ConverterUtils.stringToJasonObject(string);
-                case JSON_ARRAY -> object = ConverterUtils.stringToJasonArray(string);
-                case XML_NODE -> object = ConverterUtils.stringToXmlDocument(string);
-                case FILE -> object = ConverterUtils.stringToFile(string);
-                case URL -> object = ConverterUtils.stringToURL(string);
-                case URI -> object = ConverterUtils.stringToURI(string);
-                case PATH -> object = ConverterUtils.stringToPath(string);
-                case ENUM -> object = stringToEnumValue(type.getClassName(), string);
-                case CLASS -> object = ConverterUtils.stringToClassObject(type, string);
-                case SMART_VALUE -> object = stringToSmartValue(type, string);
-                default -> throw new SmartRuntimeException(String.format(
-                        "Smart object data type %s is not supported", objectType));
+            if (objectClass.equals(SmartValue.class)) {
+                object = stringToSmartValue(type, string);
+            }
+            else if (objectClass.equals(String.class)) {
+                object = string;
+            }
+            else if (objectClass.equals(StringBuffer.class)) {
+                object = stringToStringBuffer(string);
+            }
+            else if (objectClass.equals(Character.class)) {
+                object = stringToCharacter(string);
+            }
+            else if (objectClass.equals(Short.class)) {
+                Short.parseShort(string);
+            }
+            else if (objectClass.equals(Integer.class)) {
+                object = Integer.parseInt(string);
+            }
+            else if (objectClass.equals(Long.class)) {
+                object = Long.parseLong(string);
+            }
+            else if (objectClass.equals(BigInteger.class)) {
+                object = new BigInteger(string);
+            }
+            else if (objectClass.equals(Float.class)) {
+                object = Float.parseFloat(string);
+            }
+            else if (objectClass.equals(Double.class)) {
+                object = Double.parseDouble(string);
+            }
+            else if (objectClass.equals(BigDecimal.class)) {
+                object = new BigDecimal(string);
+            }
+            else if (objectClass.equals(Boolean.class)) {
+                object = ConverterUtils.stringToBoolean(string);
+            }
+            else if (objectClass.equals(Date.class)) {
+                object = new Date(string);
+            }
+            else if (objectClass.equals(LocalDate.class)) {
+                object = stringToSmartLocalDate(string).getLocalDate();
+            }
+            else if (objectClass.equals(LocalDateTime.class)) {
+                object = stringToSmartLocalDateTime(string).getLocalDateTime();
+            }
+            else if (objectClass.equals(LocalTime.class)) {
+                object = stringToSmartLocalTime(string).getLocalTime();
+            }
+            else if (objectClass.equals(SmartDate.class)) {
+                object = stringToSmartDate(string);
+            }
+            else if (objectClass.equals(SmartLocalDate.class)) {
+                object = stringToSmartLocalDate(string);
+            }
+            else if (objectClass.equals(SmartLocalDateTime.class)) {
+                object = stringToSmartLocalDateTime(string);
+            }
+            else if (objectClass.equals(SmartLocalTime.class)) {
+                object = stringToSmartLocalTime(string);
+            }
+            else if (objectClass.equals(File.class)) {
+                object = ConverterUtils.stringToFile(string);
+            }
+            else if (objectClass.equals(java.net.URL.class)) {
+                object = ConverterUtils.stringToURL(string);
+            }
+            else if (objectClass.equals(java.net.URI.class)) {
+                object = ConverterUtils.stringToURI(string);
+            }
+            else if (objectClass.equals(Path.class)) {
+                object = ConverterUtils.stringToPath(string);
+            }
+            else if (objectClass.equals(JSONObject.class)) {
+                object = ConverterUtils.stringToJasonObject(string);
+            }
+            else if (objectClass.equals(JSONArray.class)) {
+                object = ConverterUtils.stringToJasonArray(string);
+            }
+            else {
+                if (objectClass.isArray()) {
+                    object = ConverterUtils.stringToArray(type, string);
+                }
+                else if (objectClass.isAssignableFrom(List.class)) {
+                    object = ConverterUtils.stringToList(type, string);
+                }
+                else if (objectClass.isAssignableFrom(Set.class)) {
+                    object = ConverterUtils.stringToSet(type, string);
+                }
+                else if (objectClass.isAssignableFrom(Queue.class)) {
+                    object = ConverterUtils.stringToQueue(type, string);
+                }
+                else if (objectClass.isAssignableFrom(Map.class)) {
+                    object = ConverterUtils.stringToMap(type, string);
+                }
+                else if (objectClass.isAssignableFrom(Node.class)) {
+                    object = ConverterUtils.stringToXmlDocument(string);
+                }
+                else if (objectClass.isAssignableFrom(Enum.class)) {
+                    object = stringToEnumValue(type, string);
+                }
+                else {
+                    object = ConverterUtils.stringToPojoClassObject(type, string);
+                }
             }
             DataValidationUtils.validateNotNull(object, "object");
             log.debug("""
                             String converted to object.
                             String:
                             {}
+                            Target type:
+                            {}
                             Object:
                             {}
                             """.stripIndent(),
-                    string, object);
+                    string, type, object);
             return object;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
                             Cannot convert string to object.
                             String:
                             %s
+                            Target type:
+                            %s
                             """.stripIndent(),
-                    string), e);
+                    string, type), e);
         }
     }
 
@@ -1969,8 +1789,17 @@ public final class ConverterUtils {
             }
             else {
                 try {
-                    String classValueString = objectToCsvString(object);
-                    jsonObject = stringToJasonObject(classValueString);
+                   // Convert POJO class to JSON object.
+                   jsonObject = new JSONObject();
+                   Class<?> objectClass = object.getClass();
+                   Field[] fields = objectClass.getDeclaredFields();
+
+                   for (Field field : fields) {
+                       field.setAccessible(true);
+                       String fieldName = field.getName();
+                       Object fieldValue = field.get(object);
+                       jsonObject.put(fieldName,fieldValue);
+                   }
                 }
                 catch (SmartRuntimeException e) {
                     throw new SmartRuntimeException(String.format(
@@ -2032,12 +1861,13 @@ public final class ConverterUtils {
 
     /**
      * Converts object to enum value
+     * @param type The enum type.
      * @param object The object.
      * @param <T> The enum type.
      * @return The enum value..
      */
-    public static <T extends Enum<T>> T objectToEnumValue(String enumClassNme, Object object) {
-        DataValidationUtils.validateNotBlank(enumClassNme, "enumClassNme");
+    public static <T extends Enum<T>> T objectToEnumValue(SmartType type, Object object) {
+        DataValidationUtils.validateNotNull(type, "enumClassNme");
         DataValidationUtils.validateNotNull(object, "object");
         T enumValue = null;
 
@@ -2047,8 +1877,8 @@ public final class ConverterUtils {
             }
             catch (ClassCastException e) {
 
-              if (object instanceof String string) {
-                    enumValue = stringToEnumValue(enumClassNme, string);
+                if (object instanceof String string) {
+                      enumValue = stringToEnumValue(type, string);
                 }
             }
             log.debug("Object is converted to enum value: {}", enumValue);
@@ -2153,10 +1983,11 @@ public final class ConverterUtils {
         DataValidationUtils.validateNotNull(array, "array");
 
         try {
-            String arrayString = objectToString(array);
-            log.debug("Array {} converted to string '{}'", Arrays.toString(array), arrayString);
+            String arrayString = Arrays.toString(array);
+            log.debug("Array {} converted to string '{}'", array, arrayString);
             return arrayString;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert array to string: %s", Arrays.toString(array)));
         }
@@ -2174,25 +2005,26 @@ public final class ConverterUtils {
 
         try {
             JSONArray jsonArray = new JSONArray(string);
-            List<T> list = new ArrayList<>();
+            Class<?> valueClass = smartType.getValueSmartType().getObjectClass();
+            T[] array = (T[]) Array.newInstance(valueClass, jsonArray.length());
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 // Get each JSONObject from the JSONArray
                 String jsonString = jsonArray.getString(i);
                 T element = (T) stringToObject(smartType.getValueSmartType(), jsonString);
-                list.add(element);
+                array[i] = element;
             }
-            T[] array = (T[]) list.toArray();
             log.debug("""
-                            String converted to array.
-                            String:
-                            {}
-                            Array:
-                            {}
-                            """.stripIndent(),
+                    String converted to array.
+                    String:
+                    {}
+                    Array:
+                    {}
+                    """.stripIndent(),
                     string, array);
             return array;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
                             Cannot convert string to array.
                             String:
@@ -2204,76 +2036,74 @@ public final class ConverterUtils {
 
     /**
      * Converts string in JSON array format to list.
-     *
-     * @param smartType The list type.
-     * @param string    The string.
-     * @param <T>       The list type.
+     * @param type The list type.
+     * @param string The string.
+     * @param <T> The list element type.
      * @return The list.
      */
-    public static <T> List<T> stringToList(SmartType smartType, String string) {
-        List<T> list = new ArrayList<>();
-        return (List<T>) stringToCollection(smartType, string, list);
-    }
+    public static <T> List<T> stringToList(SmartType type, String string) {
+        DataValidationUtils.validateNotNull(type, "type");
+        DataValidationUtils.validateNotBlank(string, "string");
 
-    /**
-     * Converts object to queue.
-     *
-     * @param object The object.
-     * @param <T>    The set type.
-     * @return The set.
-     */
-    public static <T> List<T> objectToQueue(SmartType type, Object object) {
-        String string = objectToString(object);
-        List<T> list = stringToList(type, string);
-        log.debug("""
-                        Object converted to set.
-                        Object:
-                        {}
-                        List:
-                        {}
-                        """.stripIndent(),
-                object, list);
-        return list;
+        List<T> list = (List<T>) createCollectionsFromClass(
+                type.getValueSmartType().getObjectClass(),
+                type.getKeyClass(),
+                type.getValueSmartType());
+        return (List<T>) stringToCollection(type, string, list);
     }
-
 
     /**
      * Converts string in JSON array format to set.
-     *
-     * @param smartType The set type.
-     * @param string    The string.
-     * @param <T>       The set type.
+     * @param type The set type.
+     * @param string The string.
+     * @param <T> The set element type.
      * @return The list.
      */
-    public static <T> Set<T> stringToSet(SmartType smartType, String string) {
-        Set<T> set = new HashSet<>();
-        return (Set<T>) stringToCollection(smartType, string, set);
+    public static <T> Set<T> stringToSet(SmartType type, String string) {
+        DataValidationUtils.validateNotNull(type, "type");
+        DataValidationUtils.validateNotBlank(string, "string");
+
+        Set<T> set = (Set<T>) createCollectionsFromClass(
+                type.getValueSmartType().getObjectClass(),
+                type.getKeyClass(),
+                type.getValueSmartType());
+        return (Set<T>) stringToCollection(type, string, set);
     }
 
     /**
      * Converts string in JSON array format to queue.
-     *
-     * @param smartType The queue type.
-     * @param string    The string.
-     * @param <T>       The queue type.
+     * @param type The queue type.
+     * @param string The string.
+     * @param <T> The queue element type.
      * @return The queue.
      */
-    public static <T> Queue<T> stringToQueue(SmartType smartType, String string) {
-        Queue<T> set = new LinkedList<>();
-        return (Queue<T>) stringToCollection(smartType, string, set);
+    public static <T> Queue<T> stringToQueue(SmartType type, String string) {
+        DataValidationUtils.validateNotNull(type, "type");
+        DataValidationUtils.validateNotBlank(string, "string");
+
+        Queue<T> queue = (Queue<T>) createCollectionsFromClass(
+                type.getValueSmartType().getObjectClass(),
+                type.getKeyClass(),
+                type.getValueSmartType());
+        return (Queue<T>) stringToCollection(type, string, queue);
     }
 
     /**
      * Converts string in JSON array format to vector.
-     *
-     * @param smartType The vector type.
-     * @param string    The string.
-     * @param <T>       The vector type.
+     * @param type The vector type.
+     * @param string The string.
+     * @param <T> The vector element type.
      * @return The vector.
      */
-    public static <T> Vector<T> stringToVector(SmartType smartType, String string) {
-        Vector<T> vector = new Vector<>();
-        return (Vector<T>) stringToCollection(smartType, string, vector);
+    public static <T> Vector<T> stringToVector(SmartType type, String string) {
+        DataValidationUtils.validateNotNull(type, "type");
+        DataValidationUtils.validateNotBlank(string, "string");
+
+        Vector<T> vector = (Vector<T>) createCollectionsFromClass(
+                type.getValueSmartType().getObjectClass(),
+                type.getKeyClass(),
+                type.getValueSmartType());
+        return (Vector<T>) stringToCollection(type, string, vector);
     }
 
     /**
@@ -2284,20 +2114,21 @@ public final class ConverterUtils {
      * @param <V>       The value type.
      * @return The map.
      */
-    private static <K, V> Map<K, V> stringToMap(SmartType type, String string) {
+    private static <K,V> Map<K,V> stringToMap(SmartType type, String string) {
         try {
             JSONObject jsonObject = stringToJasonObject(string);
-            Map<K, V> map = jsonObjectToMap(type, jsonObject);
+            Map<K,V> map = (Map<K,V>) jsonObjectToMap(type, jsonObject);
             log.debug("""
-                            String converted to map.
-                            String:
-                            {}
-                            Map:
-                            {}
-                            """.stripIndent(),
+                    String converted to map.
+                    String:
+                    {}
+                    Map:
+                    {}
+                    """.stripIndent(),
                     string, map);
             return map;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
                             Cannot convert string to map.
                             String:
@@ -2311,35 +2142,84 @@ public final class ConverterUtils {
      * Convers JSON object to map.
      * @param type The target type.
      * @param jsonObject The JSON object.
-     * @param <V>        The value type.
+     * @param <K> The key type.
+     * @param <V> The value type.
      * @return The map.
      */
-    public static <K, V> Map<K, V> jsonObjectToMap(SmartType type, JSONObject jsonObject) {
+    public static <K,V,SK,SV> Map<K,V> jsonObjectToMap(SmartType type, JSONObject jsonObject) {
         DataValidationUtils.validateNotNull(jsonObject, "jsonObject");
 
         try {
-            Map<K, V> map = new HashMap<>();
+            Class<K> keyClass = (Class<K>) type.getKeyClass();
+            Class<V> valueClass = (Class<V>) type.getObjectClass();
+            SmartType valueType = type.getValueSmartType();
+            Class<SK> subElementKeyClass = valueType != null ? (Class<SK>) valueType.getKeyClass() : null;
+            Class<SV> subElementValueClass = valueType != null ? (Class<SV>) valueType.getObjectClass() : null;
+            Map<K,V> map = null;
+            Map<K,Collection<SV>> mapOfCollections = null;
+            Map<K,Map<SK,SV>> mapOfMaps = null;
+
+            if (subElementValueClass == null) {
+                map = createMapFromClasses(keyClass, valueClass);
+            }
+            else if (subElementKeyClass == null) {
+                mapOfCollections = createMapOfCollectionsFromClasses(keyClass, subElementValueClass);
+            }
+            else {
+                mapOfMaps = createMapOfMapsFromClasses(keyClass, subElementKeyClass, subElementValueClass);
+            }
             Iterator<String> keys = jsonObject.keys();
 
             while (keys.hasNext()) {
                 String stringKey = keys.next();
-                K key = objectToObject(new SmartType(type.getKeyType()), stringKey);
-                Object jsonValue = jsonObject.get(stringKey);
-                V value = objectToObject(type.getValueSmartType(), jsonValue);
-                map.put(key, value);
+                K key = objectToObject(new SmartType(type.getKeyClass()), stringKey);
+
+                if (map != null) {
+                    Object jsonValue = jsonObject.get(stringKey);
+                    SmartType elementType = new SmartType(valueClass);
+                    V value = objectToObject(elementType, jsonValue);
+                    map.put(key, value);
+                }
+                else if (mapOfCollections != null) {
+                    JSONArray jsonCollection = jsonObject.getJSONArray(stringKey);
+                    SmartType collectionType = new SmartType(Collection.class,
+                            new SmartType(subElementValueClass));
+                    Collection<SV> subCollection = jsonArrayToCollection(collectionType, jsonCollection);
+                    mapOfCollections.put(key, subCollection);
+                }
+                else {
+                    JSONObject jsonMap = jsonObject.getJSONObject(stringKey);
+                    SmartType mapType = new SmartType(Map.class, subElementKeyClass,
+                            new SmartType(subElementValueClass));
+                    Map<SK,SV> subMap = jsonObjectToMap(mapType, jsonMap);
+                    mapOfMaps.put(key, subMap);
+                }
+            }
+            if (mapOfCollections != null) {
+                map = (Map<K, V>) mapOfCollections;
+            }
+            else if (mapOfMaps != null) {
+                map = (Map<K, V>) mapOfMaps;
+            }
+            else {
+                throw new SmartRuntimeException(String.format(
+                        "Cannot convert JSON object to map:\n%s", jsonObject));
             }
             log.debug("""
-                            JSON object converted to map.
-                            JSON object:
-                            {}
-                            Map:
-                            {}
-                            """.stripIndent(),
-                    jsonObject, map);
+                    JSON converted to map.
+                    JSON:
+                    {}
+                    Target type:
+                    {}
+                    Map:
+                    {}
+                    """.stripIndent(),
+                    jsonObject, type, map);
             return map;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format(
-                    "Cannot convert JSON object to map:\n%s", jsonObject.toString()));
+                    "Cannot convert JSON object to map:\n%s", jsonObject), e);
         }
     }
 
@@ -2526,13 +2406,22 @@ public final class ConverterUtils {
 
         try {
             Collection<T> collection;
+            Class<?> objectClass = type.getObjectClass();
 
-            switch (type.getObjectType()) {
-                case LIST -> collection = new ArrayList<>();
-                case SET -> collection = new HashSet<>();
-                case QUEUE -> collection = new LinkedList<>();
-                case VECTOR -> collection = new Vector<>();
-                default -> throw new SmartRuntimeException(String.format(
+            if (objectClass.isAssignableFrom(List.class)) {
+                collection = new ArrayList<T>();
+            }
+            else if (objectClass.isAssignableFrom(Set.class)) {
+                collection = new HashSet<T>();
+            }
+            else if (objectClass.isAssignableFrom(Queue.class)) {
+                collection = new LinkedList<T>();
+            }
+            else if (objectClass.isAssignableFrom(Vector.class)) {
+                collection = new Vector<T>();
+            }
+            else {
+                throw new SmartRuntimeException(String.format(
                         "Unsupported collection type: %s", type));
             }
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -2541,17 +2430,19 @@ public final class ConverterUtils {
                 collection.add(elementObject);
             }
             log.debug("""
-                            JSON array converted to %s.
-                            JSON array:
-                            {}
-                            List:
-                            {}
-                            """.stripIndent(),
-                    type, jsonArray, collection);
+                    JSON array converted to collection.
+                    Collection class: {}
+                    JSON array:
+                    {}
+                    Collection:
+                    {}
+                    """.stripIndent(),
+                    objectClass.getName(), jsonArray, collection);
             return collection;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                            Cannot convert JSON array to queue.
+                            Cannot convert JSON array to collection.
                             JSON array:
                             {}
                             """.stripIndent(),
@@ -2606,7 +2497,8 @@ public final class ConverterUtils {
                             """.stripIndent(),
                     className, string, collection);
             return collection;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
                             Cannot convert string to %s.
                             String:
@@ -2673,6 +2565,130 @@ public final class ConverterUtils {
                         %s
                         """.stripIndent(),
                 csvRow, String.valueOf(delimiters)));
+    }
+
+    private static <T,K,ST,SK> Collection<?> createCollectionsFromClass(
+            Class<T> collectionClass,
+            Class<K> elemnetKeyClass,
+            SmartType elementValueType) {
+        Class<T> elementClass = (Class<T>) elementValueType.getObjectClass();
+        T[] array = createArrayFromClass(elementClass);
+
+        if (collectionClass == List.class) {
+            List<T> list = Arrays.asList(array);
+            collectionLog(collectionClass, elemnetKeyClass,elementValueType, list);
+            return list;
+        }
+        else if (collectionClass == Set.class) {
+            Set<T> set = new HashSet<>(Arrays.asList(array));
+            collectionLog(collectionClass, elemnetKeyClass,elementValueType, set);
+            return set;
+        }
+        else if (collectionClass == Queue.class) {
+            new LinkedList<>(Arrays.asList(array));
+            Queue<T> queue = new LinkedList<>();
+            collectionLog(collectionClass, elemnetKeyClass,elementValueType, queue);
+            return queue;
+        }
+        else if (collectionClass == Vector.class) {
+            Vector<T> vector = new Vector<>(List.of(array));
+            collectionLog(collectionClass, elemnetKeyClass,elementValueType, vector);
+            return vector;
+        }
+        throw new SmartRuntimeException(String.format("""
+                Cannot create collection from:
+                Object class: %s
+                Key class: %s
+                Value type: %s
+                """.stripIndent(),
+                collectionClass.getName(),
+                elemnetKeyClass.getName(),
+                elementValueType));
+    }
+
+    private static void collectionLog(
+            Class<?> collectionClass,
+            Class<?> elemnetKeyClass,
+            SmartType elementValueType,
+            Collection<?> collection) {
+        log.debug("""
+                {} created from:
+                Object class: {}
+                Key class: {}
+                Value type: {}
+                {}:
+                {}
+                """.stripIndent(),
+                collectionClass.getSimpleName(),
+                collectionClass.getName(),
+                elemnetKeyClass != null ? elemnetKeyClass.getName() : null,
+                elementValueType,
+                collectionClass.getSimpleName(),
+                collection);
+    }
+
+    public static <K,V> Map<K,V> createMapFromClasses(Class<K> keyClass, Class<V> valueClass) {
+        Map<K, V> map = new HashMap<>();
+        log.debug("""
+                Map created from:
+                Key class: {}
+                Value class: {}
+                Map:
+                {}
+                """.stripIndent(),
+                keyClass.getName(),
+                valueClass.getName(),
+                map);
+        return map;
+    }
+
+    public static <K,SV> Map<K,Collection<SV>> createMapOfCollectionsFromClasses(
+            Class<K> keyClass,
+            Class<SV> subCollectionValueClass) {
+        Map<K, Collection<SV>> map = new HashMap<>();
+        log.debug("""
+                Map of maps created from:
+                Key class: {}
+                Sub collection value class: {}
+                Map:
+                {}
+                """.stripIndent(),
+                keyClass.getName(),
+                subCollectionValueClass.getName(),
+                map);
+        return map;
+    }
+
+    public static <K,V,SK,SV> Map<K, Map<SK,SV>>createMapOfMapsFromClasses(
+            Class<K> keyClass,
+            Class<SK> subMapKeyClass,
+            Class<SV> subMapValueClass) {
+        Map<K, Map<SK,SV>> map = new HashMap<>();
+        log.debug("""
+                Map of maps created from:
+                Key class: {}
+                Sub map key class: {}
+                Sub map value class: {}
+                Map:
+                {}
+                """.stripIndent(),
+                keyClass.getName(),
+                subMapKeyClass.getName(),
+                subMapValueClass.getName(),
+                map);
+        return map;
+    }
+
+    private static <T>  T[] createArrayFromClass(Class<?> valueClass) {
+        T[] array = (T[]) Array.newInstance(valueClass, 0);
+        log.debug("""
+                Array created from value class:
+                Class: {}
+                Array:
+                {}
+                """.stripIndent(),
+                valueClass, array);
+        return array;
     }
 }
 

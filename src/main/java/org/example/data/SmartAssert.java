@@ -113,7 +113,7 @@ public abstract class SmartAssert {
                 else {
                     // Convert actual string value to object
                     if (actualValueClass != expectedValueClass) {
-                        SmartType expectedValueType = new SmartType(ValueType.fromClass(expectedClass));
+                        SmartType expectedValueType = new SmartType(expectedClass);
                         actualValue = ConverterUtils.objectToObject(expectedValueType, actualValue);
                     }
                 }

@@ -40,11 +40,9 @@ public class SmartValue {
     private static final String TYPE = "type";
     private static final String VALUE = "value";
     private static final String FORMAT = "format";
-    private static final String OBJECT_TYPE = "objectType";
-    private static final String KEY_TYPE = "keyType";
+    private static final String OBJECT_CLASS = "objectClass";
+    private static final String KEY_CLASS = "keyClass";
     private static final String VALUE_TYPE = "valueType";
-    private static final String CLASS_TYPE = "class";
-    private static final String CLASS_NAME = "className";
     private static final String FIELD_TYPES = "fieldTypes";
     private static final String FIELD_VALUES = "fieldValues";
     private static final String CLASS_VALUE = "classValue";
@@ -326,7 +324,7 @@ public class SmartValue {
      */
     public char toCharacter() {
         setUp();
-        char result = ConverterUtils.objectToCharacter(value);
+        char result = ConverterUtils.objectToObject(new SmartType(Character.class), value);
         log.debug("""
                 Smart class value converted to character.
                 Value: {}
@@ -343,7 +341,7 @@ public class SmartValue {
      */
     public short toShort() {
         setUp();
-        short result = ConverterUtils.objectToShort(value);
+        short result = ConverterUtils.objectToObject(new SmartType(Short.class), value);
         log.debug("""
                 Smart class value converted to short.
                 Value: {}
@@ -360,7 +358,7 @@ public class SmartValue {
      */
     public int toInteger() {
         setUp();
-        int result = ConverterUtils.objectToInteger(value);
+        int result = ConverterUtils.objectToObject(new SmartType(Integer.class), value);
         log.debug("""
                 Smart class value converted to integer.
                 Value: {}
@@ -377,7 +375,7 @@ public class SmartValue {
      */
     public long toLong() {
         setUp();
-        long result = ConverterUtils.objectToLong(value);
+        long result = ConverterUtils.objectToObject(new SmartType(Long.class), value);
         log.debug("""
                 Smart class value converted to long.
                 Value: {}
@@ -394,7 +392,7 @@ public class SmartValue {
      */
     public BigInteger toBigInteger() {
         setUp();
-        BigInteger result = ConverterUtils.objectToBigInteger(value);
+        BigInteger result = ConverterUtils.objectToObject(new SmartType(BigInteger.class), value);
         log.debug("""
                 Smart class value converted to big integer.
                 Value: {}
@@ -411,7 +409,7 @@ public class SmartValue {
      */
     public float toFloat() {
         setUp();
-        float result = ConverterUtils.objectToFloat(value);
+        float result = ConverterUtils.objectToObject(new SmartType(Float.class), value);
         log.debug("""
                 Smart class value converted to float.
                 Value: {}
@@ -428,7 +426,7 @@ public class SmartValue {
      */
     public double toDouble() {
         setUp();
-        double result = ConverterUtils.objectToDouble(value);
+        double result = ConverterUtils.objectToObject(new SmartType(Double.class), value);
         log.debug("""
                 Smart class value converted to double.
                 Value: {}
@@ -445,7 +443,7 @@ public class SmartValue {
      */
     public BigDecimal toBigDecimal() {
         setUp();
-        BigDecimal result = ConverterUtils.objetToBigDecimal(value);
+        BigDecimal result = ConverterUtils.objectToObject(new SmartType(BigDecimal.class), value);
         log.debug("""
                 Smart class value converted to decimal.
                 Value: {}
@@ -462,7 +460,7 @@ public class SmartValue {
      */
     public boolean toBoolean() {
         setUp();
-        boolean result = ConverterUtils.objectToBoolean(value);
+        boolean result = ConverterUtils.objectToObject(new SmartType(Boolean.class), value);
         log.debug("""
                 Smart class value converted to boolean.
                 Value: {}
@@ -479,7 +477,7 @@ public class SmartValue {
      */
     public Date toDate() {
         setUp();
-        Date result = ConverterUtils.objectToDate(value);
+        Date result = ConverterUtils.objectToObject(new SmartType(Date.class), value);
         log.debug("""
                 Smart class value converted to date.
                 Value: {}
@@ -498,7 +496,7 @@ public class SmartValue {
      */
     public LocalDate toLocalDate() {
         setUp();
-        LocalDate result = ConverterUtils.objectToLocalDate(value);
+        LocalDate result = ConverterUtils.objectToObject(new SmartType(LocalDate.class), value);
         log.debug("""
                 Smart class value converted to local date.
                 Value: {}
@@ -517,7 +515,7 @@ public class SmartValue {
      */
     public LocalDateTime toLocalDateTime() {
         setUp();
-        LocalDateTime result = ConverterUtils.objectToLocalDateTime(value);
+        LocalDateTime result = ConverterUtils.objectToObject(new SmartType(LocalDateTime.class), value);
         log.debug("""
                 Smart class value converted to local date time.
                 Value: {}
@@ -536,7 +534,7 @@ public class SmartValue {
      */
     public LocalTime toLocalTime() {
         setUp();
-        LocalTime result = ConverterUtils.objectToLocalTime(value);
+        LocalTime result = ConverterUtils.objectToObject(new SmartType(LocalTime.class), value);
         log.debug("""
                 Smart class value converted to local time.
                 Value: {}
@@ -555,7 +553,7 @@ public class SmartValue {
      */
     public File toFile() {
         setUp();
-        File result = ConverterUtils.objectToFile(value);
+        File result = ConverterUtils.objectToObject(new SmartType(File.class), value);
         log.debug("""
                 Smart class value converted to file.
                 Value: {}
@@ -571,7 +569,7 @@ public class SmartValue {
      */
     public Path toPath() {
         setUp();
-        Path result = ConverterUtils.objectToPath(value);
+        Path result = ConverterUtils.objectToObject(new SmartType(Path.class), value);
         log.debug("""
                 Smart class value converted to path.
                 Value: {}
@@ -587,7 +585,7 @@ public class SmartValue {
      */
     public URL toURL() {
         setUp();
-        URL result = ConverterUtils.objectToURL(value);
+        URL result = ConverterUtils.objectToObject(new SmartType(URL.class), value);
         log.debug("""
                 Smart class value converted to URL.
                 Value: {}
@@ -603,7 +601,7 @@ public class SmartValue {
      */
     public URI toURI() {
         setUp();
-        URI result = ConverterUtils.objectToURI(value);
+        URI result = ConverterUtils.objectToObject(new SmartType(URI.class), value);
         log.debug("""
                 Smart class value converted to URI.
                 Value: {}
@@ -620,7 +618,7 @@ public class SmartValue {
      */
     public <T> List<T> toList() {
         setUp();
-        List<T> result = ConverterUtils.objectToList(value);
+        List<T> result = ConverterUtils.objectToObject(new SmartType(List.class), value);
         log.debug("""
                 Smart class value converted to list.
                 Value:
@@ -639,7 +637,7 @@ public class SmartValue {
      */
     public <T> Set<T> toSet() {
         setUp();
-        Set<T> result = ConverterUtils.objectToSet(value);
+        Set<T> result = ConverterUtils.objectToObject(new SmartType(Set.class), value);
         log.debug("""
                 Smart class value converted to set.
                 Value:
@@ -658,7 +656,7 @@ public class SmartValue {
      */
     public <T> Queue<T> toQueue() {
         setUp();
-        Queue<T> result = ConverterUtils.objectToQueue(value);
+        Queue<T> result = ConverterUtils.objectToObject(new SmartType(Queue.class), value);
         log.debug("""
                 Smart class value converted to queue.
                 Value:
@@ -677,7 +675,7 @@ public class SmartValue {
      */
     public <T> Vector<T> toVector() {
         setUp();
-        Vector<T> result = ConverterUtils.objectToVector(value);
+        Vector<T> result = ConverterUtils.objectToObject(new SmartType(Vector.class), value);
         log.debug("""
                 Smart class value converted to vector.
                 Value:
@@ -697,7 +695,7 @@ public class SmartValue {
      */
     public <K, V> Map<K, V> toMap() {
         setUp();
-        Map<K, V> result = ConverterUtils.objectToMap(value);
+        Map<K, V> result = ConverterUtils.objectToObject(new SmartType(Map.class), value);
         log.debug("""
                 Smart class value converted to vector.
                 Value:
@@ -764,7 +762,7 @@ public class SmartValue {
      */
     public <T extends Enum<T>> T toEnumValue(String className) {
         setUp();
-        T enuValue = ConverterUtils.objectToEnumValue(className, value);
+        T enuValue = ConverterUtils.objectToObject(new SmartType(Enum.class), value);
         log.debug("""
                 Enum value returned.
                 Value:
@@ -1290,11 +1288,8 @@ public class SmartValue {
             }
             valueJson.put(TYPE, typeJson);
 
-            if (type.getObjectType() == CLASS) {
+            if (type.getFieldTypesMap() != null) {
                 JSONObject classJson = new JSONObject();
-                SmartType classSmartType = getSmartType();
-                String className = classSmartType.getClassName();
-                classJson.put(CLASS_NAME, className);
                 JSONObject fieldValuesJson = getJsonFromFieldsValues(this);
                 classJson.put(FIELD_VALUES, fieldValuesJson);
             }
@@ -1371,23 +1366,21 @@ public class SmartValue {
     private static JSONObject getJsonFromSmartType(SmartType smartType) {
 
         try {
-            ValueType objectType = smartType.getObjectType();
-            ValueType keyType = smartType.getKeyType();
+            Class<?> objectClass = smartType.getObjectClass();
+            Class<?> keyClass = smartType.getKeyClass();
             SmartType valueSmartType = smartType.getValueSmartType();
             JSONObject typeJson = new JSONObject();
 
-            typeJson.put(OBJECT_TYPE, objectType.toString());
+            typeJson.put(OBJECT_CLASS, objectClass.getName());
 
             if (valueSmartType != null) {
 
-                if (keyType != null) {
-                    typeJson.put(KEY_TYPE, keyType.toString());
+                if (keyClass != null) {
+                    typeJson.put(KEY_CLASS, keyClass.getName());
                 }
                 typeJson.append(VALUE_TYPE, getJsonFromSmartType(valueSmartType));
             }
-            else if (objectType == CLASS) {
-                String className = smartType.getClassName();
-                typeJson.put(CLASS_NAME, className);
+            else if (smartType.getFieldTypesMap() != null) {
                 Map<String, SmartType> fieldTypesMap = smartType.getFieldTypesMap();
                 JSONObject fieldTypesJson = getJsonFromFieldTypesMap(fieldTypesMap);
                 typeJson.put(FIELD_TYPES, fieldTypesJson);
@@ -1446,37 +1439,36 @@ public class SmartValue {
         SmartType smartType;
 
         try {
-            ValueType objectType = ValueType.fromString(typeJson.getString(OBJECT_TYPE));
+            Class<?> objectClass = Class.forName((typeJson.getString(OBJECT_CLASS)));
 
             if (typeJson.has(VALUE_TYPE)) {
                 SmartType valueSmartType = getSmartTypeFromJson(typeJson.getJSONObject(VALUE_TYPE));
 
-                if (typeJson.has(KEY_TYPE)) {
-                    ValueType keyType = ValueType.fromString(typeJson.getString(KEY_TYPE));
-                    smartType = new SmartType(objectType, keyType, valueSmartType);
-                } else {
-                    smartType = new SmartType(objectType, valueSmartType);
+                if (typeJson.has(KEY_CLASS)) {
+                    Class<?> keyClass = Class.forName(typeJson.getString(KEY_CLASS));
+                    smartType = new SmartType(objectClass, keyClass, valueSmartType);
+                }
+                else {
+                    smartType = new SmartType(objectClass, valueSmartType);
                 }
             }
-            else if (typeJson.has(CLASS_TYPE)) {
-                JSONObject classJson = typeJson.getJSONObject(CLASS_TYPE);
-                String className = classJson.getString(CLASS_NAME);
-                JSONObject fieldTypesJson = classJson.getJSONObject(FIELD_TYPES);
+            else if (typeJson.has(FIELD_TYPES)) {
+                JSONObject fieldTypesJson = typeJson.getJSONObject(FIELD_TYPES);
                 SmartType fieldsTypesMapType = getSmartTypeFromJson(fieldTypesJson);
                 Map<String, SmartType> fieldTypesMap =
                         ConverterUtils.jsonObjectToMap(fieldsTypesMapType, fieldTypesJson);
-                smartType = new SmartType(className, fieldTypesMap);
+                smartType = new SmartType(objectClass, fieldTypesMap);
             }
             else {
-                smartType = new SmartType(objectType);
+                smartType = new SmartType(objectClass);
             }
             log.debug("""
-                            JSON type converted to smart class.
-                            JSON:
-                            {}
-                            Type:
-                            {}
-                            """.stripIndent(),
+                    JSON type converted to smart class.
+                    JSON:
+                    {}
+                    Type:
+                    {}
+                    """.stripIndent(),
                     typeJson, smartType);
             return smartType;
         }
@@ -1492,11 +1484,9 @@ public class SmartValue {
 
     private static SmartValue getClassSmartValueFomValueJson(JSONObject valueJson) {
         try {
-            String className = valueJson.getString(CLASS_NAME);
-            JSONObject classJson = valueJson.getJSONObject(CLASS_VALUE);
-            JSONObject fieldValuesJson = classJson.getJSONObject(FIELD_VALUES);
+            String className = valueJson.getString(OBJECT_CLASS);
+            JSONObject fieldValuesJson = valueJson.getJSONObject(FIELD_VALUES);
             Map<String, SmartValue> fieldValuesMap = new HashMap<>();
-
             Iterator<String> fieldNames = fieldValuesJson.keys();
 
             while (fieldNames.hasNext()) {
@@ -1578,7 +1568,7 @@ public class SmartValue {
         SmartValue smartValue;
 
         try {
-            if (smartType.getObjectType() == CLASS) {
+            if (smartType.getFieldTypesMap() != null) {
                 smartValue = getClassSmartValueFomValueJson(valueJson);
             }
             else {
@@ -1634,7 +1624,7 @@ public class SmartValue {
 
             for (String fieldName : json.keySet()) {
                 String valueName = String.format("%s.%s", parentName, fieldName);
-                JSONObject valueJson = (JSONObject) json.get(fieldName);
+                JSONObject valueJson = json.getJSONObject(fieldName);
                 JSONObject typeJson = valueJson.getJSONObject(TYPE);
                 SmartType smartType = getSmartTypeFromJson(typeJson);
                 SmartValue smartValue = getSmartValueFromJson(smartType, valueJson);
