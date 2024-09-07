@@ -705,7 +705,7 @@ public final class WebUtils {
             selector = HttpUtils.sendHttpRequest(
                     OPEN_AI_API_URL,
                     String.format(OPEN_AI_REQUEST_FORMAT,
-                            ConverterUtils.escapeJavaScriptExceptSingleQuotes(prompt)),
+                            ConverterUtils.escapeJavaScript(prompt)),
                     System.getenv(OPEN_AI_API_KEY_NAME));
 
             if (selector == null || selector.trim().isEmpty()) {
@@ -751,7 +751,7 @@ public final class WebUtils {
         if (keyword != null) {
             // Replace text placeholder with actual text (if any).
             String keywordString = ConverterUtils.objectToString(keyword);
-            String jsKeyword =  ConverterUtils.escapeJavaScriptExceptDoubleQuote(keywordString);
+            String jsKeyword =  ConverterUtils.escapeJavaScript(keywordString);
             selector = selector.replace(KEYWORD_PLACEHOLDER, String.format("'%s'", jsKeyword));
         }
         if (isXpath(selector)) {

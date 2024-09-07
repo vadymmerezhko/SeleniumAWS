@@ -1,6 +1,6 @@
 package org.example.unit;
 
-
-public class SmartAssertTest {
+public class SmartValueTest {
     // TODO
 }
+

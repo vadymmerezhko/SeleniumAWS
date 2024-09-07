@@ -2,7 +2,6 @@ package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.SmartType;
-import org.example.enums.ValueType;
 import org.example.exceptions.SmartRuntimeException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -191,7 +190,7 @@ public final class CompareUtils {
         DataValidationUtils.validateNotNull(expected,"expected");
         Class<?> expectedClass = expected.getClass();
         Class<?> actualClass = actual.getClass();
-        SmartType expectedType = new SmartType(expectedClass);
+        SmartType expectedType = SmartType.fromClass(expectedClass);
 
         if (strictType) {
             DataValidationUtils.validateTheSameType(expected, actual,

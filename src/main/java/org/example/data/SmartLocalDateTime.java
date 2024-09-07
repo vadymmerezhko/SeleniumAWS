@@ -114,7 +114,7 @@ public final class SmartLocalDateTime implements SmartTemporal,
         try {
             boolean result;
             LocalDateTime actualLocalDateTime = ConverterUtils.objectToObject(
-                    new SmartType(LocalDateTime.class), object);
+                    SmartType.fromClass(LocalDateTime.class), object);
             result = localDateTime.equals(actualLocalDateTime);
             log.debug("""
                     Smart local date time equals() called.

@@ -48,6 +48,9 @@ public class Settings {
     public static final String KEYWORD_PLACEHOLDER = "#KEYWORD#";
     public static final String SELECTOR_DELIMITER = "=";
     public static final String NULL_VALUE_STRING = "null";
+    public static final String NAN_VALUE_STRING = "NaN";
+    public static final String POSITIVE_INFINITY_VALUE_STRING = "Infinity";
+    public static final String NEGATIVE_INFINITY_VALUE_STRING = "-Infinity";
 
     public static final String AWS_LOCAL_SERVER_USER_DATA_TEMPLATE = """
                 #!/bin/bash

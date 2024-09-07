@@ -38,6 +38,7 @@ public final class SmartType {
     private SmartType valueSmartType;
     @Getter
     private Map<String, SmartType> fieldTypesMap;
+    private boolean isArrayType;
 
     /**
      * Class to get collection element type (class).
@@ -110,6 +111,147 @@ public final class SmartType {
     }
 
     /**
+     * Creates smart type from object class.
+     * @param objectClass The object class.
+     * @return The smart type.
+     * @param <T> The object type.
+     */
+    public static <T> SmartType fromClass(Class<T> objectClass) {
+        DataValidationUtils.validateNotNull(objectClass, "objectClass");
+
+        SmartType smartType = new SmartType(objectClass);
+        log.debug("""
+                Smart type object is created from object class.
+                Class: {}
+                Smart type:
+                {}
+                """.stripIndent(),
+                objectClass.getName(), smartType);
+        return smartType;
+    }
+
+    /**
+     * Creates collection smart type from collection class and value class.
+     * @param collectionClass The collection class.
+     * @param valueSmartType The value smart type.
+     * @return The smart type.
+     * @param <T> The object type.
+     */
+    public static <T> SmartType fromCollectionClass(Class<T> collectionClass, SmartType valueSmartType) {
+        DataValidationUtils.validateNotNull(collectionClass, "collectionClass");
+        DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
+
+        SmartType smartType = new SmartType(collectionClass, valueSmartType);
+        log.debug("""
+                Smart type object is created from collection class and value smart type.
+                Class: {}
+                Value smart type:
+                {}
+                Smart type:
+                {}
+                """.stripIndent(),
+                collectionClass.getName(),
+                valueSmartType, smartType);
+        return smartType;
+    }
+
+    /**
+     * Creates collection smart type from map class, key class and value smart type.
+     * @param mapClass The map class.
+     * @param keyClass The key class.
+     * @param valueSmartType The value smart type.
+     * @return The smart type.
+     * @param <T> The object type.
+     */
+    public static <T,K> SmartType fromMapClass(Class<T> mapClass, Class<K> keyClass, SmartType valueSmartType) {
+        DataValidationUtils.validateNotNull(mapClass, "collectionClass");
+        DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
+
+        SmartType smartType = new SmartType(mapClass, keyClass, valueSmartType);
+        log.debug("""
+                Smart type object is created from collection class and value smart type.
+                Class: {}
+                Value smart type:
+                {}
+                Smart type:
+                {}
+                """.stripIndent(),
+                mapClass.getName(),
+                valueSmartType, smartType);
+        return smartType;
+    }
+
+
+    /**
+     * Creates smart type from array class and value smart type.
+     * @return The smart type.
+     * @param <T> The object type.
+     */
+    public static <T> SmartType fromArrayValueClass(SmartType valueSmartType) {
+        DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
+
+        SmartType smartType = new SmartType(Object.class, valueSmartType);
+        smartType.isArrayType = true;
+                log.debug("""
+                Smart type object is created from array value smart type.
+                Value type: {}
+                Smart type:
+                {}
+                """.stripIndent(),
+                valueSmartType, smartType);
+        return smartType;
+    }
+
+    /**
+     * Creates smart type from POJO class and fields map.
+     * @param pojoClass The POJO class.
+     * @param fieldsMap The fields string:smart type map.
+     * @return The smart type.
+     * @param <T> The object type.
+     */
+    public static <T> SmartType fromPojoClass(Class<T> pojoClass, Map<String, SmartType> fieldsMap) {
+        DataValidationUtils.validateNotNull(pojoClass, "pojoClass");
+        DataValidationUtils.validateNotNull(fieldsMap, "fieldsMap");
+
+        SmartType smartType = new SmartType(pojoClass, fieldsMap);
+        log.debug("""
+                Smart type object is created from POJO class.
+                Class: {}
+                Field types map:
+                {}
+                Smart type:
+                {}
+                """.stripIndent(),
+                pojoClass.getName(),
+                fieldsMap, smartType);
+        return smartType;
+    }
+
+    /**
+     * Creates smart type from enum class and enum value name.
+     * @param enumClass The enum class.
+     * @param valueName The fields string
+     * @return The smart type.
+     * @param <T> The object type.
+     */
+    public static <T> SmartType fromEnumClass(Class<T> enumClass, String valueName) {
+        DataValidationUtils.validateNotNull(enumClass, "enumClass");
+        DataValidationUtils.validateNotBlank(valueName, "valueName");
+
+        SmartType smartType = new SmartType(enumClass);
+        log.debug("""
+                Smart type object is created from POJO class.
+                Class: {}
+                Value name: {}
+                Smart type:
+                {}
+                """.stripIndent(),
+                enumClass.getName(),
+                valueName, smartType);
+        return smartType;
+    }
+
+    /**
      * Gets smart type from object;
      * @param object The object;
      * @return The smart type.
@@ -149,7 +291,7 @@ public final class SmartType {
                         objectClass == java.net.URL.class ||
                         objectClass == java.net.URI.class ||
                         objectClass == Character.class) {
-                    type = new SmartType(object.getClass());
+                    type = fromClass(objectClass);
                 }
                 else {
                     type = fromPojoClass(object);
@@ -179,7 +321,7 @@ public final class SmartType {
      * Constructs smart value type with object type.
      * @param objectClass The object type.
      */
-    public SmartType(Class<?> objectClass) {
+    private SmartType(Class<?> objectClass) {
         DataValidationUtils.validateNotNull(objectClass, "objectClass");
 
         this.objectClass = objectClass;
@@ -196,7 +338,7 @@ public final class SmartType {
      * @param objectClass The object type.
      * @param valueSmartType The value type.
      */
-    public SmartType(Class<?> objectClass, SmartType valueSmartType) {
+    private SmartType(Class<?> objectClass, SmartType valueSmartType) {
         DataValidationUtils.validateNotNull(objectClass, "objectClass");
         DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
 
@@ -216,7 +358,7 @@ public final class SmartType {
      * @param objectClass The object type.
      * @param valueSmartType The value type.
      */
-   public SmartType(Class<?> objectClass, Class<?> keyClass, SmartType valueSmartType) {
+   private SmartType(Class<?> objectClass, Class<?> keyClass, SmartType valueSmartType) {
        DataValidationUtils.validateNotNull(objectClass, "objectClass");
        DataValidationUtils.validateNotNull(keyClass, "keyClass");
        DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
@@ -239,7 +381,7 @@ public final class SmartType {
      * @param pojoClass The class name
      * @param fieldTypesMap The field types.
      */
-    public SmartType(Class<?> pojoClass, Map<String, SmartType> fieldTypesMap) {
+    private SmartType(Class<?> pojoClass, Map<String, SmartType> fieldTypesMap) {
         DataValidationUtils.validateNotNull(pojoClass, "pojoClass");
         DataValidationUtils.validateNotNull(fieldTypesMap, "fieldTypesMap");
 
@@ -256,13 +398,22 @@ public final class SmartType {
             pojoClass, objectClass, fieldTypesMap);
     }
 
+    /**
+     * Returns true if smart type is array type,
+     * or false otherwise.
+     * @return The true/false flag.
+     */
+    public boolean isArrayType() {
+        return isArrayType;
+    }
+
     private static <T> SmartType fromCollection(Collection<T> collection) {
         DataValidationUtils.validateNotNull(collection, "collection");
 
         GenericCollection<T> genericCollection = new GenericCollection<>(collection);
         Class<?> valueClass = genericCollection.getElementClass();
         SmartType valueSmartType = new SmartType(valueClass);
-        SmartType collectionSmartType = new SmartType(collection.getClass(), valueSmartType);
+        SmartType collectionSmartType = fromCollectionClass(collection.getClass(), valueSmartType);
         log.debug("""
                 Collection smart type returned.
                 Collection:
@@ -295,10 +446,9 @@ public final class SmartType {
     private static <T> SmartType fromArray(T[] array) {
         DataValidationUtils.validateNotNull(array, "array");
 
-        Class<?> objectClass = array.getClass();
         Class<?> valueClass = array.getClass().getComponentType();
         SmartType valueSmartType = new SmartType(valueClass);
-        SmartType arraySmartType = new SmartType(objectClass, valueSmartType);
+        SmartType arraySmartType = fromArrayValueClass(valueSmartType);
         log.debug("""
                 Array smart object type returned.
                 Array:
@@ -388,7 +538,7 @@ public final class SmartType {
                 """.stripIndent(),
                 this.getClass().getName(),
                 objectClass.getName(),
-                keyClass.getName(),
+                keyClass != null ? keyClass.getName() : null,
                 valueSmartType,
                 fieldTypesMap);
     }

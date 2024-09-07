@@ -1,46 +1,46 @@
 {
     "date": {
-        "type": {"objectType": "String"},
-        "value": "08/24/#KEYWORD#"
+        "type": {"objectClass": "java.lang.String"},
+        "value": "09/10/#KEYWORD#"
     },
     "textInput": {
-        "type": {"objectType": "String"},
+        "type": {"objectClass": "java.lang.String"},
         "value": "Text input"
     },
     "checkbox1Value": {
-        "type": {"objectType": "Boolean"},
+        "type": {"objectClass": "java.lang.Boolean"},
         "value": "false"
     },
     "radiobutton1Value": {
-        "type": {"objectType": "Boolean"},
+        "type": {"objectClass": "java.lang.Boolean"},
         "value": "false"
     },
     "color": {
-        "type": {"objectType": "String"},
+        "type": {"objectClass": "java.lang.String"},
         "value": "#ff8000"
     },
     "checkbox2Value": {
-        "type": {"objectType": "Boolean"},
+        "type": {"objectClass": "java.lang.Boolean"},
         "value": "false"
     },
     "textareaInput": {
-        "type": {"objectType": "String"},
+        "type": {"objectClass": "java.lang.String"},
         "value": "Textarea"
     },
     "dataListSelectOption": {
-        "type": {"objectType": "String"},
+        "type": {"objectClass": "java.lang.String"},
         "value": "Chicago"
     },
     "range": {
-        "type": {"objectType": "Integer"},
+        "type": {"objectClass": "java.lang.Integer"},
         "value": "9"
     },
     "dropdownSelectedOption": {
-        "type": {"objectType": "String"},
+        "type": {"objectClass": "java.lang.String"},
         "value": "Two"
     },
     "radiobutton2Value": {
-        "type": {"objectType": "Boolean"},
+        "type": {"objectClass": "java.lang.Boolean"},
         "value": "true"
     }
 }

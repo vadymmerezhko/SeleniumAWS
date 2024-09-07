@@ -1,7 +1,6 @@
 package org.example.data;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.enums.ValueType;
 import org.example.utils.ConverterUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,13 +12,9 @@ import org.example.utils.WebUtils;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.testng.Assert;
 import org.w3c.dom.Node;
-import org.xmlunit.builder.DiffBuilder;
-import org.xmlunit.builder.Input;
-import org.xmlunit.diff.Diff;
 
 import java.lang.reflect.Field;
 
-import static org.testng.AssertJUnit.assertFalse;
 
 /**
  * Smart assertion class.
@@ -113,7 +108,7 @@ public abstract class SmartAssert {
                 else {
                     // Convert actual string value to object
                     if (actualValueClass != expectedValueClass) {
-                        SmartType expectedValueType = new SmartType(expectedClass);
+                        SmartType expectedValueType = SmartType.fromClass(expectedClass);
                         actualValue = ConverterUtils.objectToObject(expectedValueType, actualValue);
                     }
                 }
@@ -191,36 +186,19 @@ public abstract class SmartAssert {
     }
 
     /**
-     * Assrerts XML node.
+     * Asserts XML node.
      * @param expectedXml The expected JSON.
      * @param actualXml The actual JSON.
+     * @param strict The strict assert flag.
      */
     public static void assertXmlNode(Node expectedXml, Node actualXml, boolean strict) {
         DataValidationUtils.validateNotNull(expectedXml, "expectedXml");
         DataValidationUtils.validateNotNull(actualXml, "actualXml");
         DataValidationUtils.validateNotTheSame(expectedXml, actualXml, "expectedXml", "actualXml");
-        Diff diff;
 
-        if (strict) {
-            diff = DiffBuilder.compare(Input.fromNode(expectedXml))
-                    .withTest(Input.fromNode(actualXml))
-                    .ignoreWhitespace()
-                    .checkForIdentical() // Use strict comparison
-                    .build();
-        }
-        else {
-            diff = DiffBuilder.compare(Input.fromNode(expectedXml))
-                    .withTest(Input.fromNode(actualXml))
-                    .ignoreWhitespace()
-                    .checkForSimilar()
-                    .build();
-        }
-
-        String mode = strict ? "Strict" : "";
-        // Assert that there are no differences
-        assertFalse(String.format(
-                "%s XML Node assert failed:\n%s", mode,
-                diff.toString()), diff.hasDifferences());
+        JSONObject expectedJson = ConverterUtils.xmlNodeToJsonObject(expectedXml);
+        JSONObject actualJson = ConverterUtils.xmlNodeToJsonObject(actualXml);
+        assertJsonObject(expectedJson, actualJson, strict);
     }
 
     private static void updateExpectedValue(SmartValue expected, SmartValue actual) {

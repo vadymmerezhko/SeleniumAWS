@@ -7,7 +7,6 @@ import org.example.utils.ConverterUtils;
 import org.example.utils.DataValidationUtils;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
@@ -112,7 +111,7 @@ public final class SmartLocalTime implements SmartTemporal,
         }
         try {
             LocalTime actualLocalTime = ConverterUtils.objectToObject(
-                    new SmartType(LocalTime.class), object);
+                    SmartType.fromClass(LocalTime.class), object);
             boolean result = localTime.equals(actualLocalTime);
             log.debug("""
                     Smart local time equals() called.
