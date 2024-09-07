@@ -1,0 +1,10 @@
+{
+    "header": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "Form submitted"
+    },
+    "status": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "Received!"
+    }
+}
