@@ -1062,14 +1062,14 @@ public class ConverterUtilsTest {
         Map<String, SmartType> fieldsMap = new HashMap<>();
         fieldsMap.put("name", SmartType.fromClass(String.class));
         fieldsMap.put("value", SmartType.fromClass(Integer.class));
-        fieldsMap.put("stringArray", SmartType.fromArrayValueClass(
+        fieldsMap.put("stringArray", SmartType.fromArrayValueSmartType(
                 SmartType.fromClass(String.class)));
         fieldsMap.put("integerList", SmartType.fromCollectionClass(
                 List.class, SmartType.fromClass(Integer.class)));
         fieldsMap.put("stringBooleanMap", SmartType.fromMapClass(
                 Map.class, String.class, SmartType.fromClass(Boolean.class)));
         Map<String, SmartType> nestedPojoFieldsMap = new HashMap<>();
-        nestedPojoFieldsMap.put("platform", SmartType.fromEnumClass(Platform.class, "WINDOWS"));
+        nestedPojoFieldsMap.put("platform", SmartType.fromEnumClass(Platform.class));
         nestedPojoFieldsMap.put("date", SmartType.fromClass(LocalDate.class));
         fieldsMap.put("nestedPojoObject", SmartType.fromPojoClass(NestedPojoClass.class, nestedPojoFieldsMap));
         SmartType smartType = SmartType.fromPojoClass(PojoClass.class, fieldsMap);
@@ -1114,9 +1114,8 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToEnumValueNegativeInvalidEnumName() {
         // Negative test: Invalid enum name
-        String enumName = "MAC";
-        SmartType smartType = SmartType.fromEnumClass(Platform.class, enumName);
-        String invalidEnumName = "YELLOW"; // Not a valid enum name in Color
+        SmartType smartType = SmartType.fromEnumClass(Platform.class);
+        String invalidEnumName = "INVALID"; // Not a valid enum name in Platform
 
         // This should throw a SmartRuntimeException
         ConverterUtils.stringToEnumValue(smartType, invalidEnumName);
@@ -1125,7 +1124,7 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToEnumValueNegativeNullEnumName() {
         // Negative test: Null enum name
-        SmartType smartType = SmartType.fromEnumClass(Platform.class, "MAC");
+        SmartType smartType = SmartType.fromEnumClass(Platform.class);
         String nullEnumName = null;
 
         ConverterUtils.stringToEnumValue(smartType, nullEnumName);
@@ -1134,7 +1133,7 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToEnumValueNegativeEmptyEnumName() {
         // Negative test: Empty enum name
-        SmartType smartType = SmartType.fromEnumClass(Platform.class, "MAC");
+        SmartType smartType = SmartType.fromEnumClass(Platform.class);
         String emptyEnumName = "";
 
         ConverterUtils.stringToEnumValue(smartType, emptyEnumName);
@@ -2144,7 +2143,7 @@ public class ConverterUtilsTest {
 
     @Test
     public void testStringToArrayWithJsonArray() {
-        SmartType smartType = SmartType.fromArrayValueClass(SmartType.fromClass(Integer.class));
+        SmartType smartType = SmartType.fromArrayValueSmartType(SmartType.fromClass(Integer.class));
         String jsonArrayString = "[1, 2, 3, 4, 5]";
         Integer[] result = ConverterUtils.stringToArray(smartType, jsonArrayString);
         Integer[] expectedArray = {1, 2, 3, 4, 5};
@@ -2320,7 +2319,7 @@ public class ConverterUtilsTest {
         expected.add("one");
         expected.add("two");
         expected.add("three");
-        Set<String> result = ConverterUtils.stringToSet(type, jsonArrayString);
+        Queue<String> result = ConverterUtils.stringToQueue(type, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result, expected, "The result set should be equal the expected set.");

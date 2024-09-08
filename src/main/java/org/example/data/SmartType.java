@@ -6,11 +6,15 @@ import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.DataValidationUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Node;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
 import java.time.temporal.Temporal;
 import java.util.*;
@@ -187,7 +191,7 @@ public final class SmartType {
      * @return The smart type.
      * @param <T> The object type.
      */
-    public static <T> SmartType fromArrayValueClass(SmartType valueSmartType) {
+    public static <T> SmartType fromArrayValueSmartType(SmartType valueSmartType) {
         DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
 
         SmartType smartType = new SmartType(Object.class, valueSmartType);
@@ -228,26 +232,23 @@ public final class SmartType {
     }
 
     /**
-     * Creates smart type from enum class and enum value name.
+     * Creates smart type from enum class.
      * @param enumClass The enum class.
-     * @param valueName The fields string
      * @return The smart type.
      * @param <T> The object type.
      */
-    public static <T> SmartType fromEnumClass(Class<T> enumClass, String valueName) {
+    public static <T> SmartType fromEnumClass(Class<T> enumClass) {
         DataValidationUtils.validateNotNull(enumClass, "enumClass");
-        DataValidationUtils.validateNotBlank(valueName, "valueName");
 
         SmartType smartType = new SmartType(enumClass);
         log.debug("""
-                Smart type object is created from POJO class.
+                Smart type object is created from enum class.
                 Class: {}
-                Value name: {}
                 Smart type:
                 {}
                 """.stripIndent(),
                 enumClass.getName(),
-                valueName, smartType);
+                smartType);
         return smartType;
     }
 
@@ -275,26 +276,11 @@ public final class SmartType {
                 else if (object instanceof Map map) {
                     type = fromMap(map);
                 }
-                else if (objectClass == String.class ||
-                        objectClass == StringBuffer.class ||
-                        objectClass == SmartValue.class ||
-                        objectClass == Boolean.class ||
-                        object instanceof Number ||
-                        object instanceof Temporal ||
-                        object instanceof Date ||
-                        object instanceof SmartTemporal ||
-                        object instanceof Path ||
-                        object instanceof Enum ||
-                        objectClass == JSONObject.class ||
-                        objectClass == JSONArray.class ||
-                        objectClass == File.class ||
-                        objectClass == java.net.URL.class ||
-                        objectClass == java.net.URI.class ||
-                        objectClass == Character.class) {
-                    type = fromClass(objectClass);
+                else if (isPojoClass(objectClass)) {
+                    type = fromPojoClass(object);
                 }
                 else {
-                    type = fromPojoClass(object);
+                    type = fromClass(objectClass);
                 }
             }
             catch (Exception e) {
@@ -318,7 +304,59 @@ public final class SmartType {
     }
 
     /**
-     * Constructs smart value type with object type.
+     * Returns true if object class is POJO class,
+     * or false otherwise.
+     * @param objectClass The object class.
+     * @return The true/false flag.
+     */
+    public static boolean isPojoClass(Class<?> objectClass) {
+        boolean result;
+
+        if (objectClass == null) {
+            result = false;
+        } else {
+            result = !(objectClass.isPrimitive() ||
+                    objectClass.isArray() ||
+                    objectClass.isRecord() ||
+                    objectClass.isEnum() ||
+                    objectClass.isAnnotation() ||
+                    objectClass.isInterface() ||
+                    objectClass.isLocalClass() ||
+                    objectClass.isSynthetic() ||
+                    Number.class.isAssignableFrom(objectClass) ||
+                    Boolean.class.isAssignableFrom(objectClass) ||
+                    String.class.isAssignableFrom(objectClass) ||
+                    Character.class.isAssignableFrom(objectClass) ||
+                    StringBuffer.class.isAssignableFrom(objectClass) ||
+                    Collection.class.isAssignableFrom(objectClass) ||
+                    Map.class.isAssignableFrom(objectClass) ||
+                    JSONObject.class.isAssignableFrom(objectClass) ||
+                    JSONArray.class.isAssignableFrom(objectClass) ||
+                    Node.class.isAssignableFrom(objectClass) ||
+                    Date.class.isAssignableFrom(objectClass) ||
+                    File.class.isAssignableFrom(objectClass) ||
+                    URL.class.isAssignableFrom(objectClass) ||
+                    URI.class.isAssignableFrom(objectClass) ||
+                    Path.class.isAssignableFrom(objectClass) ||
+                    Temporal.class.isAssignableFrom(objectClass) ||
+                    SmartValue.class.isAssignableFrom(objectClass) ||
+                    SmartObject.class.isAssignableFrom(objectClass) ||
+                    SmartTemporal.class.isAssignableFrom(objectClass) ||
+                    SmartType.class.isAssignableFrom(objectClass) ||
+                    Modifier.isAbstract(objectClass.getModifiers()));
+        }
+
+        // Log the class and result
+        log.debug("""
+                Is object class POJO?
+                Class: {}
+                Result: {}
+                """.stripIndent(), objectClass, result);
+        return result;
+    }
+
+    /**
+     * Constructs smart value type with object class.
      * @param objectClass The object type.
      */
     private SmartType(Class<?> objectClass) {
@@ -333,8 +371,8 @@ public final class SmartType {
     }
 
     /**
-     * Constructs smart value type with object type
-     * and object value type.
+     * Constructs smart value type for collections
+     * with object class and value (element) smart type.
      * @param objectClass The object type.
      * @param valueSmartType The value type.
      */
@@ -353,8 +391,9 @@ public final class SmartType {
     }
 
     /**
-     * Constructs smart value type with object type
-     * and object value type.
+     * Constructs smart value type for maps
+     * with object class, key class and value smart type.
+     * key class and object value type.
      * @param objectClass The object type.
      * @param valueSmartType The value type.
      */
@@ -377,7 +416,7 @@ public final class SmartType {
 
     /**
      * Constructs smart value type for Java POJO class
-     * and class field types.
+     * with object class and class field smart types.
      * @param pojoClass The class name
      * @param fieldTypesMap The field types.
      */
@@ -448,7 +487,7 @@ public final class SmartType {
 
         Class<?> valueClass = array.getClass().getComponentType();
         SmartType valueSmartType = new SmartType(valueClass);
-        SmartType arraySmartType = fromArrayValueClass(valueSmartType);
+        SmartType arraySmartType = fromArrayValueSmartType(valueSmartType);
         log.debug("""
                 Array smart object type returned.
                 Array:

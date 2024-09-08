@@ -36,8 +36,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static java.lang.Float.POSITIVE_INFINITY;
 import static org.apache.commons.lang3.ObjectUtils.isArray;
@@ -1491,82 +1492,82 @@ public final class ConverterUtils {
         Class<?> objectClass = type.getObjectClass();
 
         try {
-            if (objectClass.equals(SmartValue.class)) {
+            if (objectClass == SmartValue.class) {
                 object = (T) stringToSmartValue(type, string);
             }
-            else if (objectClass.equals(String.class)) {
+            else if (objectClass == String.class) {
                 object = (T) string;
             }
-            else if (objectClass.equals(StringBuffer.class)) {
+            else if (objectClass == StringBuffer.class) {
                 object = (T) stringToStringBuffer(string);
             }
-            else if (objectClass.equals(Character.class)) {
+            else if (objectClass == Character.class) {
                 object = (T)(Character) stringToCharacter(string);
             }
-            else if (objectClass.equals(Short.class)) {
+            else if (objectClass == Short.class) {
                 Short.parseShort(string);
             }
-            else if (objectClass.equals(Integer.class)) {
+            else if (objectClass == Integer.class) {
                 object = (T)(Integer) Integer.parseInt(string);
             }
-            else if (objectClass.equals(Long.class)) {
+            else if (objectClass == Long.class) {
                 object = (T)(Long) Long.parseLong(string);
             }
-            else if (objectClass.equals(BigInteger.class)) {
+            else if (objectClass == BigInteger.class) {
                 object = (T) new BigInteger(string);
             }
-            else if (objectClass.equals(Float.class)) {
+            else if (objectClass == Float.class) {
                 object = (T)(Float) Float.parseFloat(string);
             }
-            else if (objectClass.equals(Double.class)) {
+            else if (objectClass == Double.class) {
                 object = (T)(Double) Double.parseDouble(string);
             }
-            else if (objectClass.equals(BigDecimal.class)) {
+            else if (objectClass == BigDecimal.class) {
                 object = (T) new BigDecimal(string);
             }
-            else if (objectClass.equals(Boolean.class)) {
+            else if (objectClass == Boolean.class) {
                 object = (T)(Boolean) ConverterUtils.stringToBoolean(string);
             }
-            else if (objectClass.equals(Date.class)) {
+            else if (objectClass == Date.class) {
                 object = (T) new Date(string);
             }
-            else if (objectClass.equals(LocalDate.class)) {
+            else if (objectClass == LocalDate.class) {
                 object = (T) stringToSmartLocalDate(string).getLocalDate();
             }
-            else if (objectClass.equals(LocalDateTime.class)) {
+            else if (objectClass == LocalDateTime.class) {
                 object = (T) stringToSmartLocalDateTime(string).getLocalDateTime();
             }
-            else if (objectClass.equals(LocalTime.class)) {
+            else if (objectClass == LocalTime.class) {
                 object = (T) stringToSmartLocalTime(string).getLocalTime();
             }
-            else if (objectClass.equals(SmartDate.class)) {
+            else if (objectClass == SmartDate.class) {
                 object = (T) stringToSmartDate(string);
             }
-            else if (objectClass.equals(SmartLocalDate.class)) {
+            else if (objectClass == SmartLocalDate.class) {
                 object = (T) stringToSmartLocalDate(string);
             }
-            else if (objectClass.equals(SmartLocalDateTime.class)) {
+            else if (objectClass == SmartLocalDateTime.class) {
                 object = (T) stringToSmartLocalDateTime(string);
             }
-            else if (objectClass.equals(SmartLocalTime.class)) {
+            else if (objectClass == SmartLocalTime.class) {
                 object = (T) stringToSmartLocalTime(string);
             }
-            else if (objectClass.equals(File.class)) {
+            else if (objectClass == File.class) {
                 object = (T) stringToFile(string);
             }
-            else if (objectClass.equals(java.net.URL.class)) {
+            else if (objectClass == java.net.URL.class) {
                 object = (T) stringToURL(string);
             }
-            else if (objectClass.equals(java.net.URI.class)) {
+            else if (objectClass == java.net.URI.class) {
                 object = (T) stringToURI(string);
             }
-            else if (objectClass.equals(Path.class)) {
+            else if (objectClass == Path.class) {
                 object = (T) stringToPath(string);
             }
-            else if (objectClass.equals(JSONObject.class)) {
+            else if (objectClass == JSONObject.class) {
                 object = (T) ConverterUtils.stringToJasonObject(string);
             }
-            else if (objectClass.equals(JSONArray.class)) {
+            else if (objectClass == JSONArray.class) {
                 object = (T) stringToJasonArray(string);
             }
             else {
@@ -2233,7 +2234,8 @@ public final class ConverterUtils {
     }
 
     /**
-     * Converts string in JSON array format to list.
+     * Converts string in JSON array format to list
+     * or synchronized list.
      * @param type The list type.
      * @param string The string.
      * @param <T> The list element type.
@@ -2245,8 +2247,7 @@ public final class ConverterUtils {
 
         try {
             JSONArray jsonArray = stringToJasonArray(string);
-            Collection<T> collection = jsonArrayToCollection(type, jsonArray);
-            List<T> list = new ArrayList<>(collection);
+            List<T> list = (List<T>) jsonArrayToCollection(type, jsonArray);
             log.debug("""
                     String converted to List.
                     String:
@@ -2268,7 +2269,8 @@ public final class ConverterUtils {
     }
 
     /**
-     * Converts string in JSON array format to set.
+     * Converts string in JSON array format to set
+     * or synchronized set.
      * @param type The set type.
      * @param string The string.
      * @param <T> The set element type.
@@ -2280,8 +2282,7 @@ public final class ConverterUtils {
 
         try {
             JSONArray jsonArray = stringToJasonArray(string);
-            Collection<T> collection = jsonArrayToCollection(type, jsonArray);
-            Set<T> set = new HashSet<>(collection);
+            Set<T> set = (Set<T>) jsonArrayToCollection(type, jsonArray);
             log.debug("""
                     String converted to set.
                     String:
@@ -2303,7 +2304,8 @@ public final class ConverterUtils {
     }
 
     /**
-     * Converts string in JSON array format to queue.
+     * Converts string in JSON array format to queue
+     * or synchronized queue.
      * @param type The queue type.
      * @param string The string.
      * @param <T> The queue element type.
@@ -2315,8 +2317,7 @@ public final class ConverterUtils {
 
         try {
             JSONArray jsonArray = stringToJasonArray(string);
-            Collection<T> collection = jsonArrayToCollection(type, jsonArray);
-            Queue<T> queue = new LinkedList<>(collection);
+            Queue<T> queue = (Queue<T>) jsonArrayToCollection(type, jsonArray);
             log.debug("""
                     String converted to queue.
                     String:
@@ -2350,8 +2351,7 @@ public final class ConverterUtils {
 
         try {
             JSONArray jsonArray = stringToJasonArray(string);
-            Collection<T> collection = jsonArrayToCollection(type, jsonArray);
-            Vector<T> vector = new Vector<>(collection);
+            Vector<T> vector = (Vector<T>) jsonArrayToCollection(type, jsonArray);
             log.debug("""
                     String converted to vector.
                     String:
@@ -2394,6 +2394,10 @@ public final class ConverterUtils {
                 jsonObject = stringToJasonObject(string);
             }
             Map<K,V> map = jsonObjectToMap(type, jsonObject);
+
+            if (ConcurrentMap.class.isAssignableFrom(type.getObjectClass())) {
+                map = new ConcurrentHashMap<>(map);
+            }
             log.debug("""
                     String converted to map.
                     String:
@@ -2691,16 +2695,16 @@ public final class ConverterUtils {
             Class<?> objectClass = type.getObjectClass();
 
             if (objectClass.isAssignableFrom(List.class)) {
-                collection = new ArrayList<T>();
+                collection = new ArrayList<>();
             }
             else if (objectClass.isAssignableFrom(Set.class)) {
-                collection = new HashSet<T>();
+                collection = new HashSet<>();
             }
             else if (objectClass.isAssignableFrom(Queue.class)) {
-                collection = new LinkedList<T>();
+                collection = new LinkedList<>();
             }
             else if (objectClass.isAssignableFrom(Vector.class)) {
-                collection = new Vector<T>();
+                collection = new Vector<>();
             }
             else {
                 throw new SmartRuntimeException(String.format(
@@ -2939,76 +2943,23 @@ public final class ConverterUtils {
 
     private static boolean isPojoObject(Object object) {
         boolean result;
+        Class<?> objectClass = null;
 
         if (object == null) {
             result = false;
         }
-        else if (isNaN(object)) {
-            result = false;
-        }
-        else if (isFloatPositiveInfinite(object) ||
-                isDoublePositiveInfinite(object) ||
-                isFloatNegativeInfinite(object) ||
-                isDoubleNegativeInfinite(object)) {
-            result = false;
-        }
-        else if (object instanceof Number ||
-                object instanceof Boolean ||
-                object instanceof Date ||
-                object instanceof File ||
-                object instanceof URL ||
-                object instanceof URI ||
-                object instanceof Path ||
-                object instanceof Temporal ||
-                object instanceof SmartValue ||
-                object instanceof SmartObject ||
-                object instanceof SmartTemporal ||
-                object instanceof SmartType) {
-            result = false;
-        }
-        else if (object instanceof StringBuffer) {
-            result = false;
-        }
-        else if (object instanceof String) {
-            result = false;
-        }
-        else if (object instanceof JSONObject) {
-            result = false;
-        }
-        else if (object instanceof JSONArray) {
-            result = false;
-        }
-        else if (object instanceof Node) {
-            result = false;
-        }
-        else if (object instanceof List) {
-            result = false;
-        }
-        else if (object instanceof Map) {
-            result = false;
-        }
-        else if (isArray(object)) {
-            result = false;
-        }
         else {
-            Class<?> objectClass = object.getClass();
-
-            result = !objectClass.isPrimitive() &&
-                    !objectClass.isArray() &&
-                    !objectClass.isInterface() &&
-                    !objectClass.isRecord() &&
-                    !objectClass.isEnum() &&
-                    !objectClass.isAnnotation() &&
-                    !objectClass.isHidden() &&
-                    !objectClass.isAnonymousClass();
+            objectClass = object.getClass();
+            result = SmartType.isPojoClass(objectClass);
         }
         log.debug("""
-                Object is POJO?
+                Is object class POJO?
+                Class: {}
                 Result: {}
                 Object:
                 {}
                 """.stripIndent(),
-                result, object);
+                objectClass, result, object);
         return result;
     }
 
