@@ -51,6 +51,10 @@ public class Settings {
     public static final String NAN_VALUE_STRING = "NaN";
     public static final String POSITIVE_INFINITY_VALUE_STRING = "Infinity";
     public static final String NEGATIVE_INFINITY_VALUE_STRING = "-Infinity";
+    public static final String DEFAULT_XML_ROOT_NAME = "root";
+    public static final String DEFAULT_XML_ITEM_NAME = "item";
+    public static final String DEFAULT_XML_ITEMS_NAME = "items";
+    public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
     public static final String AWS_LOCAL_SERVER_USER_DATA_TEMPLATE = """
                 #!/bin/bash

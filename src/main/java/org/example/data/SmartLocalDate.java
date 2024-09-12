@@ -3,7 +3,7 @@ package org.example.data;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.ConverterUtils;
+import org.example.utils.ConvertUtils;
 import org.example.utils.DataValidationUtils;
 
 import java.io.Serializable;
@@ -32,7 +32,7 @@ public final class SmartLocalDate implements SmartTemporal,
      * @return The smart local date.
      */
     public static SmartLocalDate parseLocalDate(String dateString) {
-        SmartDate smartDate = ConverterUtils.stringToSmartDate(dateString);
+        SmartDate smartDate = ConvertUtils.stringToSmartDate(dateString);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(smartDate.getFormat());
         LocalDate localDate = LocalDate.parse(dateString, formatter);
         SmartLocalDate smartLocalDate = new SmartLocalDate(localDate, smartDate.getFormat());
@@ -67,7 +67,7 @@ public final class SmartLocalDate implements SmartTemporal,
     @Override
     public String toString() {
         try {
-            String dataString = ConverterUtils.localDateToString(localDate, format);
+            String dataString = ConvertUtils.localDateToString(localDate, format);
             log.debug("Smart local date converted to string '{}' with date format '{}'.",
                     dataString, format);
             return dataString;
@@ -90,7 +90,7 @@ public final class SmartLocalDate implements SmartTemporal,
             return true;
         }
         try {
-            LocalDate actaulLocalDate = ConverterUtils.objectToObject(
+            LocalDate actaulLocalDate = ConvertUtils.objectToObject(
                     SmartType.fromClass(LocalDate.class), object);
             boolean result = localDate.equals(actaulLocalDate);
             log.debug("""
@@ -130,7 +130,7 @@ public final class SmartLocalDate implements SmartTemporal,
      */
     @Override
     public Date toDate() {
-        Date date = ConverterUtils.localDateToDate(localDate);
+        Date date = ConvertUtils.localDateToDate(localDate);
         log.debug("Smart local date {} converted to date: {}", localDate, date);
         return date;
     }

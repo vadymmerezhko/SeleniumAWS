@@ -1,7 +1,6 @@
 package org.example.unit;
 
 import org.example.exceptions.SmartRuntimeException;
-import org.example.exceptions.SmartValidationException;
 import org.example.utils.ZipFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;

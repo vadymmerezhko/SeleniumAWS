@@ -1,7 +1,6 @@
 package org.example.utils;
 
 import org.example.data.SmartValue;
-import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
 
 import java.nio.file.Paths;
@@ -83,7 +82,7 @@ public final class DataValidationUtils {
         validateNotNull(value, valueName);
 
         if (value.isEmpty()) {
-            handleError(String.format("%s has empty value.", valueName));
+            handleError(String.format("%s is empty.", valueName));
         }
     }
 
@@ -94,6 +93,22 @@ public final class DataValidationUtils {
      */
     public static void validateNotEmpty(SmartValue value, String valueName) {
         validateNotEmpty(value.toString(), valueName);
+    }
+
+    /**
+     * Validates that data values are not equal.
+     * @param value1 The first data value.
+     * @param value2 The second data value.
+     * @param valueName1 The first value name.
+     * @param valueName2 The second value name.
+     */
+    public static void validateNotEqual(Object value1, Object value2, String valueName1, String valueName2) {
+        validateNotNull(value1, valueName1);
+        validateNotNull(value2, valueName2);
+
+        if (value1.equals(value2)) {
+            handleError(String.format("%s equals %s.", valueName1, value2));
+        }
     }
 
     /**
@@ -210,7 +225,7 @@ public final class DataValidationUtils {
         validateNotBlank(valueName, valueName);
 
         if (value > max) {
-            handleError(String.format("%s has value less than MIN=%d: %d",
+            handleError(String.format("%s has value bigger than MAX=%d: %d",
                     valueName, max, value));
         }
     }

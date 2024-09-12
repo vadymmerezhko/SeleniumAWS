@@ -6,7 +6,7 @@ import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
 import org.example.unit.supplemental.NestedPojoClass;
 import org.example.unit.supplemental.PojoClass;
-import org.example.utils.ConverterUtils;
+import org.example.utils.ConvertUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Assert;
@@ -35,13 +35,13 @@ import java.util.stream.Collectors;
 
 import static org.example.constants.Settings.*;
 
-public class ConverterUtilsTest {
+public class ConvertUtilsTest {
 
     @Test
     public void testEscapeJavaScriptExcludeDoubleQuote() {
         String javaScript = "var x = \"John\\'s book\"; // Example code";
         String expected = "var x \\u003D \\\"John\\\\\\'s book\\\"; // Example code";
-        String actual = ConverterUtils.escapeJavaScript(javaScript);
+        String actual = ConvertUtils.escapeJavaScript(javaScript);
         Assert.assertEquals(actual, expected, "JavaScript was not properly escaped " +
                 "when excluding double quotes.");
     }
@@ -49,7 +49,7 @@ public class ConverterUtilsTest {
     @Test
     public void testEscapeJavaScriptPositiveSimpleString() {
         String input = "This is a 'test' with \"double quotes\" and special chars < > &";
-        String result = ConverterUtils.escapeJavaScript(input);
+        String result = ConvertUtils.escapeJavaScript(input);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.contains("\\'"));
@@ -62,7 +62,7 @@ public class ConverterUtilsTest {
     @Test
     public void testEscapeJavaScriptPositiveSpecialCharacters() {
         String input = "Line1\nLine2\tBackspace\bFormFeed\f";
-        String result = ConverterUtils.escapeJavaScript(input);
+        String result = ConvertUtils.escapeJavaScript(input);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.contains("\\n"));  // Newline
@@ -74,7 +74,7 @@ public class ConverterUtilsTest {
     @Test
     public void testEscapeJavaScriptPositiveEmptyString() {
         String input = "";
-        String result = ConverterUtils.escapeJavaScript(input);
+        String result = ConvertUtils.escapeJavaScript(input);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, "");
@@ -82,23 +82,23 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testEscapeJavaScriptNegativeNullString() {
-        ConverterUtils.escapeJavaScript(null);
+        ConvertUtils.escapeJavaScript(null);
     }
 
     @Test
     public void testStringToBooleanWithValidInputTrue() {
-        Assert.assertTrue(ConverterUtils.stringToBoolean("true"));
+        Assert.assertTrue(ConvertUtils.stringToBoolean("true"));
     }
 
     @Test
     public void testStringToBooleanWithValidInputFalse() {
-        Assert.assertFalse(ConverterUtils.stringToBoolean("false"));
+        Assert.assertFalse(ConvertUtils.stringToBoolean("false"));
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class,
             expectedExceptionsMessageRegExp = "Invalid boolean format: .*")
     public void testStringToBooleanWithInvalidInput() {
-        ConverterUtils.stringToBoolean("maybe");
+        ConvertUtils.stringToBoolean("maybe");
     }
 
     @Test
@@ -108,30 +108,30 @@ public class ConverterUtilsTest {
         sdf.setTimeZone(timeZone);
         String dateString = "2020-12-31";
         Date expectedDate = sdf.parse(dateString);
-        Date actualDate = ConverterUtils.stringToSmartDate(dateString);
+        Date actualDate = ConvertUtils.stringToSmartDate(dateString);
         Assert.assertEquals(actualDate, expectedDate);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testBlankDate() {
         String dateString = "";
-        ConverterUtils.stringToSmartDate(dateString);
+        ConvertUtils.stringToSmartDate(dateString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testNullDate() {
-        ConverterUtils.stringToSmartDate(null);
+        ConvertUtils.stringToSmartDate(null);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testRandomStringAsDate() {
-        ConverterUtils.stringToSmartDate("not a date");
+        ConvertUtils.stringToSmartDate("not a date");
     }
 
     @Test
     public void testValidJsonArray() {
         String validJsonArray = "[{\"name\":\"John\"}, {\"name\":\"Doe\"}]";
-        JSONArray result = ConverterUtils.stringToJasonArray(validJsonArray);
+        JSONArray result = ConvertUtils.stringToJasonArray(validJsonArray);
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.length(), 2, "There should be two elements.");
         Assert.assertEquals(result.getJSONObject(0).getString("name"), "John", "The first name should be John.");
@@ -140,24 +140,24 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testInvalidJsonArray() {
         String invalidJsonArray = "[{name:\"John'}, {name:\"Doe\"}]";
-        ConverterUtils.stringToJasonArray(invalidJsonArray);
+        ConvertUtils.stringToJasonArray(invalidJsonArray);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testBlankJsonArray() {
         String invalidJsonArray = " ";
-        ConverterUtils.stringToJasonArray(invalidJsonArray);
+        ConvertUtils.stringToJasonArray(invalidJsonArray);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testNullJsonArray() {
-        ConverterUtils.stringToJasonArray(null);
+        ConvertUtils.stringToJasonArray(null);
     }
 
     @Test
     public void testValidJsonObject() {
         String validJson = "{\"name\":\"John\", \"age\":30}";
-        JSONObject result = ConverterUtils.stringToJasonObject(validJson);
+        JSONObject result = ConvertUtils.stringToJasonObject(validJson);
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.getString("name"), "John", "The name should be John.");
         Assert.assertEquals(result.getInt("age"), 30, "The age should be 30.");
@@ -166,42 +166,54 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testInvalidJsonObject() {
         String invalidJson = "{name:\"John\" age:30}";
-        ConverterUtils.stringToJasonObject(invalidJson);
+        ConvertUtils.stringToJasonObject(invalidJson);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testBlankJsonObject() {
         String invalidJson = "  ";
-        ConverterUtils.stringToJasonObject(invalidJson);
+        ConvertUtils.stringToJasonObject(invalidJson);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testNullJsonObject() {
-        ConverterUtils.stringToJasonObject(null);
+        ConvertUtils.stringToJasonObject(null);
     }
 
     @Test
-    public void testValidXmlObject() {
+    public void testValidXmlObjectFromXmlString() {
         String validXml = "<person><name>John</name></person>";
-        Document result = ConverterUtils.stringToXmlDocument(validXml);
+        Document result = ConvertUtils.stringToXmlDocument(validXml);
         Assert.assertNotNull(result, "The result should not be null.");
-        Assert.assertEquals(result.getElementsByTagName("name").item(0).getTextContent(), "John", "The name should be John.");
+        Assert.assertEquals(result.getElementsByTagName("name").item(0).getTextContent(),
+                "John", "The name should be John.");
+    }
+
+    @Test
+    public void testValidXmlObjectFromJsonString() {
+        String validXml = "{\"name\":\"John Doe\", \"age\":32}";
+        Document result = ConvertUtils.stringToXmlDocument(validXml);
+        Assert.assertNotNull(result, "The result should not be null.");
+        Assert.assertEquals(result.getElementsByTagName("name").item(0).getTextContent(),
+                "John Doe", "The name should be John Doe.");
+        Assert.assertEquals(result.getElementsByTagName("age").item(0).getTextContent(),
+                "32", "The age should be 32.");
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testInvalidXmlObject() {
         String invalidXml = "<person><name>John</name>";
-        ConverterUtils.stringToXmlDocument(invalidXml);
+        ConvertUtils.stringToXmlDocument(invalidXml);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testBlankXmlObject() {
-        ConverterUtils.stringToXmlDocument(" ");
+        ConvertUtils.stringToXmlDocument(" ");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testNullXmlObject() {
-        ConverterUtils.stringToXmlDocument(null);
+        ConvertUtils.stringToXmlDocument(null);
     }
 
     @Test
@@ -210,24 +222,24 @@ public class ConverterUtilsTest {
         String expectedFormat = "yyyy-MM-dd HH:mm:ss";
         SimpleDateFormat sdf = new SimpleDateFormat(expectedFormat);
         String expectedDateString = sdf.format(now);
-        String result = ConverterUtils.dateToString(now, expectedFormat);
+        String result = ConvertUtils.dateToString(now, expectedFormat);
 
         Assert.assertEquals(result, expectedDateString, "The formatted date string does not match expected output.");
     }
 
     @Test(expectedExceptions = SmartValidationException.class, expectedExceptionsMessageRegExp = ".*date.*")
     public void testDateToStringNullDate() {
-        ConverterUtils.dateToString(null, "yyyy-MM-dd");
+        ConvertUtils.dateToString(null, "yyyy-MM-dd");
     }
 
     @Test(expectedExceptions = SmartValidationException.class, expectedExceptionsMessageRegExp = ".*dateFormat.*")
     public void testDateToStringBlankDateFormat() {
-        ConverterUtils.dateToString(new Date(), " ");
+        ConvertUtils.dateToString(new Date(), " ");
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testDateToStringInvalidFormat() {
-        ConverterUtils.dateToString(new Date(), "invalid-format");
+        ConvertUtils.dateToString(new Date(), "invalid-format");
     }
 
     @Test
@@ -236,7 +248,7 @@ public class ConverterUtilsTest {
         String dateFormat = "dd/MM/yyyy";
         String expectedDateString = "08/08/2024";
 
-        String actualDateString = ConverterUtils.localDateToString(localDate, dateFormat);
+        String actualDateString = ConvertUtils.localDateToString(localDate, dateFormat);
         Assert.assertEquals(actualDateString, expectedDateString, "The date string should match the expected format.");
     }
 
@@ -246,7 +258,7 @@ public class ConverterUtilsTest {
         String dateFormat = "yyyy-MM-dd";
         String expectedDateString = "2024-08-08";
 
-        String actualDateString = ConverterUtils.localDateToString(localDate, dateFormat);
+        String actualDateString = ConvertUtils.localDateToString(localDate, dateFormat);
         Assert.assertEquals(actualDateString, expectedDateString, "The date string should match the expected format.");
     }
 
@@ -254,7 +266,7 @@ public class ConverterUtilsTest {
     public void testEscapeCSVFieldWithSimpleString() {
         String input = "simple";
         String expected = "\"simple\"";
-        String actual = ConverterUtils.escapeCSVField(input);
+        String actual = ConvertUtils.escapeCSVField(input);
         Assert.assertEquals(actual, expected, "The CSV field value was not correctly escaped.");
     }
 
@@ -262,20 +274,20 @@ public class ConverterUtilsTest {
     public void testEscapeCSVFieldWithComma() {
         String input = "value,with,comma";
         String expected = "\"value,with,comma\"";
-        String actual = ConverterUtils.escapeCSVField(input);
+        String actual = ConvertUtils.escapeCSVField(input);
         Assert.assertEquals(actual, expected, "The CSV field value was not correctly escaped when it contained commas.");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testEscapeCSVFieldNegative() {
-        ConverterUtils.escapeCSVField(null);
+        ConvertUtils.escapeCSVField(null);
     }
 
     @Test
     public void testEscapeCSVFieldWithDoubleQuotes() {
         String input = "value\"with\"quotes";
         String expected = "\"value\"\"with\"\"quotes\"";
-        String actual = ConverterUtils.escapeCSVField(input);
+        String actual = ConvertUtils.escapeCSVField(input);
         Assert.assertEquals(actual, expected, "The CSV field value was not correctly escaped when it contained double quotes.");
     }
 
@@ -283,7 +295,7 @@ public class ConverterUtilsTest {
     public void testEscapeCSVFieldWithEmptyString() {
         String input = "";
         String expected = "\"\"";
-        String actual = ConverterUtils.escapeCSVField(input);
+        String actual = ConvertUtils.escapeCSVField(input);
         Assert.assertEquals(actual, expected, "The CSV field value was not correctly escaped for an empty string.");
     }
 
@@ -291,20 +303,20 @@ public class ConverterUtilsTest {
     public void testEscapeCSVFieldWithSpecialCharacters() {
         String input = "value,with\nnew\rline\tand\tab\"quotes\"";
         String expected = "\"value,with\nnew\rline\tand\tab\"\"quotes\"\"\"";
-        String actual = ConverterUtils.escapeCSVField(input);
+        String actual = ConvertUtils.escapeCSVField(input);
         Assert.assertEquals(actual, expected, "The CSV field value was not correctly escaped when it contained special characters.");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testEscapeCSVFieldWithNullInput() {
-        ConverterUtils.escapeCSVField(null);
+        ConvertUtils.escapeCSVField(null);
     }
 
     @Test
     public void testCsvFieldValueToStringWithValidInputNoEscapes() {
         String input = "Sample text";
         String expected = "Sample text";
-        String result = ConverterUtils.csvFieldValueToString(input);
+        String result = ConvertUtils.csvFieldValueToString(input);
 
         Assert.assertEquals(result, expected);
     }
@@ -313,7 +325,7 @@ public class ConverterUtilsTest {
     public void testCsvFieldValueToStringWithEscapedQuotes() {
         String input = "\"\"\"Sample\"\" text\"\"\"";
         String expected = "\"Sample\" text\"";
-        String result = ConverterUtils.csvFieldValueToString(input);
+        String result = ConvertUtils.csvFieldValueToString(input);
 
         Assert.assertEquals(result, expected);
     }
@@ -322,7 +334,7 @@ public class ConverterUtilsTest {
     public void testCsvFieldValueToStringWithLeadingAndTrailingQuotes() {
         String input = "\"Sample text\"";
         String expected = "Sample text";
-        String result = ConverterUtils.csvFieldValueToString(input);
+        String result = ConvertUtils.csvFieldValueToString(input);
 
         Assert.assertEquals(result, expected);
     }
@@ -331,21 +343,21 @@ public class ConverterUtilsTest {
     public void testCsvFieldValueToStringWithEmptyString() {
         String input = "";
         String expected = "";
-        String result = ConverterUtils.csvFieldValueToString(input);
+        String result = ConvertUtils.csvFieldValueToString(input);
 
         Assert.assertEquals(result, expected);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testCsvFieldValueToStringNegative() {
-        ConverterUtils.csvFieldValueToString(null);
+        ConvertUtils.csvFieldValueToString(null);
     }
 
     @Test
     public void testStringToSmartLocalDateValidDateString() {
         String dateString = "2023-08-31"; // Assuming this format matches the expected pattern in SmartDate
         String expectedFormat = "yyyy-MM-dd"; // The format should be adjusted based on your SmartDate logic
-        SmartLocalDate smartLocalDate = ConverterUtils.stringToSmartLocalDate(dateString);
+        SmartLocalDate smartLocalDate = ConvertUtils.stringToSmartLocalDate(dateString);
 
         Assert.assertNotNull(smartLocalDate, "SmartLocalDate should not be null");
         Assert.assertEquals(smartLocalDate.getLocalDate(), LocalDate.of(2023, 8, 31), "LocalDate value should match the input date");
@@ -355,19 +367,19 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToSmartLocalDateInvalidDateString() {
         String invalidDateString = "invalid-date";
-        ConverterUtils.stringToSmartLocalDate(invalidDateString);
+        ConvertUtils.stringToSmartLocalDate(invalidDateString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToSmartLocalDateNullDateString() {
-        ConverterUtils.stringToSmartLocalDate(null);
+        ConvertUtils.stringToSmartLocalDate(null);
     }
 
     @Test
     public void testStringToSmartLocalDateTimeValidString() {
         String dateTimeString = "2024-08-31T14:45:00"; // Example valid datetime string
         String expectedFormat = "yyyy-MM-dd'T'HH:mm:ss"; // Example format that SmartDate might return
-        SmartLocalDateTime result = ConverterUtils.stringToSmartLocalDateTime(dateTimeString);
+        SmartLocalDateTime result = ConvertUtils.stringToSmartLocalDateTime(dateTimeString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.getLocalDateTime(), LocalDateTime.parse(dateTimeString),
@@ -379,7 +391,7 @@ public class ConverterUtilsTest {
     @Test
     public void testStringToSmartLocalTimePositive() {
         String validTimeString = "10:30:45"; // Example time string in a valid format
-        SmartLocalTime result = ConverterUtils.stringToSmartLocalTime(validTimeString);
+        SmartLocalTime result = ConvertUtils.stringToSmartLocalTime(validTimeString);
 
         Assert.assertNotNull(result, "The result should not be null");
         Assert.assertEquals(result.getLocalTime(), LocalTime.of(10, 30, 45), "The LocalTime should match the expected value");
@@ -389,14 +401,14 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToSmartLocalTimeNegative() {
         String invalidTimeString = "invalid-time"; // Example of an invalid time string
-        ConverterUtils.stringToSmartLocalTime(invalidTimeString);
+        ConvertUtils.stringToSmartLocalTime(invalidTimeString);
     }
 
     @Test
     public void testStringToFileValidPath() {
         String validFilePath = "src/test/resources/testfile.txt";
         File expectedFile = new File(validFilePath);
-        File result = ConverterUtils.stringToFile(validFilePath);
+        File result = ConvertUtils.stringToFile(validFilePath);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result.getPath(), expectedFile.getPath());
@@ -406,27 +418,27 @@ public class ConverterUtilsTest {
     public void testStringToFileInvalidPath() {
         String invalidFilePath = "/invalid\0path"; // Null character is illegal in file paths
 
-        ConverterUtils.stringToFile(invalidFilePath);
+        ConvertUtils.stringToFile(invalidFilePath);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToFileEmptyPath() {
         String emptyFilePath = "";
 
-        ConverterUtils.stringToFile(emptyFilePath);
+        ConvertUtils.stringToFile(emptyFilePath);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToFileNullPath() {
         String nullFilePath = null;
 
-        ConverterUtils.stringToFile(nullFilePath);
+        ConvertUtils.stringToFile(nullFilePath);
     }
 
     @Test
     public void testStringToURLValidURL() {
         String validUrlString = "https://www.example.com";
-        URL result = ConverterUtils.stringToURL(validUrlString);
+        URL result = ConvertUtils.stringToURL(validUrlString);
 
         Assert.assertNotNull(result, "URL object should not be null for a valid URL string.");
         Assert.assertEquals(result.toString(), validUrlString, "The URL object should match the input string.");
@@ -436,27 +448,27 @@ public class ConverterUtilsTest {
     public void testStringToURLInvalidURL() {
         String invalidUrlString = "htp://www[dot]example.com";
 
-        ConverterUtils.stringToURL(invalidUrlString);
+        ConvertUtils.stringToURL(invalidUrlString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToURLBlankURL() {
         String blankUrlString = "";
 
-        ConverterUtils.stringToURL(blankUrlString);
+        ConvertUtils.stringToURL(blankUrlString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToURLNullURL() {
         String nullUrlString = null;
 
-        ConverterUtils.stringToURL(nullUrlString);
+        ConvertUtils.stringToURL(nullUrlString);
     }
 
     @Test
     public void testStringToURIValidURI() {
         String validURIString = "https://example.com/resource";
-        URI result = ConverterUtils.stringToURI(validURIString);
+        URI result = ConvertUtils.stringToURI(validURIString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.toString(), validURIString, "The URI object should match the URI string.");
@@ -464,25 +476,25 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToURIEmptyURI() {
-        ConverterUtils.stringToURI("");
+        ConvertUtils.stringToURI("");
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToURIInvalidURI() {
         String invalidURIString = "htp://[invalid_uri]";
-        ConverterUtils.stringToURI(invalidURIString);
+        ConvertUtils.stringToURI(invalidURIString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToURINullURI() {
         String nullURIString = null;
-        ConverterUtils.stringToURI(nullURIString);
+        ConvertUtils.stringToURI(nullURIString);
     }
 
     @Test
     public void testStringToPathValidFilePathShouldReturnPath() {
         String validFilePath = "C:/Users/Example/Documents/file.txt";
-        Path result = ConverterUtils.stringToPath(validFilePath);
+        Path result = ConvertUtils.stringToPath(validFilePath);
         Path expected = Paths.get(validFilePath);
 
         Assert.assertNotNull(result, "Path object should not be null");
@@ -493,13 +505,13 @@ public class ConverterUtilsTest {
     public void testStringToPathInvalidFilePathFormatShouldThrowException() {
         String invalidFilePath = "Invalid/Path\\file?.txt";
 
-        ConverterUtils.stringToPath(invalidFilePath);
+        ConvertUtils.stringToPath(invalidFilePath);
     }
 
     @Test
     public void testStringToXmlNodeValidXml() {
         String validXmlString = "<root><child>value</child></root>";
-        Node result = ConverterUtils.stringToXmlNode(validXmlString);
+        Node result = ConvertUtils.stringToXmlNode(validXmlString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.getNodeName(), "root", "The root node name should be 'root'.");
@@ -509,27 +521,27 @@ public class ConverterUtilsTest {
     public void testStringToXmlNodeInvalidXml() {
         String invalidXmlString = "<root><child>value</child>";  // Missing closing tag
 
-        ConverterUtils.stringToXmlNode(invalidXmlString);
+        ConvertUtils.stringToXmlNode(invalidXmlString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToXmlNodeEmptyString() {
         String emptyString = "";
 
-        ConverterUtils.stringToXmlNode(emptyString);
+        ConvertUtils.stringToXmlNode(emptyString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToXmlNodeNullString() {
         String nullString = null;
 
-        ConverterUtils.stringToXmlNode(nullString);
+        ConvertUtils.stringToXmlNode(nullString);
     }
 
     @Test
     public void testLocalDateToDatepositive() {
         LocalDate localDate = LocalDate.of(2023, 8, 31);
-        Date result = ConverterUtils.localDateToDate(localDate);
+        Date result = ConvertUtils.localDateToDate(localDate);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.getTime(),
@@ -541,27 +553,27 @@ public class ConverterUtilsTest {
     public void testLocalDateToDateNegativeNullLocalDate() {
         LocalDate localDate = null;
 
-        ConverterUtils.localDateToDate(localDate);
+        ConvertUtils.localDateToDate(localDate);
     }
 
     @Test
     public void testLocalDateTimeToDatePositive() {
         LocalDateTime localDateTime = LocalDateTime.of(2023, 8, 31, 14, 30, 0);
         Date expectedDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        Date actualDate = ConverterUtils.localDateTimeToDate(localDateTime);
+        Date actualDate = ConvertUtils.localDateTimeToDate(localDateTime);
 
         Assert.assertEquals(actualDate, expectedDate, "The converted date should match the expected date.");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testLocalDateTimeToDateNegativeNullLocalDateTime() {
-        ConverterUtils.localDateTimeToDate(null);
+        ConvertUtils.localDateTimeToDate(null);
     }
 
     @Test
     public void testLocalTimeToDateValidTime() {
         LocalTime localTime = LocalTime.of(14, 30, 59);
-        Date result = ConverterUtils.localTimeToDate(localTime);
+        Date result = ConvertUtils.localTimeToDate(localTime);
         LocalTime expectedLocalTime = LocalTime.parse("14:30:59");
         LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), expectedLocalTime);
         Date expected = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
@@ -574,14 +586,14 @@ public class ConverterUtilsTest {
     public void testLocalTimeToDateNullLocalTime() {
         LocalTime localTime = null;
 
-        ConverterUtils.localTimeToDate(localTime);
+        ConvertUtils.localTimeToDate(localTime);
     }
 
     @Test
     public void testLocalDateToStringValidInput() {
         LocalDate localDate = LocalDate.of(2023, 8, 31);
         String dateFormat = "yyyy-MM-dd";
-        String result = ConverterUtils.localDateToString(localDate, dateFormat);
+        String result = ConvertUtils.localDateToString(localDate, dateFormat);
 
         Assert.assertEquals(result, "2023-08-31");
     }
@@ -591,7 +603,7 @@ public class ConverterUtilsTest {
         LocalDate localDate = null;
         String dateFormat = "yyyy-MM-dd";
 
-        ConverterUtils.localDateToString(localDate, dateFormat);
+        ConvertUtils.localDateToString(localDate, dateFormat);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -599,7 +611,7 @@ public class ConverterUtilsTest {
         LocalDate localDate = LocalDate.of(2023, 8, 31);
         String dateFormat = "invalid-format";
 
-        ConverterUtils.localDateToString(localDate, dateFormat);
+        ConvertUtils.localDateToString(localDate, dateFormat);
     }
 
     @Test
@@ -607,7 +619,7 @@ public class ConverterUtilsTest {
         LocalDateTime localDateTime = LocalDateTime.of(2024, 8, 31, 14, 45, 30);
         String dateFormat = "yyyy-MM-dd HH:mm:ss";
         String expectedDateString = "2024-08-31 14:45:30";
-        String actualDateString = ConverterUtils.localDateTimeToString(localDateTime, dateFormat);
+        String actualDateString = ConvertUtils.localDateTimeToString(localDateTime, dateFormat);
 
         Assert.assertEquals(actualDateString, expectedDateString, "The date string should match the expected value.");
     }
@@ -617,7 +629,7 @@ public class ConverterUtilsTest {
         LocalDateTime localDateTime = null;
         String dateFormat = "yyyy-MM-dd HH:mm:ss";
 
-        ConverterUtils.localDateTimeToString(localDateTime, dateFormat);
+        ConvertUtils.localDateTimeToString(localDateTime, dateFormat);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -625,7 +637,7 @@ public class ConverterUtilsTest {
         LocalDateTime localDateTime = LocalDateTime.of(2024, 8, 31, 14, 45, 30);
         String dateFormat = "   ";
 
-        ConverterUtils.localDateTimeToString(localDateTime, dateFormat);
+        ConvertUtils.localDateTimeToString(localDateTime, dateFormat);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -633,7 +645,7 @@ public class ConverterUtilsTest {
         LocalDateTime localDateTime = LocalDateTime.of(2024, 8, 31, 14, 45, 30);
         String dateFormat = "invalid-format";
 
-        ConverterUtils.localDateTimeToString(localDateTime, dateFormat);
+        ConvertUtils.localDateTimeToString(localDateTime, dateFormat);
     }
 
     @Test
@@ -641,7 +653,7 @@ public class ConverterUtilsTest {
         LocalTime localTime = LocalTime.of(14, 30, 15); // 2:30:15 PM
         String timeFormat = "HH:mm:ss";
 
-        String result = ConverterUtils.localTimeToString(localTime, timeFormat);
+        String result = ConvertUtils.localTimeToString(localTime, timeFormat);
         Assert.assertEquals(result, "14:30:15");
     }
 
@@ -650,7 +662,7 @@ public class ConverterUtilsTest {
         LocalTime localTime = LocalTime.of(9, 5); // 9:05 AM
         String timeFormat = "hh:mm a";
 
-        String result = ConverterUtils.localTimeToString(localTime, timeFormat);
+        String result = ConvertUtils.localTimeToString(localTime, timeFormat);
         Assert.assertEquals(result, "09:05 AM");
     }
 
@@ -659,7 +671,7 @@ public class ConverterUtilsTest {
         LocalTime localTime = LocalTime.of(14, 30); // 2:30 PM
         String timeFormat = "invalidFormat";
 
-        ConverterUtils.localTimeToString(localTime, timeFormat);
+        ConvertUtils.localTimeToString(localTime, timeFormat);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -667,7 +679,7 @@ public class ConverterUtilsTest {
         LocalTime localTime = null;
         String timeFormat = "HH:mm:ss";
 
-        ConverterUtils.localTimeToString(localTime, timeFormat);
+        ConvertUtils.localTimeToString(localTime, timeFormat);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -675,7 +687,7 @@ public class ConverterUtilsTest {
         LocalTime localTime = LocalTime.of(14, 30); // 2:30 PM
         String timeFormat = "";
 
-        ConverterUtils.localTimeToString(localTime, timeFormat);
+        ConvertUtils.localTimeToString(localTime, timeFormat);
     }
 
     @Test
@@ -695,7 +707,7 @@ public class ConverterUtilsTest {
             root.appendChild(child);
 
             // Convert XML Node to String
-            String xmlString = ConverterUtils.xmlNodeToString(doc);
+            String xmlString = ConvertUtils.xmlNodeToString(doc);
 
             Assert.assertTrue(xmlString.contains("<root>") && xmlString.contains("<child>sample content</child>"),
                     "XML string should contain the correct root and child elements.");
@@ -707,7 +719,7 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testXmlNodeToStringNegativeNullNode() {
-        ConverterUtils.xmlNodeToString(null);
+        ConvertUtils.xmlNodeToString(null);
     }
 
     @Test
@@ -715,7 +727,7 @@ public class ConverterUtilsTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("key1", "value1");
         jsonObject.put("key2", 123);
-        String jsonString = ConverterUtils.jsonObjectToString(jsonObject);
+        String jsonString = ConvertUtils.jsonObjectToString(jsonObject);
 
         Assert.assertNotNull(jsonString, "The returned string should not be null.");
         Assert.assertTrue(jsonString.contains("\"key1\": \"value1\""), "The JSON string should contain the key-value pair.");
@@ -724,7 +736,7 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testJsonObjectToStringNullJsonObject() {
-        ConverterUtils.jsonObjectToString(null);
+        ConvertUtils.jsonObjectToString(null);
     }
 
     @Test
@@ -739,7 +751,7 @@ public class ConverterUtilsTest {
                     2,
                     true
                 ]""".stripIndent();
-        String result = ConverterUtils.jsonArrayToString(jsonArray);
+        String result = ConvertUtils.jsonArrayToString(jsonArray);
 
         Assert.assertNotNull(result, "Result should not be null");
         Assert.assertEquals(result, expected, "The JSON string should match the expected format with 4-space indentation");
@@ -747,51 +759,51 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testJsonArrayToStringWithNullArray() {
-        ConverterUtils.jsonArrayToString(null);
+        ConvertUtils.jsonArrayToString(null);
     }
 
     @Test
     public void testObjectToStringWithNull() {
-        String result = ConverterUtils.objectToString(null);
+        String result = ConvertUtils.objectToString(null);
         Assert.assertEquals(result, NULL_VALUE_STRING);
     }
 
     @Test
     public void testObjectToStringWithNaN() {
-        String result = ConverterUtils.objectToString(Double.NaN);
+        String result = ConvertUtils.objectToString(Double.NaN);
         Assert.assertEquals(result, "NaN");
     }
 
     @Test
     public void testObjectToStringWithPositiveInfinity() {
-        String result = ConverterUtils.objectToString(Double.POSITIVE_INFINITY);
+        String result = ConvertUtils.objectToString(Double.POSITIVE_INFINITY);
         Assert.assertEquals(result, POSITIVE_INFINITY_VALUE_STRING);
     }
 
     @Test
     public void testObjectToStringWithNegativeInfinity() {
-        String result = ConverterUtils.objectToString(Double.NEGATIVE_INFINITY);
+        String result = ConvertUtils.objectToString(Double.NEGATIVE_INFINITY);
         Assert.assertEquals(result, NEGATIVE_INFINITY_VALUE_STRING);
     }
 
     @Test
     public void testObjectToStringWithSmartValue() {
         SmartValue smartValue = new SmartValue("SmartValueContent");
-        String result = ConverterUtils.objectToString(smartValue);
+        String result = ConvertUtils.objectToString(smartValue);
         Assert.assertEquals(result, smartValue.toString());
     }
 
     @Test
     public void testObjectToStringWithStringBuffer() {
         StringBuffer stringBuffer = new StringBuffer("StringBufferContent");
-        String result = ConverterUtils.objectToString(stringBuffer);
+        String result = ConvertUtils.objectToString(stringBuffer);
         Assert.assertEquals(result, stringBuffer.toString());
     }
 
     @Test
     public void testObjectToStringWithEnum() {
         TestEnum testEnum = TestEnum.VALUE1;
-        String result = ConverterUtils.objectToString(testEnum);
+        String result = ConvertUtils.objectToString(testEnum);
         Assert.assertEquals(result, testEnum.toString());
     }
 
@@ -799,7 +811,7 @@ public class ConverterUtilsTest {
     public void testObjectToStringWithJSONObject() {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("key", "value");
-        String result = ConverterUtils.objectToString(jsonObject);
+        String result = ConvertUtils.objectToString(jsonObject);
         Assert.assertEquals(result, jsonObject.toString(4));  // Assuming jsonObjectToString uses 4-space indentation
     }
 
@@ -808,20 +820,21 @@ public class ConverterUtilsTest {
         JSONArray jsonArray = new JSONArray();
         jsonArray.put("value1");
         jsonArray.put("value2");
-        String result = ConverterUtils.objectToString(jsonArray);
+        String result = ConvertUtils.objectToString(jsonArray);
         Assert.assertEquals(result, jsonArray.toString(4));  // Assuming jsonArrayToString uses 4-space indentation
     }
 
     @Test
     public void testObjectToStringWithXmlNode() {
         String validXmlString = "<root><child>value</child></root>";
-        Node xmlNode = ConverterUtils.stringToXmlNode(validXmlString);
+        Node xmlNode = ConvertUtils.stringToXmlNode(validXmlString);
         String expected = """
-                <?xml version="1.0" encoding="UTF-8"?><root>
+                <?xml version="1.0" encoding="UTF-8"?>
+                <root>
                     <child>value</child>
                 </root>
                 """.stripIndent();
-        String result = ConverterUtils.objectToString(xmlNode);
+        String result = ConvertUtils.objectToString(xmlNode);
         Assert.assertEquals(result, expected);
     }
 
@@ -833,14 +846,14 @@ public class ConverterUtilsTest {
                     "element1",
                     "element2"
                 ]""".stripIndent();
-        String result = ConverterUtils.objectToString(array);
+        String result = ConvertUtils.objectToString(array);
         Assert.assertEquals(result, expected);
     }
 
     @Test
     public void testObjectToStringWithCustomObjectWithToString() {
         CustomObject customObject = new CustomObject("CustomObjectContent");
-        String result = ConverterUtils.objectToString(customObject);
+        String result = ConvertUtils.objectToString(customObject);
         Assert.assertEquals(result, "{\"content\": \"CustomObjectContent\"}");
     }
 
@@ -849,7 +862,7 @@ public class ConverterUtilsTest {
         // Positive Test Case: Valid enum value
         Class<?> enumClass = Platform.class;
         String stringValue = "WINDOWS";
-        Platform result = ConverterUtils.stringToEnumValue(
+        Platform result = ConvertUtils.stringToEnumValue(
                 SmartType.fromClass(enumClass), stringValue);
 
         Assert.assertEquals(result, Platform.WINDOWS, "Enum value should match the expected value.");
@@ -861,7 +874,7 @@ public class ConverterUtilsTest {
         Class<?> enumClassName = Platform.class;
         String stringValue = "INVALID_VALUE";
 
-        ConverterUtils.stringToEnumValue(SmartType.fromClass(enumClassName), stringValue);
+        ConvertUtils.stringToEnumValue(SmartType.fromClass(enumClassName), stringValue);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -869,7 +882,7 @@ public class ConverterUtilsTest {
         // Negative Test Case: Null enum class name
         String stringValue = "VALUE_ONE";
 
-        ConverterUtils.stringToEnumValue(SmartType.fromClass(null), stringValue);
+        ConvertUtils.stringToEnumValue(SmartType.fromClass(null), stringValue);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -878,7 +891,7 @@ public class ConverterUtilsTest {
         Class<?> enumClass = Platform.class;
         String stringValue = null;
 
-        ConverterUtils.stringToEnumValue(SmartType.fromClass(enumClass), stringValue);
+        ConvertUtils.stringToEnumValue(SmartType.fromClass(enumClass), stringValue);
     }
 
     @Test
@@ -886,7 +899,7 @@ public class ConverterUtilsTest {
         // Arrange
         SmartType targetType = SmartType.fromClass(String.class);
         Integer sourceObject = 123;
-        String result = ConverterUtils.objectToObject(targetType, sourceObject);
+        String result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, "123");
@@ -897,7 +910,7 @@ public class ConverterUtilsTest {
         SmartType targetType = null;
         Integer sourceObject = 123;
 
-        ConverterUtils.objectToObject(targetType, sourceObject);
+        ConvertUtils.objectToObject(targetType, sourceObject);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -905,7 +918,7 @@ public class ConverterUtilsTest {
         SmartType targetType = SmartType.fromClass(String.class);
         Object sourceObject = null;
 
-        ConverterUtils.objectToObject(targetType, sourceObject);
+        ConvertUtils.objectToObject(targetType, sourceObject);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -913,14 +926,14 @@ public class ConverterUtilsTest {
         SmartType targetType = SmartType.fromClass(Integer.class);
         String sourceObject = "InvalidNumber";
 
-        ConverterUtils.objectToObject(targetType, sourceObject);
+        ConvertUtils.objectToObject(targetType, sourceObject);
     }
 
     @Test
     public void testObjectToObjectList() {
         SmartType targetType = SmartType.fromCollectionClass(List.class, SmartType.fromClass(String.class));
         List<String> sourceObject = Arrays.asList("one", "two", "three");
-        List<String> result = ConverterUtils.objectToObject(targetType, sourceObject);
+        List<String> result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -930,7 +943,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectMap() {
         SmartType targetType = SmartType.fromMapClass(Map.class, String.class, SmartType.fromClass(Integer.class));
         Map<String, Integer> sourceObject = Map.of("one", 1, "two", 2);
-        Map<String, Integer> result = ConverterUtils.objectToObject(targetType, sourceObject);
+        Map<String, Integer> result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -940,7 +953,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectFile() {
         SmartType targetType = SmartType.fromClass(File.class);
         File sourceObject = new File("test.txt");
-        File result = ConverterUtils.objectToObject(targetType, sourceObject);
+        File result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -950,7 +963,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectURL() throws Exception {
         SmartType targetType = SmartType.fromClass(java.net.URL.class);
         URL sourceObject = new URL("http://example.com");
-        URL result = ConverterUtils.objectToObject(targetType, sourceObject);
+        URL result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -960,7 +973,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectURI() throws Exception {
         SmartType targetType = SmartType.fromClass(java.net.URI.class);
         URI sourceObject = new URI("http://example.com");
-        URI result = ConverterUtils.objectToObject(targetType, sourceObject);
+        URI result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -970,7 +983,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectLocalDate() {
         SmartType targetType = SmartType.fromClass(LocalDate.class);
         LocalDate sourceObject = LocalDate.of(2023, 8, 31);
-        LocalDate result = ConverterUtils.objectToObject(targetType, sourceObject);
+        LocalDate result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -980,7 +993,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectLocalDateTime() {
         SmartType targetType = SmartType.fromClass(LocalDateTime.class);
         LocalDateTime sourceObject = LocalDateTime.of(2023, 8, 31, 12, 30);
-        LocalDateTime result = ConverterUtils.objectToObject(targetType, sourceObject);
+        LocalDateTime result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -990,7 +1003,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectLocalTime() {
         SmartType targetType = SmartType.fromClass(LocalTime.class);
         LocalTime sourceObject = LocalTime.of(12, 30, 15);
-        LocalTime result = ConverterUtils.objectToObject(targetType, sourceObject);
+        LocalTime result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -1000,7 +1013,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectDate() {
         SmartType targetType = SmartType.fromClass(Date.class);
         Date sourceObject = new Date("05/23/1970");
-        Date result = ConverterUtils.objectToObject(targetType, sourceObject);
+        Date result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -1010,7 +1023,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectSmartDate() {
         SmartType targetType = SmartType.fromClass(SmartDate.class);
         SmartDate sourceObject = SmartDate.parseDate("1970-05-23");
-        SmartDate result = ConverterUtils.objectToObject(targetType, sourceObject);
+        SmartDate result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -1020,7 +1033,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectSmartLocalDate() {
         SmartType targetType = SmartType.fromClass(SmartLocalDate.class);
         SmartLocalDate sourceObject = SmartLocalDate.parseLocalDate("1970-05-23");
-        SmartLocalDate result = ConverterUtils.objectToObject(targetType, sourceObject);
+        SmartLocalDate result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -1030,7 +1043,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectSmartLocalDateTime() {
         SmartType targetType = SmartType.fromClass(SmartLocalDateTime.class);
         SmartLocalDateTime sourceObject = SmartLocalDateTime.parseLocalDateTime("1970-05-23 12:45");
-        SmartLocalDateTime result = ConverterUtils.objectToObject(targetType, sourceObject);
+        SmartLocalDateTime result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -1040,7 +1053,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectSmartLocalTime() {
         SmartType targetType = SmartType.fromClass(SmartLocalTime.class);
         SmartLocalTime sourceObject = SmartLocalTime.parseLocalTime("12:45:15");
-        SmartLocalTime result = ConverterUtils.objectToObject(targetType, sourceObject);
+        SmartLocalTime result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -1050,7 +1063,7 @@ public class ConverterUtilsTest {
     public void testObjectToObjectEnum() {
         SmartType targetType = SmartType.fromClass(Platform.class);
         String sourceObject = "LINUX";
-        Platform result = ConverterUtils.objectToObject(targetType, sourceObject);
+        Platform result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, Platform.LINUX);
@@ -1073,7 +1086,7 @@ public class ConverterUtilsTest {
         nestedPojoFieldsMap.put("date", SmartType.fromClass(LocalDate.class));
         fieldsMap.put("nestedPojoObject", SmartType.fromPojoClass(NestedPojoClass.class, nestedPojoFieldsMap));
         SmartType smartType = SmartType.fromPojoClass(PojoClass.class, fieldsMap);
-        PojoClass result = ConverterUtils.objectToObject(smartType, sourceObject);
+        PojoClass result = ConvertUtils.objectToObject(smartType, sourceObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, sourceObject);
@@ -1082,7 +1095,7 @@ public class ConverterUtilsTest {
     @Test
     public void testPojoObjectToString() {
         PojoClass sourceObject = createPojoObject();
-        String result = ConverterUtils.objectToString(sourceObject);
+        String result = ConvertUtils.objectToString(sourceObject);
 
         String expectedSting = """
                 {
@@ -1118,7 +1131,7 @@ public class ConverterUtilsTest {
         String invalidEnumName = "INVALID"; // Not a valid enum name in Platform
 
         // This should throw a SmartRuntimeException
-        ConverterUtils.stringToEnumValue(smartType, invalidEnumName);
+        ConvertUtils.stringToEnumValue(smartType, invalidEnumName);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -1127,7 +1140,7 @@ public class ConverterUtilsTest {
         SmartType smartType = SmartType.fromEnumClass(Platform.class);
         String nullEnumName = null;
 
-        ConverterUtils.stringToEnumValue(smartType, nullEnumName);
+        ConvertUtils.stringToEnumValue(smartType, nullEnumName);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -1136,7 +1149,7 @@ public class ConverterUtilsTest {
         SmartType smartType = SmartType.fromEnumClass(Platform.class);
         String emptyEnumName = "";
 
-        ConverterUtils.stringToEnumValue(smartType, emptyEnumName);
+        ConvertUtils.stringToEnumValue(smartType, emptyEnumName);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -1145,14 +1158,14 @@ public class ConverterUtilsTest {
         SmartType smartType = null;
         String enumName = "MAC";
 
-        ConverterUtils.stringToEnumValue(smartType, enumName);
+        ConvertUtils.stringToEnumValue(smartType, enumName);
     }
 
     @Test
     public void testPojoToJsonWithNullValue() {
         // Create a POJO with null value
         Person person = new Person(null, "Doe", 30);
-        JSONObject jsonObject = ConverterUtils.pojoObjectToJson(person);
+        JSONObject jsonObject = ConvertUtils.pojoObjectToJson(person);
 
         Assert.assertTrue(jsonObject.has("firstName"));
         Assert.assertTrue(jsonObject.isNull("firstName"));
@@ -1164,20 +1177,20 @@ public class ConverterUtilsTest {
     public void testPojoToJsonWithInvalidTypeObject() {
         // Passing a invalid object to pojoObjectToJson
         boolean notPojo = true;
-        ConverterUtils.pojoObjectToJson(notPojo);
+        ConvertUtils.pojoObjectToJson(notPojo);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testPojoToJsonWithNullObject() {
         // Passing a null object to pojoObjectToJson
-        ConverterUtils.pojoObjectToJson(null);
+        ConvertUtils.pojoObjectToJson(null);
     }
 
     @Test
     public void testCsvStringToObjectValidCsvString() {
         // Positive test case: Valid CSV string
         String validCsvString = "name,age\nJohn,30\nDoe,25";
-        Object result = ConverterUtils.csvStringToObject(validCsvString);
+        Object result = ConvertUtils.csvStringToObject(validCsvString);
 
         Assert.assertTrue(result instanceof SmartValue, "Result should be of type SmartValue");
         // Verify the contents of SmartValue (assuming it's convertible back to JSON format)
@@ -1205,7 +1218,7 @@ public class ConverterUtilsTest {
         // Negative test case: Null CSV string
         String nullCsvString = null;
 
-        ConverterUtils.csvStringToObject(nullCsvString);
+        ConvertUtils.csvStringToObject(nullCsvString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -1217,7 +1230,7 @@ public class ConverterUtilsTest {
                 Jane
                 """.stripIndent();
 
-        ConverterUtils.csvStringToObject(invalidCsvString);
+        ConvertUtils.csvStringToObject(invalidCsvString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -1230,7 +1243,7 @@ public class ConverterUtilsTest {
                 Jane, "He said "Hello!""
                 """.stripIndent();
 
-        Object result = ConverterUtils.csvStringToObject(invalidCsvString);
+        Object result = ConvertUtils.csvStringToObject(invalidCsvString);
         System.out.println(result);
     }
 
@@ -1242,7 +1255,7 @@ public class ConverterUtilsTest {
                 John; 30
                 """.stripIndent();
 
-        Object result = ConverterUtils.csvStringToObject(invalidCsvString);
+        Object result = ConvertUtils.csvStringToObject(invalidCsvString);
         System.out.println(result);
     }
 
@@ -1255,7 +1268,7 @@ public class ConverterUtilsTest {
                 "Jane, 25
                 """.stripIndent();
 
-        Object result = ConverterUtils.csvStringToObject(invalidCsvString);
+        Object result = ConvertUtils.csvStringToObject(invalidCsvString);
         System.out.println(result);
     }
 
@@ -1270,7 +1283,7 @@ public class ConverterUtilsTest {
                 "Jane","Smith",25
                 """.stripIndent();
 
-        String result = ConverterUtils.objectToCsvString(jsonArray);
+        String result = ConvertUtils.objectToCsvString(jsonArray);
         Assert.assertEquals(result, expectedCsv);
     }
 
@@ -1278,7 +1291,7 @@ public class ConverterUtilsTest {
     public void testStringToObjectWithString() {
         SmartType type = SmartType.fromClass(String.class);
         String input = "Hello, World!";
-        String result = ConverterUtils.stringToObject(type, input);
+        String result = ConvertUtils.stringToObject(type, input);
 
         Assert.assertEquals(result, input, "String should be returned as-is.");
     }
@@ -1287,7 +1300,7 @@ public class ConverterUtilsTest {
     public void testStringToObjectWithInteger() {
         SmartType type = SmartType.fromClass(Integer.class);
         String input = "123";
-        Integer result = ConverterUtils.stringToObject(type, input);
+        Integer result = ConvertUtils.stringToObject(type, input);
         Assert.assertEquals(result, Integer.valueOf(123), "String should be converted to Integer.");
     }
 
@@ -1295,7 +1308,7 @@ public class ConverterUtilsTest {
     public void testStringToObjectWithBoolean() {
         SmartType type = SmartType.fromClass(Boolean.class);
         String input = "true";
-        Boolean result = ConverterUtils.stringToObject(type, input);
+        Boolean result = ConvertUtils.stringToObject(type, input);
         Assert.assertTrue(result, "String 'true' should be converted to Boolean true.");
     }
 
@@ -1303,7 +1316,7 @@ public class ConverterUtilsTest {
     public void testStringToObjectWithBigDecimal() {
         SmartType type = SmartType.fromClass(BigDecimal.class);
         String input = "12345.67";
-        BigDecimal result = ConverterUtils.stringToObject(type, input);
+        BigDecimal result = ConvertUtils.stringToObject(type, input);
         Assert.assertEquals(result, new BigDecimal("12345.67"), "String should be converted to BigDecimal.");
     }
 
@@ -1311,42 +1324,42 @@ public class ConverterUtilsTest {
     public void testStringToObjectWithJSONArray() {
         SmartType type = SmartType.fromClass(JSONArray.class);
         String input = "[1, 2, 3]";
-        JSONArray result = ConverterUtils.stringToObject(type, input);
+        JSONArray result = ConvertUtils.stringToObject(type, input);
         Assert.assertEquals(result.length(), 3, "String should be converted to JSONArray with 3 elements.");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToObjectWithNullType() {
         String input = "test";
-        ConverterUtils.stringToObject(null, input);
+        ConvertUtils.stringToObject(null, input);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToObjectWithInvalidInteger() {
         SmartType type = SmartType.fromClass(Integer.class);
         String input = "invalid";
-        ConverterUtils.stringToObject(type, input);
+        ConvertUtils.stringToObject(type, input);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToObjectWithInvalidBoolean() {
         SmartType type = SmartType.fromClass(Boolean.class);
         String input = "notABoolean";
-        ConverterUtils.stringToObject(type, input);
+        ConvertUtils.stringToObject(type, input);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToObjectWithInvalidDate() {
         SmartType type = SmartType.fromClass(Date.class);
         String input = "invalidDate";
-        ConverterUtils.stringToObject(type, input);
+        ConvertUtils.stringToObject(type, input);
     }
 
     @Test
     public void testStringToStringBufferPositive() {
         // Positive test case: Valid string input
         String input = "Hello,\nWorld!";
-        StringBuffer result = ConverterUtils.stringToStringBuffer(input);
+        StringBuffer result = ConvertUtils.stringToStringBuffer(input);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.toString(), input, "The StringBuffer should match the input string.");
@@ -1354,7 +1367,7 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToStringBufferNegativeNullInput() {
-        ConverterUtils.stringToStringBuffer(null);
+        ConvertUtils.stringToStringBuffer(null);
     }
 
     @Test
@@ -1366,7 +1379,7 @@ public class ConverterUtilsTest {
         expectedJsonArray.put(new JSONArray().put("name").put("age").put("city"));
         expectedJsonArray.put(new JSONArray().put("John").put("30").put("New York"));
         expectedJsonArray.put(new JSONArray().put("Jane").put("25").put("Boston"));
-        JSONArray result = ConverterUtils.csvStringToJsonArray(csvString);
+        JSONArray result = ConvertUtils.csvStringToJsonArray(csvString);
 
         Assert.assertEquals(result.toString(), expectedJsonArray.toString());
     }
@@ -1377,7 +1390,7 @@ public class ConverterUtilsTest {
         String csvString = "name,age,city\nJohn,30\nJane,25,Boston";
 
         // This should throw a SmartRuntimeException
-        ConverterUtils.csvStringToJsonArray(csvString);
+        ConvertUtils.csvStringToJsonArray(csvString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -1389,7 +1402,7 @@ public class ConverterUtilsTest {
                 """.stripIndent();
 
         // Expect a SmartRuntimeException due to empty input
-        ConverterUtils.csvStringToJsonArray(csvString);
+        ConvertUtils.csvStringToJsonArray(csvString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -1398,33 +1411,33 @@ public class ConverterUtilsTest {
         String csvString = "name,age,city\nJohn,30,New York\n\nJane,25,Boston";
 
         // This should throw a SmartRuntimeException
-        ConverterUtils.csvStringToJsonArray(csvString);
+        ConvertUtils.csvStringToJsonArray(csvString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testCsvStringToJsonArrayNullString() {
         // This should throw a SmartValidationException
-        ConverterUtils.csvStringToJsonArray(null);
+        ConvertUtils.csvStringToJsonArray(null);
     }
 
     @Test
     public void testValidSingleCharacter() {
         // Positive test case: valid input string with a single character
-        char result = ConverterUtils.stringToCharacter("A");
+        char result = ConvertUtils.stringToCharacter("A");
         Assert.assertEquals(result, 'A', "The returned character should be 'A'");
     }
 
     @Test
     public void testValidSingleCharacterLowercase() {
         // Positive test case: valid input with a different single character
-        char result = ConverterUtils.stringToCharacter("b");
+        char result = ConvertUtils.stringToCharacter("b");
         Assert.assertEquals(result, 'b', "The returned character should be 'b'");
     }
 
     @Test
     public void testValidSingleCharacterNewLine() {
         // Positive test case: valid input with a new line character
-        char result = ConverterUtils.stringToCharacter("\n");
+        char result = ConvertUtils.stringToCharacter("\n");
         Assert.assertEquals(result, '\n', "The returned character should be new line break");
     }
 
@@ -1432,26 +1445,26 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testEmptyString() {
         // Positive test case: valid input with a different single character
-        ConverterUtils.stringToCharacter("");
+        ConvertUtils.stringToCharacter("");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testMultipleCharacters() {
         // Negative test case: string with more than one character should throw an exception
-        ConverterUtils.stringToCharacter("AB");
+        ConvertUtils.stringToCharacter("AB");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testNullString() {
         // Negative test case: null string should throw an exception
-        ConverterUtils.stringToCharacter(null);
+        ConvertUtils.stringToCharacter(null);
     }
 
     @Test
     public void testCollectionToJsonArrayPositive() {
         // Positive test case: valid collection
         Collection<String> collection = Arrays.asList("item1", "item2", "item3");
-        JSONArray jsonArray = ConverterUtils.collectionToJsonArray(collection);
+        JSONArray jsonArray = ConvertUtils.collectionToJsonArray(collection);
 
         // Validate that the JSON array matches the collection size and content
         Assert.assertEquals(jsonArray.length(), collection.size(), "JSONArray length does not match collection size");
@@ -1465,7 +1478,7 @@ public class ConverterUtilsTest {
     public void testCollectionToJsonArrayEmptyCollection() {
         // Positive test case: empty collection
         Collection<String> emptyCollection = new ArrayList<>();
-        JSONArray jsonArray = ConverterUtils.collectionToJsonArray(emptyCollection);
+        JSONArray jsonArray = ConvertUtils.collectionToJsonArray(emptyCollection);
 
         // Validate that the JSON array is empty
         Assert.assertEquals(jsonArray.length(), 0, "JSONArray should be empty for an empty collection");
@@ -1474,14 +1487,14 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testCollectionToJsonArrayNullCollection() {
         // Negative test case: null collection should throw exception
-        ConverterUtils.collectionToJsonArray(null);
+        ConvertUtils.collectionToJsonArray(null);
     }
 
     @Test
     public void testCollectionToJsonArrayWithMixedTypes() {
         // Positive test case: collection with mixed types (e.g., String, Integer, Boolean)
         Collection<Object> collection = Arrays.asList("item1", 123, true);
-        JSONArray jsonArray = ConverterUtils.collectionToJsonArray(collection);
+        JSONArray jsonArray = ConvertUtils.collectionToJsonArray(collection);
 
         // Validate that the JSON array matches the collection size and content
         Assert.assertEquals(jsonArray.length(), collection.size(), "JSONArray length does not match collection size");
@@ -1497,7 +1510,7 @@ public class ConverterUtilsTest {
         map.put("name", "John Doe");
         map.put("age", 30);
         map.put("isActive", true);
-        JSONObject jsonObject = ConverterUtils.mapToJSONObject(map);
+        JSONObject jsonObject = ConvertUtils.mapToJasonObject(map);
 
         Assert.assertEquals(jsonObject.getString("name"), "John Doe");
         Assert.assertEquals(jsonObject.getInt("age"), 30);
@@ -1507,7 +1520,7 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testMapToJSONObjectInvalidMapType() {
         // Negative test case - null map.
-        ConverterUtils.mapToJSONObject(null);
+        ConvertUtils.mapToJasonObject(null);
     }
 
     @Test
@@ -1517,7 +1530,7 @@ public class ConverterUtilsTest {
         jsonArray.put(1);
         jsonArray.put(2);
         jsonArray.put(3);
-        Integer[] result = ConverterUtils.jsonArrayToArray(jsonArray);
+        Integer[] result = ConvertUtils.jsonArrayToArray(jsonArray);
 
         Assert.assertEquals(result.length, 3);
         Assert.assertEquals(result[0], Integer.valueOf(1));
@@ -1529,7 +1542,7 @@ public class ConverterUtilsTest {
     public void testEmptyJsonArrayToIntegerArray() {
         // Positive test case - empty JSONArray.
         JSONArray jsonArray = new JSONArray();
-        Object[] result = ConverterUtils.jsonArrayToArray(jsonArray);
+        Object[] result = ConvertUtils.jsonArrayToArray(jsonArray);
 
         Assert.assertEquals(result.length, 0);
     }
@@ -1543,7 +1556,7 @@ public class ConverterUtilsTest {
         jsonArray.put("cherry");
 
         // Convert to String array
-        String[] result = ConverterUtils.jsonArrayToArray(jsonArray);
+        String[] result = ConvertUtils.jsonArrayToArray(jsonArray);
 
         // Verify the results
         Assert.assertEquals(result.length, 3);
@@ -1555,7 +1568,7 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testNullJsonArrayThrowsException() {
         // Negative test case - null JSONArray
-        ConverterUtils.jsonArrayToArray(null);
+        ConvertUtils.jsonArrayToArray(null);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -1566,14 +1579,14 @@ public class ConverterUtilsTest {
         jsonArray.put(42); // Integer
 
         // Attempt to convert to a String array (should fail)
-        ConverterUtils.jsonArrayToArray(jsonArray);
+        ConvertUtils.jsonArrayToArray(jsonArray);
     }
 
     @Test
     public void testArrayToJsonArrayWithValidStringArray() {
         // Positive test case: Valid String array
         String[] stringArray = {"apple", "banana", "cherry"};
-        JSONArray jsonArray = ConverterUtils.arrayToJsonArray(stringArray);
+        JSONArray jsonArray = ConvertUtils.arrayToJsonArray(stringArray);
 
         // Validate the JSON array
         Assert.assertEquals(jsonArray.length(), 3);
@@ -1586,7 +1599,7 @@ public class ConverterUtilsTest {
     public void testArrayToJsonArrayWithEmptyArray() {
         // Positive test case: Empty array
         Integer[] emptyArray = new Integer[0];
-        JSONArray jsonArray = ConverterUtils.arrayToJsonArray(emptyArray);
+        JSONArray jsonArray = ConvertUtils.arrayToJsonArray(emptyArray);
 
         // Validate the empty JSON array
         Assert.assertEquals(jsonArray.length(), 0);
@@ -1596,7 +1609,7 @@ public class ConverterUtilsTest {
     public void testArrayToJsonArrayWithIntegerArray() {
         // Positive test case: Valid Integer array
         Integer[] intArray = {1, 2, 3};
-        JSONArray jsonArray = ConverterUtils.arrayToJsonArray(intArray);
+        JSONArray jsonArray = ConvertUtils.arrayToJsonArray(intArray);
 
         // Validate the JSON array
         Assert.assertEquals(jsonArray.length(), 3);
@@ -1608,14 +1621,14 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testArrayToJsonArrayWithNullArray() {
         // Negative test case: Null array should throw an exception
-        ConverterUtils.arrayToJsonArray(null);
+        ConvertUtils.arrayToJsonArray(null);
     }
 
     @Test
     public void testArrayToJsonArrayWithMixedTypeArray() {
         // Positive test case: Mixed type array
         Object[] mixedArray = {"string", 123, true};
-        JSONArray jsonArray = ConverterUtils.arrayToJsonArray(mixedArray);
+        JSONArray jsonArray = ConvertUtils.arrayToJsonArray(mixedArray);
 
         // Validate the JSON array
         Assert.assertEquals(jsonArray.length(), 3);
@@ -1629,7 +1642,7 @@ public class ConverterUtilsTest {
         JSONArray jsonArray = new JSONArray();
         jsonArray.put("value1");
         jsonArray.put("value2");
-        JSONArray result = ConverterUtils.objectToJsonArray(jsonArray);
+        JSONArray result = ConvertUtils.objectToJsonArray(jsonArray);
 
         Assert.assertEquals(result.length(), 2);
         Assert.assertEquals(result.getString(0), "value1");
@@ -1640,7 +1653,7 @@ public class ConverterUtilsTest {
     public void testObjectToJsonArrayObjectIsCollection() {
         // Positive test: Passing a Collection
         List<String> collection = Arrays.asList("value1", "value2", "value3");
-        JSONArray result = ConverterUtils.objectToJsonArray(collection);
+        JSONArray result = ConvertUtils.objectToJsonArray(collection);
 
         Assert.assertEquals(result.length(), 3);
         Assert.assertEquals(result.getString(0), "value1");
@@ -1652,7 +1665,7 @@ public class ConverterUtilsTest {
     public void testObjectToJsonArrayObjectIsArray() {
         // Positive test: Passing an array
         String[] array = {"value1", "value2", "value3"};
-        JSONArray result = ConverterUtils.objectToJsonArray(array);
+        JSONArray result = ConvertUtils.objectToJsonArray(array);
 
         Assert.assertEquals(result.length(), 3);
         Assert.assertEquals(result.getString(0), "value1");
@@ -1664,7 +1677,7 @@ public class ConverterUtilsTest {
     public void testObjectToJsonArrayObjectIsJSONString() {
         // Positive test: Passing a JSON array string
         String jsonArrayString = "[\"value1\", \"value2\", \"value3\"]";
-        JSONArray result = ConverterUtils.objectToJsonArray(jsonArrayString);
+        JSONArray result = ConvertUtils.objectToJsonArray(jsonArrayString);
 
         Assert.assertEquals(result.length(), 3);
         Assert.assertEquals(result.getString(0), "value1");
@@ -1678,29 +1691,29 @@ public class ConverterUtilsTest {
         String invalidJsonString = "invalid string";
 
         // This should throw a SmartRuntimeException
-        ConverterUtils.objectToJsonArray(invalidJsonString);
+        ConvertUtils.objectToJsonArray(invalidJsonString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testObjectToJsonArrayObjectIsUnsupportedType() {
         // Negative test: Passing an unsupported object type
         // Passing an unsupported object type (Integer)
-        ConverterUtils.objectToJsonArray(42);
+        ConvertUtils.objectToJsonArray(42);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testObjectToJsonArrayObjectIsNull() {
         // Negative test: Passing null
         // This should throw a SmartRuntimeException
-        ConverterUtils.objectToJsonArray(null);
+        ConvertUtils.objectToJsonArray(null);
     }
 
     @Test
     public void testObjectToJsonObjectWithPojoObject() {
         PojoClass pojoObject = createPojoObject();
-        JSONObject result = ConverterUtils.objectToJsonObject(pojoObject);
-        String expectedString = ConverterUtils.objectToString(pojoObject);
-        String resultString = ConverterUtils.objectToString(result);
+        JSONObject result = ConvertUtils.objectToJsonObject(pojoObject);
+        String expectedString = ConvertUtils.objectToString(pojoObject);
+        String resultString = ConvertUtils.objectToString(result);
 
         Assert.assertEquals(expectedString, resultString);
     }
@@ -1711,9 +1724,9 @@ public class ConverterUtilsTest {
         map.put("true", true);
         map.put("false", false);
         map.put("null", null);
-        JSONObject result = ConverterUtils.objectToJsonObject(map);
-        String expectedString = ConverterUtils.objectToString(map);
-        String resultString = ConverterUtils.objectToString(result);
+        JSONObject result = ConvertUtils.objectToJsonObject(map);
+        String expectedString = ConvertUtils.objectToString(map);
+        String resultString = ConvertUtils.objectToString(result);
 
         Assert.assertEquals(expectedString, resultString);
     }
@@ -1721,13 +1734,13 @@ public class ConverterUtilsTest {
     @Test
     public void testObjectToJsonObjectWithXmlNodeObject() {
         Node xmlNode = createMockNode();
-        JSONObject result = ConverterUtils.objectToJsonObject(xmlNode);
+        JSONObject result = ConvertUtils.objectToJsonObject(xmlNode);
         String expectedString = """
                 {"person": {
                     "name": "John Doe",
                     "age": 30
                 }}""".stripIndent();
-        String resultString = ConverterUtils.objectToString(result);
+        String resultString = ConvertUtils.objectToString(result);
 
         Assert.assertEquals(resultString, expectedString);
     }
@@ -1736,27 +1749,27 @@ public class ConverterUtilsTest {
     public void testObjectToJsonObjectWithInvalidJsonString() {
         // Negative test - invalid JSON string
         String invalidJson = "Invalid JSON string";
-        ConverterUtils.objectToJsonObject(invalidJson);
+        ConvertUtils.objectToJsonObject(invalidJson);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testObjectToJsonObjectWithUnsupportedObject() {
         // Negative test - not supported object
         Object unsupportedObject = Object.class;
-        ConverterUtils.objectToJsonObject(unsupportedObject);
+        ConvertUtils.objectToJsonObject(unsupportedObject);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testObjectToJsonObjectWithNullObject() {
         // Negative test - null object.
-        ConverterUtils.objectToJsonObject(null);
+        ConvertUtils.objectToJsonObject(null);
     }
 
     @Test
     public void testObjectToXmlNodeWithNode() {
         // Test with a Node object
         Node mockNode = createMockNode();
-        Node result = ConverterUtils.objectToXmlNode(mockNode);
+        Node result = ConvertUtils.objectToXmlNode(mockNode);
 
         Assert.assertEquals(result, mockNode, "Expected the same Node object.");
     }
@@ -1765,15 +1778,16 @@ public class ConverterUtilsTest {
     public void testObjectToXmlNodeWithJSONObject() {
         // Test with a JSONObject object
         String jsonString = "{\"name\":\"John Doe\",\"age\":30}";
-        JSONObject jsonObject = new JSONObject(jsonString);
-        Node result = ConverterUtils.objectToXmlNode(jsonObject);
+        JSONObject person = new JSONObject(jsonString);
+        Node result = ConvertUtils.objectToXmlNode(person);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?><object>
+                <?xml version="1.0" encoding="UTF-8"?>
+                <person>
                     <name>John Doe</name>
                     <age>30</age>
-                </object>
+                </person>
                 """.stripIndent();
-        String resultString = ConverterUtils.objectToString(result);
+        String resultString = ConvertUtils.objectToString(result);
 
         Assert.assertNotNull(result, "Expected a valid XML Node from JSONObject.");
         Assert.assertEquals(resultString, expectedString, "Result XML string should equal expected XML string");
@@ -1784,12 +1798,14 @@ public class ConverterUtilsTest {
         // Test with a Map object
         Map<String, Object> map = new HashMap<>();
         map.put("key", "value");
-        Node result = ConverterUtils.objectToXmlNode(map);
+        Node result = ConvertUtils.objectToXmlNode(map);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?><object>
+                <?xml version="1.0" encoding="UTF-8"?>
+                <map>
                     <key>value</key>
-                </object>""".stripIndent();
-        String resultString = ConverterUtils.objectToString(result).trim();
+                </map>
+                """.stripIndent();
+        String resultString = ConvertUtils.objectToString(result);
 
         Assert.assertNotNull(result, "Expected a valid XML Node from Map.");
         Assert.assertEquals(resultString, expectedString);
@@ -1799,14 +1815,15 @@ public class ConverterUtilsTest {
     public void testObjectToXmlNodeWithString() {
         // Test with a String object
         String xmlString = "<root><child>value</child></root>";
-        Node result = ConverterUtils.objectToXmlNode(xmlString);
+        Node result = ConvertUtils.objectToXmlNode(xmlString);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?><root>
+                <?xml version="1.0" encoding="UTF-8"?>
+                <root>
                     <child>value</child>
                 </root>
                 """.stripIndent();
-        String resultString = ConverterUtils.normalizeLineSeparators(
-                ConverterUtils.objectToString(result));
+        String resultString = ConvertUtils.normalizeLineSeparators(
+                ConvertUtils.objectToString(result));
 
         Assert.assertNotNull(result, "Expected a valid XML Node from String.");
         Assert.assertEquals(expectedString, resultString);
@@ -1816,62 +1833,59 @@ public class ConverterUtilsTest {
     public void testObjectToXmlNodeWithPojo() {
         // Test with a POJO object that gets converted to JSON and then to XML
         PojoClass pojo = createPojoObject();
-        Node result = ConverterUtils.objectToXmlNode(pojo);
+        Node result = ConvertUtils.objectToXmlNode(pojo);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?><object>
-                    <integerList>[1, 2]</integerList>
+                <?xml version="1.0" encoding="UTF-8"?>
+                <pojo>
+                    <integerList>
+                        <integerList>1</integerList>
+                        <integerList>2</integerList>
+                    </integerList>
                     <name>Some name</name>
                     <stringArray>one</stringArray>
                     <stringArray>two</stringArray>
                     <stringArray>three</stringArray>
-                    <stringBooleanMap>{true=true, false=false}</stringBooleanMap>
+                    <stringBooleanMap>
+                        <true>true</true>
+                        <false>false</false>
+                    </stringBooleanMap>
                     <nestedPojoObject>
                         <date>1970-05-23</date>
                         <platform>windows</platform>
                     </nestedPojoObject>
                     <value>2</value>
-                </object>
+                </pojo>
                 """.stripIndent();
-        String resultString = ConverterUtils.normalizeLineSeparators(
-                ConverterUtils.objectToString(result));
+        String resultString = ConvertUtils.normalizeLineSeparators(
+                ConvertUtils.objectToString(result));
 
         Assert.assertNotNull(result, "Expected a valid XML Node from POJO.");
-        Assert.assertEquals(expectedString, resultString);
+        Assert.assertEquals(resultString, expectedString);
     }
 
     @Test
     public void testObjectToXmlNodeWithRecord() {
         // Test with a record object that gets converted to JSON and then to XML
         PersonRecord record = new PersonRecord("John Doe", 30);
-        Node result = ConverterUtils.objectToXmlNode(record);
+        Node result = ConvertUtils.objectToXmlNode(record);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?><object>
+                <?xml version="1.0" encoding="UTF-8"?>
+                <record>
                     <name>John Doe</name>
                     <age>30</age>
-                </object>
+                </record>
                 """.stripIndent();
-        String resultString = ConverterUtils.normalizeLineSeparators(
-                ConverterUtils.objectToString(result));
+        String resultString = ConvertUtils.normalizeLineSeparators(
+                ConvertUtils.objectToString(result));
 
         Assert.assertNotNull(result, "Expected a valid XML Node from map.");
         Assert.assertEquals(expectedString, resultString);
     }
 
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testObjectToXmlNodeWithInvalidObject() {
-        // Test with an invalid object that cannot be converted
-        Object invalidObject = new Object(); // Cannot be converted to JSON/XML
-
-        Node xml = ConverterUtils.objectToXmlNode(invalidObject);
-        String string = ConverterUtils.xmlNodeToString(xml);
-        System.out.println(string);
-    }
-
     @Test(expectedExceptions = SmartValidationException.class)
     public void testObjectToXmlNodeWithNullObject() {
         // Test with a null object
-        ConverterUtils.objectToXmlNode(null);
+        ConvertUtils.objectToXmlNode(null);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -1879,14 +1893,14 @@ public class ConverterUtilsTest {
         // Test with a string that cannot be converted to XML
         String invalidXmlString = "invalid XML string";
 
-        ConverterUtils.objectToXmlNode(invalidXmlString);
+        ConvertUtils.objectToXmlNode(invalidXmlString);
     }
 
     @Test
     public void testStringToRecordWithJsonString() {
         // Positive Test: Valid JSON string
         String jsonString = "{\"name\":\"John Doe\",\"age\":30}";
-        PersonRecord person = ConverterUtils.stringToRecord(PersonRecord.class, jsonString);
+        PersonRecord person = ConvertUtils.stringToRecord(PersonRecord.class, jsonString);
 
         Assert.assertNotNull(person, "Record should not be null");
         Assert.assertEquals(person.name(), "John Doe", "Name should be 'John Doe'");
@@ -1897,7 +1911,7 @@ public class ConverterUtilsTest {
     public void testStringToRecordWithXmlString() {
         // Positive Test: Valid XML string (assuming conversion is handled by xmlStringToJsonObject)
         String xmlString = "<PersonRecord><name>John Doe</name><age>30</age></PersonRecord>";
-        PersonRecord person = ConverterUtils.stringToRecord(PersonRecord.class, xmlString);
+        PersonRecord person = ConvertUtils.stringToRecord(PersonRecord.class, xmlString);
 
         Assert.assertNotNull(person, "Record should not be null");
         Assert.assertEquals(person.name(), "John Doe", "Name should be 'John Doe'");
@@ -1910,7 +1924,7 @@ public class ConverterUtilsTest {
         String invalidJsonString = "{\"name\":\"John Doe\",\"age\":\"invalid_age\"}";
 
         // This should throw an exception due to invalid age
-        ConverterUtils.stringToRecord(Person.class, invalidJsonString);
+        ConvertUtils.stringToRecord(Person.class, invalidJsonString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -1919,7 +1933,7 @@ public class ConverterUtilsTest {
         String invalidXmlString = "<Person><name>John Doe</name><age>invalid_age</age></Person>";
 
         // This should throw an exception due to invalid age format
-        ConverterUtils.stringToRecord(Person.class, invalidXmlString);
+        ConvertUtils.stringToRecord(Person.class, invalidXmlString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -1928,7 +1942,7 @@ public class ConverterUtilsTest {
         String jsonString = "{\"name\":\"John Doe\",\"age\":30}";
 
         // Attempt to use a non-record class (String.class in this case)
-        ConverterUtils.stringToRecord(String.class, jsonString);
+        ConvertUtils.stringToRecord(String.class, jsonString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -1937,7 +1951,7 @@ public class ConverterUtilsTest {
         String jsonString = "{\"name\":\"John Doe\",\"age\":30}";
 
         // This should throw an exception due to null record class
-        ConverterUtils.stringToRecord(null, jsonString);
+        ConvertUtils.stringToRecord(null, jsonString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -1946,14 +1960,14 @@ public class ConverterUtilsTest {
         String emptyString = "";
 
         // This should throw an exception due to empty string
-        ConverterUtils.stringToRecord(Person.class, emptyString);
+        ConvertUtils.stringToRecord(Person.class, emptyString);
     }
 
     @Test
     public void testRecordToJsonObjectWithValidRecord() {
         // Positive Test: Valid record to JSON conversion
         PersonRecord person = new PersonRecord("John Doe", 30);
-        JSONObject jsonObject = ConverterUtils.recordToJsonObject(person);
+        JSONObject jsonObject = ConvertUtils.recordToJsonObject(person);
 
         Assert.assertEquals(jsonObject.getString("name"), "John Doe", "Expected name to match");
         Assert.assertEquals(jsonObject.getInt("age"), 30, "Expected age to match");
@@ -1963,7 +1977,7 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testRecordToJsonObjectWithNullRecord() {
         // Negative Test: Null record should throw an exception
-        ConverterUtils.recordToJsonObject(null);
+        ConvertUtils.recordToJsonObject(null);
     }
 
     @Test
@@ -1971,7 +1985,7 @@ public class ConverterUtilsTest {
         // Positive Test: Record with nested record should be converted successfully
         Address address = new Address("New York", "USA");
         PersonAdressRecord personWithAddress = new PersonAdressRecord("John Doe", 30, address);
-        JSONObject jsonObject = ConverterUtils.recordToJsonObject(personWithAddress);
+        JSONObject jsonObject = ConvertUtils.recordToJsonObject(personWithAddress);
 
         Assert.assertEquals(jsonObject.getString("name"), "John Doe", "Expected name to match");
         Assert.assertEquals(jsonObject.getInt("age"), 30, "Expected age to match");
@@ -1982,7 +1996,7 @@ public class ConverterUtilsTest {
         // Positive Test: Empty record
         record EmptyRecord() {}
         EmptyRecord emptyRecord = new EmptyRecord();
-        JSONObject jsonObject = ConverterUtils.recordToJsonObject(emptyRecord);
+        JSONObject jsonObject = ConvertUtils.recordToJsonObject(emptyRecord);
 
         Assert.assertTrue(jsonObject.isEmpty(), "Expected empty JSON object");
     }
@@ -1991,7 +2005,7 @@ public class ConverterUtilsTest {
     public void testRecordToStringWithValidRecord() {
         // Positive Test: Valid record conversion to string
         PersonRecord person = new PersonRecord("John Doe", 30);
-        String result = ConverterUtils.recordToString(person);
+        String result = ConvertUtils.recordToString(person);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertTrue(result.contains("John Doe"), "The result should contain the name 'John Doe'.");
@@ -2001,7 +2015,7 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testRecordToStringWithNullRecord() {
         // Negative Test: Passing a null record should throw SmartValidationException
-        ConverterUtils.recordToString(null);
+        ConvertUtils.recordToString(null);
     }
 
     @Test
@@ -2009,7 +2023,7 @@ public class ConverterUtilsTest {
         // Positive test: Object is already an enum value
         SmartType enumType = SmartType.fromClass(Platform.class);
         Object inputObject = Platform.LINUX;
-        Platform result = ConverterUtils.objectToEnumValue(enumType, inputObject);
+        Platform result = ConvertUtils.objectToEnumValue(enumType, inputObject);
 
         // Validate the result is the expected enum value
         Assert.assertEquals(result, Platform.LINUX, "Expected the enum value LINUX.");
@@ -2020,7 +2034,7 @@ public class ConverterUtilsTest {
         // Positive test: Object is a string in different case that can be converted to enum value
         SmartType enumType = SmartType.fromClass(Platform.class);
         Object inputObject = "linux";
-        ConverterUtils.objectToEnumValue(enumType, inputObject);
+        ConvertUtils.objectToEnumValue(enumType, inputObject);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2030,7 +2044,7 @@ public class ConverterUtilsTest {
         Object inputObject = "INVALID"; // Not a valid Color enum
 
         // Expecting a SmartRuntimeException to be thrown
-        ConverterUtils.objectToEnumValue(enumType, inputObject);
+        ConvertUtils.objectToEnumValue(enumType, inputObject);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2040,7 +2054,7 @@ public class ConverterUtilsTest {
         Object inputObject = null;
 
         // Expecting a SmartRuntimeException to be thrown
-        ConverterUtils.objectToEnumValue(enumType, inputObject);
+        ConvertUtils.objectToEnumValue(enumType, inputObject);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2050,7 +2064,7 @@ public class ConverterUtilsTest {
         Object inputObject = "LINUX";
 
         // Expecting a SmartRuntimeException to be thrown
-        ConverterUtils.objectToEnumValue(enumType, inputObject);
+        ConvertUtils.objectToEnumValue(enumType, inputObject);
     }
 
     @Test
@@ -2065,7 +2079,7 @@ public class ConverterUtilsTest {
                     4,
                     5
                 ]""".stripIndent();
-        String result = ConverterUtils.arrayToString(intArray);
+        String result = ConvertUtils.arrayToString(intArray);
 
         Assert.assertEquals(result, expected, "The array string should match the expected format.");
     }
@@ -2075,7 +2089,7 @@ public class ConverterUtilsTest {
         // Positive test: Convert an empty array
         String[] emptyArray = {};
         String expected = "[]";
-        String result = ConverterUtils.arrayToString(emptyArray);
+        String result = ConvertUtils.arrayToString(emptyArray);
 
         Assert.assertEquals(result, expected, "An empty array should convert to '[]'.");
     }
@@ -2090,7 +2104,7 @@ public class ConverterUtilsTest {
                     "banana",
                     "cherry"
                 ]""".stripIndent();
-        String result = ConverterUtils.arrayToString(stringArray);
+        String result = ConvertUtils.arrayToString(stringArray);
 
         Assert.assertEquals(result, expected, "The string array should be converted to the correct string format.");
     }
@@ -2114,7 +2128,7 @@ public class ConverterUtilsTest {
                         "age": 25
                     }
                 ]""".stripIndent();
-        String result = ConverterUtils.arrayToString(peopleArray);
+        String result = ConvertUtils.arrayToString(peopleArray);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, expected, "The array string result should equal to expected string.");
@@ -2123,7 +2137,7 @@ public class ConverterUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testArrayToStringWithNullArray() {
         // Negative test: Pass a null array (expecting SmartRuntimeException)
-        ConverterUtils.arrayToString(null);
+        ConvertUtils.arrayToString(null);
     }
 
     @Test
@@ -2136,7 +2150,7 @@ public class ConverterUtilsTest {
                     null,
                     "cherry"
                 ]""".stripIndent();
-        String result = ConverterUtils.arrayToString(stringArray);
+        String result = ConvertUtils.arrayToString(stringArray);
 
         Assert.assertEquals(result, expected, "Array with null elements should handle nulls properly.");
     }
@@ -2145,7 +2159,7 @@ public class ConverterUtilsTest {
     public void testStringToArrayWithJsonArray() {
         SmartType smartType = SmartType.fromArrayValueSmartType(SmartType.fromClass(Integer.class));
         String jsonArrayString = "[1, 2, 3, 4, 5]";
-        Integer[] result = ConverterUtils.stringToArray(smartType, jsonArrayString);
+        Integer[] result = ConvertUtils.stringToArray(smartType, jsonArrayString);
         Integer[] expectedArray = {1, 2, 3, 4, 5};
 
         // Assert the results
@@ -2158,7 +2172,7 @@ public class ConverterUtilsTest {
         String invalidJsonString = "[1, 2, invalid, 4]";
 
         // This should throw a SmartRuntimeException due to the invalid JSON
-        ConverterUtils.stringToArray(smartType, invalidJsonString);
+        ConvertUtils.stringToArray(smartType, invalidJsonString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2166,7 +2180,7 @@ public class ConverterUtilsTest {
         SmartType smartType = SmartType.fromClass(Integer.class);
         String nonArrayString = "This is not a JSON array";
 
-        ConverterUtils.stringToArray(smartType, nonArrayString);
+        ConvertUtils.stringToArray(smartType, nonArrayString);
     }
 
     @Test
@@ -2174,7 +2188,7 @@ public class ConverterUtilsTest {
         // Set up SmartType for the list type (assuming SmartType is a mock or concrete class)
         SmartType type = SmartType.fromCollectionClass(List.class, SmartType.fromClass(String.class));
         String jsonArrayString = "[\"one\", \"two\", \"three\"]";
-        List<String> result = ConverterUtils.stringToList(type, jsonArrayString);
+        List<String> result = ConvertUtils.stringToList(type, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.size(), 3, "The list should contain 3 elements.");
@@ -2189,7 +2203,7 @@ public class ConverterUtilsTest {
         SmartType type = SmartType.fromCollectionClass(List.class, SmartType.fromClass(String.class));
         // Empty JSON array string
         String jsonArrayString = "[]";
-        List<String> result = ConverterUtils.stringToList(type, jsonArrayString);
+        List<String> result = ConvertUtils.stringToList(type, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertTrue(result.isEmpty(), "The list should be empty.");
@@ -2203,7 +2217,7 @@ public class ConverterUtilsTest {
         String invalidJsonString = "{\"key\":\"value\"}";
 
         // This should throw a SmartRuntimeException
-        ConverterUtils.stringToList(type, invalidJsonString);
+        ConvertUtils.stringToList(type, invalidJsonString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2214,7 +2228,7 @@ public class ConverterUtilsTest {
         String nonArrayString = "\"Just a string\"";
 
         // This should throw a SmartRuntimeException
-        ConverterUtils.stringToList(type, nonArrayString);
+        ConvertUtils.stringToList(type, nonArrayString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2224,7 +2238,7 @@ public class ConverterUtilsTest {
         String jsonArrayString = "[\"one\", \"two\", \"three\"]";
 
         // This should throw SmartValidationException due to null type
-        ConverterUtils.stringToList(type, jsonArrayString);
+        ConvertUtils.stringToList(type, jsonArrayString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2235,7 +2249,7 @@ public class ConverterUtilsTest {
         String blankString = "";
 
         // This should throw SmartValidationException due to blank string
-        ConverterUtils.stringToList(type, blankString);
+        ConvertUtils.stringToList(type, blankString);
     }
 
     @Test
@@ -2247,7 +2261,7 @@ public class ConverterUtilsTest {
         expected.add("one");
         expected.add("two");
         expected.add("three");
-        Set<String> result = ConverterUtils.stringToSet(type, jsonArrayString);
+        Set<String> result = ConvertUtils.stringToSet(type, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result, expected, "The result set should be equal the expected set.");
@@ -2261,7 +2275,7 @@ public class ConverterUtilsTest {
         String jsonArrayString = "[]";
         // Expected - empty set
         Set<String> expected = new HashSet<>();
-        Set<String> result = ConverterUtils.stringToSet(type, jsonArrayString);
+        Set<String> result = ConvertUtils.stringToSet(type, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result, expected, "The result set should be equal the expected set.");
@@ -2275,7 +2289,7 @@ public class ConverterUtilsTest {
         String invalidJsonString = "{\"key\":\"value\"}";
 
         // This should throw a SmartRuntimeException
-        ConverterUtils.stringToSet(type, invalidJsonString);
+        ConvertUtils.stringToSet(type, invalidJsonString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2286,7 +2300,7 @@ public class ConverterUtilsTest {
         String nonArrayString = "\"Just a string\"";
 
         // This should throw a SmartRuntimeException
-        ConverterUtils.stringToSet(type, nonArrayString);
+        ConvertUtils.stringToSet(type, nonArrayString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2296,7 +2310,7 @@ public class ConverterUtilsTest {
         String jsonArrayString = "[\"one\", \"two\", \"three\"]";
 
         // This should throw SmartValidationException due to null type
-        ConverterUtils.stringToSet(type, jsonArrayString);
+        ConvertUtils.stringToSet(type, jsonArrayString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2307,9 +2321,8 @@ public class ConverterUtilsTest {
         String blankString = "";
 
         // This should throw SmartValidationException due to blank string
-        ConverterUtils.stringToSet(type, blankString);
+        ConvertUtils.stringToSet(type, blankString);
     }
-
     @Test
     public void testStringToQueueWithValidJsonArray() {
         // Set up SmartType for the queue type (assuming SmartType is a mock or concrete class)
@@ -2319,7 +2332,7 @@ public class ConverterUtilsTest {
         expected.add("one");
         expected.add("two");
         expected.add("three");
-        Queue<String> result = ConverterUtils.stringToQueue(type, jsonArrayString);
+        Queue<String> result = ConvertUtils.stringToQueue(type, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result, expected, "The result set should be equal the expected set.");
@@ -2333,7 +2346,7 @@ public class ConverterUtilsTest {
         String jsonArrayString = "[]";
         // Expected - empty set
         Queue<String> expected = new LinkedList<>();
-        Queue<String> result = ConverterUtils.stringToQueue(type, jsonArrayString);
+        Queue<String> result = ConvertUtils.stringToQueue(type, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result, expected, "The result set should be equal the expected set.");
@@ -2347,7 +2360,7 @@ public class ConverterUtilsTest {
         String invalidJsonString = "{\"key\":\"value\"}";
 
         // This should throw a SmartRuntimeException
-        ConverterUtils.stringToQueue(type, invalidJsonString);
+        ConvertUtils.stringToQueue(type, invalidJsonString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2358,7 +2371,7 @@ public class ConverterUtilsTest {
         String nonArrayString = "\"Just a string\"";
 
         // This should throw a SmartRuntimeException
-        ConverterUtils.stringToQueue(type, nonArrayString);
+        ConvertUtils.stringToQueue(type, nonArrayString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2368,7 +2381,7 @@ public class ConverterUtilsTest {
         String jsonArrayString = "[\"one\", \"two\", \"three\"]";
 
         // This should throw SmartValidationException due to null type
-        ConverterUtils.stringToQueue(type, jsonArrayString);
+        ConvertUtils.stringToQueue(type, jsonArrayString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2379,14 +2392,14 @@ public class ConverterUtilsTest {
         String blankString = "";
 
         // This should throw SmartValidationException due to blank string
-        ConverterUtils.stringToQueue(type, blankString);
+        ConvertUtils.stringToQueue(type, blankString);
     }
     
     @Test
     public void testStringToVectorValidJsonString() {
         String validJsonString = "[\"element1\", \"element2\", \"element3\"]";
         SmartType type = SmartType.fromCollectionClass(Vector.class, SmartType.fromClass(String.class));
-        Vector<String> result = ConverterUtils.stringToVector(type, validJsonString);
+        Vector<String> result = ConvertUtils.stringToVector(type, validJsonString);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result.size(), 3);
@@ -2400,7 +2413,7 @@ public class ConverterUtilsTest {
         // Negative test case - null type
         String validJsonString = "[\"element1\", \"element2\", \"element3\"]";
 
-        ConverterUtils.stringToVector(null, validJsonString);
+        ConvertUtils.stringToVector(null, validJsonString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2408,7 +2421,7 @@ public class ConverterUtilsTest {
         // Negative test case - blank string
         SmartType type = SmartType.fromCollectionClass(Vector.class, SmartType.fromClass(String.class));
 
-        ConverterUtils.stringToVector(type, "");
+        ConvertUtils.stringToVector(type, "");
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2417,14 +2430,14 @@ public class ConverterUtilsTest {
         String invalidJsonString = "not a json array";
         SmartType type = SmartType.fromCollectionClass(Vector.class, SmartType.fromClass(String.class));
 
-        ConverterUtils.stringToVector(type, invalidJsonString);
+        ConvertUtils.stringToVector(type, invalidJsonString);
     }
 
     @Test
     public void testStringToMapWithValidJsonString() {
         String jsonString = "{\"key1\": \"value1\", \"key2\": \"value2\"}";
         SmartType type = SmartType.fromMapClass(Map.class, String.class, SmartType.fromClass(String.class));
-        Map<String, String> result = ConverterUtils.stringToMap(type, jsonString);
+        Map<String, String> result = ConvertUtils.stringToMap(type, jsonString);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result.get("key1"), "value1");
@@ -2435,7 +2448,7 @@ public class ConverterUtilsTest {
     public void testStringToMapWithValidXmlString() {
         String xmlString = "<root><key1>value1</key1><key2>value2</key2></root>";
         SmartType type = SmartType.fromMapClass(Map.class, String.class, SmartType.fromClass(String.class));
-        Map<String, String> result = ConverterUtils.stringToMap(type, xmlString);
+        Map<String, String> result = ConvertUtils.stringToMap(type, xmlString);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result.get("key1"), "value1");
@@ -2447,7 +2460,7 @@ public class ConverterUtilsTest {
         String invalidJsonString = "Invalid JSON";
         SmartType type = SmartType.fromMapClass(Map.class, String.class, SmartType.fromClass(String.class));
 
-        ConverterUtils.stringToMap(type, invalidJsonString);
+        ConvertUtils.stringToMap(type, invalidJsonString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2455,7 +2468,7 @@ public class ConverterUtilsTest {
         String invalidXmlString = "<root><key1>value1<key2>value2</key2>";
         SmartType type = SmartType.fromMapClass(Map.class, String.class, SmartType.fromClass(String.class));
 
-        ConverterUtils.stringToMap(type, invalidXmlString);
+        ConvertUtils.stringToMap(type, invalidXmlString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2463,13 +2476,13 @@ public class ConverterUtilsTest {
         String emptyString = "";
         SmartType type = SmartType.fromMapClass(Map.class, String.class, SmartType.fromClass(String.class));
 
-        ConverterUtils.stringToMap(type, emptyString);
+        ConvertUtils.stringToMap(type, emptyString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToMapWithNullType() {
         String xmlString = "<root><key1>value1</key1><key2>value2</key2></root>";
-        ConverterUtils.stringToMap(null, xmlString);
+        ConvertUtils.stringToMap(null, xmlString);
     }
 
     @Test
@@ -2478,7 +2491,7 @@ public class ConverterUtilsTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("key1", 1);
         jsonObject.put("key2", 2);
-        Map<String, Integer> result = ConverterUtils.jsonObjectToMap(type, jsonObject);
+        Map<String, Integer> result = ConvertUtils.jsonObjectToMap(type, jsonObject);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result.size(), 2);
@@ -2492,7 +2505,7 @@ public class ConverterUtilsTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("key1", 1);
 
-        ConverterUtils.jsonObjectToMap(null, jsonObject);
+        ConvertUtils.jsonObjectToMap(null, jsonObject);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2500,7 +2513,7 @@ public class ConverterUtilsTest {
         SmartType type = SmartType.fromMapClass(Map.class, String.class, SmartType.fromClass(Integer.class));
 
         // Expect SmartRuntimeException due to null JSON object
-        ConverterUtils.jsonObjectToMap(type, null);
+        ConvertUtils.jsonObjectToMap(type, null);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2510,7 +2523,7 @@ public class ConverterUtilsTest {
         jsonObject.put("key1", "value1");
 
         // Expect SmartRuntimeException due to invalid value type
-        ConverterUtils.jsonObjectToMap(type, jsonObject);
+        ConvertUtils.jsonObjectToMap(type, jsonObject);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2520,43 +2533,13 @@ public class ConverterUtilsTest {
         jsonObject.put("key1", "value1");
 
         // Expect SmartRuntimeException due to invalid value type
-        ConverterUtils.jsonObjectToMap(type, jsonObject);
-    }
-
-    @Test
-    public void testJsonObjectToXmlNodePositive() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("key", "value");
-        String expectedXmlString = """
-                <?xml version="1.0" encoding="UTF-8"?><object>
-                    <key>value</key>
-                </object>
-                """.stripIndent();
-        Node xmlNode = ConverterUtils.jsonObjectToXmlNode(jsonObject);
-        String resultXmlString = ConverterUtils.normalizeLineSeparators(
-                ConverterUtils.xmlNodeToString(xmlNode));
-
-        Assert.assertNotNull(xmlNode);
-        Assert.assertEquals(xmlNode.getNodeName(), "object");
-        Assert.assertEquals(resultXmlString, expectedXmlString);
-    }
-
-    @Test(expectedExceptions = SmartValidationException.class)
-    public void testJsonObjectToXmlNodeNullJsonObject() {
-        ConverterUtils.jsonObjectToXmlNode(null);
-    }
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testJsonObjectToXmlNodeEmptyJsonObject() {
-        JSONObject jsonObject = new JSONObject();
-
-        ConverterUtils.jsonObjectToXmlNode(jsonObject);
+        ConvertUtils.jsonObjectToMap(type, jsonObject);
     }
 
     @Test
     public void testXmlStringToJsonObjectPositive() {
         String xmlString = "<person><name>John Doe</name><age>30</age></person>";
-        JSONObject jsonObject = ConverterUtils.xmlStringToJsonObject(xmlString);
+        JSONObject jsonObject = ConvertUtils.xmlStringToJsonObject(xmlString);
 
         Assert.assertNotNull(jsonObject);
         Assert.assertTrue(jsonObject.has("name"));
@@ -2567,27 +2550,27 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testXmlStringToJsonObjectNullInput() {
-        ConverterUtils.xmlStringToJsonObject(null);
+        ConvertUtils.xmlStringToJsonObject(null);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testXmlStringToJsonObjectInvalidXml() {
         String invalidXmlString = "<person><name>John Doe</name><age>30"; // Missing closing tags
 
-        ConverterUtils.xmlStringToJsonObject(invalidXmlString);
+        ConvertUtils.xmlStringToJsonObject(invalidXmlString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testXmlStringToJsonObjectBlankString() {
         String blankXmlString = "   ";
 
-        ConverterUtils.xmlStringToJsonObject(blankXmlString);
+        ConvertUtils.xmlStringToJsonObject(blankXmlString);
     }
 
     @Test
     public void testXmlNodeToJsonObjectPositive() {
         Node xmlNode = createSampleXmlNode();
-        JSONObject jsonObject = ConverterUtils.xmlNodeToJsonObject(xmlNode);
+        JSONObject jsonObject = ConvertUtils.xmlNodeToJsonObject(xmlNode);
 
         Assert.assertNotNull(jsonObject);
         JSONObject personJsonObject = jsonObject.getJSONObject("person");
@@ -2599,13 +2582,13 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testXmlNodeToJsonObjectNullInput() {
-        ConverterUtils.xmlNodeToJsonObject(null);
+        ConvertUtils.xmlNodeToJsonObject(null);
     }
 
     @Test
     public void testStringToNumberPositiveInteger() {
         String numberString = "123";
-        Number result = ConverterUtils.stringToNumber(numberString);
+        Number result = ConvertUtils.stringToNumber(numberString);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result instanceof Integer);
@@ -2615,7 +2598,7 @@ public class ConverterUtilsTest {
     @Test
     public void testStringToNumberPositiveFloat() {
         String numberString = "123.45";
-        Number result = ConverterUtils.stringToNumber(numberString);
+        Number result = ConvertUtils.stringToNumber(numberString);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result instanceof Float);
@@ -2624,7 +2607,7 @@ public class ConverterUtilsTest {
 
     @Test
     public void testStringToNumberPositiveDouble() {
-        Number result = ConverterUtils.stringToNumber("3.4028236E38");
+        Number result = ConvertUtils.stringToNumber("3.4028236E38");
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result instanceof Double);
@@ -2634,7 +2617,7 @@ public class ConverterUtilsTest {
     @Test
     public void testStringToNumberPositiveBigInteger() {
         String numberString = "12345678901234567890";
-        Number result = ConverterUtils.stringToNumber(numberString);
+        Number result = ConvertUtils.stringToNumber(numberString);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result instanceof BigInteger);
@@ -2644,7 +2627,7 @@ public class ConverterUtilsTest {
     @Test
     public void testStringToNumberPositiveBigDecimal() {
         String numberString = "1.7976931348623157E309";
-        Number result = ConverterUtils.stringToNumber(numberString);
+        Number result = ConvertUtils.stringToNumber(numberString);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result instanceof BigDecimal);
@@ -2653,25 +2636,25 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToNumberNullInput() {
-        ConverterUtils.stringToNumber(null);
+        ConvertUtils.stringToNumber(null);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToNumberEmptyInput() {
-        ConverterUtils.stringToNumber("");
+        ConvertUtils.stringToNumber("");
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToNumberInvalidNumberString() {
         String invalidNumberString = "abc123";
 
-        ConverterUtils.stringToNumber(invalidNumberString);
+        ConvertUtils.stringToNumber(invalidNumberString);
     }
 
     @Test
     public void testNormalizeLineSeparatorsPositiveWindowsLineSeparators() {
         String input = "Line1\r\nLine2\r\nLine3";
-        String result = ConverterUtils.normalizeLineSeparators(input);
+        String result = ConvertUtils.normalizeLineSeparators(input);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, "Line1\nLine2\nLine3");
@@ -2680,7 +2663,7 @@ public class ConverterUtilsTest {
     @Test
     public void testNormalizeLineSeparatorsPositiveUnixLineSeparators() {
         String input = "Line1\nLine2\nLine3";
-        String result = ConverterUtils.normalizeLineSeparators(input);
+        String result = ConvertUtils.normalizeLineSeparators(input);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, "Line1\nLine2\nLine3");
@@ -2689,7 +2672,7 @@ public class ConverterUtilsTest {
     @Test
     public void testNormalizeLineSeparatorsPositiveMixedLineSeparators() {
         String input = "Line1\r\nLine2\nLine3\r\n";
-        String result = ConverterUtils.normalizeLineSeparators(input);
+        String result = ConvertUtils.normalizeLineSeparators(input);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, "Line1\nLine2\nLine3\n");
@@ -2698,7 +2681,7 @@ public class ConverterUtilsTest {
     @Test
     public void testNormalizeLineSeparatorsPositiveEmptyString() {
         String input = "";
-        String result = ConverterUtils.normalizeLineSeparators(input);
+        String result = ConvertUtils.normalizeLineSeparators(input);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, "");
@@ -2706,13 +2689,13 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testNormalizeLineSeparatorsNullInput() {
-        ConverterUtils.normalizeLineSeparators(null);
+        ConvertUtils.normalizeLineSeparators(null);
     }
 
     @Test
     public void testNormalizeStringEncodingPositiveUtf8String() {
         String input = "This is a UTF-8 string.";
-        String result = ConverterUtils.normalizeStringEncoding(input);
+        String result = ConvertUtils.normalizeStringEncoding(input);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, input);
@@ -2721,7 +2704,7 @@ public class ConverterUtilsTest {
     @Test
     public void testNormalizeStringEncodingPositiveSpecialCharacters() {
         String input = "Spécîål Çhåräçtérs";
-        String result = ConverterUtils.normalizeStringEncoding(input);
+        String result = ConvertUtils.normalizeStringEncoding(input);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, input);
@@ -2730,7 +2713,7 @@ public class ConverterUtilsTest {
     @Test
     public void testNormalizeStringEncodingPositiveEmptyString() {
         String input = "";
-        String result = ConverterUtils.normalizeStringEncoding(input);
+        String result = ConvertUtils.normalizeStringEncoding(input);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result, input);
@@ -2738,9 +2721,476 @@ public class ConverterUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testNormalizeStringEncodingNullInput() {
-        ConverterUtils.normalizeStringEncoding(null);
+        ConvertUtils.normalizeStringEncoding(null);
     }
 
+    @Test
+    public void testJsonObjectToXmlDocumentWithValidJson() {
+        JSONObject person = new JSONObject();
+        person.put("firstName", "John");
+        person.put("firstName", "Doe");
+        person.put("age", 33);
+        JSONArray books = new JSONArray();
+        books.put("Hary Potter");
+        books.put("One Flew Over the Cuckoo's Nest");
+        person.put("books", books);
+
+        Document result = ConvertUtils.jsonObjectToXmlDocument(person);
+        Assert.assertNotNull(result, "The XML document should not be null.");
+
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <person>
+                    <firstName>Doe</firstName>
+                    <books>
+                        <book>Hary Potter</book>
+                        <book>One Flew Over the Cuckoo's Nest</book>
+                    </books>
+                    <age>33</age>
+                </person>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(result);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test
+    public void testJsonObjectToXmlNodeWithValidJson() {
+        JSONObject person = new JSONObject();
+        person.put("firstName", "John");
+        person.put("firstName", "Doe");
+        person.put("age", 33);
+        JSONArray bookmarks = new JSONArray();
+        bookmarks.put(12);
+        bookmarks.put(238);
+        JSONArray books = new JSONArray();
+        books.put("Hary Potter");
+        books.put("One Flew Over the Cuckoo's Nest");
+        person.put("books", books);
+        books.put(bookmarks);
+
+        Node result = ConvertUtils.jsonObjectToXmlDocument(person);
+        Assert.assertNotNull(result, "The XML node should not be null.");
+
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <person>
+                    <firstName>Doe</firstName>
+                    <books>
+                        <book>Hary Potter</book>
+                        <book>One Flew Over the Cuckoo's Nest</book>
+                        <bookmarks>
+                            <bookmark>12</bookmark>
+                            <bookmark>238</bookmark>
+                        </bookmarks>
+                    </books>
+                    <age>33</age>
+                </person>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(result);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testJsonObjectToXmlDocumentWithNullJson() {
+        JSONObject jsonObject = null;
+        ConvertUtils.jsonObjectToXmlDocument(jsonObject);
+    }
+
+    @Test
+    public void testJsonObjectToXmlDocumentWithEmptyJson() {
+        JSONObject empty = new JSONObject();
+        Document result = ConvertUtils.jsonObjectToXmlDocument(empty);
+
+        Assert.assertNotNull(result, "XML Document should be not null.");
+        String expectedXmlString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <empty/>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(result);
+        Assert.assertEquals(resultString, expectedXmlString);
+    }
+
+    @Test
+    public void testJsonArrayToXmlDocumentWithValidArrayWithRootName() {
+        JSONArray examples = new JSONArray();
+        JSONObject firstExample = new JSONObject();
+        firstExample.put("name", "Item 1");
+        firstExample.put("value", 100);
+        examples.put(firstExample);
+
+        JSONObject secondExample = new JSONObject();
+        secondExample.put("name", "Item 2");
+        secondExample.put("value", 200);
+        examples.put(secondExample);
+
+        Document xmlDocument = ConvertUtils.jsonArrayToXmlDocument(examples);
+        Assert.assertNotNull(xmlDocument, "The XML document should not be null.");
+        Assert.assertEquals(xmlDocument.getElementsByTagName("name").item(0).getTextContent(), "Item 1",
+                "First element's 'name' should match.");
+        Assert.assertEquals(xmlDocument.getElementsByTagName("name").item(1).getTextContent(), "Item 2",
+                "Second element's 'name' should match.");
+
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <examples>
+                    <example>
+                        <name>Item 1</name>
+                        <value>100</value>
+                    </example>
+                    <example>
+                        <name>Item 2</name>
+                        <value>200</value>
+                    </example>
+                </examples>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(xmlDocument);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test
+    public void testJsonArrayToXmlDocumentWithValidArrayWithDefaultRootName() {
+        JSONArray examples = new JSONArray();
+        JSONObject firstExample = new JSONObject();
+        firstExample.put("name", "Item 1");
+        firstExample.put("value", 100);
+        examples.put(firstExample);
+
+        JSONObject secondExample = new JSONObject();
+        secondExample.put("name", "Item 2");
+        secondExample.put("value", 200);
+        examples.put(secondExample);
+
+        Document xmlDocument = ConvertUtils.jsonArrayToXmlDocument(examples);
+        Assert.assertNotNull(xmlDocument, "The XML document should not be null.");
+        Assert.assertEquals(xmlDocument.getElementsByTagName("name").item(0).getTextContent(), "Item 1",
+                "First element's 'name' should match.");
+        Assert.assertEquals(xmlDocument.getElementsByTagName("name").item(1).getTextContent(), "Item 2",
+                "Second element's 'name' should match.");
+
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <examples>
+                    <example>
+                        <name>Item 1</name>
+                        <value>100</value>
+                    </example>
+                    <example>
+                        <name>Item 2</name>
+                        <value>200</value>
+                    </example>
+                </examples>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(xmlDocument);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test
+    public void testJsonArrayToXmlDocument() {
+        JSONArray examples = new JSONArray();
+        JSONObject firstExample = new JSONObject();
+        firstExample.put("name", "Custom Item 1");
+        firstExample.put("value", 500);
+        examples.put(firstExample);
+
+        Document xmlDocument = ConvertUtils.jsonArrayToXmlDocument(examples);
+        Assert.assertNotNull(xmlDocument, "The XML document should not be null.");
+        Assert.assertEquals(xmlDocument.getDocumentElement().getNodeName(), "examples", "Root element should match 'customRoot'.");
+        Assert.assertEquals(xmlDocument.getElementsByTagName("name").item(0).getTextContent(), "Custom Item 1", "First element's 'name' should match.");
+    }
+
+    @Test
+    public void testMapToXmlDocumentWithValidSimpleMap() {
+        Map<String, String> map = new HashMap<>();
+        map.put("name", "John");
+        map.put("age", "30");
+        Document result = ConvertUtils.mapToXmlDocument(map);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getDocumentElement().getNodeName(), "map");
+        Assert.assertEquals(result.getElementsByTagName("name").item(0).getTextContent(), "John");
+        Assert.assertEquals(result.getElementsByTagName("age").item(0).getTextContent(), "30");
+    }
+
+    @Test
+    public void testMapToXmlDocumentWithNestedMap() {
+        Map<String, Object> map = new HashMap<>();
+        Map<String, String> addressMap = new HashMap<>();
+        addressMap.put("city", "New York");
+        addressMap.put("zip", "10001");
+        map.put("name", "John");
+        map.put("address", addressMap);
+        Document result = ConvertUtils.mapToXmlDocument(map);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getDocumentElement().getNodeName(), "map");
+        Assert.assertEquals(result.getElementsByTagName("city").item(0).getTextContent(), "New York");
+        Assert.assertEquals(result.getElementsByTagName("zip").item(0).getTextContent(), "10001");
+    }
+
+    @Test
+    public void testMapToXmlDocumentWithJsonObject() {
+        Map<String, Object> map = new HashMap<>();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("key", "value");
+        map.put("jsonObject", jsonObject);
+        Document result = ConvertUtils.mapToXmlDocument(map);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getElementsByTagName("key").item(0).getTextContent(), "value");
+    }
+
+    @Test
+    public void testMapToXmlDocument() {
+        Map<String, Object> bigMap = new HashMap<>();
+        bigMap.put("name", "John Doe");
+        bigMap.put("age", 30);
+        LocalDate dob = LocalDate.of(1987, 6, 14);
+        bigMap.put("dob", dob);
+        String[] array = {"one", "two", "three"};
+        bigMap.put("array", array);
+        List<Integer> list = new ArrayList<>();
+        list.add(1);
+        list.add(2);
+        bigMap.put("list", list);
+        JSONObject jsonObject = new JSONObject("{\"make\":\"Honda\", \"model\":\"Civic\"}");
+        bigMap.put("jsonObject", jsonObject);
+        JSONArray jsonArray = new JSONArray("[11, 22, 33]");
+        bigMap.put("jsonArray", jsonArray);
+        Address address = new Address("New York", "USA");
+        PojoClass pojoObject = createPojoObject();
+        bigMap.put("pojo", pojoObject);
+        PersonAdressRecord personWithAddress = new PersonAdressRecord("John Doe", 30, address);
+        bigMap.put("record", personWithAddress);
+        Document result = ConvertUtils.mapToXmlDocument(bigMap);
+
+        Assert.assertNotNull(result);
+        Document expected = ConvertUtils.stringToXmlDocument("""
+               <?xml version="1.0" encoding="UTF-8"?>
+               <bigMap>
+                   <pojo>
+                       <integerList>
+                           <integerList>1</integerList>
+                           <integerList>2</integerList>
+                       </integerList>
+                       <name>Some name</name>
+                       <stringArray>
+                           <stringArray>one</stringArray>
+                           <stringArray>two</stringArray>
+                           <stringArray>three</stringArray>
+                       </stringArray>
+                       <nestedPojoObject>
+                           <date>1970-05-23</date>
+                           <platform>windows</platform>
+                       </nestedPojoObject>
+                       <stringBooleanMap>
+                           <true>true</true>
+                           <false>false</false>
+                       </stringBooleanMap>
+                       <value>2</value>
+                   </pojo>
+                   <array>
+                       <array>one</array>
+                       <array>two</array>
+                       <array>three</array>
+                   </array>
+                   <dob>1987-06-14</dob>
+                   <record/>
+                   <name>John Doe</name>
+                   <jsonObject>
+                       <model>Civic</model>
+                       <make>Honda</make>
+                   </jsonObject>
+                   <list>
+                       <list>1</list>
+                       <list>2</list>
+                   </list>
+                   <age>30</age>
+                   <jsonArray>
+                       <jsonArray>11</jsonArray>
+                       <jsonArray>22</jsonArray>
+                       <jsonArray>33</jsonArray>
+                   </jsonArray>
+               </bigMap>
+               """.stripIndent());
+        SmartAssert.assertXmlNode(expected, result, false);
+    }
+
+    @Test
+    public void testMapToXmlDocumentWithEmptyMap() {
+        Map<String, Boolean> emptyMap = new HashMap<>();
+        Document result = ConvertUtils.mapToXmlDocument(emptyMap);
+
+        Assert.assertNotNull(result);
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <emptyMap/>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(result);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testMapToXmlDocumentWithNullMap() {
+        ConvertUtils.mapToXmlDocument(null);
+    }
+
+    @Test
+    public void testMapToXmlNodeWithJsonObject() {
+        Map<String, Object> exampleMap = new HashMap<>();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("key", "value");
+        exampleMap.put("jsonObject", jsonObject);
+        Document result = ConvertUtils.mapToXmlDocument(exampleMap);
+
+        Assert.assertNotNull(result);
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <exampleMap>
+                    <jsonObject>
+                        <key>value</key>
+                    </jsonObject>
+                </exampleMap>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(result);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testMapToXmlNodeWithNullMap() {
+        ConvertUtils.mapToXmlNode(null);
+    }
+
+    @Test
+    public void testRecordToXmlDocumentWithValidRecord() {
+        PersonRecord person = new PersonRecord("John Doe", 30);
+        Document result = ConvertUtils.recordToXmlDocument(person);
+
+        Assert.assertNotNull(result);
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <person>
+                    <name>John Doe</name>
+                    <age>30</age>
+                </person>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(result);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testRecordToXmlDocumentWithNullRecord() {
+        ConvertUtils.recordToXmlDocument(null);
+    }
+
+    @Test
+    public void testRecordToXmlNodeWithValidRecord() {
+        PersonRecord person = new PersonRecord("John Doe", 30);
+        Node result = ConvertUtils.recordToXmlNode(person);
+
+        Assert.assertNotNull(result);
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <person>
+                    <name>John Doe</name>
+                    <age>30</age>
+                </person>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(result);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test
+    public void testPojoToXmlDocument() {
+        PojoClass pojo = createPojoObject();
+        Document result = ConvertUtils.pojoObjectToXmlDocument(pojo);
+
+        Assert.assertNotNull(result);
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <pojo>
+                    <integerList>
+                        <integerList>1</integerList>
+                        <integerList>2</integerList>
+                    </integerList>
+                    <name>Some name</name>
+                    <stringArray>one</stringArray>
+                    <stringArray>two</stringArray>
+                    <stringArray>three</stringArray>
+                    <stringBooleanMap>
+                        <true>true</true>
+                        <false>false</false>
+                    </stringBooleanMap>
+                    <nestedPojoObject>
+                        <date>1970-05-23</date>
+                        <platform>windows</platform>
+                    </nestedPojoObject>
+                    <value>2</value>
+                </pojo>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(result);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test
+    public void testJsonObjectToXmlNodeWithValidSimpleJsonObject() {
+        JSONObject person = new JSONObject();
+        person.put("name", "John");
+        person.put("age", 30);
+        Node result = ConvertUtils.jsonObjectToXmlNode(person);
+
+        Assert.assertNotNull(result);
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <person>
+                    <name>John</name>
+                    <age>30</age>
+                </person>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(result);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test
+    public void testJsonObjectToXmlNodeWithEmptyJsonObject() {
+        JSONObject emptyJson = new JSONObject();
+        Node result = ConvertUtils.jsonObjectToXmlNode(emptyJson);
+
+        Assert.assertNotNull(result);
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <emptyJson/>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(result);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test
+    public void testJsonObjectToXmlNodeWithArrayInJsonObject() {
+        JSONArray skiLls = new JSONArray();
+        skiLls.put("Java");
+        skiLls.put("XML");
+        JSONObject experience = new JSONObject();
+        experience.put("skills", skiLls);
+        Node result = ConvertUtils.jsonObjectToXmlNode(experience);
+
+        Assert.assertNotNull(result);
+        String expectedString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <experience>
+                    <skills>
+                        <skill>Java</skill>
+                        <skill>XML</skill>
+                    </skills>
+                </experience>
+                """.stripIndent();
+        String resultString = ConvertUtils.xmlNodeToString(result);
+        Assert.assertEquals(resultString, expectedString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testJsonObjectToXmlNodeWithNullJasonObject() {
+        ConvertUtils.jsonObjectToXmlNode(null);
+    }
     private Node createSampleXmlNode() {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

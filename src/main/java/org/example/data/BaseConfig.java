@@ -3,7 +3,7 @@ package org.example.data;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
-import org.example.utils.ConverterUtils;
+import org.example.utils.ConvertUtils;
 import org.example.utils.DataValidationUtils;
 
 import java.io.FileInputStream;
@@ -73,7 +73,7 @@ public abstract class BaseConfig {
     }
 
     protected boolean getBooleanProperty(String propertyName) {
-        boolean booleanValue = ConverterUtils.stringToBoolean(
+        boolean booleanValue = ConvertUtils.stringToBoolean(
                 getStringProperty(propertyName));
         log.debug("Config boolean value: {}", booleanValue);
         return booleanValue;

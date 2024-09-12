@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.example</groupId>
     <artifactId>SeleniumTestNGParentPom</artifactId>
-    <version>1.12.2</version>
+    <version>1.12.3</version>
     <relativePath>./parent-pom.xml</relativePath>
   </parent>
 
   <artifactId>SeleniumTestNG</artifactId>
-  <version>1.12.2</version>
+  <version>1.12.3</version>
   <packaging>jar</packaging>
 
   <name>SeleniumTestNG</name>
@@ -19,19 +19,6 @@
   <properties>
     <threadCount>1</threadCount>
   </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.skyscreamer</groupId>
-      <artifactId>jsonassert</artifactId>
-      <version>2.0-rc1</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.xmlunit</groupId>
-      <artifactId>xmlunit-core</artifactId>
-      <version>2.10.0</version>
-    </dependency>
-  </dependencies>
 
   <build>
     <plugins>
@@ -47,6 +34,7 @@
             <suiteXmlFile>${testSuite}</suiteXmlFile>
           </suiteXmlFiles>
           <!--<useSystemClassLoader>false</useSystemClassLoader>-->
+          <argLine>-Xmx4g</argLine>
         </configuration>
       </plugin>
     </plugins>

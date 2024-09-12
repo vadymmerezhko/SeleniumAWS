@@ -3,7 +3,7 @@ package org.example.data;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.ConverterUtils;
+import org.example.utils.ConvertUtils;
 import org.example.utils.DataValidationUtils;
 
 import java.io.Serializable;
@@ -33,7 +33,7 @@ public final class SmartLocalDateTime implements SmartTemporal,
      * @return The smart local date time.
      */
     public static SmartLocalDateTime parseLocalDateTime(String dateString) {
-        SmartDate smartDate = ConverterUtils.stringToSmartDate(dateString);
+        SmartDate smartDate = ConvertUtils.stringToSmartDate(dateString);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(smartDate.getFormat());
         LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
         SmartLocalDateTime smartLocalDateTime = new SmartLocalDateTime(localDateTime, smartDate.getFormat());
@@ -81,7 +81,7 @@ public final class SmartLocalDateTime implements SmartTemporal,
      */
     @Override
     public Date toDate() {
-        Date date = ConverterUtils.localDateTimeToDate(localDateTime);
+        Date date = ConvertUtils.localDateTimeToDate(localDateTime);
         log.debug("Smart local date time {} converted to date: {}", localDateTime, date);
         return date;
     }
@@ -89,7 +89,7 @@ public final class SmartLocalDateTime implements SmartTemporal,
     @Override
     public String toString() {
         try {
-            String dataString = ConverterUtils.localDateTimeToString(localDateTime, format);
+            String dataString = ConvertUtils.localDateTimeToString(localDateTime, format);
             log.debug("Smart local date time converted to string '{}' with date format '{}'.",
                     dataString, format);
             return dataString;
@@ -113,7 +113,7 @@ public final class SmartLocalDateTime implements SmartTemporal,
         }
         try {
             boolean result;
-            LocalDateTime actualLocalDateTime = ConverterUtils.objectToObject(
+            LocalDateTime actualLocalDateTime = ConvertUtils.objectToObject(
                     SmartType.fromClass(LocalDateTime.class), object);
             result = localDateTime.equals(actualLocalDateTime);
             log.debug("""

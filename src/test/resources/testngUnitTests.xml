@@ -3,7 +3,7 @@
     <test name="Test">
         <classes>
             <class name="org.example.unit.ClassUtilsTest"/>
-            <class name="org.example.unit.ConverterUtilsTest"/>
+            <class name="org.example.unit.ConvertUtilsTest"/>
             <class name="org.example.unit.DataValidationUtilsTest"/>
             <class name="org.example.unit.ImageUtilsTest"/>
             <class name="org.example.unit.FileSystemUtilsTest"/>

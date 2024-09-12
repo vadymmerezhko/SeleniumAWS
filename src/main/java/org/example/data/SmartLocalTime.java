@@ -3,7 +3,7 @@ package org.example.data;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.ConverterUtils;
+import org.example.utils.ConvertUtils;
 import org.example.utils.DataValidationUtils;
 
 import java.io.Serializable;
@@ -31,7 +31,7 @@ public final class SmartLocalTime implements SmartTemporal,
      * @return The smart local time.
      */
     public static SmartLocalTime parseLocalTime(String dateString) {
-        SmartDate smartDate = ConverterUtils.stringToSmartDate(dateString);
+        SmartDate smartDate = ConvertUtils.stringToSmartDate(dateString);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(smartDate.getFormat());
         LocalTime localTime = LocalTime.parse(dateString, formatter);
         SmartLocalTime smartLocalTime = new SmartLocalTime(localTime, smartDate.getFormat());
@@ -79,7 +79,7 @@ public final class SmartLocalTime implements SmartTemporal,
      */
     @Override
     public Date toDate() {
-        Date date = ConverterUtils.localTimeToDate(localTime);
+        Date date = ConvertUtils.localTimeToDate(localTime);
         log.debug("Local time {} converted to date: {}", localTime, date);
         return date;
     }
@@ -87,7 +87,7 @@ public final class SmartLocalTime implements SmartTemporal,
     @Override
     public String toString() {
         try {
-            String dataString = ConverterUtils.localTimeToString(localTime, format);
+            String dataString = ConvertUtils.localTimeToString(localTime, format);
             log.debug("Smart local time converted to string '{}' with date format '{}'.",
                     dataString, format);
             return dataString;
@@ -110,7 +110,7 @@ public final class SmartLocalTime implements SmartTemporal,
             return true;
         }
         try {
-            LocalTime actualLocalTime = ConverterUtils.objectToObject(
+            LocalTime actualLocalTime = ConvertUtils.objectToObject(
                     SmartType.fromClass(LocalTime.class), object);
             boolean result = localTime.equals(actualLocalTime);
             log.debug("""

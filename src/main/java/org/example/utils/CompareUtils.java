@@ -8,9 +8,11 @@ import org.json.JSONObject;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.w3c.dom.Node;
 
+import java.math.BigDecimal;
+
 
 /**
- * Comparator utils class.
+ * Compare utils class.
  */
 @Slf4j
 public final class CompareUtils {
@@ -40,8 +42,8 @@ public final class CompareUtils {
         DataValidationUtils.validateNotNull(actualXml, "actualXml");
 
         try {
-            JSONObject expectedJson = ConverterUtils.xmlNodeToJsonObject(expectedXml);
-            JSONObject actualJson = ConverterUtils.xmlNodeToJsonObject(actualXml);
+            JSONObject expectedJson = ConvertUtils.xmlNodeToJsonObject(expectedXml);
+            JSONObject actualJson = ConvertUtils.xmlNodeToJsonObject(actualXml);
             result = CompareUtils.compareJsonObjects(expectedJson, actualJson, strict);
             log.debug("""
                     Actual XML node compared to expected XML node.
@@ -52,8 +54,8 @@ public final class CompareUtils {
                     {}
                     """.stripIndent(),
                     result, strict,
-                    ConverterUtils.xmlNodeToString(expectedXml),
-                    ConverterUtils.xmlNodeToString(actualXml));
+                    ConvertUtils.xmlNodeToString(expectedXml),
+                    ConvertUtils.xmlNodeToString(actualXml));
             return result;
         }
         catch (Exception e) {
@@ -67,8 +69,8 @@ public final class CompareUtils {
                     %s
                     """.stripIndent(),
                     result, strict,
-                    ConverterUtils.xmlNodeToString(expectedXml),
-                    ConverterUtils.xmlNodeToString(actualXml)), e);
+                    ConvertUtils.xmlNodeToString(expectedXml),
+                    ConvertUtils.xmlNodeToString(actualXml)), e);
         }
     }
 
@@ -90,14 +92,17 @@ public final class CompareUtils {
                 log.debug("Actual JSON object and expected JSON object are the same object.");
                 return true;
             }
-            DataValidationUtils.validateNotNull(expectedJson, "expectedJson");
-            DataValidationUtils.validateNotNull(actualJson, "actualJson");
+            else {
+                DataValidationUtils.validateNotNull(expectedJson, "expectedJson");
+                DataValidationUtils.validateNotNull(actualJson, "actualJson");
 
-            try {
-                JSONAssert.assertEquals(expectedJson, actualJson, strict);
-                result = true;
-            } catch (AssertionError e) {
-                // Ignore exception
+                try {
+                    JSONAssert.assertEquals(expectedJson, actualJson, strict);
+                    result = true;
+                }
+                catch (AssertionError e) {
+                    // Ignore exception
+                }
             }
             log.debug("""
                     Actual JSON object compared to expected JSON object.
@@ -109,8 +114,8 @@ public final class CompareUtils {
                     {}
                     """.stripIndent(),
                     result, strict,
-                    ConverterUtils.jsonObjectToString(expectedJson),
-                    ConverterUtils.jsonObjectToString(actualJson));
+                    ConvertUtils.jsonObjectToString(expectedJson),
+                    ConvertUtils.jsonObjectToString(actualJson));
             return result;
         }
         catch (Exception e) {
@@ -124,8 +129,8 @@ public final class CompareUtils {
                     %s
                     """.stripIndent(),
                     result, strict,
-                    ConverterUtils.jsonObjectToString(expectedJson),
-                    ConverterUtils.jsonObjectToString(actualJson)), e);
+                    ConvertUtils.jsonObjectToString(expectedJson),
+                    ConvertUtils.jsonObjectToString(actualJson)), e);
         }
     }
 
@@ -146,8 +151,12 @@ public final class CompareUtils {
         else if (expected == actual) {
             log.debug("Actual JSON array and expected JSON array are the same object.");
             result = true;
+
         }
         else {
+            DataValidationUtils.validateNotNull(expected, "expected");
+            DataValidationUtils.validateNotNull(actual, "actual");
+
             try {
                 JSONAssert.assertEquals(expected, actual, strict);
                 result = true;
@@ -198,23 +207,32 @@ public final class CompareUtils {
         }
         else {
             // Convert actual string value to object
-            if (actualClass != expectedClass) {
-                actual = ConverterUtils.objectToObject(expectedType, actual);
+            if (actualClass != expectedClass &&
+                !(actual instanceof Number && expected instanceof Number)) {
+                actual = ConvertUtils.objectToObject(expectedType, actual);
             }
         }
         // JSON
-        if (expectedClass == JSONObject.class) {
-            result = compareJsonObjects((JSONObject) expected, (JSONObject) actual, strictOrder);
+        if (expected instanceof JSONObject expecteJsonObject) {
+            result = compareJsonObjects(expecteJsonObject, (JSONObject) actual, strictOrder);
         }
-        else if (expectedClass == JSONArray.class) {
-            result = compareJsonArrays((JSONArray) expected, (JSONArray) actual, strictOrder);
+        else if (expected instanceof JSONArray expectedJsonArray) {
+            result = compareJsonArrays(expectedJsonArray, (JSONArray) actual, strictOrder);
         }
         // XML
-        else if (expected instanceof Node) {
-            result = compareXmlNodes((Node) expected, (Node) actual, strictOrder);
+        else if (expected instanceof Node expectedNode) {
+            result = compareXmlNodes(expectedNode, (Node) actual, strictOrder);
         }
         else {
-            result = expected.equals(actual);
+            if (!strictType && actual instanceof Number && expected instanceof Number) {
+                BigDecimal expectedBigDecimal = new BigDecimal(expected.toString());
+                BigDecimal actualBigDecimal = new BigDecimal(actual.toString());
+                // Compare any number type to any number type
+                result = expectedBigDecimal.compareTo(actualBigDecimal) == 0;
+            }
+            else {
+                result = expected.equals(actual);
+            }
         }
         log.debug("""
                 Expected and actual objects comparison passed.

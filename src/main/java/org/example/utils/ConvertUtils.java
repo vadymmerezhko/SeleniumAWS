@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.web.util.HtmlUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -45,11 +46,11 @@ import static org.apache.commons.lang3.ObjectUtils.isArray;
 import static org.example.constants.Settings.*;
 
 /**
- * Converter utils.
+ * Convert utils class.
  */
 @Slf4j
 @SuppressWarnings("unchecked")
-public final class ConverterUtils {
+public final class ConvertUtils {
     private static final String ESCAPED_QUOTE = "\"\"";
     private static final String[] DATE_FORMATS = {
             // Date and time with time zone:
@@ -248,7 +249,7 @@ public final class ConverterUtils {
             "hha", // Hour with AM/PM like 2PM
     };
 
-    private ConverterUtils() {
+    private ConvertUtils() {
     }
 
     /**
@@ -564,7 +565,6 @@ public final class ConverterUtils {
 
     /**
      * Converts string value to JSON object value.
-     *
      * @param string The string value.
      * @return The JSON object value.
      */
@@ -591,7 +591,6 @@ public final class ConverterUtils {
 
     /**
      * Converts string value to JSON array value.
-     *
      * @param string The string value.
      * @return The JSON array value.
      */
@@ -613,28 +612,30 @@ public final class ConverterUtils {
 
     /**
      * Converts string value to XML document value.
-     *
-     * @param xmlString The string value.
+     * @param string The string value.
      * @return The XML document value.
      */
-    public static Document stringToXmlDocument(String xmlString) {
-        DataValidationUtils.validateNotBlank(xmlString, "xmlString");
+    public static Document stringToXmlDocument(String string) {
+        DataValidationUtils.validateNotBlank(string, "string");
 
         try {
-            if (isJsonObjectString(xmlString)) {
-                JSONObject jsonObject = stringToJasonObject(xmlString);
-                Node xmlNode = jsonObjectToXmlNode(jsonObject);
-                xmlString = xmlNodeToString(xmlNode);
+            Document document;
+
+            if (isJsonObjectString(string)) {
+                JSONObject jsonObject = stringToJasonObject(string);
+                document = jsonObjectToXmlDocument(jsonObject);
             }
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new InputSource(new StringReader(xmlString)));
-            log.debug("{} string converted to XML document:\n{}.", xmlString, document);
+            else {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                document = builder.parse(new InputSource(new StringReader(string)));
+            }
+            log.debug("{} string converted to XML document:\n{}.", string, document);
             return document;
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
-                    "Cannot convert string to XML document:\n%s.", xmlString));
+                    "Cannot convert string to XML document:\n%s.", string));
         }
     }
 
@@ -738,25 +739,25 @@ public final class ConverterUtils {
 
     /**
      * Converts string value to XML node value.
-     * @param xmlString The string value.
+     * @param string The string value.
      * @return The XML node value.
      */
-    public static Node stringToXmlNode(String xmlString) {
-        DataValidationUtils.validateNotBlank(xmlString, "xmlString");
+    public static Node stringToXmlNode(String string) {
+        DataValidationUtils.validateNotBlank(string, "xmlString");
 
         try {
-            if (isJsonObjectString(xmlString)) {
-                JSONObject jsonObject = stringToJasonObject(xmlString);
-                Node xmlNode = jsonObjectToXmlNode(jsonObject);
-                xmlString = xmlNodeToString(xmlNode);
+            // Add XML header if not present
+            if (!string.trim().startsWith("<?xml")) {
+                string = String.format("%s\n%s", XML_HEADER, string);
             }
-            Node node = stringToXmlDocument(xmlString).getDocumentElement();
-            log.debug("{} string converted to XML node:\n{}.", xmlString, node);
+            Document document = stringToXmlDocument(string);
+            Node node = document.getDocumentElement();
+            log.debug("{} string converted to XML node:\n{}.", string, node);
             return node;
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
-                    "Cannot convert string to XML Node:\n%s.", xmlString));
+                    "Cannot convert string to XML Node:\n%s.", string));
         }
     }
 
@@ -924,11 +925,11 @@ public final class ConverterUtils {
 
     /**
      * Converts XML node object to string.
-     * @param xml The XML document.
+     * @param xmlNode The XML document.
      * @return The XML string.
      */
-    public static String xmlNodeToString(Node xml) {
-        DataValidationUtils.validateNotNull(xml, "xml");
+    public static String xmlNodeToString(Node xmlNode) {
+        DataValidationUtils.validateNotNull(xmlNode, "xml");
 
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -938,19 +939,22 @@ public final class ConverterUtils {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
-            DOMSource domSource = new DOMSource(xml);
+            DOMSource domSource = new DOMSource(xmlNode);
             StringWriter writer = new StringWriter();
             StreamResult result = new StreamResult(writer);
             transformer.transform(domSource, result);
 
             String xmlString = writer.toString();
+            // Add new line after XML header if needed
+            xmlString = xmlString.replace("?><", "?>\r\n<");
+
             log.debug("XML node converted to XML string: {}.", xmlString);
-            return xmlString;
+            return normalizeLineSeparators(xmlString);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert XML document object to string:\n%s",
-                    xml), e);
+                    xmlNode), e);
         }
     }
 
@@ -1031,20 +1035,20 @@ public final class ConverterUtils {
             String clasName = object.getClass().getName();
 
             if (object instanceof JSONObject jsonObject) {
-                string = ConverterUtils.jsonObjectToString(jsonObject);
+                string = ConvertUtils.jsonObjectToString(jsonObject);
             }
             else if (object instanceof JSONArray jsonArray) {
-                string = ConverterUtils.jsonArrayToString(jsonArray);
+                string = ConvertUtils.jsonArrayToString(jsonArray);
             }
             else if (object instanceof Node node) {
-                string = ConverterUtils.xmlNodeToString(node);
+                string = ConvertUtils.xmlNodeToString(node);
             }
             else if (object instanceof Collection collection) {
                 JSONArray jsonArray = collectionToJsonArray(collection);
                 string = jsonArrayToString(jsonArray);
             }
             else if (object instanceof Map map) {
-                JSONObject jsonObject = mapToJSONObject(map);
+                JSONObject jsonObject = mapToJasonObject(map);
                 string = jsonObjectToString(jsonObject);
             }
             else if (object instanceof Record record) {
@@ -1219,7 +1223,7 @@ public final class ConverterUtils {
                             %s
                             """.stripIndent(),
                     sourceObject.getClass().getName(),
-                    sourceObject, targetType), e);
+                    sourceObject, targetType));
         }
     }
 
@@ -1487,7 +1491,6 @@ public final class ConverterUtils {
     public static <T> T stringToObject(SmartType type, String string) {
         DataValidationUtils.validateNotNull(type, "type");
         DataValidationUtils.validateNotBlank(string, "value");
-
         T object = null;
         Class<?> objectClass = type.getObjectClass();
 
@@ -1526,10 +1529,7 @@ public final class ConverterUtils {
                 object = (T) new BigDecimal(string);
             }
             else if (objectClass == Boolean.class) {
-                object = (T)(Boolean) ConverterUtils.stringToBoolean(string);
-            }
-            else if (objectClass == Date.class) {
-                object = (T) new Date(string);
+                object = (T)(Boolean) ConvertUtils.stringToBoolean(string);
             }
             else if (objectClass == LocalDate.class) {
                 object = (T) stringToSmartLocalDate(string).getLocalDate();
@@ -1561,39 +1561,42 @@ public final class ConverterUtils {
             else if (objectClass == java.net.URI.class) {
                 object = (T) stringToURI(string);
             }
-            else if (objectClass == Path.class) {
-                object = (T) stringToPath(string);
-            }
-            else if (objectClass == JSONObject.class) {
-                object = (T) ConverterUtils.stringToJasonObject(string);
-            }
-            else if (objectClass == JSONArray.class) {
-                object = (T) stringToJasonArray(string);
-            }
             else {
                 if (type.isArrayType()) {
-                    object = (T) ConverterUtils.stringToArray(type, string);
+                    object = (T) ConvertUtils.stringToArray(type, string);
                 }
-                else if (objectClass.isAssignableFrom(List.class)) {
-                    object = (T) ConverterUtils.stringToList(type, string);
+                else if (List.class.isAssignableFrom(objectClass)) {
+                    object = (T) ConvertUtils.stringToList(type, string);
                 }
-                else if (objectClass.isAssignableFrom(Set.class)) {
-                    object = (T) ConverterUtils.stringToSet(type, string);
+                else if (Set.class.isAssignableFrom(objectClass)) {
+                    object = (T) ConvertUtils.stringToSet(type, string);
                 }
-                else if (objectClass.isAssignableFrom(Queue.class)) {
-                    object = (T) ConverterUtils.stringToQueue(type, string);
+                else if (Queue.class.isAssignableFrom(objectClass)) {
+                    object = (T) ConvertUtils.stringToQueue(type, string);
                 }
-                else if (objectClass.isAssignableFrom(Vector.class)) {
-                    object = (T) ConverterUtils.stringToVector(type, string);
+                else if (Vector.class.isAssignableFrom(objectClass)) {
+                    object = (T) ConvertUtils.stringToVector(type, string);
                 }
-                else if (objectClass.isAssignableFrom(Map.class)) {
-                    object = (T) ConverterUtils.stringToMap(type, string);
+                else if (Map.class.isAssignableFrom(objectClass)) {
+                    object = (T) ConvertUtils.stringToMap(type, string);
                 }
-                else if (objectClass.isAssignableFrom(Document.class)) {
-                    object = (T) ConverterUtils.stringToXmlDocument(string);
+                else if (JSONObject.class.isAssignableFrom(objectClass)) {
+                    object = (T) ConvertUtils.stringToJasonObject(string);
                 }
-                else if (objectClass.isAssignableFrom(Node.class)) {
-                    object = (T) ConverterUtils.stringToXmlNode(string);
+                else if (JSONArray.class.isAssignableFrom(objectClass)) {
+                    object = (T) stringToJasonArray(string);
+                }
+                else if (Document.class.isAssignableFrom(objectClass)) {
+                    object = (T) ConvertUtils.stringToXmlDocument(string);
+                }
+                else if (Node.class.isAssignableFrom(objectClass)) {
+                    object = (T) ConvertUtils.stringToXmlNode(string);
+                }
+                else if (Path.class.isAssignableFrom(objectClass)) {
+                    object = (T) stringToPath(string);
+                }
+                else if (Date.class.isAssignableFrom(objectClass)) {
+                    object = (T) new Date(string);
                 }
                 else if (objectClass.isEnum()) {
                     object = (T) stringToEnumValue(type, string);
@@ -1737,12 +1740,12 @@ public final class ConverterUtils {
         try {
             JSONArray jsonArray = new JSONArray(collection);
             log.debug("""
-                            Collection converted to JSON array.
-                            Collection:
-                            {}
-                            JSON array:
-                            {}
-                            """.stripIndent(),
+                    Collection converted to JSON array.
+                    Collection:
+                    {}
+                    JSON array:
+                    {}
+                    """.stripIndent(),
                     collection, jsonArray);
             return jsonArray;
         }
@@ -1757,16 +1760,181 @@ public final class ConverterUtils {
      * @param map The map.
      * @return The JSON object.
      */
-    public static <K, V> JSONObject mapToJSONObject(Map<K, V> map) {
+    public static <K, V> JSONObject mapToJasonObject(Map<K, V> map) {
         DataValidationUtils.validateNotNull(map, "map");
 
         try {
-            return new JSONObject(map);
+            JSONObject jsonObject = new JSONObject(map);
+            log.debug("""
+                    Map converted to JSON object.
+                    Map:
+                    {}
+                    JSON:
+                    {}
+                    """.stripIndent(),
+                    map, jsonObject);
+            return jsonObject;
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert map to JSON object:\n'%s'", map));
         }
+    }
+
+    /**
+     * Converts map to XML document
+     * @param map The map.
+     * @return The XML document.
+     */
+    public static <K,V> Document mapToXmlDocument(Map<K,V> map) {
+        DataValidationUtils.validateNotNull(map, "map");
+
+        try {
+            String rootName = getParameterName(0);
+            JSONObject jsonObject = mapToJasonObject(map);
+            Document xml = jsonObjectToXmlDocument(jsonObject);
+            Document document = updateXmlRootName(xml, rootName);
+            log.debug("""
+                    Map converted to XML document.
+                    Map:
+                    {}
+                    XML:
+                    {}
+                    """.stripIndent(),
+                    map, document);
+            return document;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot convert map to XML document:\n'%s'", map));
+        }
+    }
+
+    /**
+     * Converts map to XML node.
+     * @param map The map.
+     * @return The XML node.
+     */
+    public static <K,V> Node mapToXmlNode(Map<K,V> map) {
+        DataValidationUtils.validateNotNull(map, "map");
+
+        String rootName = getParameterName(0);
+        Document xml = mapToXmlDocument(map);
+        Document document = updateXmlRootName(xml, rootName);
+        Node xmlNode = document.getDocumentElement();
+        log.debug("""
+                    Map converted to XML node.
+                    Map:
+                    {}
+                    XML:
+                    {}
+                    """.stripIndent(),
+                map, xmlNode);
+        return xmlNode;
+    }
+
+    /**
+     * Converts record to XML document
+     * @param record The record.
+     * @return The XML document.
+     */
+    public static Document recordToXmlDocument(Record record) {
+        DataValidationUtils.validateNotNull(record, "record");
+
+        try {
+            String rootName = getParameterName(0);
+            JSONObject jsonObject = recordToJsonObject(record);
+            Document xml = jsonObjectToXmlDocument(jsonObject);
+            Document document = updateXmlRootName(xml, rootName);
+            log.debug("""
+                    Record converted to XML document.
+                    Record:
+                    {}
+                    XML:
+                    {}
+                    """.stripIndent(),
+                    record, document);
+            return document;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot convert record to XML document:\n'%s'", record));
+        }
+    }
+
+    /**
+     * Converts record to XML node.
+     * @param record The record.
+     * @return The XML node.
+     */
+    public static Node recordToXmlNode(Record record) {
+        DataValidationUtils.validateNotNull(record, "record");
+
+        String rootName = getParameterName(0);
+        Document xml = recordToXmlDocument(record);
+        Document document = updateXmlRootName(xml, rootName);
+        Node xmlNode = document.getDocumentElement();
+        log.debug("""
+                Record converted to XML node.
+                Record:
+                {}
+                XML:
+                {}
+                """.stripIndent(),
+                record, xmlNode);
+        return xmlNode;
+    }
+
+    /**
+     * Converts POJO object to XML document
+     * @param pojo The pojo object.
+     * @return The XML document.
+     */
+    public static Document pojoObjectToXmlDocument(Object pojo) {
+        DataValidationUtils.validateNotNull(pojo, "pojo");
+
+        try {
+            String rootName = getParameterName(0);
+            JSONObject jsonObject = pojoObjectToJson(pojo);
+            Document xml = jsonObjectToXmlDocument(jsonObject);
+            Document document = updateXmlRootName(xml, rootName);
+            log.debug("""
+                    POJO object converted to XML document.
+                    POJO:
+                    {}
+                    XML:
+                    {}
+                    """.stripIndent(),
+                    pojo, document);
+            return document;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot convert POJO object to XML document:\n'%s'", pojo));
+        }
+    }
+
+    /**
+     * Converts POJO object to XML node.
+     * @param pojo The pojo.
+     * @return The XML node.
+     */
+    public static Node pojoObjectToXmlNode(Object pojo) {
+        DataValidationUtils.validateNotNull(pojo, "pojo");
+
+        String rootName = getParameterName(0);
+        Document xml = pojoObjectToXmlDocument(pojo);
+        Document document = updateXmlRootName(xml, rootName);
+        Node xmlNode = document.getDocumentElement();
+        log.debug("""
+                Record converted to XML node.
+                Record:
+                {}
+                XML:
+                {}
+                """.stripIndent(),
+                pojo, xmlNode);
+        return xmlNode;
     }
 
     /**
@@ -1936,7 +2104,7 @@ public final class ConverterUtils {
                 jsonObject = (JSONObject) object;
             }
             else if (object instanceof Map map) {
-               jsonObject = mapToJSONObject(map);
+               jsonObject = mapToJasonObject(map);
             }
             else if (object instanceof Node xmlNode) {
                 jsonObject = xmlNodeToJsonObject(xmlNode);
@@ -1973,38 +2141,82 @@ public final class ConverterUtils {
         Node xmlNode;
 
         try {
+            String rootName = getParameterName(0);
+
             if (object instanceof Node node) {
                 xmlNode = node;
-            }
-            else if (object instanceof JSONObject jsonObject) {
-                xmlNode = jsonObjectToXmlNode(jsonObject);
-            }
-            else if (object instanceof Map map) {
-                JSONObject jsonObject = mapToJSONObject(map);
-                xmlNode = jsonObjectToXmlNode(jsonObject);
             }
             else if (object instanceof String string) {
                 xmlNode = stringToXmlNode(string);
             }
-            else if (object instanceof Record record) {
-                JSONObject jsonObject = recordToJsonObject(record);
+            else if (object instanceof Map map) {
+                xmlNode = mapToXmlNode(map);
+            }
+            else if (object instanceof JSONObject jsonObject) {
                 xmlNode = jsonObjectToXmlNode(jsonObject);
             }
+            else if (object instanceof JSONArray jsonArray) {
+                xmlNode = jsonArrayToXmlNode(jsonArray);
+            }
+            else if (object instanceof Record record) {
+                xmlNode = recordToXmlNode(record);
+            }
             else if (isPojoObject(object)) {
-                JSONObject jsonObject = pojoObjectToJson(object);
-                xmlNode = jsonObjectToXmlNode(jsonObject);
+                xmlNode = pojoObjectToXmlNode(object);
             }
             else {
                 throw new SmartRuntimeException(String.format(
                         "Cannot convert %s type to JSON array",
                         object.getClass().getName()));
             }
-            log.debug("Object is converted to JSON array:\n{}", xmlNode.toString());
+            if (!(object instanceof String) && !(object instanceof Node)) {
+                Document document = xmlNodeToXmlDocument(xmlNode);
+                xmlNode = updateXmlRootName(document, rootName).getDocumentElement();
+            }
+            log.debug("Object is converted to XML node:\n{}", xmlNode.toString());
             return xmlNode;
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
-                    "Cannot convert object to JSON array:\n%s", object.toString()));
+                    "Cannot convert object to XML node:\n%s", object.toString()));
+        }
+    }
+
+    /**
+     * Converts an XML Node to XML document.
+     * @param node The XML Node.
+     * @return The XML document containing the given node as the root.
+     * @throws Exception If any parsing error occurs.
+     */
+    public static Document xmlNodeToXmlDocument(Node node) {
+        DataValidationUtils.validateNotNull(node, "node");
+
+        try {
+            // Create a new DocumentBuilder
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+
+            // Create a new Document
+            Document document = documentBuilder.newDocument();
+
+            // Import the node into the new Document
+            Node importedNode = document.importNode(node, true);
+
+            // Append the imported node as the root element
+            document.appendChild(importedNode);
+            log.debug("""
+                    XML node converted to XML document.
+                    Node:
+                    {}
+                    Document:
+                    {}
+                    """.stripIndent(),
+                    node, document);
+            return document;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot convert XML node to XML Document:\n%s", node));
         }
     }
 
@@ -2193,11 +2405,7 @@ public final class ConverterUtils {
         DataValidationUtils.validateNotBlank(string, "string");
 
         try {
-            if (isXmlString(string)) {
-                Node xmlNode = stringToXmlNode(string);
-                string = xmlNodeToString(xmlNode);
-            }
-            else if (isCsvString(string)) {
+            if (isCsvString(string)) {
                 JSONArray jsonArray = stringToJasonArray(string);
                 string = jsonArrayToString(jsonArray);
             }
@@ -2464,42 +2672,6 @@ public final class ConverterUtils {
     }
 
     /**
-     * Convers JSON object to XML node.
-     * @param jsonObject The JSON object.
-     * @return The XML node.
-     */
-    public static Node jsonObjectToXmlNode(JSONObject jsonObject) {
-        DataValidationUtils.validateNotNull(jsonObject, "jsonObject");
-
-        try {
-            String xmlString = XML.toString(jsonObject);
-
-            if (xmlString.isEmpty()) {
-                throw new SmartRuntimeException(String.format(
-                        "Cannot convert JSON object to XML node:\n%s",
-                        jsonObject));
-            }
-            xmlString = String.format("<object>%s</object>", xmlString);
-
-            Node xmlNode = stringToXmlNode(xmlString);
-            log.debug("""
-                    JSON object converted to XML node.
-                    JSON object:
-                    {}
-                    Map:
-                    {}
-                    """.stripIndent(),
-                    jsonObject, xmlNode);
-            return xmlNode;
-        }
-        catch (Exception e) {
-            throw new SmartRuntimeException(String.format(
-                    "Cannot convert JSON object to XML node:\n%s",
-                    jsonObject), e);
-        }
-    }
-
-    /**
      * Converts XML string to JSON object.
      * @param xmlString XML string.
      * @return The JSON object.
@@ -2632,6 +2804,181 @@ public final class ConverterUtils {
                     """.stripIndent(),
                     numberString), e);
         }
+    }
+
+    /**
+     * Converts JSON object to XMl document with
+     * custom root name and custom item name.
+     * @param jsonObject The JSON object.
+     * @return The XML document.
+     */
+    public static Document jsonObjectToXmlDocument(JSONObject jsonObject) {
+        DataValidationUtils.validateNotNull(jsonObject, "jsonObject");
+
+        try {
+            // Use parameter name as XML root name.
+            String rootName = getParameterName(0);
+            // Convert JSON object to XML string and wrap it into root tags
+            String xmlString = jsonObjectToXmlString(jsonObject, rootName);
+
+            // Convert the built XML string to an XML Document
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document xmlDocument = builder.parse(new InputSource(new StringReader(xmlString.toString())));
+            log.debug("""
+                    JSON object converted to XML document.
+                    JSON:
+                    {}
+                    XML:
+                    {}
+                    """.stripIndent(),
+                    jsonObject, xmlDocument);
+            return xmlDocument;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot convert JSON object to XML document.
+                    JSON:
+                    %s
+                    """.stripIndent(),
+                    jsonObject), e);
+        }
+    }
+
+    /**
+     * Converts JSON array to XMl document with
+     * custom root name and custom item name.
+     * @param jsonArray The JSON array.
+     * @return The JSON document.
+     */
+    public static Document jsonArrayToXmlDocument(JSONArray jsonArray) {
+        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
+
+        try {
+            // Use parameter name as XML root name.
+            String rootName = getParameterName(0);
+            String itemName = TextUtils.pluralToSingular(rootName);
+
+            // Convert JASON array to string and wrap XML string into root tags
+            String xmlString =  jsonArrayToXmlString(jsonArray, rootName, itemName);
+
+            // Convert the XML string to an XML Document
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new InputSource(new StringReader(xmlString.toString())));
+            log.debug("""
+                    JSON array converted to XML document.
+                    JSON:
+                    {}
+                    XML:
+                    {}
+                    """.stripIndent(),
+                    jsonArray, document);
+            return document;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot convert JSON array to XML document.
+                    JSON:
+                    %s
+                    """.stripIndent(),
+                    jsonArray), e);
+        }
+    }
+
+    /**
+     * Converts JSON object to XMl node.
+     * Root name is taken from parameter name passed tho this method.
+     * @param jsonObject The JSON object.
+     * @return The XML node.
+     */
+    public static Node jsonObjectToXmlNode(JSONObject jsonObject) {
+        DataValidationUtils.validateNotNull(jsonObject, "jsonObject");
+
+        try {
+            String rootName = getParameterName(0);
+            Document xml = jsonObjectToXmlDocument(jsonObject);
+            Document document = updateXmlRootName(xml, rootName);
+            Node xmlNode = document.getDocumentElement();
+            log.debug("""
+                    JSON object converted to XML node.
+                    JSON:
+                    {}
+                    XML:
+                    {}
+                    """.stripIndent(),
+                    jsonObject, xmlNode);
+            return xmlNode;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot convert JSON object to XML node.
+                    JSON:
+                    %s
+                    """.stripIndent(),
+                    jsonObject), e);
+        }
+    }
+
+    /**
+     * Converts JSON array to XMl node with
+     * custom root name and custom item name.
+     * @param jsonArray The JSON object.
+     * @param rootName The XML root name.
+     * @param itemName The XML item name.
+     * @return The XML node.
+     */
+    public static Node jsonArrayToXmlNode(JSONArray jsonArray, String rootName, String itemName) {
+        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
+        DataValidationUtils.validateNotBlank(rootName, "rootName");
+        DataValidationUtils.validateNotBlank(itemName, "itemName");
+
+        try {
+            Node xmlNode = jsonArrayToXmlDocument(jsonArray).getDocumentElement();
+            log.debug("""
+                    JSON object converted to XML node.
+                    JSON:
+                    {}
+                    XML:
+                    {}
+                    """.stripIndent(),
+                    jsonArray, xmlNode);
+            return xmlNode;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot convert JSON object to XML node.
+                    JSON:
+                    %s
+                    """.stripIndent(),
+                    jsonArray), e);
+        }
+    }
+
+    /**
+     * Converts JSON array to XMl node with
+     * custom root name and default item name.
+     * @param jsonArray The JSON object.
+     * @param rootName The XML root name.
+     * @return The XML node.
+     */
+    public static Node jsonArrayToXmlNode(JSONArray jsonArray, String rootName) {
+        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
+        DataValidationUtils.validateNotBlank(rootName, "rootName");
+
+        return jsonArrayToXmlNode(jsonArray, rootName, DEFAULT_XML_ITEM_NAME);
+    }
+
+    /**
+     * Converts JSON array to XMl node with
+     * default root name and default item name.
+     * @param jsonArray The JSON object.
+     * @return The XML node.
+     */
+    public static Node jsonArrayToXmlNode(JSONArray jsonArray) {
+        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
+
+        return jsonArrayToXmlNode(jsonArray, DEFAULT_XML_ROOT_NAME, DEFAULT_XML_ITEM_NAME);
     }
 
     /**
@@ -3147,6 +3494,168 @@ public final class ConverterUtils {
         else {
             return false;
         }
+    }
+
+    private static String jsonObjectToXmlString(JSONObject jsonObject, String rootName) {
+
+        try {
+            StringBuilder xmlString = new StringBuilder();
+
+            // Start with XML root open tag
+            xmlString.append("<").append(rootName).append(">");
+            // Traverse JSONObject keys and handle JSONArray separately
+            jsonObject.keys().forEachRemaining(keyName -> {
+                Object value = jsonObject.get(keyName);
+
+                if (value instanceof JSONArray elementJsonArray) {
+                    String itemName = TextUtils.pluralToSingular(keyName);
+                    xmlString.append(jsonArrayToXmlString(elementJsonArray, keyName, itemName));
+                }
+                else if (value instanceof JSONObject elementJsonObject) {
+                    xmlString.append(jsonObjectToXmlString(elementJsonObject, keyName));
+                }
+                else if (value instanceof Collection collection) {
+                    JSONArray jsonArray = collectionToJsonArray(collection);
+                    String itemName = TextUtils.pluralToSingular(keyName);
+                    xmlString.append(jsonArrayToXmlString(jsonArray, keyName, itemName));
+                }
+                else if (value instanceof Map map) {
+                    JSONObject jsonMap = mapToJasonObject(map);
+                    xmlString.append(jsonObjectToXmlString(jsonMap, keyName));
+                }
+                else {
+                    // Convert regular JSONObject fields
+                    String fieldXml = XML.toString(value, keyName);
+                    xmlString.append(fieldXml);
+                }
+            });
+            // End with XML root close tag
+            xmlString.append("</").append(rootName).append(">");
+            String xml = xmlString.toString();
+            log.debug("""
+                    JSON object converted to XML string.
+                    JSON:
+                    {}
+                    XML:
+                    {}
+                    """.stripIndent(),
+                    jsonObject, xml);
+            return xml;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot convert JSON object to XML string.
+                    JSON:
+                    %s
+                    """.stripIndent(),
+                    jsonObject), e);
+        }
+    }
+
+    private static String jsonArrayToXmlString(JSONArray jsonArray, String arrayName, String itemName) {
+        try {
+            StringBuilder xmlString = new StringBuilder();
+            Set<String> subArraysNames = new HashSet<>();
+            // Start with array name open tag
+            xmlString.append("<").append(arrayName).append(">");
+
+            // Convert each element in JSONArray to XML with custom itemName
+            for (int i = 0; i < jsonArray.length(); i++) {
+                Object value = jsonArray.get(i);
+
+                if (value instanceof JSONObject itemJsonObject) {
+                    // Nested JSON objects will have the same name
+                    xmlString.append(jsonObjectToXmlString(itemJsonObject, itemName));
+                }
+                else if (value instanceof JSONArray itemJsonArray) {
+                    String subArrayName = getJsonArrayPutPluralParameterName(arrayName);
+                    String subItemName = TextUtils.pluralToSingular(subArrayName);
+
+                    // Check if array with this name already has been added.
+                    if (!subArraysNames.contains(subArrayName)) {
+                        xmlString.append(jsonArrayToXmlString(itemJsonArray, subArrayName, subItemName));
+                    }
+                    else {
+                        int number = 1;
+                        subArrayName = DEFAULT_XML_ITEMS_NAME;
+
+                        while (true) {
+                            if (!subArraysNames.contains(subArrayName)) {
+                                xmlString.append(jsonArrayToXmlString(itemJsonArray, subArrayName, subItemName));
+                                break;
+                            }
+                            // Add number to sub array name at the end to make it unique
+                            subArrayName += number;
+                        }
+                    }
+                    subArraysNames.add(subArrayName);
+                }
+                else {
+                    // Convert regular JSONObject fields
+                    String itemXml = XML.toString(value, itemName);
+                    xmlString.append(itemXml);
+                }
+            }
+            // End with array name close tag
+            xmlString.append("</").append(arrayName).append(">");
+            return xmlString.toString();
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot convert JSON array to XML string without root tags.
+                    JSON:
+                    %s
+                    """.stripIndent(),
+                    jsonArray), e);
+        }
+    }
+
+    private static String getParameterName(int depthIndex) {
+        try {
+            String fullTestMethodName = ClassUtils.getFullMethodNameFromStackTrace(depthIndex + 2);
+            String fullMethodName = ClassUtils.getFullMethodNameFromStackTrace(depthIndex + 1);
+            Class<?> clazz = ClassUtils.getClassFromFullMethodName(fullTestMethodName);
+            String methodName = ClassUtils.getMethodNameFromFullMethodName(fullMethodName);
+            String parameterName = ClassUtils.getMethodParameterName(clazz, fullTestMethodName, methodName, 0);
+            log.debug("Parameter name: {}", parameterName);
+            return parameterName;
+        }
+        catch (Exception e) {
+            return DEFAULT_XML_ITEM_NAME;
+        }
+    }
+
+    private static String getJsonArrayPutPluralParameterName(String arrayName) {
+        try {
+            String fullTestMethodName = ClassUtils.getFullMethodNameFromStackTrace(6);
+            Class<?> clazz = ClassUtils.getClassFromFullMethodName(fullTestMethodName);
+            String methodName = String.format("%s.put", arrayName);
+            String parameterName = ClassUtils.getSingleMethodParameterName(
+                    clazz, methodName, "JSONArray");
+            log.debug("Parameter name: {}", parameterName);
+            return parameterName;
+        }
+        catch (Exception e) {
+            return DEFAULT_XML_ITEMS_NAME;
+        }
+    }
+
+    private static Document updateXmlRootName(Document document, String newRootName) {
+        // Get the original root element
+        Element oldRoot = document.getDocumentElement();
+        // Create a new root element with the new name
+        Element newRoot = document.createElement(newRootName);
+
+        // Move all child nodes from the old root to the new root
+        NodeList childNodes = oldRoot.getChildNodes();
+        while (childNodes.getLength() > 0) {
+            Node child = childNodes.item(0);
+            newRoot.appendChild(child);  // This will remove the child from the old root
+        }
+        // Replace the old root with the new root in the document
+        document.removeChild(oldRoot);
+        document.appendChild(newRoot);
+        return document;
     }
 }
 

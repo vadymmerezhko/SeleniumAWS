@@ -1,7 +1,7 @@
 package org.example.data;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.utils.ConverterUtils;
+import org.example.utils.ConvertUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.example.configs.Config;
@@ -109,7 +109,7 @@ public abstract class SmartAssert {
                     // Convert actual string value to object
                     if (actualValueClass != expectedValueClass) {
                         SmartType expectedValueType = SmartType.fromClass(expectedClass);
-                        actualValue = ConverterUtils.objectToObject(expectedValueType, actualValue);
+                        actualValue = ConvertUtils.objectToObject(expectedValueType, actualValue);
                     }
                 }
                 if (Config.getInstance().getDebugMode() && !expectedValue.equals(actualValue)) {
@@ -196,8 +196,8 @@ public abstract class SmartAssert {
         DataValidationUtils.validateNotNull(actualXml, "actualXml");
         DataValidationUtils.validateNotTheSame(expectedXml, actualXml, "expectedXml", "actualXml");
 
-        JSONObject expectedJson = ConverterUtils.xmlNodeToJsonObject(expectedXml);
-        JSONObject actualJson = ConverterUtils.xmlNodeToJsonObject(actualXml);
+        JSONObject expectedJson = ConvertUtils.xmlNodeToJsonObject(expectedXml);
+        JSONObject actualJson = ConvertUtils.xmlNodeToJsonObject(actualXml);
         assertJsonObject(expectedJson, actualJson, strict);
     }
 
@@ -225,7 +225,7 @@ public abstract class SmartAssert {
             log.debug("User exited the test.");
             WebDriverFactory.hardSystemExit();
         }
-        Object value = ConverterUtils.stringToObject(expected.getSmartType(), newValue);
+        Object value = ConvertUtils.stringToObject(expected.getSmartType(), newValue);
         expected.setAndSaveValue(value);
         log.debug("Expected data object {} field value was updated to '{}'",
                 expected.getName(), newValue);

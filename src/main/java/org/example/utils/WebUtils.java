@@ -302,7 +302,7 @@ public final class WebUtils {
             WebDriver driver = WebDriverFactory.getDriver();
             JavascriptExecutor js = (JavascriptExecutor) driver;
             js.executeScript(String.format("alert('%s');",
-                    ConverterUtils.escapeJavaScript(text)));
+                    ConvertUtils.escapeJavaScript(text)));
 
             WebDriverWait wait = new WebDriverWait(driver,
                     Duration.ofSeconds(SHOW_POPUP_TIMEOUT_SECONDS));
@@ -341,7 +341,7 @@ public final class WebUtils {
             // Inject the script to override the confirm function
             js.executeScript(script);
             // Trigger the confirm dialog
-            js.executeScript(String.format("window.confirm('%s');", ConverterUtils.escapeJavaScript(text)));
+            js.executeScript(String.format("window.confirm('%s');", ConvertUtils.escapeJavaScript(text)));
             log.debug("Confirm popup is open with text: {}", text);
 
             // Wait for the confirm popup to be handled
@@ -396,8 +396,8 @@ public final class WebUtils {
             String script = String.format(
                     "var result = prompt('%s:', '%s');" +
                             "document.getElementById('prompt-result').value = result;",
-                    ConverterUtils.escapeJavaScript(text),
-                    ConverterUtils.escapeJavaScript(defaultValue));
+                    ConvertUtils.escapeJavaScript(text),
+                    ConvertUtils.escapeJavaScript(defaultValue));
             jsExecutor.executeScript(script);
 
             // Wait for the alert (prompt) to be present
@@ -692,7 +692,7 @@ public final class WebUtils {
         String keywordString = null;
 
         if (keyword != null) {
-            keywordString = ConverterUtils.objectToString(keyword);
+            keywordString = ConvertUtils.objectToString(keyword);
         }
 
         do {
@@ -705,7 +705,7 @@ public final class WebUtils {
             selector = HttpUtils.sendHttpRequest(
                     OPEN_AI_API_URL,
                     String.format(OPEN_AI_REQUEST_FORMAT,
-                            ConverterUtils.escapeJavaScript(prompt)),
+                            ConvertUtils.escapeJavaScript(prompt)),
                     System.getenv(OPEN_AI_API_KEY_NAME));
 
             if (selector == null || selector.trim().isEmpty()) {
@@ -750,8 +750,8 @@ public final class WebUtils {
      public static By convertSelectorTemplateToBy(String selector, Object keyword) {
         if (keyword != null) {
             // Replace text placeholder with actual text (if any).
-            String keywordString = ConverterUtils.objectToString(keyword);
-            String jsKeyword =  ConverterUtils.escapeJavaScript(keywordString);
+            String keywordString = ConvertUtils.objectToString(keyword);
+            String jsKeyword =  ConvertUtils.escapeJavaScript(keywordString);
             selector = selector.replace(KEYWORD_PLACEHOLDER, String.format("'%s'", jsKeyword));
         }
         if (isXpath(selector)) {
@@ -1124,15 +1124,15 @@ public final class WebUtils {
                     // Get boolean value for checkbox or radio button
                     case "checkbox", "radio" -> element.isSelected();
                     // Get file value
-                    case "url" -> ConverterUtils.stringToFile(value);
+                    case "url" -> ConvertUtils.stringToFile(value);
                     // Gets number value
-                    case "number", "range" -> ConverterUtils.stringToNumber(value);
+                    case "number", "range" -> ConvertUtils.stringToNumber(value);
                     // Get local date value
-                    case "date", "week", "month" -> ConverterUtils.stringToSmartLocalDate(value);
+                    case "date", "week", "month" -> ConvertUtils.stringToSmartLocalDate(value);
                     // Get local date time value
-                    case "datetime-local" -> ConverterUtils.stringToSmartLocalDateTime(value);
+                    case "datetime-local" -> ConvertUtils.stringToSmartLocalDateTime(value);
                     // Get local time value
-                    case "time" -> ConverterUtils.stringToSmartLocalTime(value);
+                    case "time" -> ConvertUtils.stringToSmartLocalTime(value);
                     default ->
                         // Get input text value
                         value;
@@ -1531,7 +1531,7 @@ public final class WebUtils {
     }
 
     private static String getElementXpathSelectorByParentKeyword(WebElement element, Object keyword, boolean contains) {
-        String keywordString = ConverterUtils.objectToString(keyword);
+        String keywordString = ConvertUtils.objectToString(keyword);
         String parentXpath = getElementXpathSelectorByKeyword(keywordString, contains);
 
         if (parentXpath == null) {
@@ -1562,7 +1562,7 @@ public final class WebUtils {
 
     private static String getElementXpathSelectorBySiblingKeyword(
             WebElement element, Object keyword, boolean contains) {
-        String keywordString = ConverterUtils.objectToString(keyword);
+        String keywordString = ConvertUtils.objectToString(keyword);
         String siblingXpath = getElementXpathSelectorByKeyword(keywordString, contains);
 
         if (siblingXpath == null) {
@@ -1602,7 +1602,7 @@ public final class WebUtils {
     }
 
     private static String getElementXpathSelectorByChildKeyword(WebElement element, Object keyword, boolean contains) {
-        String keywordString = ConverterUtils.objectToString(keyword);
+        String keywordString = ConvertUtils.objectToString(keyword);
         String childXpath = getElementXpathSelectorByKeyword(keywordString, contains);
         String xpathByChildText = null;
 
