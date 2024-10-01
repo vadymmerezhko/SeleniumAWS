@@ -4,7 +4,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>SeleniumTestNGParentPom</artifactId>
-  <version>1.12.5</version>
+  <version>1.12.6</version>
   <packaging>pom</packaging>
 
   <name>SeleniumTestNGParentPom</name>
@@ -96,7 +96,7 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-ssm</artifactId>
-      <version>1.12.571</version>
+      <version>1.12.671</version>
     </dependency>
       <dependency>
           <groupId>org.seleniumhq.selenium</groupId>
