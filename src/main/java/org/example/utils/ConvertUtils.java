@@ -4562,7 +4562,7 @@ public final class ConvertUtils {
             }
             if (formatString == null) {
                 // Replace digits with #
-                formatString = numberString.replaceAll("[0-9]", "#");
+                formatString = replaceAllDigitsWithDies(formatString);
             }
             if (formatString.equals(numberString)) {
                 throw new SmartRuntimeException(String.format(
@@ -5042,7 +5042,8 @@ public final class ConvertUtils {
      */
     public static String phoneNumberFormattedString(Number number, String format) {
         DataValidationUtils.validateNotNull(number, "number");
-        DataValidationUtils.validateMin(number, 0, "number");
+        DataValidationUtils.validateMin(number, MIN_PHONE_NUMBER, "number");
+        DataValidationUtils.validateMax(number, MAX_PHONE_NUMBER, "number");
         DataValidationUtils.validateNotBlank(format, "format");
 
         String numberString = number.toString();
@@ -6426,6 +6427,10 @@ public final class ConvertUtils {
         // Replace comma decimal delimiter with point
         numberString = numberString.replace(",", ".");
         return numberString;
+    }
+
+    private static String replaceAllDigitsWithDies(String formatNumberString) {
+        return formatNumberString.replaceAll("[0-9]", "#");
     }
 }
 

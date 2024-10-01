@@ -28,8 +28,8 @@ public class Settings {
     public static final int PAGE_LOAD_WAIT_TIMEOUT_SECONDS = Config.getInstance().getPageWaitTimeout();
     public static final int RETRY_COUNT = 20;
     public static final int JSON_LAYOUT_SPACES = 4;
-    public static final Number MIN_PHONE_NUMBER = 1E8;
-    public static final Number MAX_PHONE_NUMBER = 1E21;
+    public static final Number MIN_PHONE_NUMBER = 1E5;
+    public static final Number MAX_PHONE_NUMBER = 1E20;
 
     public static final String AWS_DOCKER_IMAGE_ID = "ami-0d93c31a4c91fcd51";
     public static final String AWS_LOCAL_RUN_IMAGE_ID = "ami-05188da1ca88643c3";

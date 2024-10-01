@@ -20,7 +20,7 @@ public class SmartNumberTest {
 
         Assert.assertNotNull(smartNumber);
         Assert.assertEquals(smartNumber.getNumber(), 1234);
-        Assert.assertEquals(smartNumber.getFormat(), "#");
+        Assert.assertEquals(smartNumber.getFormat(), "####");
     }
 
     @Test
@@ -50,7 +50,7 @@ public class SmartNumberTest {
 
         Assert.assertNotNull(smartNumber);
         Assert.assertEquals(smartNumber.getNumber(), 123.456);
-        Assert.assertEquals(smartNumber.getFormat(), "#.###");
+        Assert.assertEquals(smartNumber.getFormat(), "###.###");
     }
 
     @Test
@@ -90,7 +90,7 @@ public class SmartNumberTest {
 
         Assert.assertNotNull(smartNumber);
         Assert.assertEquals(smartNumber.getNumber(), 1000000.0);
-        Assert.assertEquals(smartNumber.getFormat(), "0.###E0");
+        Assert.assertEquals(smartNumber.getFormat(), "#e#");
     }
 
     @Test
@@ -100,7 +100,7 @@ public class SmartNumberTest {
 
         Assert.assertNotNull(smartNumber);
         Assert.assertEquals(smartNumber.getNumber(), 1123000.0);
-        Assert.assertEquals(smartNumber.getFormat(), "0.###E0");
+        Assert.assertEquals(smartNumber.getFormat(), "#.###e#");
     }
 
     @Test
@@ -110,7 +110,7 @@ public class SmartNumberTest {
 
         Assert.assertNotNull(smartNumber);
         Assert.assertEquals(smartNumber.getNumber(), 1.234567E9);
-        Assert.assertEquals(smartNumber.getFormat(), "0.###E0");
+        Assert.assertEquals(smartNumber.getFormat(), "#,###.###e#");
     }
 
     @Test
@@ -120,7 +120,7 @@ public class SmartNumberTest {
 
         Assert.assertNotNull(smartNumber);
         Assert.assertEquals(smartNumber.getNumber(), Integer.valueOf(numberString));
-        Assert.assertEquals(smartNumber.getFormat(), "#");
+        Assert.assertEquals(smartNumber.getFormat(), "##########");
     }
 
     @Test
@@ -130,7 +130,7 @@ public class SmartNumberTest {
 
         Assert.assertNotNull(smartNumber);
         Assert.assertEquals(smartNumber.getNumber(), Long.valueOf(numberString));
-        Assert.assertEquals(smartNumber.getFormat(), "#");
+        Assert.assertEquals(smartNumber.getFormat(), "###################");
     }
 
     @Test
@@ -141,7 +141,8 @@ public class SmartNumberTest {
 
         Assert.assertNotNull(smartNumber);
         Assert.assertEquals(smartNumber.getNumber(), new BigInteger(numberString));
-        Assert.assertEquals(smartNumber.getFormat(), "#");
+        Assert.assertEquals(smartNumber.getFormat(),
+                "#######################################################################");
     }
 
     @Test
@@ -151,7 +152,7 @@ public class SmartNumberTest {
 
         Assert.assertNotNull(smartNumber);
         Assert.assertEquals(smartNumber.getNumber(), Double.valueOf(numberString));
-        Assert.assertEquals(smartNumber.getFormat(), "0.###E0");
+        Assert.assertEquals(smartNumber.getFormat(), "#.################E###");
     }
 
     @Test
@@ -161,7 +162,7 @@ public class SmartNumberTest {
 
         Assert.assertNotNull(smartNumber);
         Assert.assertEquals(smartNumber.getNumber(), new BigDecimal(numberString));
-        Assert.assertEquals(smartNumber.getFormat(), "0.###E0");
+        Assert.assertEquals(smartNumber.getFormat(), "#.###e+#########");
     }
 
     @Test

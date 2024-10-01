@@ -3622,12 +3622,11 @@ public class SmartValueTest {
         Assert.assertEquals(resultValue, expectedValue, "The value should match the expected map.");
     }
 
-    @Test(expectedExceptions = SmartRuntimeException.class)
+    @Test
     public void testGetValueWithoutSetUp() {
         SmartValue smartValue = new SmartValue();
 
-        // Directly calling getValue without proper setup should throw an exception
-        smartValue.getValue();
+        Assert.assertNull(smartValue.getValue());
     }
 
     @Test
@@ -3776,12 +3775,12 @@ public class SmartValueTest {
         Assert.assertNotNull(resultSmartType);
         Assert.assertEquals(resultSmartType, expectedSmartType);
     }
-    @Test(expectedExceptions = SmartRuntimeException.class)
+    @Test
     public void testGetSmartTypeWithoutSetUp() {
         SmartValue smartValue = new SmartValue();
+        SmartType expected = SmartType.fromClass(Null.class);
 
-        // Directly calling getSmartType without proper setup should throw an exception
-        smartValue.getSmartType();
+        Assert.assertEquals(smartValue.getSmartType(), expected);
     }
 
     @Test

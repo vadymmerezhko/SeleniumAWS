@@ -5,8 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.CompareUtils;
 import org.example.utils.ConvertUtils;
+import org.example.utils.DataValidationUtils;
 
 import java.util.Objects;
+
+import static org.example.constants.Settings.MAX_PHONE_NUMBER;
+import static org.example.constants.Settings.MIN_PHONE_NUMBER;
 
 /**
  * Smart phone number class.
@@ -21,21 +25,23 @@ public final class SmartPhoneNumber extends SmartObject implements FormattedValu
 
     /**
      * Parses number string to smart phone number.
-     * @param numberString The number string.
+     * @param phoneNumberString The number string.
      * @return The smart number.
      */
-    public static SmartPhoneNumber fromString(String numberString) {
+    public static SmartPhoneNumber fromString(String phoneNumberString) {
+        DataValidationUtils.validateNotBlank(phoneNumberString, "phoneNumberString");
+
         try {
-            Number phoneNumber = ConvertUtils.phoneNumberStingToNumber(numberString);
+            Number phoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
             SmartPhoneNumber smartNumber = new SmartPhoneNumber(phoneNumber);
-            smartNumber.format = ConvertUtils.numberStringToFormat(numberString);
+            smartNumber.format = phoneNumberString.replaceAll("[0-9]", "#");
             log.debug("""
                 Number string converted to smart phone number.
                 String: {}
                 Number: {}
                 Format: {}
                 """.stripIndent(),
-                numberString, phoneNumber, smartNumber.format);
+                phoneNumberString, phoneNumber, smartNumber.format);
             return smartNumber;
         }
         catch (Exception e) {
@@ -44,7 +50,42 @@ public final class SmartPhoneNumber extends SmartObject implements FormattedValu
                     Number string:
                     %s
                     """.stripIndent(),
-                    numberString), e);
+                    phoneNumberString), e);
+        }
+    }
+
+    /**
+     * Creates smart phone number from phone number.
+     * @param phoneNumber The phone number.
+     * @return The smart number.
+     */
+    public static SmartPhoneNumber fromNumber(Number phoneNumber) {
+        DataValidationUtils.validateNotNull(phoneNumber, "phoneNumber");
+        // The minimal 6 digits phone number
+        DataValidationUtils.validateMin(phoneNumber, MIN_PHONE_NUMBER, "phoneNumber");
+        // The maximal 15 digits phone number with extension to 5 digits
+        DataValidationUtils.validateMax(phoneNumber, MAX_PHONE_NUMBER, "phoneNumber");
+
+        try {
+            String numberString = String.valueOf(phoneNumber);
+            SmartPhoneNumber smartNumber = new SmartPhoneNumber(phoneNumber);
+            smartNumber.format = ConvertUtils.numberStringToFormat(numberString);
+            log.debug("""
+                Number string converted to smart phone number.
+                String: {}
+                Number: {}
+                Format: {}
+                """.stripIndent(),
+                    numberString, phoneNumber, smartNumber.format);
+            return smartNumber;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot create smart phone number from Number.
+                    Number string:
+                    %s
+                    """.stripIndent(),
+                    phoneNumber), e);
         }
     }
 
@@ -59,6 +100,7 @@ public final class SmartPhoneNumber extends SmartObject implements FormattedValu
 
     @Override
     public boolean equals(Object object) {
+
         if (object == null) {
             log.debug("Smart number equals() called. The actual smart number object is null.");
             return false;
@@ -70,8 +112,8 @@ public final class SmartPhoneNumber extends SmartObject implements FormattedValu
         try {
             boolean result = false;
 
-            if (object instanceof Number thatNumber) {
-                result = CompareUtils.compareNumbers(number, thatNumber);
+            if (object instanceof SmartPhoneNumber smartPhoneNumber) {
+                result = CompareUtils.compareNumbers(getNumber(), smartPhoneNumber.getNumber());
             }
             log.debug("""
                     Smart number equals() called.
