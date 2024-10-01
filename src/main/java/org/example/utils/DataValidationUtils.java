@@ -1,8 +1,11 @@
 package org.example.utils;
 
 import org.example.data.SmartValue;
+import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
+import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.nio.file.Paths;
 
 public final class DataValidationUtils {
@@ -15,7 +18,7 @@ public final class DataValidationUtils {
      * @param valueName The value name.
      */
     public static void validateNotNull(Object value, String valueName) {
-        if (value == null) {
+        if (value == null || value == JSONObject.NULL) {
             handleError(String.format("%s has null value.", valueName));
         }
     }
@@ -125,6 +128,22 @@ public final class DataValidationUtils {
     }
 
     /**
+     * Validates that data value is number string.
+     * @param value The data value.
+     * @param valueName The value name.
+     */
+    public static void validateNumberString(String value, String valueName) {
+        validateNotNull(value, valueName);
+
+        try {
+            ConvertUtils.stringToNumber(value);
+        }
+        catch (SmartRuntimeException e) {
+            handleError(String.format("%s is not a number string: '%s'", valueName, value));
+        }
+    }
+
+    /**
      * Validates that data value is not blank.
      * @param value The data value.
      * @param valueName The value name.
@@ -206,11 +225,13 @@ public final class DataValidationUtils {
      * @param min The MIN value.
      * @param valueName The value name.
      */
-    public static void validateMin(long value, long min, String valueName) {
+    public static void validateMin(Number value, Number min, String valueName) {
         validateNotBlank(valueName, valueName);
+        BigDecimal number = new BigDecimal(String.valueOf(value));
+        BigDecimal limit = new BigDecimal(String.valueOf(min));
 
-        if (value < min) {
-            handleError(String.format("%s has value less than MIN=%d: %d",
+        if (number.compareTo(limit) < 0) {
+            handleError(String.format("%s has lower value than MIN=%s: %s",
                     valueName, min, value));
         }
     }
@@ -221,11 +242,14 @@ public final class DataValidationUtils {
      * @param max The MAX value.
      * @param valueName The value name.
      */
-    public static void validateMax(long value, long max, String valueName) {
+    public static void validateMax(Number value, Number max, String valueName) {
         validateNotBlank(valueName, valueName);
 
-        if (value > max) {
-            handleError(String.format("%s has value bigger than MAX=%d: %d",
+        BigDecimal number = new BigDecimal(String.valueOf(value));
+        BigDecimal limit = new BigDecimal(String.valueOf(max));
+
+        if (number.compareTo(limit) > 0) {
+            handleError(String.format("%s has bigger value than MIN=%s: %s",
                     valueName, max, value));
         }
     }

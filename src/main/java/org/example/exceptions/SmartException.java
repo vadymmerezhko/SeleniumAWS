@@ -9,24 +9,24 @@ import java.io.StringWriter;
 import java.io.PrintWriter;
 
 @Slf4j
-public class BaseSmartException extends RuntimeException {
+public class SmartException extends RuntimeException {
 
-    public BaseSmartException() {
+    public SmartException() {
         super();
         handleException();
     }
 
-    public BaseSmartException(Throwable e) {
+    public SmartException(Throwable e) {
         super(e);
         handleException();
     }
 
-    public BaseSmartException(String message) {
+    public SmartException(String message) {
         super(message);
         handleException();
     }
 
-    public BaseSmartException(String message, Throwable e) {
+    public SmartException(String message, Throwable e) {
         super(message, e);
         handleException();
     }

@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
 import java.util.Date;
@@ -21,7 +20,7 @@ import java.util.Objects;
  * Derived from Date class.
  */
 @Slf4j
-public final class SmartLocalDateTime implements SmartTemporal,
+public final class SmartLocalDateTime extends SmartObject implements SmartTemporal,
         Temporal, TemporalAdjuster, ChronoLocalDateTime<LocalDate>, Serializable {
     @Delegate
     private final LocalDateTime localDateTime;
@@ -32,10 +31,9 @@ public final class SmartLocalDateTime implements SmartTemporal,
      * @param dateString The local time format.
      * @return The smart local date time.
      */
-    public static SmartLocalDateTime parseLocalDateTime(String dateString) {
+    public static SmartLocalDateTime parse(String dateString) {
         SmartDate smartDate = ConvertUtils.stringToSmartDate(dateString);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(smartDate.getFormat());
-        LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
+        LocalDateTime localDateTime = ConvertUtils.dateToLocalDateTime(smartDate);
         SmartLocalDateTime smartLocalDateTime = new SmartLocalDateTime(localDateTime, smartDate.getFormat());
         log.debug("String '{}' parsed to smart local date time {} with date format '{}'",
                 dateString, smartDate, smartDate.getFormat());
@@ -134,6 +132,6 @@ public final class SmartLocalDateTime implements SmartTemporal,
 
     @Override
     public int hashCode() {
-        return Objects.hash(this, format);
+        return Objects.hash(localDateTime, format);
     }
 }

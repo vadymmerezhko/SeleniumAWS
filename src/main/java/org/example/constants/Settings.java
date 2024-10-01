@@ -28,6 +28,8 @@ public class Settings {
     public static final int PAGE_LOAD_WAIT_TIMEOUT_SECONDS = Config.getInstance().getPageWaitTimeout();
     public static final int RETRY_COUNT = 20;
     public static final int JSON_LAYOUT_SPACES = 4;
+    public static final Number MIN_PHONE_NUMBER = 1E8;
+    public static final Number MAX_PHONE_NUMBER = 1E21;
 
     public static final String AWS_DOCKER_IMAGE_ID = "ami-0d93c31a4c91fcd51";
     public static final String AWS_LOCAL_RUN_IMAGE_ID = "ami-05188da1ca88643c3";
@@ -51,9 +53,18 @@ public class Settings {
     public static final String NAN_VALUE_STRING = "NaN";
     public static final String POSITIVE_INFINITY_VALUE_STRING = "Infinity";
     public static final String NEGATIVE_INFINITY_VALUE_STRING = "-Infinity";
+
+    public static final String POSITIVE_INFINITY_VALUE_SYMBOL = "∞";
+    public static final String NEGATIVE_INFINITY_VALUE_SYMBOL = "-∞";
+    public static final String BOOLEAN_TRUE_VALUE = "true";
+    public static final String BOOLEAN_FALSE_VALUE = "false";
+
     public static final String DEFAULT_XML_ROOT_NAME = "root";
     public static final String DEFAULT_XML_ITEM_NAME = "item";
     public static final String DEFAULT_XML_ITEMS_NAME = "items";
+    public static final String CURRENCY_SYMBOL_FORMAT = "¤";
+    public static final String CURRENCY_CODE_FORMAT = "CCC";
+    public static final String CURRENCY_REGIONAL_SYMBOL_FORMAT = "RRR";
     public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
     public static final String AWS_LOCAL_SERVER_USER_DATA_TEMPLATE = """

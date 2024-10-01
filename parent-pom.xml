@@ -4,7 +4,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>SeleniumTestNGParentPom</artifactId>
-  <version>1.12.3</version>
+  <version>1.12.4</version>
   <packaging>pom</packaging>
 
   <name>SeleniumTestNGParentPom</name>
@@ -215,6 +215,19 @@
       <artifactId>stanford-corenlp</artifactId>
       <version>4.5.7</version>
       <classifier>models</classifier>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.javamoney/moneta -->
+    <dependency>
+      <groupId>org.javamoney</groupId>
+      <artifactId>moneta</artifactId>
+      <version>1.4.4</version>
+      <type>pom</type>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.ibm.icu/icu4j -->
+    <dependency>
+      <groupId>com.ibm.icu</groupId>
+      <artifactId>icu4j</artifactId>
+      <version>75.1</version>
     </dependency>
   </dependencies>
 </project>

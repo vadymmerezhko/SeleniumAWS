@@ -8,6 +8,7 @@
             <class name="org.example.unit.ImageUtilsTest"/>
             <class name="org.example.unit.FileSystemUtilsTest"/>
             <class name="org.example.unit.SmartAssertTest"/>
+            <class name="org.example.unit.SmartValueTest"/>
             <class name="org.example.unit.SystemUtilsTest"/>
             <class name="org.example.unit.TimeOutTest"/>
             <class name="org.example.unit.TestConfigTest"/>

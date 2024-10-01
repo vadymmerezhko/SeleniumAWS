@@ -1,5 +1,6 @@
 package org.example.unit;
 
+import com.ibm.icu.util.ULocale;
 import org.example.data.*;
 import org.example.enums.Platform;
 import org.example.exceptions.SmartRuntimeException;
@@ -157,7 +158,7 @@ public class ConvertUtilsTest {
     @Test
     public void testValidJsonObject() {
         String validJson = "{\"name\":\"John\", \"age\":30}";
-        JSONObject result = ConvertUtils.stringToJasonObject(validJson);
+        JSONObject result = ConvertUtils.stringToJsonObject(validJson);
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.getString("name"), "John", "The name should be John.");
         Assert.assertEquals(result.getInt("age"), 30, "The age should be 30.");
@@ -166,18 +167,18 @@ public class ConvertUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testInvalidJsonObject() {
         String invalidJson = "{name:\"John\" age:30}";
-        ConvertUtils.stringToJasonObject(invalidJson);
+        ConvertUtils.stringToJsonObject(invalidJson);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testBlankJsonObject() {
         String invalidJson = "  ";
-        ConvertUtils.stringToJasonObject(invalidJson);
+        ConvertUtils.stringToJsonObject(invalidJson);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testNullJsonObject() {
-        ConvertUtils.stringToJasonObject(null);
+        ConvertUtils.stringToJsonObject(null);
     }
 
     @Test
@@ -829,7 +830,6 @@ public class ConvertUtilsTest {
         String validXmlString = "<root><child>value</child></root>";
         Node xmlNode = ConvertUtils.stringToXmlNode(validXmlString);
         String expected = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <root>
                     <child>value</child>
                 </root>
@@ -907,26 +907,26 @@ public class ConvertUtilsTest {
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testObjectToObjectNullTargetType() {
-        SmartType targetType = null;
+        SmartType valueType = null;
         Integer sourceObject = 123;
 
-        ConvertUtils.objectToObject(targetType, sourceObject);
+        ConvertUtils.objectToObject(valueType, sourceObject);
     }
 
-    @Test(expectedExceptions = SmartValidationException.class)
+    @Test
     public void testObjectToObjectNullSourceObject() {
-        SmartType targetType = SmartType.fromClass(String.class);
-        Object sourceObject = null;
+        SmartType valueType = SmartType.fromClass(String.class);
+        String result = ConvertUtils.objectToObject(valueType, null);
 
-        ConvertUtils.objectToObject(targetType, sourceObject);
+        Assert.assertEquals(result, "null");
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testObjectToObjectInvalidConversion() {
-        SmartType targetType = SmartType.fromClass(Integer.class);
+        SmartType valueType = SmartType.fromClass(Integer.class);
         String sourceObject = "InvalidNumber";
 
-        ConvertUtils.objectToObject(targetType, sourceObject);
+        ConvertUtils.objectToObject(valueType, sourceObject);
     }
 
     @Test
@@ -941,8 +941,10 @@ public class ConvertUtilsTest {
 
     @Test
     public void testObjectToObjectMap() {
-        SmartType targetType = SmartType.fromMapClass(Map.class, String.class, SmartType.fromClass(Integer.class));
-        Map<String, Integer> sourceObject = Map.of("one", 1, "two", 2);
+        SmartType targetType = SmartType.fromMapClass(HashMap.class, String.class, SmartType.fromClass(Integer.class));
+        Map<String, Integer> sourceObject = new HashMap<>();
+        sourceObject.put("one", 1);
+        sourceObject.put("two", 2);
         Map<String, Integer> result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
@@ -1022,7 +1024,7 @@ public class ConvertUtilsTest {
     @Test
     public void testObjectToObjectSmartDate() {
         SmartType targetType = SmartType.fromClass(SmartDate.class);
-        SmartDate sourceObject = SmartDate.parseDate("1970-05-23");
+        SmartDate sourceObject = SmartDate.fromString("1970-05-23");
         SmartDate result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
@@ -1032,7 +1034,7 @@ public class ConvertUtilsTest {
     @Test
     public void testObjectToObjectSmartLocalDate() {
         SmartType targetType = SmartType.fromClass(SmartLocalDate.class);
-        SmartLocalDate sourceObject = SmartLocalDate.parseLocalDate("1970-05-23");
+        SmartLocalDate sourceObject = SmartLocalDate.parse("1970-05-23");
         SmartLocalDate result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
@@ -1042,7 +1044,7 @@ public class ConvertUtilsTest {
     @Test
     public void testObjectToObjectSmartLocalDateTime() {
         SmartType targetType = SmartType.fromClass(SmartLocalDateTime.class);
-        SmartLocalDateTime sourceObject = SmartLocalDateTime.parseLocalDateTime("1970-05-23 12:45");
+        SmartLocalDateTime sourceObject = SmartLocalDateTime.parse("1970-05-23 12:45");
         SmartLocalDateTime result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
@@ -1052,7 +1054,7 @@ public class ConvertUtilsTest {
     @Test
     public void testObjectToObjectSmartLocalTime() {
         SmartType targetType = SmartType.fromClass(SmartLocalTime.class);
-        SmartLocalTime sourceObject = SmartLocalTime.parseLocalTime("12:45:15");
+        SmartLocalTime sourceObject = SmartLocalTime.parse("12:45:15");
         SmartLocalTime result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
@@ -1203,11 +1205,11 @@ public class ConvertUtilsTest {
                     ],
                     [
                         "John",
-                        "30"
+                        30
                     ],
                     [
                         "Doe",
-                        "25"
+                        25
                     ]
                 ]""".stripIndent();
         Assert.assertEquals(smartValue.toString(), expectedSmartValue, "SmartValue content mismatch");
@@ -1373,12 +1375,16 @@ public class ConvertUtilsTest {
     @Test
     public void testCsvStringToJsonArrayValidInput() {
         // Valid CSV string
-        String csvString = "name,age,city\nJohn,30,New York\nJane,25,Boston";
+        String csvString = """
+                name,age,city,married
+                John,30,New York,true
+                Jane,25,Boston,false
+                """.stripIndent();
         // Expected JSONArray result
         JSONArray expectedJsonArray = new JSONArray();
-        expectedJsonArray.put(new JSONArray().put("name").put("age").put("city"));
-        expectedJsonArray.put(new JSONArray().put("John").put("30").put("New York"));
-        expectedJsonArray.put(new JSONArray().put("Jane").put("25").put("Boston"));
+        expectedJsonArray.put(new JSONArray().put("name").put("age").put("city").put("married"));
+        expectedJsonArray.put(new JSONArray().put("John").put(30).put("New York").put(true));
+        expectedJsonArray.put(new JSONArray().put("Jane").put(25).put("Boston").put(false));
         JSONArray result = ConvertUtils.csvStringToJsonArray(csvString);
 
         Assert.assertEquals(result.toString(), expectedJsonArray.toString());
@@ -1463,13 +1469,13 @@ public class ConvertUtilsTest {
     @Test
     public void testCollectionToJsonArrayPositive() {
         // Positive test case: valid collection
-        Collection<String> collection = Arrays.asList("item1", "item2", "item3");
+        List<String> collection = Arrays.asList("item1", "item2", "item3");
         JSONArray jsonArray = ConvertUtils.collectionToJsonArray(collection);
 
         // Validate that the JSON array matches the collection size and content
         Assert.assertEquals(jsonArray.length(), collection.size(), "JSONArray length does not match collection size");
         for (int i = 0; i < collection.size(); i++) {
-            Assert.assertEquals(jsonArray.getString(i), ((List<String>) collection).get(i),
+            Assert.assertEquals(jsonArray.getString(i), collection.get(i),
                     "JSONArray item does not match collection item");
         }
     }
@@ -1500,7 +1506,7 @@ public class ConvertUtilsTest {
         Assert.assertEquals(jsonArray.length(), collection.size(), "JSONArray length does not match collection size");
         Assert.assertEquals(jsonArray.getString(0), "item1");
         Assert.assertEquals(jsonArray.getInt(1), 123);
-        Assert.assertEquals(jsonArray.getBoolean(2), true);
+        Assert.assertTrue(jsonArray.getBoolean(2));
     }
 
     @Test
@@ -1514,7 +1520,7 @@ public class ConvertUtilsTest {
 
         Assert.assertEquals(jsonObject.getString("name"), "John Doe");
         Assert.assertEquals(jsonObject.getInt("age"), 30);
-        Assert.assertEquals(jsonObject.getBoolean("isActive"), true);
+        Assert.assertTrue(jsonObject.getBoolean("isActive"));
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -1571,15 +1577,16 @@ public class ConvertUtilsTest {
         ConvertUtils.jsonArrayToArray(null);
     }
 
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testInvalidCastThrowsException() {
-        // Negative test case - trying to cast JSONArray elements to the wrong type
+    @Test
+    public void testJsonArrayToArrayWithDifferentElementTypes() {
         JSONArray jsonArray = new JSONArray();
         jsonArray.put("string");
-        jsonArray.put(42); // Integer
+        jsonArray.put(42);
+        Object[] result = ConvertUtils.jsonArrayToArray(jsonArray);
 
-        // Attempt to convert to a String array (should fail)
-        ConvertUtils.jsonArrayToArray(jsonArray);
+        Assert.assertEquals(result.length, 2);
+        Assert.assertEquals(result[0], "string");
+        Assert.assertEquals(result[1], 42);
     }
 
     @Test
@@ -1634,7 +1641,7 @@ public class ConvertUtilsTest {
         Assert.assertEquals(jsonArray.length(), 3);
         Assert.assertEquals(jsonArray.getString(0), "string");
         Assert.assertEquals(jsonArray.getInt(1), 123);
-        Assert.assertEquals(jsonArray.getBoolean(2), true);
+        Assert.assertTrue(jsonArray.getBoolean(2));
     }
 
     @Test
@@ -1781,7 +1788,6 @@ public class ConvertUtilsTest {
         JSONObject person = new JSONObject(jsonString);
         Node result = ConvertUtils.objectToXmlNode(person);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <person>
                     <name>John Doe</name>
                     <age>30</age>
@@ -1800,7 +1806,6 @@ public class ConvertUtilsTest {
         map.put("key", "value");
         Node result = ConvertUtils.objectToXmlNode(map);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <map>
                     <key>value</key>
                 </map>
@@ -1817,7 +1822,6 @@ public class ConvertUtilsTest {
         String xmlString = "<root><child>value</child></root>";
         Node result = ConvertUtils.objectToXmlNode(xmlString);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <root>
                     <child>value</child>
                 </root>
@@ -1835,7 +1839,6 @@ public class ConvertUtilsTest {
         PojoClass pojo = createPojoObject();
         Node result = ConvertUtils.objectToXmlNode(pojo);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <pojo>
                     <integerList>
                         <integerList>1</integerList>
@@ -1869,7 +1872,6 @@ public class ConvertUtilsTest {
         PersonRecord record = new PersonRecord("John Doe", 30);
         Node result = ConvertUtils.objectToXmlNode(record);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <record>
                     <name>John Doe</name>
                     <age>30</age>
@@ -2156,14 +2158,38 @@ public class ConvertUtilsTest {
     }
 
     @Test
-    public void testStringToArrayWithJsonArray() {
-        SmartType smartType = SmartType.fromArrayValueSmartType(SmartType.fromClass(Integer.class));
+    public void testStringToIntegerArrayWithJsonArrayString() {
+        SmartType valueType = SmartType.fromClass(Integer.class);
         String jsonArrayString = "[1, 2, 3, 4, 5]";
-        Integer[] result = ConvertUtils.stringToArray(smartType, jsonArrayString);
+        Integer[] result = ConvertUtils.stringToArray(valueType, jsonArrayString);
         Integer[] expectedArray = {1, 2, 3, 4, 5};
 
         // Assert the results
         Assert.assertEquals(result, expectedArray, "The array should match the expected result.");
+    }
+
+    @Test
+    public void testStringToStringArrayWithJsonArrayString() {
+        SmartType valueType = SmartType.fromClass(String.class);
+        String jsonArrayString = "['1', '2', '3', '4', '5']";
+        String[] result = ConvertUtils.stringToArray(valueType, jsonArrayString);
+        String[] expectedArray = {"1", "2", "3", "4", "5"};
+
+        // Assert the results
+        Assert.assertEquals(result, expectedArray, "The array should match the expected result.");
+    }
+
+    @Test
+    public void testStringToObjectArrayWithJsonArrayString() {
+        SmartType valueType = SmartType.fromClass(Object.class);
+        String jsonArrayString = "['1', 2, 3.3, true, null]";
+        Object[] result = ConvertUtils.stringToArray(valueType, jsonArrayString);
+        // Use BigDecimal for Object array
+        Object[] expectedArray = {"1", 2, new BigDecimal("3.3"), true, null};
+
+        // Assert the results
+        Assert.assertEquals(result, expectedArray,
+                "The array should match the expected result.");
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2186,9 +2212,9 @@ public class ConvertUtilsTest {
     @Test
     public void testStringToListWithValidJsonArray() {
         // Set up SmartType for the list type (assuming SmartType is a mock or concrete class)
-        SmartType type = SmartType.fromCollectionClass(List.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         String jsonArrayString = "[\"one\", \"two\", \"three\"]";
-        List<String> result = ConvertUtils.stringToList(type, jsonArrayString);
+        List<String> result = ConvertUtils.stringToList(valueType, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.size(), 3, "The list should contain 3 elements.");
@@ -2200,10 +2226,10 @@ public class ConvertUtilsTest {
     @Test
     public void testStringToListWithEmptyJsonArray() {
         // Set up SmartType for the list type
-        SmartType type = SmartType.fromCollectionClass(List.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         // Empty JSON array string
         String jsonArrayString = "[]";
-        List<String> result = ConvertUtils.stringToList(type, jsonArrayString);
+        List<String> result = ConvertUtils.stringToList(valueType, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertTrue(result.isEmpty(), "The list should be empty.");
@@ -2212,23 +2238,23 @@ public class ConvertUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToListWithInvalidJsonArray() {
         // Set up SmartType for the list type
-        SmartType type = SmartType.fromCollectionClass(List.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         // Invalid JSON string (not a valid array)
         String invalidJsonString = "{\"key\":\"value\"}";
 
         // This should throw a SmartRuntimeException
-        ConvertUtils.stringToList(type, invalidJsonString);
+        ConvertUtils.stringToList(valueType, invalidJsonString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToListWithNonArrayString() {
         // Set up SmartType for the list type
-        SmartType type = SmartType.fromCollectionClass(List.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         // A string that is not a JSON array
         String nonArrayString = "\"Just a string\"";
 
         // This should throw a SmartRuntimeException
-        ConvertUtils.stringToList(type, nonArrayString);
+        ConvertUtils.stringToList(valueType, nonArrayString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2244,24 +2270,23 @@ public class ConvertUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToListWithBlankString() {
         // Set up SmartType for the list type
-        SmartType type = SmartType.fromCollectionClass(List.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         // Blank string (not a valid JSON array)
         String blankString = "";
 
         // This should throw SmartValidationException due to blank string
-        ConvertUtils.stringToList(type, blankString);
+        ConvertUtils.stringToList(valueType, blankString);
     }
 
     @Test
     public void testStringToSetWithValidJsonArray() {
-        // Set up SmartType for the set type (assuming SmartType is a mock or concrete class)
-        SmartType type = SmartType.fromCollectionClass(Set.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         String jsonArrayString = "[\"one\", \"two\", \"three\"]";
         Set<String> expected = new HashSet<>();
         expected.add("one");
         expected.add("two");
         expected.add("three");
-        Set<String> result = ConvertUtils.stringToSet(type, jsonArrayString);
+        Set<String> result = ConvertUtils.stringToSet(valueType, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result, expected, "The result set should be equal the expected set.");
@@ -2269,13 +2294,12 @@ public class ConvertUtilsTest {
 
     @Test
     public void testStringToSetWithEmptyJsonArray() {
-        // Set up SmartType for the set type
-        SmartType type = SmartType.fromCollectionClass(Set.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         // Empty JSON array string
         String jsonArrayString = "[]";
         // Expected - empty set
         Set<String> expected = new HashSet<>();
-        Set<String> result = ConvertUtils.stringToSet(type, jsonArrayString);
+        Set<String> result = ConvertUtils.stringToSet(valueType, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result, expected, "The result set should be equal the expected set.");
@@ -2284,33 +2308,33 @@ public class ConvertUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToSetWithInvalidJsonArray() {
         // Set up SmartType for the set type
-        SmartType type = SmartType.fromCollectionClass(Set.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         // Invalid JSON string (not a valid array)
         String invalidJsonString = "{\"key\":\"value\"}";
 
         // This should throw a SmartRuntimeException
-        ConvertUtils.stringToSet(type, invalidJsonString);
+        ConvertUtils.stringToSet(valueType, invalidJsonString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToSetWithNonArrayString() {
         // Set up SmartType for the set type
-        SmartType type = SmartType.fromCollectionClass(Set.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         // A string that is not a JSON array
         String nonArrayString = "\"Just a string\"";
 
         // This should throw a SmartRuntimeException
-        ConvertUtils.stringToSet(type, nonArrayString);
+        ConvertUtils.stringToSet(valueType, nonArrayString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToSetWithNullType() {
         // Null SmartType
-        SmartType type = null;
+        SmartType valueType = null;
         String jsonArrayString = "[\"one\", \"two\", \"three\"]";
 
         // This should throw SmartValidationException due to null type
-        ConvertUtils.stringToSet(type, jsonArrayString);
+        ConvertUtils.stringToSet(valueType, jsonArrayString);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -2325,14 +2349,13 @@ public class ConvertUtilsTest {
     }
     @Test
     public void testStringToQueueWithValidJsonArray() {
-        // Set up SmartType for the queue type (assuming SmartType is a mock or concrete class)
-        SmartType type = SmartType.fromCollectionClass(Queue.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         String jsonArrayString = "[\"one\", \"two\", \"three\"]";
         Queue<String> expected = new LinkedList<>();
         expected.add("one");
         expected.add("two");
         expected.add("three");
-        Queue<String> result = ConvertUtils.stringToQueue(type, jsonArrayString);
+        Queue<String> result = ConvertUtils.stringToQueue(valueType, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result, expected, "The result set should be equal the expected set.");
@@ -2340,13 +2363,12 @@ public class ConvertUtilsTest {
 
     @Test
     public void testStringToQueueWithEmptyJsonArray() {
-        // Set up SmartType for the queue type
-        SmartType type = SmartType.fromCollectionClass(Queue.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         // Empty JSON array string
         String jsonArrayString = "[]";
         // Expected - empty set
         Queue<String> expected = new LinkedList<>();
-        Queue<String> result = ConvertUtils.stringToQueue(type, jsonArrayString);
+        Queue<String> result = ConvertUtils.stringToQueue(valueType, jsonArrayString);
 
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result, expected, "The result set should be equal the expected set.");
@@ -2355,12 +2377,12 @@ public class ConvertUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToQueueWithInvalidJsonArray() {
         // Set up SmartType for the queue type
-        SmartType type = SmartType.fromCollectionClass(Queue.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
         // Invalid JSON string (not a valid array)
         String invalidJsonString = "{\"key\":\"value\"}";
 
         // This should throw a SmartRuntimeException
-        ConvertUtils.stringToQueue(type, invalidJsonString);
+        ConvertUtils.stringToQueue(valueType, invalidJsonString);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2398,8 +2420,8 @@ public class ConvertUtilsTest {
     @Test
     public void testStringToVectorValidJsonString() {
         String validJsonString = "[\"element1\", \"element2\", \"element3\"]";
-        SmartType type = SmartType.fromCollectionClass(Vector.class, SmartType.fromClass(String.class));
-        Vector<String> result = ConvertUtils.stringToVector(type, validJsonString);
+        SmartType valueType = SmartType.fromClass(String.class);
+        Vector<String> result = ConvertUtils.stringToVector(valueType, validJsonString);
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result.size(), 3);
@@ -2419,9 +2441,9 @@ public class ConvertUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testStringToVectorBlankString() {
         // Negative test case - blank string
-        SmartType type = SmartType.fromCollectionClass(Vector.class, SmartType.fromClass(String.class));
+        SmartType valueType = SmartType.fromClass(String.class);
 
-        ConvertUtils.stringToVector(type, "");
+        ConvertUtils.stringToVector(valueType, "");
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -2596,13 +2618,23 @@ public class ConvertUtilsTest {
     }
 
     @Test
-    public void testStringToNumberPositiveFloat() {
-        String numberString = "123.45";
+    public void testStringToNumberPositiveIntegerWithThousandCommas() {
+        String numberString = "123,456,789";
         Number result = ConvertUtils.stringToNumber(numberString);
 
         Assert.assertNotNull(result);
-        Assert.assertTrue(result instanceof Float);
-        Assert.assertEquals(result.floatValue(), 123.45f);
+        Assert.assertTrue(result instanceof Integer);
+        Assert.assertEquals(result.intValue(), 123456789);
+    }
+
+    @Test
+    public void testStringToNumberPositiveIntegerWithDecimalComma() {
+        String numberString = "123,45";
+        Number result = ConvertUtils.stringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result instanceof Double);
+        Assert.assertEquals(result, 123.45);
     }
 
     @Test
@@ -2734,7 +2766,6 @@ public class ConvertUtilsTest {
         books.put("Hary Potter");
         books.put("One Flew Over the Cuckoo's Nest");
         person.put("books", books);
-
         Document result = ConvertUtils.jsonObjectToXmlDocument(person);
         Assert.assertNotNull(result, "The XML document should not be null.");
 
@@ -2749,7 +2780,7 @@ public class ConvertUtilsTest {
                     <age>33</age>
                 </person>
                 """.stripIndent();
-        String resultString = ConvertUtils.xmlNodeToString(result);
+        String resultString = ConvertUtils.xmlDocumentToString(result);
         Assert.assertEquals(resultString, expectedString);
     }
 
@@ -2767,12 +2798,9 @@ public class ConvertUtilsTest {
         books.put("One Flew Over the Cuckoo's Nest");
         person.put("books", books);
         books.put(bookmarks);
-
         Node result = ConvertUtils.jsonObjectToXmlDocument(person);
         Assert.assertNotNull(result, "The XML node should not be null.");
-
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <person>
                     <firstName>Doe</firstName>
                     <books>
@@ -2787,6 +2815,7 @@ public class ConvertUtilsTest {
                 </person>
                 """.stripIndent();
         String resultString = ConvertUtils.xmlNodeToString(result);
+
         Assert.assertEquals(resultString, expectedString);
     }
 
@@ -2806,7 +2835,7 @@ public class ConvertUtilsTest {
                 <?xml version="1.0" encoding="UTF-8"?>
                 <empty/>
                 """.stripIndent();
-        String resultString = ConvertUtils.xmlNodeToString(result);
+        String resultString = ConvertUtils.xmlDocumentToString(result);
         Assert.assertEquals(resultString, expectedXmlString);
     }
 
@@ -2843,7 +2872,7 @@ public class ConvertUtilsTest {
                     </example>
                 </examples>
                 """.stripIndent();
-        String resultString = ConvertUtils.xmlNodeToString(xmlDocument);
+        String resultString = ConvertUtils.xmlDocumentToString(xmlDocument);
         Assert.assertEquals(resultString, expectedString);
     }
 
@@ -2880,7 +2909,7 @@ public class ConvertUtilsTest {
                     </example>
                 </examples>
                 """.stripIndent();
-        String resultString = ConvertUtils.xmlNodeToString(xmlDocument);
+        String resultString = ConvertUtils.xmlDocumentToString(xmlDocument);
         Assert.assertEquals(resultString, expectedString);
     }
 
@@ -3025,7 +3054,7 @@ public class ConvertUtilsTest {
                 <?xml version="1.0" encoding="UTF-8"?>
                 <emptyMap/>
                 """.stripIndent();
-        String resultString = ConvertUtils.xmlNodeToString(result);
+        String resultString = ConvertUtils.xmlDocumentToString(result);
         Assert.assertEquals(resultString, expectedString);
     }
 
@@ -3044,7 +3073,6 @@ public class ConvertUtilsTest {
 
         Assert.assertNotNull(result);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <exampleMap>
                     <jsonObject>
                         <key>value</key>
@@ -3073,7 +3101,7 @@ public class ConvertUtilsTest {
                     <age>30</age>
                 </person>
                 """.stripIndent();
-        String resultString = ConvertUtils.xmlNodeToString(result);
+        String resultString = ConvertUtils.xmlDocumentToString(result);
         Assert.assertEquals(resultString, expectedString);
     }
 
@@ -3089,7 +3117,6 @@ public class ConvertUtilsTest {
 
         Assert.assertNotNull(result);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <person>
                     <name>John Doe</name>
                     <age>30</age>
@@ -3127,7 +3154,7 @@ public class ConvertUtilsTest {
                     <value>2</value>
                 </pojo>
                 """.stripIndent();
-        String resultString = ConvertUtils.xmlNodeToString(result);
+        String resultString = ConvertUtils.xmlDocumentToString(result);
         Assert.assertEquals(resultString, expectedString);
     }
 
@@ -3140,7 +3167,6 @@ public class ConvertUtilsTest {
 
         Assert.assertNotNull(result);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <person>
                     <name>John</name>
                     <age>30</age>
@@ -3157,7 +3183,6 @@ public class ConvertUtilsTest {
 
         Assert.assertNotNull(result);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <emptyJson/>
                 """.stripIndent();
         String resultString = ConvertUtils.xmlNodeToString(result);
@@ -3175,7 +3200,6 @@ public class ConvertUtilsTest {
 
         Assert.assertNotNull(result);
         String expectedString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <experience>
                     <skills>
                         <skill>Java</skill>
@@ -3191,6 +3215,2051 @@ public class ConvertUtilsTest {
     public void testJsonObjectToXmlNodeWithNullJasonObject() {
         ConvertUtils.jsonObjectToXmlNode(null);
     }
+
+    @Test
+    public void testNumberStringToFormatWithInteger() {
+        String numberString = "1234";
+        String format = ConvertUtils.numberStringToFormat(numberString);
+
+        Assert.assertNotNull(format);
+        Assert.assertEquals(format, "####");
+    }
+
+    @Test
+    public void testNumberStringToFormatWithIntegerAndComma() {
+        String numberString = "1,234";
+        String format = ConvertUtils.numberStringToFormat(numberString);
+
+        Assert.assertNotNull(format);
+        Assert.assertEquals(format, "#,###");
+    }
+
+    @Test
+    public void testNumberStringToFormatWithDecimal() {
+        String numberString = "1234.567";
+        String format = ConvertUtils.numberStringToFormat(numberString);
+
+        Assert.assertNotNull(format);
+        Assert.assertEquals(format, "####.###");
+    }
+
+    @Test
+    public void testNumberStringToFormatWithDecimalAndComma() {
+        String numberString = "1,234.567";
+        String format = ConvertUtils.numberStringToFormat(numberString);
+
+        Assert.assertNotNull(format);
+        Assert.assertEquals(format, "#,###.###");
+    }
+
+    @Test
+    public void testNumberStringToFormatWithScientificNotation() {
+        String numberString = "1.234e5";
+        String format = ConvertUtils.numberStringToFormat(numberString);
+
+        Assert.assertNotNull(format);
+        Assert.assertEquals(format, "#.###e#");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testNumberStringToFormatWithEmptyString() {
+        String numberString = "";
+        // Should throw SmartValidationException
+        ConvertUtils.numberStringToFormat(numberString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testNumberStringToFormatWithNullString() {
+        String numberString = null;
+        // Should throw SmartValidationException
+        ConvertUtils.numberStringToFormat(numberString);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testNumberStringToFormatWithInvalidNumber() {
+        String numberString = "invalid";
+        // Should throw SmartValidationException
+        ConvertUtils.numberStringToFormat(numberString);
+    }
+
+    @Test
+    public void testNumberToFormattedNumberStringWithInteger() {
+        Number number = 123456;
+        String formatPattern = "#,###";
+        String formattedNumber = ConvertUtils.numberToFormattedString(number, formatPattern);
+
+        Assert.assertNotNull(formattedNumber);
+        Assert.assertEquals(formattedNumber, "123,456");
+    }
+
+    @Test
+    public void testNumberToFormattedNumberStringWithDecimal() {
+        Number number = 1234.5678;
+        String formatPattern = "#,###.##";
+        String formattedNumber = ConvertUtils.numberToFormattedString(number, formatPattern);
+
+        Assert.assertNotNull(formattedNumber);
+        Assert.assertEquals(formattedNumber, "1,234.57");
+    }
+
+    @Test
+    public void testNumberToFormattedNumberStringWithScientificNotation() {
+        Number number = 1234567;
+        String formatPattern = "0.###E0";
+        String formattedNumber = ConvertUtils.numberToFormattedString(number, formatPattern);
+
+        Assert.assertNotNull(formattedNumber);
+        Assert.assertEquals(formattedNumber, "1.235E6");
+    }
+
+    @Test
+    public void testNumberToFormattedNumberStringWithCurrencyFormat() {
+        Number number = 1234.56;
+        String formatPattern = "¤#,###.##";
+        String formattedNumber = ConvertUtils.numberToFormattedString(number, formatPattern);
+
+        Assert.assertNotNull(formattedNumber);
+        Assert.assertEquals(formattedNumber, "$1,234.56");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testNumberToFormattedNumberStringWithNullNumber() {
+        Number number = null;
+        String formatPattern = "#,###";
+        // Should throw SmartValidationException
+        ConvertUtils.numberToFormattedString(number, formatPattern);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testNumberToFormattedNumberStringWithInvalidFormatPattern() {
+        Number number = 1234;
+        String formatPattern = "invalidPattern";
+        // Should throw SmartRuntimeException
+        ConvertUtils.numberToFormattedString(number, formatPattern);
+    }
+
+    @Test
+    public void testGetCurrencyStringToSymbolOrCodeWithPrefixSymbol() {
+        String currencyString = "$1,234.56";
+        String result = ConvertUtils.currencyStringToCodeOrSymbol(currencyString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "$");
+    }
+
+    @Test
+    public void testGetCurrencyStringToSymbolOrCodeWithPrefixCode() {
+        String currencyString = "USD1,234.56";
+        String result = ConvertUtils.currencyStringToCodeOrSymbol(currencyString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "USD");
+    }
+
+    @Test
+    public void testGetCurrencyStringToSymbolOrCodeWithSuffixSymbol() {
+        String currencyString = "1,234.56€";
+        String result = ConvertUtils.currencyStringToCodeOrSymbol(currencyString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "€");
+    }
+
+    @Test
+    public void testGetCurrencyStringToSymbolOrCodeWithSuffixCode() {
+        String currencyString = "1,234.56 GBP";
+        String result = ConvertUtils.currencyStringToCodeOrSymbol(currencyString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "GBP");
+    }
+
+    @Test
+    public void testCurrencyStringToFormatWithSymbolPrefix() {
+        String currencyString = "$1,234.56";
+        String result = ConvertUtils.currencyStringToFormat(currencyString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "¤#,###.##");
+    }
+
+    @Test
+    public void testCurrencyStringToFormatWithCodePrefix() {
+        String currencyString = "USD 1,234.56";
+        String result = ConvertUtils.currencyStringToFormat(currencyString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "CCC #,###.##");
+    }
+
+    @Test
+    public void testCurrencyStringToFormatWithSymbolSuffix() {
+        String currencyString = "1,234.56€";
+        String result = ConvertUtils.currencyStringToFormat(currencyString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "#,###.##¤");
+    }
+
+    @Test
+    public void testCurrencyStringToFormatWithCodeSuffix() {
+        String currencyString = "1,234.56 EUR";
+        String result = ConvertUtils.currencyStringToFormat(currencyString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "#,###.## CCC");
+    }
+
+    @Test
+    public void testCurrencyStringToFormatWithNoSymbol() {
+        String currencyString = "1,234.56";
+        String result = ConvertUtils.currencyStringToFormat(currencyString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "#,###.##");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testCurrencyStringToFormatWithEmptyString() {
+        String currencyString = "";
+        // Should throw SmartValidationException
+        ConvertUtils.currencyStringToFormat(currencyString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testCurrencyStringToFormatWithNullString() {
+        String currencyString = null;
+        // Should throw SmartValidationException
+        ConvertUtils.currencyStringToFormat(currencyString);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testCurrencyStringToFormatWithInvalidNumberFormat() {
+        String currencyString = "USDabc";  // Invalid number part
+        // Should throw SmartRuntimeException
+        ConvertUtils.currencyStringToFormat(currencyString);
+    }
+
+    @Test
+    public void testCurrencyFormatToCurrencyWithSymbolPrefix() {
+        Number money = 1234.56;
+        String format = "¤#,###.##";  // Currency symbol before the number
+        String code = "$";
+        String result = ConvertUtils.currencyValueToFormatedString(money, code, format);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "$1,234.56");
+    }
+
+    @Test
+    public void testCurrencyCodeToSymbolWithUSD() {
+        String currencyCode = "USD";
+        String result = ConvertUtils.currencyCodeToSymbol(currencyCode);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "$");
+    }
+
+    @Test
+    public void testCurrencyCodeToSymbolWithUAH() {
+        String currencyCode = "UAH";
+        String result = ConvertUtils.currencyCodeToSymbol(currencyCode);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "₴");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testCurrencyCodeToSymbolWithBlankCode() {
+        String currencyCode = "";
+        ConvertUtils.currencyCodeToSymbol(currencyCode);
+    }
+
+    @Test
+    public void testCurrencyCodeToSymbolWithUnknownCode() {
+        String currencyCode = "XXX";
+        // should throw SmartValidationException
+        String result = ConvertUtils.currencyCodeToSymbol(currencyCode);
+
+        Assert.assertNotNull(result);
+        // Should return the same code
+        Assert.assertEquals(result, "XXX");
+    }
+
+    @Test
+    public void testCurrencyCodeFromDollarSymbolCode() {
+        String symbol = "US$";
+        String result = ConvertUtils.currencyRegionalSymbolToCode(symbol);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "USD");
+    }
+
+    @Test
+    public void testCurrencyCodeToSymbolWithUAHRegionalSymbol() {
+        String currencyCode = "UA₴";
+        String result = ConvertUtils.currencyRegionalSymbolToCode(currencyCode);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "UAH");
+    }
+
+    @Test
+    public void testCurrencyCodeFromUkraineSymbolCode() {
+        String symbol = "UA₴";
+        String result = ConvertUtils.currencyRegionalSymbolToCode(symbol);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "UAH");
+    }
+
+    @Test
+    public void testCurrencyCodeFromUnknownSymbolCode() {
+        String symbol = "QQQ";
+        String result = ConvertUtils.currencyRegionalSymbolToCode(symbol);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testCurrencyCodeFromEmptySymbolCode() {
+        String symbol = "";
+        // Should throw SmartValidationException
+        ConvertUtils.currencyRegionalSymbolToCode(symbol);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testCurrencyCodeFromNullSymbolCode() {
+        String symbol = null;
+        // Should throw SmartValidationException
+        ConvertUtils.currencyRegionalSymbolToCode(symbol);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testCurrencyCodeFromTooLongSymbolCode() {
+        String symbol = "LONG";
+        // Should throw SmartValidationException
+        ConvertUtils.currencyRegionalSymbolToCode(symbol);
+    }
+
+    @Test
+    public void testCurrencyNumberStringToBigDecimalWithInteger() {
+        String numberString = "1234";
+        BigDecimal result = ConvertUtils.currencyNumberStringToBigDecimal(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, new BigDecimal("1234"));
+    }
+
+    @Test
+    public void testCurrencyNumberStringToBigDecimalWithOneDecimalPlace() {
+        String numberString = "1234.5";
+        BigDecimal result = ConvertUtils.currencyNumberStringToBigDecimal(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, new BigDecimal("1234.5"));
+    }
+
+    @Test
+    public void testCurrencyNumberStringToBigDecimalWithTwoDecimalPlaces() {
+        String numberString = "1234.56";
+        BigDecimal result = ConvertUtils.currencyNumberStringToBigDecimal(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, new BigDecimal("1234.56"));
+    }
+
+    @Test
+    public void testCurrencyNumberStringToBigDecimalWithMoreThanTwoDecimalPlaces() {
+        String numberString = "1234.567";
+        BigDecimal result = ConvertUtils.currencyNumberStringToBigDecimal(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, new BigDecimal("1234.567"));
+        Assert.assertEquals(result, new BigDecimal("1234.567"));
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testCurrencyNumberStringToBigDecimalWithInvalidCharacters() {
+        String numberString = "12A4.56";
+        // Should throw SmartRuntimeException
+        ConvertUtils.currencyNumberStringToBigDecimal(numberString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testCurrencyNumberStringToBigDecimalWithEmptyString() {
+        String numberString = "";
+        // Should throw SmartValidationException
+        ConvertUtils.currencyNumberStringToBigDecimal(numberString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testCurrencyNumberStringToBigDecimalWithNullString() {
+        String numberString = null;
+        // Should throw SmartValidationException
+        ConvertUtils.currencyNumberStringToBigDecimal(numberString);
+    }
+
+    @Test
+    public void testConvertToNumberStringPersianEncodingLocale() {
+        String result = ConvertUtils.localeStringToNumberString("۱۲۳۴۵۶۷۸۹۰", ULocale.forLocale(new Locale("fa")));
+        Assert.assertEquals(result, "1234567890");
+    }
+
+    @Test
+    public void testConvertToNumberStringPersianEncodingWithDelimitersLocale() {
+        // Persian number with thousand separators and decimal delimiters
+        String result = ConvertUtils.localeStringToNumberString("۱٬۲۳۴٬۵۶۷٫۸۹", ULocale.forLocale(new Locale("fa")));
+        Assert.assertEquals(result, "1234567.89");
+    }
+
+    @Test
+    public void testConvertToNumberStringArabicEncodingLocale() {
+        String result = ConvertUtils.localeStringToNumberString("١٢٣٤٥٦٧٨٩٠", ULocale.forLocale(new Locale("ar")));
+        Assert.assertEquals(result, "1234567890");
+    }
+
+    @Test
+    public void testConvertToNumberStringArabicEncodingWithDelimitersLocale() {
+        // Arabic number with thousand separators and decimal delimiters
+        String result = ConvertUtils.localeStringToNumberString("١٬٢٣٤٬٥٦٧٫٨٩", ULocale.forLocale(new Locale("ar")));
+        Assert.assertEquals(result, "1234567.89");
+    }
+
+    @Test
+    public void testConvertToNumberStringEnglishEncodingLocale() {
+        String result = ConvertUtils.localeStringToNumberString("1,234.56", ULocale.US);
+        Assert.assertEquals(result, "1234.56");
+    }
+
+    @Test
+    public void testConvertToNumberStringGermanyEncodingLocale() {
+        String result = ConvertUtils.localeStringToNumberString("1.234,56", ULocale.GERMANY);
+        Assert.assertEquals(result, "1234.56");
+    }
+
+
+    @Test
+    public void testConvertToNumberStringGermanEncodingLocale() {
+        String result = ConvertUtils.localeStringToNumberString("1.234,56", ULocale.GERMANY);
+        Assert.assertEquals(result, "1234.56");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testConvertToNumberStringWithEmptyEncodingString() {
+        ConvertUtils.localeStringToNumberString("", ULocale.US);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testConvertToNumberStringWithNullEncodingString() {
+        ConvertUtils.localeStringToNumberString(null, ULocale.US);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testConvertToNumberStringWithInvalidEncodingFormat() {
+        ConvertUtils.localeStringToNumberString("Invalid123", ULocale.US);
+    }
+
+    @Test
+    public void testNumberStringToFormatWithArabicLocale() {
+        String numberString = "١٬٢٣٤٬٥٦٧٫٨٩"; // Arabic-Indic numerals
+        ULocale locale = new ULocale("ar");   // Arabic locale
+        String expectedFormat = "#٬###٬###٫##";
+        String actualFormat = ConvertUtils.localeNumberStringToFormat(numberString, locale);
+
+        Assert.assertEquals(actualFormat, expectedFormat,
+                "The format string should match the expected pattern.");
+    }
+
+    @Test
+    public void testNumberStringToFormatWithWesternNumerals() {
+        String numberString = "1,234,567.89"; // Western numerals
+        ULocale uLocale = ULocale.US;         // US locale
+        String expectedFormat = "#,###,###.##";
+        String actualFormat = ConvertUtils.localeNumberStringToFormat(numberString, uLocale);
+
+        Assert.assertEquals(actualFormat, expectedFormat,
+                "The format string should match the expected pattern.");
+    }
+
+    @Test
+    public void testNumberStringToFormatWithNegativeNumber() {
+        String numberString = "-١٬٢٣٤٬٥٦٧٫٨٩"; // Negative Arabic-Indic numerals
+        ULocale uLocale = new ULocale("ar");    // Arabic locale
+        String expectedFormat = "##٬###٬###٫##";
+        String actualFormat = ConvertUtils.localeNumberStringToFormat(numberString, uLocale);
+
+        Assert.assertEquals(actualFormat, expectedFormat,
+                "The format string should handle negative numbers correctly.");
+    }
+
+    @Test
+    public void testNumberToLocaleStringWithArabicLocale() {
+        Number number = 1234567.89;
+        ULocale uLocale = new ULocale("ar");  // Arabic locale
+        String expectedFormattedNumber = "١٬٢٣٤٬٥٦٧٫٨٩";
+        String actualFormattedNumber = ConvertUtils.numberToLocaleString(number, uLocale);
+
+        Assert.assertEquals(actualFormattedNumber, expectedFormattedNumber,
+                "The formatted number should match the expected Arabic format.");
+    }
+
+    @Test
+    public void testNumberToLocaleStringWithWesternLocale() {
+        Number number = 1234567.89;
+        ULocale uLocale = ULocale.US;  // US locale
+        String expectedFormattedNumber = "1,234,567.89";
+        String actualFormattedNumber = ConvertUtils.numberToLocaleString(number, uLocale);
+
+        Assert.assertEquals(actualFormattedNumber, expectedFormattedNumber,
+                "The formatted number should match the expected US format.");
+    }
+
+    @Test
+    public void testNumberToLocaleStringWithNegativeNumber() {
+        Number number = -1234567.89;
+        ULocale uLocale = new ULocale("ar");  // Arabic locale
+        String expectedFormattedNumber = "\u061C-١٬٢٣٤٬٥٦٧٫٨٩";
+        String actualFormattedNumber = ConvertUtils.numberToLocaleString(number, uLocale);
+
+        Assert.assertEquals(actualFormattedNumber, expectedFormattedNumber,
+                "The formatted number should correctly handle negative numbers in Arabic format.");
+    }
+
+    @Test
+    public void testNumberToLocaleStringWithInteger() {
+        Number number = 1234567;
+        ULocale uLocale = ULocale.GERMANY;  // German locale
+
+        String expectedFormattedNumber = "1.234.567";
+        String actualFormattedNumber = ConvertUtils.numberToLocaleString(number, uLocale);
+
+        Assert.assertEquals(actualFormattedNumber, expectedFormattedNumber, "The formatted number should match the expected German format.");
+    }
+
+
+    @Test
+    public void testPhoneNumberToFormatWithStandardPhoneNumber() {
+        String phoneNumber = "(123) 456-7890";
+        String format = ConvertUtils.phoneNumberToFormat(phoneNumber);
+
+        Assert.assertNotNull(format);
+        Assert.assertEquals(format, "(###) ###-####");
+    }
+
+    @Test
+    public void testPhoneNumberToFormatWithSimplePhoneNumber() {
+        String phoneNumber = "123-456-7890";
+        String format = ConvertUtils.phoneNumberToFormat(phoneNumber);
+
+        Assert.assertNotNull(format);
+        Assert.assertEquals(format, "###-###-####");
+    }
+
+    @Test
+    public void testPhoneNumberToFormatWithoutDelimiters() {
+        String phoneNumber = "1234567890";
+        String format = ConvertUtils.phoneNumberToFormat(phoneNumber);
+
+        Assert.assertNotNull(format);
+        Assert.assertEquals(format, "##########");
+    }
+
+    @Test
+    public void testPhoneNumberToFormatWithCountryCode() {
+        String phoneNumber = "+1 (123) 456-7890";
+        String format = ConvertUtils.phoneNumberToFormat(phoneNumber);
+
+        Assert.assertNotNull(format);
+        Assert.assertEquals(format, "+# (###) ###-####");
+    }
+
+    @Test
+    public void testPhoneNumberToFormatWithInternationalPhoneNumber() {
+        String phoneNumber = "+44 1234 567890";
+        String format = ConvertUtils.phoneNumberToFormat(phoneNumber);
+
+        Assert.assertNotNull(format);
+        Assert.assertEquals(format, "+## #### ######");
+    }
+
+    @Test
+    public void testPhoneNumberToFormatWithInternationalCodeAndExtensionNumber() {
+        String phoneNumber = "+999 (999) 999-9999 ext. 99999";
+        String format = ConvertUtils.phoneNumberToFormat(phoneNumber);
+
+        Assert.assertNotNull(format);
+        Assert.assertEquals(format, "+### (###) ###-#### ext. #####");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testPhoneNumberToFormatWithEmptyString() {
+        String phoneNumber = "";
+        // Should throw SmartValidationException
+        ConvertUtils.phoneNumberToFormat(phoneNumber);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testPhoneNumberToFormatWithNullString() {
+        String phoneNumber = null;
+        // Should throw SmartValidationException
+        ConvertUtils.phoneNumberToFormat(phoneNumber);
+    }
+
+    @Test
+    public void testPhoneNumberStringToNumberWithValidPhoneNumber() {
+        String phoneNumberString = "+1 (234) 567-8901 ext 123";
+        Number expectedPhoneNumber = new BigInteger("12345678901123");
+        Number actualPhoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
+
+        Assert.assertNotNull(actualPhoneNumber, "The phone number should not be null.");
+        Assert.assertEquals(actualPhoneNumber, expectedPhoneNumber,
+                "The converted phone number should match the expected value.");
+    }
+
+    @Test
+    public void testPhoneNumberStringToNumberWithShortPhoneNumber() {
+        String phoneNumberString = "123-456-7890";
+        Number expectedPhoneNumber = new BigInteger("1234567890");
+        Number actualPhoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
+
+        Assert.assertNotNull(actualPhoneNumber, "The phone number should not be null.");
+        Assert.assertEquals(actualPhoneNumber, expectedPhoneNumber,
+                "The converted phone number should match the expected short value.");
+    }
+
+    @Test
+    public void testPhoneNumberStringToNumberWithoutDelimiters() {
+        String phoneNumberString = "1234567890";
+        Number expectedPhoneNumber = new BigInteger("1234567890");
+        Number actualPhoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
+
+        Assert.assertNotNull(actualPhoneNumber, "The phone number should not be null.");
+        Assert.assertEquals(actualPhoneNumber, expectedPhoneNumber,
+                "The converted phone number should match the expected short value.");
+    }
+
+    @Test
+    public void testPhoneNumberStringToNumberWithValidLongPhoneNumber() {
+        String phoneNumberString = "+123 (123)456-7890";
+        Number expectedPhoneNumber = new BigInteger("1231234567890");
+        Number actualPhoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
+
+        Assert.assertNotNull(actualPhoneNumber, "The phone number should not be null.");
+        Assert.assertEquals(actualPhoneNumber, expectedPhoneNumber,
+                "The converted phone number should match the expected long value.");
+    }
+
+    @Test
+    public void testPhoneNumberStringToNumberWithValidLongPhoneNumberWithExtension() {
+        String phoneNumberString = "+123 (456)789-0123 ext 4567-89";
+        Number expectedPhoneNumber = new BigInteger("1234567890123456789");
+        Number actualPhoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
+
+        Assert.assertNotNull(actualPhoneNumber, "The phone number should not be null.");
+        Assert.assertEquals(actualPhoneNumber, expectedPhoneNumber,
+                "The converted phone number should match the expected long value.");
+    }
+
+    @Test
+    public void testPhoneNumberStringToNumberWithLetters() {
+        String phoneNumberString = "1-800-FLOWERS";  // 1-800-3569377
+        Number expectedPhoneNumber = new BigInteger("18003569377");
+        Number actualPhoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
+
+        Assert.assertNotNull(actualPhoneNumber, "The phone number should not be null.");
+        Assert.assertEquals(actualPhoneNumber, expectedPhoneNumber,
+                "The converted phone number should match the expected value.");
+    }
+
+    @Test
+    public void testPhoneNumberStringToNumberWithMixedLettersAndDigits() {
+        String phoneNumberString = "+1-CALL-NOW-123";  // +1-225-5669123
+        Number expectedPhoneNumber = new BigInteger("12255669123");
+        Number actualPhoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
+
+        Assert.assertNotNull(actualPhoneNumber, "The phone number should not be null.");
+        Assert.assertEquals(actualPhoneNumber, expectedPhoneNumber,
+                "The converted phone number should match the expected value.");
+    }
+
+    @Test
+    public void testPhoneNumberStringToNumberWithLettersAndSpaces() {
+        String phoneNumberString = "CALL US NOW - AUTO CAR";
+        Number expectedPhoneNumber = new BigInteger("2255876692886227");
+        Number actualPhoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
+
+        Assert.assertNotNull(actualPhoneNumber, "The phone number should not be null.");
+        Assert.assertEquals(actualPhoneNumber, expectedPhoneNumber,
+                "The converted phone number should match the expected value.");
+    }
+
+    @Test
+    public void testPhoneNumberStringToNumberWithLettersAndExtension() {
+        String phoneNumberString = "+1-800-MY-APPLE x123";  // 1-800-692-7753 ext 123
+        Number expectedPhoneNumber = new BigInteger("18006927753123");
+        Number actualPhoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
+
+        Assert.assertNotNull(actualPhoneNumber, "The phone number should not be null.");
+        Assert.assertEquals(actualPhoneNumber, expectedPhoneNumber,
+                "The converted phone number with extension should match the expected value.");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testPhoneNumberStringToNumberWithNullValue() {
+        // Expecting SmartValidationException due to null phone number string
+        ConvertUtils.phoneNumberStingToNumber(null);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testPhoneNumberStringToNumberWithEmptyString() {
+        // Expecting SmartValidationException due to empty phone number string
+        ConvertUtils.phoneNumberStingToNumber("");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testPhoneNumberStringToNumberWithTooShortPhoneNumber() {
+        String phoneNumberString = "123";  // Too short
+        // Expecting SmartValidationException due to invalid phone number length
+        ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testPhoneNumberStringToNumberWithTooLongPhoneNumber() {
+        String phoneNumberString = "+1 234 567 890 12345678901234567890";  // Too long
+        // Expecting SmartValidationException due to invalid phone number length
+        ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
+    }
+
+    @Test
+    public void testArrayToListWithValidArray() {
+        Integer[] array = {1, 2, 3, 4};
+
+        // Convert array to List
+        List<Integer> resultList = ConvertUtils.arrayToList(array);
+
+        // Assertions
+        Assert.assertNotNull(resultList, "The resulting list should not be null.");
+        Assert.assertEquals(resultList.size(), 4, "The list size should be 4.");
+        Assert.assertEquals(resultList.get(0), Integer.valueOf(1), "The first element should be 1.");
+        Assert.assertEquals(resultList.get(1), Integer.valueOf(2), "The second element should be 2.");
+        Assert.assertEquals(resultList.get(2), Integer.valueOf(3), "The third element should be 3.");
+        Assert.assertEquals(resultList.get(3), Integer.valueOf(4), "The fourth element should be 4.");
+    }
+
+    @Test
+    public void testArrayToListWithNestedArray() {
+        Integer[][] array = {{1, 2}, {3, 4}};
+        // Convert array to List
+        List<List<Integer>> resultList = ConvertUtils.arrayToList(array);
+
+        // Assertions
+        Assert.assertNotNull(resultList, "The resulting list should not be null.");
+        Assert.assertEquals(resultList.size(), 2, "The list size should be 2.");
+        Assert.assertEquals(resultList.get(0), List.of(1, 2), "The first nested list should match.");
+        Assert.assertEquals(resultList.get(1), List.of(3, 4), "The second nested list should match.");
+    }
+
+    @Test
+    public void testArrayToListWithNullElements() {
+        String[] array = {"one", null, "three"};
+        // Convert array to List
+        List<String> resultList = ConvertUtils.arrayToList(array);
+
+        // Assertions
+        Assert.assertNotNull(resultList, "The resulting list should not be null.");
+        Assert.assertEquals(resultList.size(), 3, "The list size should be 3.");
+        Assert.assertNull(resultList.get(1), "The second element should be null.");
+    }
+
+    @Test
+    public void testArrayToListWithEmptyArray() {
+        String[] array = {};
+        // Convert array to List
+        List<String> resultList = ConvertUtils.arrayToList(array);
+
+        // Assertions
+        Assert.assertNotNull(resultList, "The resulting list should not be null.");
+        Assert.assertTrue(resultList.isEmpty(), "The list should be empty.");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testArrayToListWithNullArray() {
+        // Expecting SmartRuntimeException due to null array
+        ConvertUtils.arrayToList(null);
+    }
+
+    @Test
+    public void testObjectToListWithValidCollection() {
+        List<String> inputCollection = List.of("one", "two", "three");
+        // Convert collection to List
+        List<String> resultList = ConvertUtils.objectToList(inputCollection);
+
+        // Assertions
+        Assert.assertNotNull(resultList, "The resulting list should not be null.");
+        Assert.assertEquals(resultList.size(), 3, "The list size should be 3.");
+        Assert.assertEquals(resultList.get(0), "one", "The first element should be 'one'.");
+        Assert.assertEquals(resultList.get(1), "two", "The second element should be 'two'.");
+        Assert.assertEquals(resultList.get(2), "three", "The third element should be 'three'.");
+    }
+
+    @Test
+    public void testObjectToListWithValidArray() {
+        Integer[] inputArray = {1, 2, 3};
+        // Convert array to List
+        List<Integer> resultList = ConvertUtils.objectToList(inputArray);
+
+        // Assertions
+        Assert.assertNotNull(resultList, "The resulting list should not be null.");
+        Assert.assertEquals(resultList.size(), 3, "The list size should be 3.");
+        Assert.assertEquals(resultList.get(0), Integer.valueOf(1), "The first element should be 1.");
+        Assert.assertEquals(resultList.get(1), Integer.valueOf(2), "The second element should be 2.");
+        Assert.assertEquals(resultList.get(2), Integer.valueOf(3), "The third element should be 3.");
+    }
+
+    @Test
+    public void testObjectToListWithJSONArray() {
+        JSONArray jsonArray = new JSONArray(List.of(1, 2, 3));
+        // Convert JSON array to List
+        List<Integer> resultList = ConvertUtils.objectToList(jsonArray);
+
+        // Assertions
+        Assert.assertNotNull(resultList, "The resulting list should not be null.");
+        Assert.assertEquals(resultList.size(), 3, "The list size should be 3.");
+        Assert.assertEquals(resultList.get(0), Integer.valueOf(1), "The first element should be 1.");
+        Assert.assertEquals(resultList.get(1), Integer.valueOf(2), "The second element should be 2.");
+        Assert.assertEquals(resultList.get(2), Integer.valueOf(3), "The third element should be 3.");
+    }
+
+    @Test
+    public void testObjectToListWithJSONArrayString() {
+        String jsonArrayString = "[1, 2, 3]";
+        // Convert JSON array string to List
+        List<Integer> resultList = ConvertUtils.objectToList(jsonArrayString);
+
+        // Assertions
+        Assert.assertNotNull(resultList, "The resulting list should not be null.");
+        Assert.assertEquals(resultList.size(), 3, "The list size should be 3.");
+        Assert.assertEquals(resultList.get(0), Integer.valueOf(1), "The first element should be 1.");
+        Assert.assertEquals(resultList.get(1), Integer.valueOf(2), "The second element should be 2.");
+        Assert.assertEquals(resultList.get(2), Integer.valueOf(3), "The third element should be 3.");
+    }
+
+    @Test
+    public void testObjectToListWithCSVString() {
+        String csvString = """
+                11, 12, 13
+                21, 22, 23
+                31, 32, 33
+                """.stripIndent();
+        // Convert CSV string to List
+        List<List<Integer>> resultList = ConvertUtils.objectToList(csvString);
+
+        // Assertions
+        Assert.assertNotNull(resultList, "The resulting list should not be null.");
+        Assert.assertEquals(resultList.size(), 3, "The list size should be 3.");
+        Assert.assertEquals(resultList.get(0).get(0), 11,
+                "The element 0,0 should be 11.0.");
+        Assert.assertEquals(resultList.get(1).get(1), 22,
+                "The element 1,1 should be 22.0.");
+        Assert.assertEquals(resultList.get(2).get(2), 33,
+                "The element 2,2 should be 33.0.");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testObjectToListWithNullObject() {
+        // Expecting SmartRuntimeException due to null object
+        ConvertUtils.objectToList(null);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToListWithInvalidObjectType() {
+        // Passing an invalid type (e.g., Integer)
+        int invalidObject = 123;
+
+        // Expecting SmartRuntimeException due to invalid object type
+        ConvertUtils.objectToList(invalidObject);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testObjectToListWithJSONObjectNull() {
+        // Expecting SmartRuntimeException due to JSONObject.NULL handling
+        ConvertUtils.objectToList(JSONObject.NULL);
+    }
+
+    @Test
+    public void testObjectToMapWithValidMap() {
+        Map<String, Integer> inputMap = Map.of("one", 1, "two", 2, "three", 3);
+        // Convert map to Map
+        Map<String, Integer> resultMap = ConvertUtils.objectToMap(inputMap);
+
+        // Assertions
+        Assert.assertNotNull(resultMap, "The resulting map should not be null.");
+        Assert.assertEquals(resultMap.size(), 3, "The map size should be 3.");
+        Assert.assertEquals(resultMap.get("one"), Integer.valueOf(1), "The value for key 'one' should be 1.");
+        Assert.assertEquals(resultMap.get("two"), Integer.valueOf(2), "The value for key 'two' should be 2.");
+        Assert.assertEquals(resultMap.get("three"), Integer.valueOf(3), "The value for key 'three' should be 3.");
+    }
+
+    @Test
+    public void testObjectToMapWithJSONObject() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", "John");
+        jsonObject.put("age", 30);
+        // Convert JSONObject to Map
+        Map<String, Object> resultMap = ConvertUtils.objectToMap(jsonObject);
+
+        // Assertions
+        Assert.assertNotNull(resultMap, "The resulting map should not be null.");
+        Assert.assertEquals(resultMap.size(), 2, "The map size should be 2.");
+        Assert.assertEquals(resultMap.get("name"), "John", "The value for key 'name' should be 'John'.");
+        Assert.assertEquals(resultMap.get("age"), 30, "The value for key 'age' should be 30.");
+    }
+
+    @Test
+    public void testObjectToMapWithXMLNode() {
+        String xmlString = "<person><name>John</name><age>30</age></person>";
+        Node xmlNode = ConvertUtils.stringToXmlNode(xmlString);
+        // Convert XML Node to Map
+        Map<String, Object> resultMap = ConvertUtils.objectToMap(xmlNode);
+
+        // Assertions
+        Assert.assertNotNull(resultMap, "The resulting map should not be null.");
+        Assert.assertEquals(resultMap.size(), 2, "The map size should be 2.");
+        Assert.assertEquals(resultMap.get("name"), "John", "The value for key 'name' should be 'John'.");
+        Assert.assertEquals(resultMap.get("age"), 30, "The value for key 'age' should be 30.");
+    }
+
+    @Test
+    public void testObjectToMapWithXMLString() {
+        String xmlString = "<person><name>John</name><age>30</age></person>";
+        // Convert XML Node to Map
+        Map<String, Object> resultMap = ConvertUtils.objectToMap(xmlString);
+
+        // Assertions
+        Assert.assertNotNull(resultMap, "The resulting map should not be null.");
+        Assert.assertEquals(resultMap.size(), 2, "The map size should be 2.");
+        Assert.assertEquals(resultMap.get("name"), "John", "The value for key 'name' should be 'John'.");
+        Assert.assertEquals(resultMap.get("age"), 30, "The value for key 'age' should be 30.");
+    }
+
+    @Test
+    public void testObjectToMapWithJSONString() {
+        String jsonString = """
+                {
+                    "name" : "John",
+                    "age" : 30,
+                    "married": true,
+                    "other" : null
+                }
+                """.stripIndent();
+        // Convert XML Node to Map
+        Map<String, Object> resultMap = ConvertUtils.objectToMap(jsonString);
+
+        // Assertions
+        Assert.assertNotNull(resultMap, "The resulting map should not be null.");
+        Assert.assertEquals(resultMap.size(), 4, "The map size should be 4.");
+        Assert.assertEquals(resultMap.get("name"), "John", "The value for key 'name' should be 'John'.");
+        Assert.assertEquals(resultMap.get("age"), 30, "The value for key 'age' should be 30.");
+        Assert.assertEquals(resultMap.get("married"), true, "The value for key 'married' should be true.");
+        Assert.assertNull(resultMap.get("other"), "The value for key 'other' should be null.");
+    }
+
+    @Test
+    public void testObjectToArrayWithStringCollection() {
+        List<String> collection = Arrays.asList("one", "two", "three");
+        String[] result = ConvertUtils.objectToArray(collection);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, 3);
+        Assert.assertEquals(result[0], "one");
+        Assert.assertEquals(result[1], "two");
+        Assert.assertEquals(result[2], "three");
+    }
+
+    @Test
+    public void testObjectToArrayWithNumberCollection() {
+        List<Number> collection = Arrays.asList(1, 2.2f, 3.3, new BigDecimal("4.4"));
+        Number[] result = ConvertUtils.objectToArray(collection);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, 4);
+        Assert.assertEquals(result[0], 1);
+        Assert.assertEquals(result[1], 2.2f);
+        Assert.assertEquals(result[2], 3.3);
+        Assert.assertEquals(result[3], new BigDecimal("4.4"));
+    }
+
+    @Test
+    public void testObjectToArrayWithNestedCollection() {
+        List<List<String>> collection = Arrays.asList(
+                Arrays.asList("11", "12"), Arrays.asList("21", "22"));
+        String[][] result = ConvertUtils.objectToArray(collection);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, 2);
+        Assert.assertEquals(result[0][0], "11");
+        Assert.assertEquals(result[0][1], "12");
+        Assert.assertEquals(result[1][0], "21");
+        Assert.assertEquals(result[1][1], "22");
+    }
+
+    @Test
+    public void testObjectToArrayWithNestedCollectionOfDifferentTypes() {
+        List<List<Object>> list = new ArrayList<>();
+        List<Object> firstList = new ArrayList<>();
+        firstList.add("11");
+        firstList.add(12);
+        firstList.add(true);
+        List<Object> secondList = new ArrayList<>();
+        secondList.add("21");
+        secondList.add(22.22);
+        secondList.add(null);
+        list.add(firstList);
+        list.add(secondList);
+        Object[][] result = ConvertUtils.objectToArray(list);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, 2);
+        Assert.assertEquals(result[0][0], "11");
+        Assert.assertEquals(result[0][1], 12);
+        Assert.assertEquals(result[0][2], true);
+        Assert.assertEquals(result[1][0], "21");
+        Assert.assertEquals(result[1][1], 22.22);
+        Assert.assertNull(result[1][2]);
+    }
+
+    @Test
+    public void testObjectToArrayWithJsonArray() {
+        JSONArray jsonArray = new JSONArray(Arrays.asList("one", "two", "three"));
+        String[] result = ConvertUtils.objectToArray(jsonArray);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, 3);
+        Assert.assertEquals(result[0], "one");
+        Assert.assertEquals(result[1], "two");
+        Assert.assertEquals(result[2], "three");
+    }
+
+    // Positive Test: Convert CSV string to array
+    @Test
+    public void testObjectToArrayWithCsvString() {
+        // Valid CSV string is only multiline
+        String csvString = """
+                name, age, married, children
+                Jack Doe, 24, false, null
+                """.stripIndent();
+        Object[][] result = ConvertUtils.objectToArray(csvString);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, 2);
+        Assert.assertEquals(result[0][0], "name");
+        Assert.assertEquals(result[0][1], "age");
+        Assert.assertEquals(result[0][2], "married");
+        Assert.assertEquals(result[0][3], "children");
+        Assert.assertEquals(result[1][0], "Jack Doe");
+        Assert.assertEquals(result[1][1], 24);
+        Assert.assertEquals(result[1][2], false);
+        Assert.assertNull(result[1][3]);
+    }
+
+    // Positive Test: Convert JSON array string to array
+    @Test
+    public void testObjectToArrayWithJsonArrayString() {
+        String jsonArrayString = "[\"one\", \"two\", \"three\"]";
+        String[] result = ConvertUtils.objectToArray(jsonArrayString);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, 3);
+        Assert.assertEquals(result[0], "one");
+        Assert.assertEquals(result[1], "two");
+        Assert.assertEquals(result[2], "three");
+    }
+
+    // Negative Test: Convert XML document string to array
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToArrayWithXmlDocumentString() {
+        String xmlDocumentString = "<?xml version=\"1.0\"?><root><child>value</child></root>";
+        ConvertUtils.objectToArray(xmlDocumentString);
+    }
+
+    // Negative Test: Convert XML node string to array
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToArrayWithXmlNodeString() {
+        String xmlNodeString = "<child>value</child>";
+        ConvertUtils.objectToArray(xmlNodeString);
+    }
+
+    // Negative Test: Null object
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToArrayWithNullObject() {
+        ConvertUtils.objectToArray(null);
+    }
+
+    // Negative Test: Unsupported string format
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToArrayWithUnsupportedString() {
+        String unsupportedString = "unsupported";
+        ConvertUtils.objectToArray(unsupportedString);
+    }
+
+    // Negative Test: Unsupported object type
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToArrayWithUnsupportedObject() {
+        Map<String, String> unsupportedObject = new HashMap<>();
+        ConvertUtils.objectToArray(unsupportedObject);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testObjectToMapWithNullObject() {
+        // Expecting SmartRuntimeException due to null object
+        ConvertUtils.objectToMap(null);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToMapWithInvalidObjectType() {
+        // Passing an invalid type (e.g., Integer)
+        Integer invalidObject = 123;
+
+        // Expecting SmartRuntimeException due to invalid object type
+        ConvertUtils.objectToMap(invalidObject);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToMapWithInvalidJsonString() {
+        // Passing an invalid JSON string
+        String invalidJsonString = "{invalidJson}";
+
+        // Expecting SmartRuntimeException due to invalid JSON string format
+        ConvertUtils.objectToMap(invalidJsonString);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToMapWithInvalidXmlString() {
+        // Passing an invalid XML string
+        String invalidXmlString = "<person><name>John</name><age>30</person>"; // Malformed XML
+
+        // Expecting SmartRuntimeException due to invalid XML string format
+        ConvertUtils.objectToMap(invalidXmlString);
+    }
+
+    @Test
+    public void testCollectionToArrayWithValidIntegerInputs() {
+        SmartType valueType = SmartType.fromClass(Integer.class);
+        Collection<Integer> collection = Arrays.asList(1, 2, 3);
+        Integer[] result = ConvertUtils.collectionToArray(valueType, collection);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, collection.size());
+        Assert.assertEquals(result[0], Integer.valueOf(1));
+        Assert.assertEquals(result[1], Integer.valueOf(2));
+        Assert.assertEquals(result[2], Integer.valueOf(3));
+    }
+
+    @Test
+    public void testCollectionToDoubleArrayWithValidIntegerInputs() {
+        SmartType valueType = SmartType.fromClass(Double.class);
+        Collection<Integer> collection = Arrays.asList(1, 2, 3);
+        Double[] result = ConvertUtils.collectionToArray(valueType, collection);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, collection.size());
+        Assert.assertEquals(result[0], 1.0);
+        Assert.assertEquals(result[1], 2.0);
+        Assert.assertEquals(result[2], 3.0);
+    }
+
+    @Test
+    public void testCollectionToNumberArrayWithValidNumberInputs() {
+        SmartType valueType = SmartType.fromClass(Number.class);
+        Collection<Number> collection = Arrays.asList(1, 2.0f, 3.0, new BigDecimal("4.0"));
+        Number[] result = ConvertUtils.collectionToArray(valueType, collection);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, collection.size());
+        Assert.assertEquals(result[0], 1);
+        Assert.assertEquals(result[1], 2.0f);
+        Assert.assertEquals(result[2], 3.0);
+    }
+
+    @Test
+    public void testCollectionToDoubleArrayWithValidStringInputs() {
+        SmartType valueType = SmartType.fromClass(Double.class);
+        Collection<String> collection = Arrays.asList("1", "2", "3");
+        Double[] result = ConvertUtils.collectionToArray(valueType, collection);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, collection.size());
+        Assert.assertEquals(result[0], 1.0);
+        Assert.assertEquals(result[1], 2.0);
+        Assert.assertEquals(result[2], 3.0);
+    }
+
+    @Test
+    public void testCollectionToStringOfStringArrayWithValidIntegerArraysInput() {
+        SmartType arrayValueSmartType = SmartType.fromClass(String.class);
+        Integer[] array1 = {11, 12, 13};
+        Integer[] array2 = {21, 22, 23};
+        Integer[] array3 = {31, 32, 33};
+        Collection<Integer[]> collection = new ArrayList<>();
+        collection.add(array1);
+        collection.add(array2);
+        collection.add(array3);
+        String[][] result = ConvertUtils.collectionToArray(arrayValueSmartType, collection);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.length, collection.size());
+        Assert.assertEquals(result[0][0], "11");
+        Assert.assertEquals(result[1][1], "22");
+        Assert.assertEquals(result[2][2], "33");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testCollectionToArrayWithNullValueType() {
+        Collection<Integer> collection = Arrays.asList(1, 2, 3);
+
+        ConvertUtils.collectionToArray(null, collection);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testCollectionToArrayWithNullCollection() {
+        SmartType valueType = SmartType.fromClass(Integer.class);
+
+        ConvertUtils.collectionToArray(valueType, null);
+    }
+
+    @Test
+    public void testCollectionToArrayWithIncompatibleValueType() {
+        SmartType valueType = SmartType.fromClass(List.class);
+        Collection<Integer> collection = Arrays.asList(1, 2, 3);
+
+        try {
+            ConvertUtils.collectionToArray(valueType, collection);
+        }
+        catch (Exception e) {
+            return;
+        }
+        Assert.fail("SmartRuntimeException is not thrown for invalid value class.");
+    }
+
+    @Test
+    public void testMapToObjectToMapWithMapOfIntegersWithTargetIntegerValueType() {
+        SmartType valueType = SmartType.fromClass(Integer.class);
+        SmartType targetType = SmartType.fromMapClass(HashMap.class, String.class, valueType);
+        Map<String, Integer> inputMap = new HashMap<>();
+        inputMap.put("One", 1);
+        inputMap.put("Two", 2);
+        Object result = ConvertUtils.mapToObject(targetType, inputMap);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result instanceof Map);
+        Map<?, ?> resultMap = (Map<?, ?>) result;
+        Assert.assertEquals(resultMap.size(), inputMap.size());
+        Assert.assertEquals(resultMap.get("One"), 1);
+        Assert.assertEquals(resultMap.get("Two"), 2);
+    }
+
+    @Test
+    public void testMapToObjectToMapWithMapOfIntegersWithTargetStringValueType() {
+        SmartType valueType = SmartType.fromClass(String.class);
+        SmartType targetType = SmartType.fromMapClass(HashMap.class, Integer.class, valueType);
+        Map<String, Integer> inputMap = new HashMap<>();
+        inputMap.put("1", 1);
+        inputMap.put("2", 2);
+        Object result = ConvertUtils.mapToObject(targetType, inputMap);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result instanceof Map);
+        Map<?, ?> resultMap = (Map<?, ?>) result;
+        Assert.assertEquals(resultMap.size(), inputMap.size());
+        Assert.assertEquals(resultMap.get(1), "1");
+        Assert.assertEquals(resultMap.get(2), "2");
+    }
+
+    @Test
+    public void testMapToObjectToMapWithMapOfNumbersWithTargetStringValueType() {
+        SmartType valueType = SmartType.fromClass(String.class);
+        SmartType targetType = SmartType.fromMapClass(HashMap.class, String.class, valueType);
+        Map<String, Number> inputMap = new HashMap<>();
+        inputMap.put("One", 1);
+        inputMap.put("Two", 2.0f);
+        inputMap.put("Three", 3.0);
+        Object result = ConvertUtils.mapToObject(targetType, inputMap);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result instanceof Map);
+        Map<?, ?> resultMap = (Map<?, ?>) result;
+        Assert.assertEquals(resultMap.size(), inputMap.size());
+        Assert.assertEquals(resultMap.get("One"), "1");
+        Assert.assertEquals(resultMap.get("Two"), "2.0");
+        Assert.assertEquals(resultMap.get("Three"), "3.0");
+    }
+
+    @Test
+    public void testMapToObjectToMapWithMapOfNumbersWithTargetNumberValueType() {
+        SmartType valueType = SmartType.fromClass(Number.class);
+        SmartType targetType = SmartType.fromMapClass(HashMap.class, String.class, valueType);
+        Map<String, Number> inputMap = new HashMap<>();
+        inputMap.put("One", 1);
+        inputMap.put("Two", 2.0f);
+        inputMap.put("Three", 3.0);
+        Object result = ConvertUtils.mapToObject(targetType, inputMap);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result instanceof Map);
+        Map<?, ?> resultMap = (Map<?, ?>) result;
+        Assert.assertEquals(resultMap.size(), inputMap.size());
+        Assert.assertEquals(resultMap.get("One"), 1);
+        Assert.assertEquals(resultMap.get("Two"), 2.0f);
+        Assert.assertEquals(resultMap.get("Three"), 3.0);
+    }
+
+    @Test
+    public void testMapToObjectToMapWithMapOfObjectsWithTargetStringValueType() {
+        SmartType valueType = SmartType.fromClass(String.class);
+        SmartType targetType = SmartType.fromMapClass(HashMap.class, String.class, valueType);
+        SmartDate smartDate = SmartDate.fromString("1970-05-23");
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("One", 1);
+        inputMap.put("Two", "string");
+        inputMap.put("Three", smartDate);
+        Object result = ConvertUtils.mapToObject(targetType, inputMap);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result instanceof Map);
+        Map<String,String> resultMap = (Map<String,String>) result;
+        Assert.assertEquals(resultMap.size(), inputMap.size());
+        Assert.assertEquals(resultMap.get("One"), "1");
+        Assert.assertEquals(resultMap.get("Two"), "string");
+        Assert.assertEquals(resultMap.get("Three"), "1970-05-23");
+    }
+
+    @Test
+    public void testMapToObjectWithEmptyMap() {
+        SmartType valueType = SmartType.fromClass(Integer.class);
+        SmartType targetType = SmartType.fromMapClass(HashMap.class, String.class, valueType);
+        Map<String, Integer> inputMap = new HashMap<>();
+        Object result = ConvertUtils.mapToObject(targetType, inputMap);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result instanceof Map);
+        Map<?, ?> resultMap = (Map<?, ?>) result;
+        Assert.assertTrue(resultMap.isEmpty());
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testMapToObjectWithNullTargetType() {
+        Map<String, Integer> inputMap = new HashMap<>();
+        inputMap.put("One", 1);
+
+        ConvertUtils.mapToObject(null, inputMap);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testMapToObjectWithNullMap() {
+        SmartType targetType = SmartType.fromClass(Object.class);
+
+        ConvertUtils.mapToObject(targetType, null);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testMapToObjectWithIncompatibleTargetType() {
+        SmartType targetType = SmartType.fromClass(Integer.class);
+        Map<String, Integer> inputMap = new HashMap<>();
+        inputMap.put("One", 1);
+
+        ConvertUtils.mapToObject(targetType, inputMap);
+    }
+
+    @Test
+    public void testPojoObjectToMapWithValidPojo() {
+        // Create a sample POJO object
+        PojoClass pojo = createPojoObject();
+        Map<String, Object> result = ConvertUtils.pojoObjectToMap(pojo);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.size(), 6);
+        Assert.assertEquals(result.get("name"), pojo.getName());
+        Assert.assertEquals(result.get("value"), pojo.getValue());
+        Assert.assertEquals(result.get("stringArray"), pojo.getStringArray());
+        Assert.assertEquals(result.get("nestedPojoObject"), pojo.getNestedPojoObject());
+        Assert.assertEquals(result.get("stringBooleanMap"), pojo.getStringBooleanMap());
+        Assert.assertEquals(result.get("integerList"), pojo.getIntegerList());
+    }
+
+    @Test
+    public void testPojoObjectToMapWithEmptyPojo() {
+        // Create an empty POJO object
+        Null pojo = new Null();
+        Map<String, Object> result = ConvertUtils.pojoObjectToMap(pojo);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isEmpty());
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testPojoObjectToMapWithNullPojo() {
+        ConvertUtils.pojoObjectToMap(null);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testPojoObjectToMapWithInaccessibleField() {
+        String notPojo = "string";
+
+        ConvertUtils.pojoObjectToMap(notPojo);
+    }
+
+    @Test
+    public void testLocaleNumbStringToNumberWithValidUSNumber() {
+        String numberString = "1,234,567.89"; // US English formatted number
+        Number result = ConvertUtils.localeNumbStringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 1234567.89);
+    }
+
+    @Test
+    public void testLocaleNumbStringToNumberWithValidHighPrecisionUSNumber() {
+        String numberString = "1,234,567.0123456789"; // US English formatted high precision number
+        Number result = ConvertUtils.localeNumbStringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 1234567.0123456789);
+    }
+
+    @Test
+    public void testLocaleNumberStartingWithZeroToHighPrecisionUSNumber() {
+        String numberString = "0.0123456789"; // US English formatted high precision number
+        Number result = ConvertUtils.localeNumbStringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 0.0123456789);
+    }
+
+    @Test
+    public void testLocaleNumbStringToNumberWithValidSpanishNumber() {
+        String numberString = "1.234.567,0123456789"; // Spanish formatted number
+        Number result = ConvertUtils.localeNumbStringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 1234567.0123456789);
+    }
+
+    @Test
+    public void testLocaleNumbStringToNumberWithValidArabicNumber() {
+        String numberString = "١٬٢٣٤٬٥٦٧٫١٢٣٤٥٦٧"; // Arabic formatted number
+        Number result = ConvertUtils.localeNumbStringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 1234567.1234567);
+    }
+
+    @Test
+    public void testLocaleNumbStringToNumberWithValidGermanNumber() {
+        String numberString = "1.234.567,0123456789"; // German formatted number
+        Number result = ConvertUtils.localeNumbStringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 1234567.0123456789);
+    }
+
+    @Test
+    public void testLocaleNumbStringToNumberWithValidFrenchNegativeNumber() {
+        String numberString = "-1 234 567,89"; // French formatted negative number with non-breaking spaces
+        Number result = ConvertUtils.localeNumbStringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), -1234567.89);
+    }
+
+    @Test
+    public void testLocaleNumbStringToNumberWithValidLithuanianNumber() {
+        String numberString = "1 234 567,89"; // Lithuanian formatted number with space as grouping and comma as decimal
+        Number result = ConvertUtils.localeNumbStringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 1234567.89);
+    }
+
+    @Test
+    public void testLocaleNumbStringToNumberWithValidChineseNumber() {
+        String numberString = "一百二十三万四千五百六十七点八九"; // Chinese formatted number with non-breaking spaces
+        Number result = ConvertUtils.localeNumbStringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, 1234567.89);
+    }
+
+    @Test
+    public void testLocaleNumbStringToNumberWithValidJapaneseNumber() {
+        String numberString = "一百二十三万四千五百六十七点八九"; // Japanese formatted number with non-breaking spaces
+        Number result = ConvertUtils.localeNumbStringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, 1234567.89);
+    }
+
+    // TODO: Fix for Korean number string
+/*
+    @Test
+    public void testLocaleNumbStringToNumberWithValidKoreanNumber() {
+        String numberString = "일백이십삼만사천오백육십칠점팔구"; // Korean formatted number with non-breaking spaces
+        Number result = ConvertUtils.localeNumbStringToNumber(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 1234567.89);
+    }
+*/
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testLocaleNumbStringToNumberWithInvalidNumberFormat() {
+        String numberString = "invalidNumber";
+        ConvertUtils.localeNumbStringToNumber(numberString);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testLocaleNumbStringToNumberWithValidNumberFormatWithTail() {
+        String numberString = "1,234.567 some tail.";
+        ConvertUtils.localeNumbStringToNumber(numberString);
+    }
+
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testLocaleNumbStringToNumberWithUnsupportedFormat() {
+        String numberString = "1#234#567";
+        ConvertUtils.localeNumbStringToNumber(numberString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testLocaleNumbStringToNumberWithEmptyString() {
+        ConvertUtils.localeNumbStringToNumber("");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testLocaleNumbStringToNumberWithNullInput() {
+        ConvertUtils.localeNumbStringToNumber(null);
+    }
+
+    @Test
+    public void testStringToNumberValueWithValidUSFormatNumber() {
+        String numberString = "1,234,567.0123456789"; // US formatted number
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 1234567.0123456789);
+    }
+
+    @Test
+    public void testStringToNumberValueWithValidUSFormatNegativeNumber() {
+        String numberString = "-1,234,567.0123456789"; // US formatted number
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), -1234567.0123456789);
+    }
+
+    @Test
+    public void testStringToNumberValueWithIntegerString() {
+        String numberString = "1234567890"; // Simple integer
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.intValue(), 1234567890);
+    }
+
+    @Test
+    public void testStringToNumberValueWithZeroIntegerString() {
+        String numberString = "0"; // Simple zero integer
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.intValue(), 0);
+    }
+
+    @Test
+    public void testStringToNumberValueWithMinusOneString() {
+        String numberString = "-1"; // Simple negative integer
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.intValue(), -1);
+    }
+
+    @Test
+    public void testStringToNumberValueWithZeroDoubleString() {
+        String numberString = "0.0"; // Simple zero integer
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.intValue(), 0.0);
+    }
+
+    @Test
+    public void testStringToNumberValueWithScientificNotation() {
+        String numberString = "1.23e3"; // Scientific notation
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 1230.0);
+    }
+
+    @Test
+    public void testStringToNumberValueWithLargestLong() {
+        String numberString = "9,223,372,036,854,775,807"; // The largest long
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getClass().getSimpleName(), "Long");
+        Assert.assertEquals(result, 9223372036854775807L);
+    }
+
+    @Test
+    public void testStringToBigIntegerNumberValueWithNearPositiveInfinity() {
+        String numberString = "9".repeat(380); // Near positive infinity BigInteger
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getClass().getSimpleName(), "BigInteger");
+        Assert.assertEquals(String.valueOf(result), numberString);
+    }
+
+    @Test
+    public void testStringToBigDecimalNumberValueWithNearPositiveInfinity() {
+        String part = "7".repeat(380);
+        String numberString = String.format("%s.%s", part, part); // Near positive infinity BigDecimal
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getClass().getSimpleName(), "BigDecimal");
+        Assert.assertEquals(String.valueOf(result), numberString);
+    }
+
+    @Test
+    public void testStringToNumberValueWithPersianNumberString() {
+        String numberString = "۱٬۲۳۴٬۵۶۷٫۱۲۳۴۵۶۷۸۹";
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 1234567.123456789);
+    }
+
+    @Test
+    public void testStringToNumberValueWithArabicNumberString() {
+        String numberString = "١٬٢٣٤٬٥٦٧٫٨٩";
+        Number result = ConvertUtils.stringToNumberValue(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.doubleValue(), 1234567.89);
+    }
+
+    @Test
+    public void testLocaleNumberStringToJavaNumberStringWithArabicNumber() {
+        String numberString = "١٬٢٣٤٬٥٦٧٫٨٩"; // Arabic formatted number
+        String result = ConvertUtils.localeNumberStringToJavaNumberString(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "1234567.89");
+    }
+
+    @Test
+    public void testLocaleNumberStringToJavaNumberStringWithFrenchNumber() {
+        String numberString = "1 234 567,0123456789"; // French formatted number with non-breaking spaces
+        String result = ConvertUtils.localeNumberStringToJavaNumberString(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "1234567.0123456789");
+    }
+
+    @Test
+    public void testLocaleNumberStringToJavaNumberStringWithUSNumber() {
+        String numberString = "1,234,567.0123456789"; // US formatted number
+        String result = ConvertUtils.localeNumberStringToJavaNumberString(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "1234567.0123456789");
+    }
+
+    @Test
+    public void testLocaleNumberStringToJavaNumberStringWithGermanNumber() {
+        String numberString = "1.234.567,0123456789"; // German formatted number
+        String result = ConvertUtils.localeNumberStringToJavaNumberString(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "1234567.0123456789");
+    }
+
+    @Test
+    public void testLocaleNumberStringToJavaNumberStringWithPersianNumber() {
+        String numberString = "۱٬۲۳۴٬۵۶۷٫۸۹"; // Persian formatted number
+        String result = ConvertUtils.localeNumberStringToJavaNumberString(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "1234567.89");
+    }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testLocaleNumberStringToJavaNumberStringWithInvalidNumberFormat() {
+        // With invalid number format
+        ConvertUtils.localeNumberStringToJavaNumberString("invalid");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testLocaleNumberStringToJavaNumberStringWithBlankNumberString() {
+        // With invalid number format
+        ConvertUtils.localeNumberStringToJavaNumberString("  ");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testLocaleNumberStringToJavaNumberStringWithNullNumberString() {
+        // With invalid number format
+        ConvertUtils.localeNumberStringToJavaNumberString(null);
+    }
+
+    @Test
+    public void testNumberStringToFormatWithValidArabicNumberString() {
+        String numberString = "١٬٢٣٤٬٥٦٧٫١٢٣٤٥٦٧"; // Arabic-Indic numerals
+        String result = ConvertUtils.numberStringToFormat(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "#٬###٬###٫#######");
+    }
+
+    @Test
+    public void testNumberStringToFormatWithValidFrenchNumberString() {
+        String numberString = "-1 234 567,89"; // French formatted number with non-breaking spaces
+        String result = ConvertUtils.numberStringToFormat(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "## ### ###,##");
+    }
+
+    @Test
+    public void testNumberStringToFormatWithValidScientificNotation() {
+        String numberString = "1.23E4"; // Scientific notation
+        String result = ConvertUtils.numberStringToFormat(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "#.##E#");
+    }
+
+    @Test
+    public void testNumberStringToFormatWithValidHindiNumberString() {
+        String numberString = "१,२३४,५६७.८९"; // Hindi formatted number
+        String result = ConvertUtils.numberStringToFormat(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "#,###,###.##");
+    }
+
+    @Test
+    public void testNumberStringToFormatWithValidEnglishNumberString() {
+        String numberString = "1,234,567.89"; // English formatted number
+        String result = ConvertUtils.numberStringToFormat(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "#,###,###.##");
+    }
+
+    @Test
+    public void testNumberStringToFormatWithValidNegativeNumberString() {
+        String numberString = "-1234567.89"; // Negative number
+        String result = ConvertUtils.numberStringToFormat(numberString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, "########.##");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testNumberStringToFormatWithBlankString() {
+        String numberString = "   "; // Blank string
+        ConvertUtils.numberStringToFormat(numberString);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testNumberStringToFormatWithInvalidNumberString() {
+        String numberString = "InvalidNumber"; // Invalid number string
+        ConvertUtils.numberStringToFormat(numberString);
+    }
+
+    @Test
+    public void testObjectToFileWithValidFile() {
+        File inputFile = new File("C:/example/file.txt");
+        File result = ConvertUtils.objectToFile(inputFile);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getPath(), inputFile.getPath());
+    }
+
+    @Test
+    public void testObjectToFileWithValidPath() {
+        Path inputPath = new File("C:/example/file.txt").toPath();
+        File result = ConvertUtils.objectToFile(inputPath);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getPath(), inputPath.toFile().getPath());
+    }
+
+    @Test
+    public void testObjectToFileWithValidUri() {
+        URI inputUri = URI.create("file:///C:/example/file.txt");
+        File result = ConvertUtils.objectToFile(inputUri);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getPath(), new File(inputUri).getPath());
+    }
+
+    @Test
+    public void testObjectToFileWithValidStringPath() {
+        String inputString = "C:/example/file.txt";
+        File result = ConvertUtils.objectToFile(inputString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getPath(), new File(inputString).getPath());
+    }
+
+    @Test
+    public void testObjectToFileWithValidUrl() throws Exception {
+        URL inputUrl = new URL("file:///C:/example/file.txt");
+        File result = ConvertUtils.objectToFile(inputUrl);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.getPath(), new File(inputUrl.toURI()).getPath());
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToFileWithInvalidObject() {
+        Object invalidObject = new Object();  // Invalid object type for conversion
+        ConvertUtils.objectToFile(invalidObject);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testObjectToFileWithNullObject() {
+        ConvertUtils.objectToFile(null);  // Null value should trigger validation exception
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToFileWithInvalidUri() {
+        URI invalidUri = URI.create("http://example.com");  // Invalid URI scheme for file conversion
+        ConvertUtils.objectToFile(invalidUri);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToFileWithInvalidUrl() throws Exception {
+        URL inputUrl = new URL("http://example.com"); // Invalid URL scheme for file conversion
+        ConvertUtils.objectToFile(inputUrl);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToFileWithInvalidStringPath() {
+        String invalidString = "invalid path :*";  // Invalid file path string
+        ConvertUtils.objectToFile(invalidString);
+    }
+
+    @Test
+    public void testObjectToPathWithValidFile() {
+        File inputFile = new File("C:/example/file.txt");
+        Path result = ConvertUtils.objectToPath(inputFile);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.toFile().getPath(), inputFile.getPath());
+    }
+
+    @Test
+    public void testObjectToPathWithValidUri() throws Exception {
+        URI inputUri = new URI("file:///C:/example/file.txt");
+        Path result = ConvertUtils.objectToPath(inputUri);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.toFile().getPath(), new File(inputUri).getPath());
+    }
+
+    @Test
+    public void testObjectToPathWithValidUrl() throws Exception {
+        URL inputUrl = new URL("file:///C:/example/file.txt");
+        Path result = ConvertUtils.objectToPath(inputUrl);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.toFile().getPath(), new File(inputUrl.toURI()).getPath());
+    }
+
+    @Test
+    public void testObjectToPathWithValidString() {
+        String inputString = "C:/example/file.txt";
+        Path result = ConvertUtils.objectToPath(inputString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.toFile().getPath(), new File(inputString).getPath());
+    }
+
+    @Test
+    public void testObjectToPathWithValidPath() {
+        Path inputPath = new File("C:/example/file.txt").toPath();
+        Path result = ConvertUtils.objectToPath(inputPath);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, inputPath);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToPathWithInvalidUrl() throws Exception {
+        URL invalidUrl = new URL("http://example.com/file.txt");  // Invalid URL scheme for Path conversion
+        ConvertUtils.objectToPath(invalidUrl);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToPathWithInvalidUri() throws Exception {
+        URI invalidUri = new URI("http://example.com");  // Invalid URI for file conversion
+        ConvertUtils.objectToPath(invalidUri);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToPathWithInvalidObject() {
+        Object invalidObject = new Object();  // Unsupported object type
+        ConvertUtils.objectToPath(invalidObject);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testObjectToPathWithNullValue() {
+        ConvertUtils.objectToPath(null);  // Null value should trigger validation exception
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToPathWithInvalidString() {
+        String invalidString = "invalid:/path";  // Invalid file path string
+        ConvertUtils.objectToPath(invalidString);
+    }
+
+    @Test
+    public void testObjectToURIWithValidFile() {
+        File inputFile = new File("C:/example/file.txt");
+        URI result = ConvertUtils.objectToURI(inputFile);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, inputFile.toURI());
+    }
+
+    @Test
+    public void testObjectToURIWithValidPath() {
+        Path inputPath = new File("C:/example/file.txt").toPath();
+        URI result = ConvertUtils.objectToURI(inputPath);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, inputPath.toUri());
+    }
+
+    @Test
+    public void testObjectToURIWithValidURI() throws Exception {
+        URI inputUri = new URI("http://example.com");
+        URI result = ConvertUtils.objectToURI(inputUri);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, inputUri);
+    }
+
+    @Test
+    public void testObjectToURIWithValidURL() throws Exception {
+        URL inputUrl = new URL("http://example.com");
+        URI result = ConvertUtils.objectToURI(inputUrl);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, inputUrl.toURI());
+    }
+
+    @Test
+    public void testObjectToURIWithValidString() throws Exception {
+        String inputString = "http://example.com";
+        URI result = ConvertUtils.objectToURI(inputString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, new URI(inputString));
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToURIWithInvalidString() {
+        String invalidString = "   ";  // Invalid URI string
+        ConvertUtils.objectToURI(invalidString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testObjectToURIWithNullValue() {
+        ConvertUtils.objectToURI(null);  // Null value should trigger validation exception
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToURIWithInvalidObjectType() {
+        Object invalidObject = new Object();  // Unsupported object type
+        ConvertUtils.objectToURI(invalidObject);
+    }
+
+    @Test
+    public void testObjectToURLWithValidFile() throws Exception {
+        File inputFile = new File("C:/example/file.txt");
+        URL result = ConvertUtils.objectToURL(inputFile);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, inputFile.toURI().toURL());
+    }
+
+    @Test
+    public void testObjectToURLWithValidUri() throws Exception {
+        URI inputUri = new URI("http://example.com");
+        URL result = ConvertUtils.objectToURL(inputUri);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, inputUri.toURL());
+    }
+
+    @Test
+    public void testObjectToURLWithValidUrl() throws Exception {
+        URL inputUrl = new URL("http://example.com");
+        URL result = ConvertUtils.objectToURL(inputUrl);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, inputUrl);
+    }
+
+    @Test
+    public void testObjectToURLWithValidPath() throws Exception {
+        Path inputPath = new File("C:/example/file.txt").toPath();
+        URL result = ConvertUtils.objectToURL(inputPath);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, inputPath.toUri().toURL());
+    }
+
+    @Test
+    public void testObjectToURLWithValidString() throws Exception {
+        String inputString = "http://example.com";
+        URL result = ConvertUtils.objectToURL(inputString);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, new URI(inputString).toURL());
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToURLWithInvalidUri() throws Exception {
+        URI invalidUri = new URI("");  // Invalid URI
+        ConvertUtils.objectToURL(invalidUri);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToURLWithInvalidString() {
+        String invalidString = "invalid:/example/file.txt";  // Invalid URL string
+        ConvertUtils.objectToURL(invalidString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testObjectToURLWithNullValue() {
+        ConvertUtils.objectToURL(null);  // Null value should trigger validation exception
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testObjectToURLWithInvalidObjectType() {
+        Object invalidObject = new Object();  // Unsupported object type
+        ConvertUtils.objectToURL(invalidObject);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+
     private Node createSampleXmlNode() {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -3260,7 +5329,7 @@ public class ConvertUtilsTest {
         }
     }
 
-    private static PojoClass createPojoObject() {
+    public static PojoClass createPojoObject() {
         int[] intArray = {1, 2};
         List<Integer> arrayList = Arrays.stream(intArray)
                 .boxed()
@@ -3283,7 +5352,7 @@ public class ConvertUtilsTest {
     }
 
     // Utility method for mocking a Node (replace with actual mock if needed)
-    private Node createMockNode() {
+    public Node createMockNode() {
         try {
             // Create a DocumentBuilderFactory and DocumentBuilder
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

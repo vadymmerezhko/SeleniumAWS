@@ -1,25 +1,25 @@
 package org.example.data;
 
+import com.google.gson.JsonElement;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.example.exceptions.SmartRuntimeException;
+import org.example.utils.ConvertUtils;
 import org.example.utils.DataValidationUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.temporal.Temporal;
 import java.util.*;
-
-import static org.apache.commons.lang3.ObjectUtils.isArray;
 
 /**
  * Smart value type. Encapsulates:
@@ -33,7 +33,14 @@ import static org.apache.commons.lang3.ObjectUtils.isArray;
  */
 @Slf4j
 @SuppressWarnings("unchecked")
-public final class SmartType {
+public final class SmartType extends SmartObject {
+
+    private static final Class<?>[] COMMON_CLASSES = {
+            SmartValue.class, SmartTemporal.class, SmartObject.class,
+            Number.class, Collection.class, Map.class, Document.class, Node.class,
+            JSONObject.class, JSONArray.class, JsonElement.class, Date.class,
+            Temporal.class, File.class, Enum.class, Object.class };
+
     @Getter
     private final Class<?> objectClass;
     @Getter
@@ -42,77 +49,7 @@ public final class SmartType {
     private SmartType valueSmartType;
     @Getter
     private Map<String, SmartType> fieldTypesMap;
-    private boolean isArrayType;
-
-    /**
-     * Class to get collection element type (class).
-     * @param <T> Element type.
-     */
-    static class GenericCollection<T> {
-        private final Collection<T> collection;
-
-        public GenericCollection(Collection<T> collection) {
-            this.collection = collection;
-        }
-
-        public Class<?> getElementClass() {
-            Type type = getClass().getGenericSuperclass();
-            if (type instanceof ParameterizedType paramType) {
-                Type[] typeArguments = paramType.getActualTypeArguments();
-
-                if (typeArguments.length > 0) {
-                    return (Class<?>) typeArguments[0];
-                }
-            }
-            // Default case if type cannot be determined
-            return Object.class;
-        }
-    }
-
-    /**
-     * Class to get map element type (class).
-     * @param <K> The element key type.
-     * @param <V> The element value type.
-     */
-    static class GenericMap<K, V> {
-        private final Map<K, V> map;
-        private final Class<K> keyClass;
-        private final Class<V> valueClass;
-
-        @SuppressWarnings("unchecked")
-        public GenericMap(Map<K, V> map) {
-            this.map = map;
-
-            if (!map.isEmpty()) {
-                Map.Entry<K, V> firstEntry = map.entrySet().iterator().next();
-                this.keyClass = (Class<K>) firstEntry.getKey().getClass();
-                this.valueClass = (Class<V>) firstEntry.getValue().getClass();
-            } else {
-                this.keyClass = null;
-                this.valueClass = null;
-            }
-        }
-
-        public Class<K> getKeyClass() {
-            return keyClass;
-        }
-
-        public Class<V> getValueClass() {
-            return valueClass;
-        }
-
-        public void put(K key, V value) {
-            map.put(key, value);
-        }
-
-        public V get(K key) {
-            return map.get(key);
-        }
-
-        public Map<K, V> getMap() {
-            return map;
-        }
-    }
+    private boolean isArray;
 
     /**
      * Creates smart type from object class.
@@ -191,11 +128,11 @@ public final class SmartType {
      * @return The smart type.
      * @param <T> The object type.
      */
-    public static <T> SmartType fromArrayValueSmartType(SmartType valueSmartType) {
+    public static SmartType fromArrayValueSmartType(SmartType valueSmartType) {
         DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
 
         SmartType smartType = new SmartType(Object.class, valueSmartType);
-        smartType.isArrayType = true;
+        smartType.isArray = true;
                 log.debug("""
                 Smart type object is created from array value smart type.
                 Value type: {}
@@ -260,7 +197,7 @@ public final class SmartType {
     public static <T> SmartType fromObject(Object object) {
         SmartType type;
 
-        if (object == null) {
+        if (object == null || object == JSONObject.NULL) {
             type = new SmartType(Null.class);
         }
         else {
@@ -270,14 +207,14 @@ public final class SmartType {
                 if (object instanceof Collection collection) {
                     type = fromCollection(collection);
                 }
-                else if (isArray(object)) {
+                else if (ObjectUtils.isArray(object)) {
                     type = fromArray((T[]) object);
                 }
                 else if (object instanceof Map map) {
                     type = fromMap(map);
                 }
                 else if (isPojoClass(objectClass)) {
-                    type = fromPojoClass(object);
+                    type = fromPojoObject(object);
                 }
                 else {
                     type = fromClass(objectClass);
@@ -287,7 +224,7 @@ public final class SmartType {
                 throw new SmartRuntimeException(String.format("""
                     Cannot get smart type from object.
                     Object:
-                    {}
+                    %s
                     """.stripIndent(),
                         object));
             }
@@ -314,7 +251,8 @@ public final class SmartType {
 
         if (objectClass == null) {
             result = false;
-        } else {
+        }
+        else {
             result = !(objectClass.isPrimitive() ||
                     objectClass.isArray() ||
                     objectClass.isRecord() ||
@@ -339,11 +277,11 @@ public final class SmartType {
                     URI.class.isAssignableFrom(objectClass) ||
                     Path.class.isAssignableFrom(objectClass) ||
                     Temporal.class.isAssignableFrom(objectClass) ||
-                    SmartValue.class.isAssignableFrom(objectClass) ||
                     SmartObject.class.isAssignableFrom(objectClass) ||
                     SmartTemporal.class.isAssignableFrom(objectClass) ||
                     SmartType.class.isAssignableFrom(objectClass) ||
-                    Modifier.isAbstract(objectClass.getModifiers()));
+                    Modifier.isAbstract(objectClass.getModifiers()) ||
+                    objectClass == Class.class);
         }
 
         // Log the class and result
@@ -362,6 +300,9 @@ public final class SmartType {
     private SmartType(Class<?> objectClass) {
         DataValidationUtils.validateNotNull(objectClass, "objectClass");
 
+        if (objectClass == JSONObject.NULL.getClass()) {
+            objectClass = Null.class;
+        }
         this.objectClass = objectClass;
         log.debug("""
             Smart value type created with:
@@ -442,16 +383,14 @@ public final class SmartType {
      * or false otherwise.
      * @return The true/false flag.
      */
-    public boolean isArrayType() {
-        return isArrayType;
+    public boolean isArray() {
+        return isArray;
     }
 
     private static <T> SmartType fromCollection(Collection<T> collection) {
         DataValidationUtils.validateNotNull(collection, "collection");
 
-        GenericCollection<T> genericCollection = new GenericCollection<>(collection);
-        Class<?> valueClass = genericCollection.getElementClass();
-        SmartType valueSmartType = new SmartType(valueClass);
+        SmartType valueSmartType = getCollectionValueSmartType(collection);
         SmartType collectionSmartType = fromCollectionClass(collection.getClass(), valueSmartType);
         log.debug("""
                 Collection smart type returned.
@@ -467,10 +406,8 @@ public final class SmartType {
         DataValidationUtils.validateNotNull(map, "map");
 
         Class<?> objectClass = map.getClass();
-        GenericMap<K, V> genericMap = new GenericMap<>(map);
-        Class<K> keyClass = genericMap.getKeyClass();
-        Class<V> valueClass = genericMap.getValueClass();
-        SmartType valueSmartType = new SmartType(valueClass);
+        Class<K> keyClass = getMapKeyClass(map);
+        SmartType valueSmartType = getMapValueSmartType(map);
         SmartType mapSmartType = new SmartType(objectClass, keyClass, valueSmartType);
         log.debug("""
                 Map smart type returned.
@@ -485,8 +422,7 @@ public final class SmartType {
     private static <T> SmartType fromArray(T[] array) {
         DataValidationUtils.validateNotNull(array, "array");
 
-        Class<?> valueClass = array.getClass().getComponentType();
-        SmartType valueSmartType = new SmartType(valueClass);
+        SmartType valueSmartType = getArrayValueSmartType(array);
         SmartType arraySmartType = fromArrayValueSmartType(valueSmartType);
         log.debug("""
                 Array smart object type returned.
@@ -498,7 +434,7 @@ public final class SmartType {
         return arraySmartType;
     }
 
-    private static SmartType fromPojoClass(Object object) {
+    private static SmartType fromPojoObject(Object object) {
         Map<String, SmartType> fieldTypes = new HashMap<>();
         Field[] fields = object.getClass().getDeclaredFields();
         Class<?> pojoClass = object.getClass();
@@ -530,6 +466,11 @@ public final class SmartType {
         return classSmartType;
     }
 
+    /**
+     * Compares smart type with other object.
+     * @param object The object.
+     * @return The true if equals or false otherwise.
+     */
     @Override
     public boolean equals(Object object) {
 
@@ -546,8 +487,10 @@ public final class SmartType {
             boolean result =
                     getObjectClass() == actual.getObjectClass() &&
                     getKeyClass() == actual.getKeyClass() &&
-                    (getValueSmartType() != null && getValueSmartType().equals(actual.valueSmartType)) &&
-                    (getFieldTypesMap() != null && getFieldTypesMap().equals(actual.fieldTypesMap));
+                    (getValueSmartType() == actual.getValueSmartType() ||
+                    getValueSmartType().equals(actual.getValueSmartType()) &&
+                    (getFieldTypesMap() == actual.getFieldTypesMap() ||
+                     getFieldTypesMap().equals(actual.getFieldTypesMap())));
 
             log.debug(String.format("""
                     Smart type equals() called.
@@ -565,13 +508,18 @@ public final class SmartType {
         }
     }
 
+    /**
+     * Converts smart type to string value.
+     * @return The string value.
+     */
     @Override
     public String toString() {
         return String.format("""
                 Smart type class: %s
                 Object class: %s
                 Key class: %s
-                Value type: %s
+                Value type:
+                %s
                 Field types:
                 %s
                 """.stripIndent(),
@@ -582,8 +530,273 @@ public final class SmartType {
                 fieldTypesMap);
     }
 
+    /**
+     * Converts smart type to hash code.
+     * @return The has code.
+     */
     @Override
     public int hashCode() {
         return Objects.hash(objectClass, valueSmartType, keyClass, fieldTypesMap);
+    }
+
+    /**
+     * Gets collection value smart type.
+     * @param collection The collection.
+     * @return The smart type.
+     * @param <T> The value type.
+     */
+    public static <T,K> SmartType getCollectionValueSmartType(Collection<T> collection) {
+        DataValidationUtils.validateNotNull(collection, "collection");
+        SmartType valueType = null;
+        List<T> list = new ArrayList<>(collection);
+        Object element;
+
+        for (T t : list) {
+            Class<?> valueClass;
+            Class<?> subKeyClass = null;
+            SmartType subValueType = null;
+            element = t;
+
+            if (valueType == null) {
+                valueType = getElementType(element);
+                continue;
+            }
+            valueClass = valueType.getObjectClass();
+
+            if (element instanceof Collection<?> collectionElement) {
+                subValueType = getCollectionValueSmartType(collectionElement);
+            } else if (element instanceof JSONArray jsonArrayElement) {
+                subValueType = getJsonArrayValueSmartType(jsonArrayElement);
+            } else if (element instanceof JSONObject jsonObjectElement) {
+                subKeyClass = String.class;
+                subValueType = getJsonObjectValueSmartType(jsonObjectElement);
+            }
+            if (subKeyClass != null) {
+                valueType = SmartType.fromMapClass(valueClass, subKeyClass, subValueType);
+            } else if (subValueType != null) {
+                if (Collection.class.isAssignableFrom(valueType.getObjectClass())) {
+                    valueType = subValueType;
+                } else {
+                    valueType = getCommonValueSmartType(valueType, subValueType);
+                }
+            } else {
+                valueType = getCommonValueSmartType(valueType, SmartType.fromObject(element));
+            }
+        }
+        if (valueType == null) {
+            valueType = SmartType.fromClass(Object.class);
+        }
+        log.debug("""
+                Collection value type is returned.
+                Collection class: {}
+                Collection:
+                {}
+                Type:
+                {}
+                """.stripIndent(),
+                collection.getClass().getName(),
+                collection, valueType);
+        return valueType;
+    }
+
+    /**
+     * Gets JSON array value smart type.
+     * @param jsonArray The collection.
+     * @return The smart type.
+     */
+    public static SmartType getJsonArrayValueSmartType(JSONArray jsonArray) {
+        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
+        SmartType valueType = null;
+        Object element;
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            Class<?> valueClass;
+            Class<?> subKeyClass = null;
+            SmartType subValueType = null;
+            element = jsonArray.get(i);
+
+            if (valueType == null) {
+
+                if (element instanceof JSONArray jsonArrayElement) {
+                    valueType = getJsonArrayValueSmartType(jsonArrayElement);
+                }
+                else {
+                    valueType = getElementType(element);
+                }
+                continue;
+            }
+            valueClass = valueType.getObjectClass();
+
+            if (element instanceof JSONArray jsonArrayElement) {
+                subValueType = getJsonArrayValueSmartType(jsonArrayElement);
+            }
+            else if (element instanceof JSONObject jsonObjectElement) {
+                subKeyClass = String.class;
+                subValueType = getJsonObjectValueSmartType(jsonObjectElement);
+            }
+            if (subKeyClass != null) {
+                valueType = SmartType.fromMapClass(valueClass, subKeyClass, subValueType);
+            }
+            else if (subValueType != null) {
+                valueType = getCommonValueSmartType(valueType, subValueType);
+            }
+            else {
+                valueType = getCommonValueSmartType(valueType, SmartType.fromObject(element));
+            }
+        }
+        if (valueType == null) {
+            valueType = SmartType.fromClass(Object.class);
+        }
+        log.debug("""
+                JSON array value type is returned.
+                JSON array:
+                {}
+                Type:
+                {}
+                """.stripIndent(),
+                jsonArray, valueType);
+        return valueType;
+    }
+
+    /**
+     * Gets array value smart type.
+     * @param array The array.
+     * @return The value smart type.
+     * @param <T> The arrays type.
+     */
+    public static <T> SmartType getArrayValueSmartType(T[] array) {
+        DataValidationUtils.validateNotNull(array, "array");
+        List<T> list = Arrays.asList(array);
+        SmartType valueType = getCollectionValueSmartType(list);
+        log.debug("""
+                Array value type is returned.
+                Array:
+                {}
+                Type:
+                {}
+                """.stripIndent(),
+                array, valueType);
+        return valueType;
+    }
+
+    /**
+     * Gets map key class.
+     * @param map The map.
+     * @return The key class.
+     * @param <K> The key type.
+     * @param <V> The value type.
+     */
+    public static <K,V>  Class<K> getMapKeyClass(Map<K,V> map) {
+        DataValidationUtils.validateNotNull(map, "map");
+        SmartType keyType = getCollectionValueSmartType(map.keySet());
+        Class<K> keyClass = (Class<K>) keyType.getObjectClass();
+        log.debug("""
+                Map key class is returned.
+                Map class:
+                Map:
+                {}
+                Key class: {}
+                """.stripIndent(),
+                map.getClass().getName(),
+                map, keyClass.getName());
+        return keyClass;
+    }
+
+
+    /**
+     * Gets map value smart type.
+     * @param map The map.
+     * @return The smart type.
+     * @param <K> The key type.
+     * @param <V> The value type.
+     */
+    public static <K,V> SmartType getMapValueSmartType(Map<K,V> map) {
+        DataValidationUtils.validateNotNull(map, "map");
+
+        SmartType valueType = getCollectionValueSmartType(map.values());
+        log.debug("""
+                Map value type is returned.
+                Map class: {}
+                Map:
+                {}
+                Type:
+                {}
+                """.stripIndent(),
+                map.getClass().getName(),
+                map, valueType);
+        return valueType;
+    }
+
+    /**
+     * Gets JSON object value smart type.
+     * @param jsonObject The JSON object.
+     * @return The smart type.
+     * @param <V> The value type.
+     */
+    public static <V> SmartType getJsonObjectValueSmartType(JSONObject jsonObject) {
+        DataValidationUtils.validateNotNull(jsonObject, "jsonObject");
+
+        Map<String, V> map = ConvertUtils.objectToMap(jsonObject);
+        SmartType valueType = getCollectionValueSmartType(map.values());
+        log.debug("""
+                Map value type is returned.
+                Map class: {}
+                Map:
+                {}
+                Type:
+                {}
+                """.stripIndent(),
+                map.getClass().getName(),
+                map, valueType);
+        return valueType;
+    }
+
+    private static <T> SmartType getElementType(T element) {
+        SmartType elementType;
+
+        if (element instanceof Collection collectionElement) {
+            Class<?> elementClass = collectionElement.getClass();
+            SmartType subValueType = getCollectionValueSmartType(collectionElement);
+            elementType = SmartType.fromCollectionClass(elementClass, subValueType);
+        }
+        else if (element instanceof Map mapElement) {
+            Class<?> elementClass = mapElement.getClass();
+            Class<?> subKeyClass = getMapKeyClass(mapElement);
+            SmartType subValueType = getMapValueSmartType(mapElement);
+            elementType = SmartType.fromMapClass(elementClass, subKeyClass, subValueType);
+        }
+        else {
+            elementType = SmartType.fromObject(element);
+        }
+        return elementType;
+    }
+
+    private static Class<?> getCommonParentClass(Class<?> objectClass1, Class<?> objectClass2) {
+        Class<?> parentClass = null;
+
+        if (objectClass1.isAssignableFrom(objectClass2)) {
+            parentClass = objectClass1;
+        }
+        else if (objectClass2.isAssignableFrom(objectClass1)) {
+            parentClass = objectClass2;
+        }
+        else {
+            // Check the element is instance of the common base class
+            for (Class<?> commonClass : COMMON_CLASSES) {
+
+                if (commonClass.isAssignableFrom(objectClass1) &&
+                        commonClass.isAssignableFrom(objectClass2)) {
+                    parentClass = commonClass;
+                    break;
+                }
+            }
+        }
+        return parentClass;
+    }
+
+    private static SmartType getCommonValueSmartType(SmartType objectType1, SmartType objectType2) {
+        Class<?> objectClass1 = objectType1.getObjectClass();
+        Class<?> objectClass2 = objectType2.getObjectClass();
+        return SmartType.fromClass(getCommonParentClass(objectClass1, objectClass2));
     }
 }

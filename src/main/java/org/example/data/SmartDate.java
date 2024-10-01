@@ -16,10 +16,29 @@ import java.util.Objects;
 public final class SmartDate extends Date implements SmartTemporal {
     private final String format;
 
-    public static SmartDate parseDate(String dateString) {
+    /**
+     * Converts date string to smart date instance.
+     * @param dateString The date string.
+     * @return The smart date instance.
+     */
+    public static SmartDate fromString(String dateString) {
         SmartDate smartDate = ConvertUtils.stringToSmartDate(dateString);
         log.debug("String '{}' parsed to smart date {} with date format '{}'",
                 dateString, smartDate, smartDate.format);
+        return smartDate;
+    }
+
+    /**
+     * Creates smart date instance from milliseconds.
+     * @param milliseconds The milliseconds.
+     * @return The smart date instance.
+     */
+    public static SmartDate fromMilliseconds(long milliseconds) {
+        Date date = new Date(milliseconds);
+        String dateString = ConvertUtils.dateToString(date, "yyyy-MM-dd HH:mm:ss.SSS");
+        SmartDate smartDate =  ConvertUtils.stringToSmartDate(dateString);
+        log.debug("Smart date is created from {} milliseconds: {}",
+                milliseconds, smartDate);
         return smartDate;
     }
 
@@ -52,7 +71,7 @@ public final class SmartDate extends Date implements SmartTemporal {
     }
 
     /**
-     * Get date format.
+     * Gets date format.
      * @return The date format.
      */
     @Override
@@ -165,6 +184,6 @@ public final class SmartDate extends Date implements SmartTemporal {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this, format);
+        return Objects.hash(getTime(), format);
     }
 }

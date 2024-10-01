@@ -1,6 +1,6 @@
 package org.example.exceptions;
 
-public class SmartRuntimeException extends BaseSmartException {
+public class SmartRuntimeException extends SmartException {
 
     public SmartRuntimeException() {
         super();

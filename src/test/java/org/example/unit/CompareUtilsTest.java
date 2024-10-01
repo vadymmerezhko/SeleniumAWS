@@ -464,7 +464,7 @@ public class CompareUtilsTest  {
     @Test
     public void testCompareStringWithSmartLocalDateNotStrictType() {
         String expected = "05/23/1970";
-        Object actual = SmartLocalDate.parseLocalDate("05/23/1970");
+        Object actual = SmartLocalDate.parse("05/23/1970");
 
         boolean strictType = false;
         boolean strictOrder = true;

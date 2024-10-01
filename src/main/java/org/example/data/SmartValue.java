@@ -32,7 +32,7 @@ import static org.example.constants.Settings.*;
  * Smart value class.
  */
 @Slf4j
-public class SmartValue {
+public class SmartValue extends SmartObject implements FormattedValue {
     static final ConcurrentMap<String, SmartValue> valuesMap = readAllDataObjectsFromFiles();
     private static final String SOME_VALUE = "Some value";
     private static final String TYPE = "type";
@@ -59,9 +59,11 @@ public class SmartValue {
     private String fieldName;
     @Getter
     private Map<String, SmartValue> fieldValuesMap;
-    @Setter @Getter
+    @Setter
+    @Getter
     private boolean strictOrder = false;
-    @Setter @Getter
+    @Setter
+    @Getter
     private boolean strictType = true;
     private boolean createdFromTemplate = false;
     private boolean valueSet = false;
@@ -82,8 +84,7 @@ public class SmartValue {
                     readValueFromFile(fileName, valuesMap);
                 }
                 log.debug("Asynchronous reading data objects from files finished.");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new SmartRuntimeException(String.format(
                         "Cannot read all data object files from: %s",
                         DATA_OBJECTS_FOLDER_PATH), e);
@@ -109,19 +110,19 @@ public class SmartValue {
     }
 
     /**
-     *Constructs smart value by value object and keyword.
-     * @param value The value object.
+     * Constructs smart value by value object and keyword.
+     * @param value   The value object.
      * @param keyword The keyword.
      */
     public SmartValue(Object value, Object keyword) {
         setValue(value);
         setKeyword(keyword);
         log.debug("""
-                Smart type object is created.
-                Type: {}
-                Value: {}
-                Value template: {}
-                """.stripIndent(),
+                        Smart type object is created.
+                        Type: {}
+                        Value: {}
+                        Value template: {}
+                        """.stripIndent(),
                 this.smartType, this.valueString,
                 this.valueTemplate);
     }
@@ -136,18 +137,18 @@ public class SmartValue {
         classField = true;
         setUpValue();
         log.debug("""
-                Smart type object is created.
-                Type: {}
-                Value: {}
-                Value template: {}
-                """.stripIndent(),
+                        Smart type object is created.
+                        Type: {}
+                        Value: {}
+                        Value template: {}
+                        """.stripIndent(),
                 this.smartType, this.valueString,
                 this.valueTemplate);
     }
 
     /**
      * Smart value constructor by type name, value template string.
-     * @param smartType The type name.
+     * @param smartType     The type name.
      * @param valueTemplate The value template string..
      */
     SmartValue(SmartType smartType, String valueTemplate) {
@@ -156,7 +157,7 @@ public class SmartValue {
 
     /**
      * Smart value constructor by type name, value template and format string.
-     * @param smartType The type name.
+     * @param smartType     The type name.
      * @param valueTemplate The value string.
      */
     SmartValue(SmartType smartType, String valueTemplate, String format) {
@@ -165,12 +166,12 @@ public class SmartValue {
         this.valueTemplate = valueTemplate;
         createdFromTemplate = true;
         log.debug("""
-                Smart type object is created.
-                Type: {}
-                Value: {}
-                Value template: {}
-                Keyword: {}
-                """.stripIndent(),
+                        Smart type object is created.
+                        Type: {}
+                        Value: {}
+                        Value template: {}
+                        Keyword: {}
+                        """.stripIndent(),
                 this.smartType, this.valueString,
                 this.valueTemplate, this.keywordString);
     }
@@ -204,8 +205,7 @@ public class SmartValue {
                                 """.stripIndent(),
                         strictOrder, expectedValue, actualValue, result);
                 return result;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new SmartRuntimeException(String.format("""
                                 Cannot compare two smart class objects.
                                 Expected:
@@ -244,12 +244,14 @@ public class SmartValue {
      */
     public void setValue(Object value) {
         this.value = value;
+        smartType = SmartType.fromObject(value);
         valueSet = true;
         log.debug("Smart type value object is set to: {}", value);
     }
 
     /**
      * Gets value object.
+     * Throws an exception if value is not set yet.
      * @return The value object.
      */
     public Object getValue() {
@@ -262,7 +264,7 @@ public class SmartValue {
      * Gets value string.
      * @return The value string.
      */
-    String getFormat() {
+    public String getFormat() {
         setUp();
         log.debug("Smart value format returned: {}", format);
         return format;
@@ -489,6 +491,25 @@ public class SmartValue {
     }
 
     /**
+     * Converts value to smart date value.
+     * @return The smart date value.
+     */
+    public SmartDate toSmartDate() {
+        setUp();
+        SmartDate result = ConvertUtils.objectToObject(SmartType.fromClass(SmartDate.class), value);
+        log.debug("""
+                Smart class value converted to smart date.
+                Value: {}
+                Format: {}
+                Date: {}
+                """.stripIndent(),
+                value,
+                format,
+                result);
+        return result;
+    }
+
+    /**
      * Converts value to local date value.
      * @return The local date value.
      */
@@ -500,6 +521,25 @@ public class SmartValue {
                 Value: {}
                 Format: {}
                 Local date: {}
+                """.stripIndent(),
+                value,
+                format,
+                result);
+        return result;
+    }
+
+    /**
+     * Converts value to smart local date value.
+     * @return The smart local date value.
+     */
+    public SmartLocalDate toSmartLocalDate() {
+        setUp();
+        SmartLocalDate result = ConvertUtils.objectToObject(SmartType.fromClass(SmartLocalDate.class), value);
+        log.debug("""
+                Smart class value converted to smart local date.
+                Value: {}
+                Format: {}
+                Date: {}
                 """.stripIndent(),
                 value,
                 format,
@@ -527,6 +567,25 @@ public class SmartValue {
     }
 
     /**
+     * Converts value to smart local date time value.
+     * @return The smart local date time value.
+     */
+    public SmartLocalDateTime toSmartLocalDateTime() {
+        setUp();
+        SmartLocalDateTime result = ConvertUtils.objectToObject(SmartType.fromClass(SmartLocalDateTime.class), value);
+        log.debug("""
+                Smart class value converted to smart local date time.
+                Value: {}
+                Format: {}
+                Date: {}
+                """.stripIndent(),
+                value,
+                format,
+                result);
+        return result;
+    }
+
+    /**
      * Converts value to local time value.
      * @return The local time  value.
      */
@@ -546,12 +605,88 @@ public class SmartValue {
     }
 
     /**
+     * Converts value to smart local time value.
+     * @return The smart local time value.
+     */
+    public SmartLocalTime toSmartLocalTime() {
+        setUp();
+        SmartLocalTime result = ConvertUtils.objectToObject(SmartType.fromClass(SmartLocalTime.class), value);
+        log.debug("""
+                Smart class value converted to smart local time.
+                Value: {}
+                Format: {}
+                Date: {}
+                """.stripIndent(),
+                value,
+                format,
+                result);
+        return result;
+    }
+
+    /**
+     * Converts value to smart number value.
+     * @return The smart number value.
+     */
+    public SmartNumber toSmartNumber() {
+        setUp();
+        SmartNumber result = ConvertUtils.objectToObject(SmartType.fromClass(SmartNumber.class), value);
+        log.debug("""
+                Smart class value converted to smart number.
+                Value: {}
+                Format: {}
+                Date: {}
+                """.stripIndent(),
+                value,
+                format,
+                result);
+        return result;
+    }
+
+    /**
+     * Converts value to smart currency value.
+     * @return The smart smart currency value.
+     */
+    public SmartCurrency toSmartCurrency() {
+        setUp();
+        SmartCurrency result = ConvertUtils.objectToObject(SmartType.fromClass(SmartCurrency.class), value);
+        log.debug("""
+                Smart class value converted to smart currency.
+                Value: {}
+                Format: {}
+                Date: {}
+                """.stripIndent(),
+                value,
+                format,
+                result);
+        return result;
+    }
+
+    /**
+     * Converts value to smart phone number value.
+     * @return The smart phone value.
+     */
+    public SmartPhoneNumber toSmartPhoneNumber() {
+        setUp();
+        SmartPhoneNumber result = ConvertUtils.objectToObject(SmartType.fromClass(SmartPhoneNumber.class), value);
+        log.debug("""
+                Smart class value converted to smart phone number.
+                Value: {}
+                Format: {}
+                Date: {}
+                """.stripIndent(),
+                value,
+                format,
+                result);
+        return result;
+    }
+
+    /**
      * Converts value to file.
      * @return The file.
      */
     public File toFile() {
         setUp();
-        File result = ConvertUtils.objectToObject(SmartType.fromClass(File.class), value);
+        File result = ConvertUtils.objectToFile(value);
         log.debug("""
                 Smart class value converted to file.
                 Value: {}
@@ -567,7 +702,7 @@ public class SmartValue {
      */
     public Path toPath() {
         setUp();
-        Path result = ConvertUtils.objectToObject(SmartType.fromClass(Path.class), value);
+        Path result = ConvertUtils.objectToPath(value);
         log.debug("""
                 Smart class value converted to path.
                 Value: {}
@@ -583,7 +718,7 @@ public class SmartValue {
      */
     public URL toURL() {
         setUp();
-        URL result = ConvertUtils.objectToObject(SmartType.fromClass(URL.class), value);
+        URL result = ConvertUtils.objectToURL(value);
         log.debug("""
                 Smart class value converted to URL.
                 Value: {}
@@ -599,7 +734,7 @@ public class SmartValue {
      */
     public URI toURI() {
         setUp();
-        URI result = ConvertUtils.objectToObject(SmartType.fromClass(URI.class), value);
+        URI result = ConvertUtils.objectToURI(value);
         log.debug("""
                 Smart class value converted to URI.
                 Value: {}
@@ -610,13 +745,32 @@ public class SmartValue {
     }
 
     /**
+     * Converts value to array.
+     * @param <T> The array value type.
+     * @return The array.
+     */
+    public <T> T[] toArray() {
+        setUp();
+        T[] result = ConvertUtils.objectToArray(value);
+        log.debug("""
+                Smart class value converted to array.
+                Value:
+                {}
+                Array:
+                {}
+                """.stripIndent(),
+                value, result);
+        return result;
+    }
+
+    /**
      * Converts value to list.
-     * @return The list.
      * @param <T> The list type.
+     * @return The list.
      */
     public <T> List<T> toList() {
         setUp();
-        List<T> result = ConvertUtils.objectToObject(SmartType.fromClass(List.class), value);
+        List<T> result = ConvertUtils.objectToList(value);
         log.debug("""
                 Smart class value converted to list.
                 Value:
@@ -630,12 +784,12 @@ public class SmartValue {
 
     /**
      * Converts value to set.
-     * @return The set.
      * @param <T> The set type.
+     * @return The set.
      */
     public <T> Set<T> toSet() {
         setUp();
-        Set<T> result = ConvertUtils.objectToObject(SmartType.fromClass(Set.class), value);
+        Set<T> result = new HashSet<>(toList());
         log.debug("""
                 Smart class value converted to set.
                 Value:
@@ -649,12 +803,12 @@ public class SmartValue {
 
     /**
      * Converts value to queue.
-     * @return The queue.
      * @param <T> The queue type.
+     * @return The queue.
      */
     public <T> Queue<T> toQueue() {
         setUp();
-        Queue<T> result = ConvertUtils.objectToObject(SmartType.fromClass(Queue.class), value);
+        Queue<T> result = new LinkedList<>(toList());
         log.debug("""
                 Smart class value converted to queue.
                 Value:
@@ -668,12 +822,12 @@ public class SmartValue {
 
     /**
      * Converts value to vector.
-     * @return The vector.
      * @param <T> The vector type.
+     * @return The vector.
      */
     public <T> Vector<T> toVector() {
         setUp();
-        Vector<T> result = ConvertUtils.objectToObject(SmartType.fromClass(Vector.class), value);
+        Vector<T> result = new Vector<>(toList());
         log.debug("""
                 Smart class value converted to vector.
                 Value:
@@ -687,15 +841,17 @@ public class SmartValue {
 
     /**
      * Converts value to map.
-     * @return The vector.
+     * It can convert other map, JSON object, XML node,
+     * JSON object string and XML string.
      * @param <K> The map key type.
      * @param <V> The map value type.
+     * @return The map.
      */
     public <K, V> Map<K, V> toMap() {
         setUp();
-        Map<K, V> result = ConvertUtils.objectToObject(SmartType.fromClass(Map.class), value);
+        Map<K, V> result = ConvertUtils.objectToMap(value);
         log.debug("""
-                Smart class value converted to vector.
+                Smart class value converted to map.
                 Value:
                 {}
                 Map:
@@ -722,8 +878,8 @@ public class SmartValue {
     }
 
     /**
-     * Converts value to JSON object.
-     * @return The file.
+     * Converts value to JSON array.
+     * @return The JSON array.
      */
     public JSONArray toJsonArray() {
         setUp();
@@ -738,8 +894,8 @@ public class SmartValue {
     }
 
     /**
-     * Converts value to JSON object.
-     * @return The file.
+     * Converts value to XML node.
+     * @return The XML node.
      */
     public Node toXmlNode() {
         setUp();
@@ -754,35 +910,36 @@ public class SmartValue {
     }
 
     /**
-     * Converts value to JSON object.
-     * @return The file.
+     * Converts value to Enum value.
+     * @param enumType The enum type.
      * @param <T> The enum type.
+     * @return The enum value.
      */
-    public <T extends Enum<T>> T toEnumValue(String className) {
+    public <T extends Enum<T>> T toEnumValue(SmartType enumType) {
         setUp();
-        T enuValue = ConvertUtils.objectToObject(SmartType.fromClass(Enum.class), value);
+        T enuValue = ConvertUtils.objectToEnumValue(enumType, value);
         log.debug("""
-                Enum value returned.
-                Value:
-                {}
-                """.stripIndent(),
+                        Enum value returned.
+                        Value:
+                        {}
+                        """.stripIndent(),
                 enuValue);
         return enuValue;
     }
 
     /**
-     * Converts value to JSON object.
-     * @return The file.
-     * @param <T> The class type.
+     * Converts value to POJO object.
+     * @param <T> The POJO class type.
+     * @return The POJO object.
      */
     public <T> T toPojoObject(SmartType targetType) {
         setUp();
         T classValue = ConvertUtils.objectToObject(targetType, value);
         log.debug("""
-                Class object returned.
-                Value:
-                {}
-                """.stripIndent(),
+                        Class object returned.
+                        Value:
+                        {}
+                        """.stripIndent(),
                 classValue);
         return classValue;
     }
@@ -822,11 +979,11 @@ public class SmartValue {
     }
 
     /**
-     * Gets smart class name.
+     * Gets smart value name.
      */
     public String getName() {
         setUp();
-        log.debug("Returned smart class object name: {}.", name);
+        log.debug("Returned smart value name: {}.", name);
         return name;
     }
 
@@ -846,53 +1003,47 @@ public class SmartValue {
      * Validates the value.
      */
     void validateValue() {
-
         try {
             if (keywordIsEmpty()) {
                 throw new RuntimeException("Keyword string is empty.");
-            }
-            else if (templateDoesNotContainKeywordPlaceholder()) {
+            } else if (templateDoesNotContainKeywordPlaceholder()) {
                 throw new RuntimeException(String.format("""
-                        Smart value template does not contain keyword placeholder.
-                        Template:
-                        %s
-                        Placeholder:
-                        %s
-                        """.stripIndent(),
+                                Smart value template does not contain keyword placeholder.
+                                Template:
+                                %s
+                                Placeholder:
+                                %s
+                                """.stripIndent(),
                         valueTemplate, KEYWORD_PLACEHOLDER));
-            }
-            else if (templateContainsMoreThanOneKeywordPlaceholder()) {
+            } else if (templateContainsMoreThanOneKeywordPlaceholder()) {
                 throw new RuntimeException(String.format("""
-                        Smart value template contains more than one keyword placeholder.
-                        Template:
-                        %s
-                        Placeholder:
-                        %s
-                        """.stripIndent(),
+                                Smart value template contains more than one keyword placeholder.
+                                Template:
+                                %s
+                                Placeholder:
+                                %s
+                                """.stripIndent(),
                         valueTemplate, KEYWORD_PLACEHOLDER));
-            }
-            else if (valueContainsMoreThanOneKeyword()) {
+            } else if (valueContainsMoreThanOneKeyword()) {
                 throw new RuntimeException(String.format("""
-                        Smart value contain more then one keyword.
-                        Value:
-                        %s
-                        Keyword:
-                        %s
-                        """.stripIndent(),
+                                Smart value contain more then one keyword.
+                                Value:
+                                %s
+                                Keyword:
+                                %s
+                                """.stripIndent(),
+                        valueString, keywordString));
+            } else if (valueDoesNotContainKeyword()) {
+                throw new RuntimeException(String.format("""
+                                Smart value does not contain keyword.
+                                Value:
+                                %s
+                                Keyword:
+                                %s
+                                """.stripIndent(),
                         valueString, keywordString));
             }
-            else if (valueDoesNotContainKeyword()) {
-                throw new RuntimeException(String.format("""
-                        Smart value does not contain keyword.
-                        Value:
-                        %s
-                        Keyword:
-                        %s
-                        """.stripIndent(),
-                        valueString, keywordString));
-            }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(String.format(
                     "Cannot validate value string: %s", valueString), e);
         }
@@ -914,46 +1065,43 @@ public class SmartValue {
         if (keyword != null) {
             if (keywordsCount == 0) {
                 throw new RuntimeException(String.format("""
-                        None class field contains keyword.
-                        Class name:
-                        Class value:
-                        %s
-                        Keyword:
-                        %s
-                        """.stripIndent(),
+                                None class field contains keyword.
+                                Class name:
+                                Class value:
+                                %s
+                                Keyword:
+                                %s
+                                """.stripIndent(),
                         className, value, keywordString));
-            }
-            else if (keywordsCount > 1) {
+            } else if (keywordsCount > 1) {
                 throw new RuntimeException(String.format("""
-                        Class fields values contain more than one keyword.
-                        Class name:
-                        Class value:
-                        %s
-                        Keyword:
-                        %s
-                        """.stripIndent(),
+                                Class fields values contain more than one keyword.
+                                Class name:
+                                Class value:
+                                %s
+                                Keyword:
+                                %s
+                                """.stripIndent(),
                         className, value, keywordString));
-            }
-            else if (keywordPlaceholdersCount == 0) {
+            } else if (keywordPlaceholdersCount == 0) {
                 throw new RuntimeException(String.format("""
-                        None class field value contain keyword placeholder.
-                        Class name:
-                        Class value:
-                        %s
-                        Keyword placeholder:
-                        %s
-                        """.stripIndent(),
+                                None class field value contain keyword placeholder.
+                                Class name:
+                                Class value:
+                                %s
+                                Keyword placeholder:
+                                %s
+                                """.stripIndent(),
                         className, value, KEYWORD_PLACEHOLDER));
-            }
-            else if (keywordPlaceholdersCount > 1) {
+            } else if (keywordPlaceholdersCount > 1) {
                 throw new RuntimeException(String.format("""
-                        Class fields values contain more than one keyword placeholder.
-                        Class name:
-                        Class value:
-                        %s
-                        Keyword placeholder:
-                        %s
-                        """.stripIndent(),
+                                Class fields values contain more than one keyword placeholder.
+                                Class name:
+                                Class value:
+                                %s
+                                Keyword placeholder:
+                                %s
+                                """.stripIndent(),
                         className, value, KEYWORD_PLACEHOLDER));
             }
         }
@@ -968,13 +1116,13 @@ public class SmartValue {
         try {
             validateValue();
             result = true;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             result = false;
         }
         log.debug("Smart value is valid: {}", result);
         return result;
     }
+
     int numberOfKeywordsInValue() {
         if (keywordString == null || valueString == null || valueString.isEmpty()) {
             return 0;
@@ -1028,8 +1176,7 @@ public class SmartValue {
 
         if (keyword != null) {
             keywordString = ConvertUtils.objectToString(keyword);
-        }
-        else {
+        } else {
             keywordString = null;
         }
         if (createdFromTemplate) {
@@ -1037,8 +1184,7 @@ public class SmartValue {
             keywordString = ConvertUtils.objectToString(keyword);
             replaceKeywordPlaceholderWithValue();
             value = ConvertUtils.stringToObject(smartType, valueString);
-        }
-        else {
+        } else {
             valueString = ConvertUtils.objectToString(value);
             valueTemplate = valueString;
             replaceKeywordPlaceholderWithValue();
@@ -1050,7 +1196,12 @@ public class SmartValue {
             setClassValueFromFieldValues();
             validateClassFields();
         }
-        else {
+        if (format == null && value != null) {
+
+            if (value instanceof FormattedValue formattedValue) {
+                format = formattedValue.getFormat();
+            }
+        } else {
             validateValue();
         }
     }
@@ -1068,14 +1219,13 @@ public class SmartValue {
                 fieldSmartValue.setKeyword(keyword);
                 fieldValuesMap.put(fieldName, fieldSmartValue);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    Cannot setup class field values.
-                    Class name: %s
-                    Value:
-                    %s
-                    """.stripIndent(),
+                            Cannot setup class field values.
+                            Class name: %s
+                            Value:
+                            %s
+                            """.stripIndent(),
                     value.getClass().getName(), value), e);
         }
     }
@@ -1095,22 +1245,21 @@ public class SmartValue {
             }
             value = classValue;
             log.debug("""
-                    Class value crested from class name and field smart values.
-                    Class name: %s
-                    Field values:
-                    %s
-                    Class value:
-                    %s
-                    """.stripIndent(),
+                            Class value crested from class name and field smart values.
+                            Class name: %s
+                            Field values:
+                            %s
+                            Class value:
+                            %s
+                            """.stripIndent(),
                     className, fieldValuesMap, classValue);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    Cannot create class value from field values.
-                    Class name: %s
-                    Field values:
-                    %s
-                    """.stripIndent(),
+                            Cannot create class value from field values.
+                            Class name: %s
+                            Field values:
+                            %s
+                            """.stripIndent(),
                     className, fieldValuesMap), e);
         }
     }
@@ -1143,8 +1292,7 @@ public class SmartValue {
                 SmartValue smartValue = valuesMap.get(name);
                 smartValue.setKeyword(keyword);
                 setValue(smartValue.getValue());
-            }
-            else {
+            } else {
                 readValueFromFile();
                 SmartValue tempValue = new SmartValue(SOME_VALUE);
                 SmartType validValueType;
@@ -1165,8 +1313,7 @@ public class SmartValue {
                                     OR just click OK ro select it on the page.
                                     OR click CANCEL to exit the test.
                                     """.stripIndent(), name);
-                        }
-                        else {
+                        } else {
                             promptMessage = String.format("""
                                     UNDEFINED DATA VALUE
                                                             
@@ -1204,16 +1351,14 @@ public class SmartValue {
 
                             if (stringValue.isEmpty()) {
                                 WebDriverFactory.hardSystemExit();
-                            }
-                            else {
+                            } else {
                                 if (!tempValue.toString().equals(stringValue)) {
                                     isValueValid = false;
                                     tempValue.setValue(ConvertUtils.stringToObject(
                                             validValueType, stringValue));
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             String message = null;
 
                             if (tempValue.valueDoesNotContainKeyword()) {
@@ -1237,8 +1382,7 @@ public class SmartValue {
                         }
                         if (tempValue.toString().isEmpty()) {
                             WebDriverFactory.hardSystemExit();
-                        }
-                        else if (isValueValid) {
+                        } else if (isValueValid) {
                             setValue(tempValue.getValue());
                             valuesMap.put(name, this);
                             saveValueToFile();
@@ -1252,12 +1396,11 @@ public class SmartValue {
                             "Smart class %s is undefined.", name));
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    Cannot setup smart data object field value.
-                    Field name: %s
-                    """.stripIndent(),
+                            Cannot setup smart data object field value.
+                            Field name: %s
+                            """.stripIndent(),
                     name), e);
         }
     }
@@ -1280,8 +1423,7 @@ public class SmartValue {
             if (FileSystemUtils.fileExists(filePath)) {
                 jsonString = FileSystemUtils.readFile(filePath);
                 json = new JSONObject(jsonString);
-            }
-            else {
+            } else {
                 json = new JSONObject();
             }
             valueJson.put(TYPE, typeJson);
@@ -1290,8 +1432,7 @@ public class SmartValue {
                 JSONObject classJson = new JSONObject();
                 JSONObject fieldValuesJson = getJsonFromFieldsValues(this);
                 classJson.put(FIELD_VALUES, fieldValuesJson);
-            }
-            else {
+            } else {
                 valueJson.put(VALUE, valueTemplate);
 
                 if (format != null) {
@@ -1302,16 +1443,15 @@ public class SmartValue {
             jsonString = json.toString(JSON_LAYOUT_SPACES);
             FileSystemUtils.createFile(filePath, jsonString);
             log.debug("""
-                    Smart class value is saved to file.
-                    Name: {}
-                    Type: {}
-                    Format: {}
-                    Value: {}
-                    File: {}
-                    """.stripIndent(),
+                            Smart class value is saved to file.
+                            Name: {}
+                            Type: {}
+                            Format: {}
+                            Value: {}
+                            File: {}
+                            """.stripIndent(),
                     name, type, format, valueTemplate, filePath);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
                             Smart class value is saved to file.
                             Name: {}
@@ -1331,13 +1471,12 @@ public class SmartValue {
         try {
             String fileName = String.format("%s.json", parentName);
             readValueFromFile(fileName, valuesMap);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    Cannot read smart class from file.
-                    File: %s
-                    Content: %s
-                    """.stripIndent(),
+                            Cannot read smart class from file.
+                            File: %s
+                            Content: %s
+                            """.stripIndent(),
                     filePath, jsonString), e);
         }
     }
@@ -1347,8 +1486,8 @@ public class SmartValue {
             throw new SmartRuntimeException("""
                     ///////////////////////////////////////////////////////////////////////////
                     Please @SmartValue annotation to initialize your data object like this:
-                    
-                    @SuppressWarnings("unused")                            
+                                        
+                    @SuppressWarnings("unused")
                     @SmartElement
                     @Getter
                     public class YourDataObject extends SmartData {
@@ -1384,21 +1523,20 @@ public class SmartValue {
                 typeJson.put(FIELD_TYPES, fieldTypesJson);
             }
             log.debug("""
-                    Smart type converted to JSON object.
-                    Smart class:
-                    {}
-                    JSON:
-                    {}
-                    """.stripIndent(),
+                            Smart type converted to JSON object.
+                            Smart class:
+                            {}
+                            JSON:
+                            {}
+                            """.stripIndent(),
                     smartType, typeJson);
             return typeJson;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    Cannot converted smart type to to JSON object.
-                    Type:
-                    %s
-                    """.stripIndent(),
+                            Cannot converted smart type to to JSON object.
+                            Type:
+                            %s
+                            """.stripIndent(),
                     smartType), e);
         }
     }
@@ -1414,12 +1552,12 @@ public class SmartValue {
                 fieldTypesJson.put(fieldName, fieldTypeJson);
             }
             log.debug("""
-                    Field types map converted to JSON object.
-                    Smart class:
-                    {}
-                    JSON:
-                    {}
-                    """.stripIndent(),
+                            Field types map converted to JSON object.
+                            Smart class:
+                            {}
+                            JSON:
+                            {}
+                            """.stripIndent(),
                     fieldTypesMap, fieldTypesJson);
             return fieldTypesJson;
         }
@@ -1445,37 +1583,33 @@ public class SmartValue {
                 if (typeJson.has(KEY_CLASS)) {
                     Class<?> keyClass = Class.forName(typeJson.getString(KEY_CLASS));
                     smartType = SmartType.fromMapClass(objectClass, keyClass, valueSmartType);
-                }
-                else {
+                } else {
                     smartType = SmartType.fromCollectionClass(objectClass, valueSmartType);
                 }
-            }
-            else if (typeJson.has(FIELD_TYPES)) {
+            } else if (typeJson.has(FIELD_TYPES)) {
                 JSONObject fieldTypesJson = typeJson.getJSONObject(FIELD_TYPES);
                 SmartType fieldsTypesMapType = getSmartTypeFromJson(fieldTypesJson);
                 Map<String, SmartType> fieldTypesMap =
                         ConvertUtils.jsonObjectToMap(fieldsTypesMapType, fieldTypesJson);
                 smartType = SmartType.fromPojoClass(objectClass, fieldTypesMap);
-            }
-            else {
+            } else {
                 smartType = SmartType.fromClass(objectClass);
             }
             log.debug("""
-                    JSON type converted to smart class.
-                    JSON:
-                    {}
-                    Type:
-                    {}
-                    """.stripIndent(),
+                            JSON type converted to smart class.
+                            JSON:
+                            {}
+                            Type:
+                            {}
+                            """.stripIndent(),
                     typeJson, smartType);
             return smartType;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    Cannot get smart class from type JSON.
-                    JSON:
-                    %s
-                    """.stripIndent(),
+                            Cannot get smart class from type JSON.
+                            JSON:
+                            %s
+                            """.stripIndent(),
                     typeJson), e);
         }
     }
@@ -1495,21 +1629,20 @@ public class SmartValue {
             }
             SmartValue classSmartValue = new SmartValue(className, fieldValuesMap);
             log.debug("""
-                    Value JSON converted to class smart value.
-                    Value JSON:
-                    {}
-                    Smart value:
-                    {}
-                    """.stripIndent(),
+                            Value JSON converted to class smart value.
+                            Value JSON:
+                            {}
+                            Smart value:
+                            {}
+                            """.stripIndent(),
                     valueJson, classSmartValue);
             return classSmartValue;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    Cannot get smart value.
-                    Class JSON:
-                    %s
-                    """.stripIndent(),
+                            Cannot get smart value.
+                            Class JSON:
+                            %s
+                            """.stripIndent(),
                     valueJson), e);
         }
     }
@@ -1531,21 +1664,20 @@ public class SmartValue {
                 fieldValuesJson.put(fieldName, fieldValueTemplate);
             }
             log.debug("""
-                    Class fields JSON array returned.
-                    Smart value:
-                    {}
-                    Fields:
-                    {}
-                    """.stripIndent(),
+                            Class fields JSON array returned.
+                            Smart value:
+                            {}
+                            Fields:
+                            {}
+                            """.stripIndent(),
                     smartValue, fieldValuesJson);
             return fieldValuesJson;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    Cannot get class fields JSON array from class smart value.
-                    Smart value:
-                    %s
-                    """.stripIndent(),
+                            Cannot get class fields JSON array from class smart value.
+                            Smart value:
+                            %s
+                            """.stripIndent(),
                     smartValue), e);
         }
     }
@@ -1568,8 +1700,7 @@ public class SmartValue {
         try {
             if (smartType.getFieldTypesMap() != null) {
                 smartValue = getClassSmartValueFomValueJson(valueJson);
-            }
-            else {
+            } else {
                 String valueTemplate = valueJson.getString(VALUE);
                 String format = null;
 
@@ -1584,25 +1715,24 @@ public class SmartValue {
                 }
             }
             log.debug("""
-                    JSON value object converted to smart value.
-                    Value type:
-                    {}
-                    JSON object:
-                    {}
-                    Smart value:
-                    {}
-                    """.stripIndent(),
+                            JSON value object converted to smart value.
+                            Value type:
+                            {}
+                            JSON object:
+                            {}
+                            Smart value:
+                            {}
+                            """.stripIndent(),
                     smartType, valueJson, smartValue);
             return smartValue;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    Cannot convert JSON value object to smart value.
-                    Value type:
-                    %s
-                    JSON object:
-                    %s
-                    """.stripIndent(),
+                            Cannot convert JSON value object to smart value.
+                            Value type:
+                            %s
+                            JSON object:
+                            %s
+                            """.stripIndent(),
                     smartType, valueJson), e);
         }
     }
