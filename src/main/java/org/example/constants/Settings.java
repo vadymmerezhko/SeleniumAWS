@@ -2,8 +2,10 @@ package org.example.constants;
 
 import com.amazonaws.regions.Regions;
 import org.example.configs.Config;
+import org.example.utils.FileSystemUtils;
 
 import java.awt.*;
+
 
 /**
  * The setting constants.
@@ -84,4 +86,8 @@ public class Settings {
     static public final String NO_FAILURES = "Failures: 0, Errors: 0";
     static public final String OPEN_AI_API_KEY_NAME = "OPEN_AI_API_KEY";
     static public final String OPEN_AI_API_URL = "https://api.openai.com/v1/chat/completions";
+    static public final String BLANK_PAGE_URL = String.format(
+            "file:///%s/%s",
+            FileSystemUtils.getCurrentFolderPath(),
+            "src/main/resources/html/BlankPage.html");
 }

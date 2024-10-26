@@ -2,10 +2,10 @@ package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
-import org.example.pages.SmartElement;
-import org.example.drivers.factories.WebDriverFactory;
-import org.example.drivers.playwright.PlaywrightElement;
-import org.example.drivers.selectors.SmartByType;
+import org.example.ui.wrappers.SmartElement;
+import org.example.ui.factories.WebDriverFactory;
+import org.example.ui.playwright.PlaywrightElement;
+import org.example.ui.selectors.SmartByType;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.helpers.GlobalKeyboardListener;
 import org.example.helpers.TimeOut;
@@ -733,6 +733,7 @@ public final class WebUtils {
      * @param keyword The keyword.
      * @return The selector template.
      */
+    // TODO: add unit tests
     public static String getSelectorTemplate(String selector, Object keyword) {
         String template = selector.replace(String.format("'%s'", keyword), KEYWORD_PLACEHOLDER)
                 .replace(String.format("\"%s\"", keyword), KEYWORD_PLACEHOLDER);
@@ -760,7 +761,7 @@ public final class WebUtils {
                     selector, keyword, by);
             return by;
         }
-        else if (isPngImage(selector)) {
+        else if (isPngImageSelector(selector)) {
             By by = By.linkText(selector);
             log.debug("Element image selector {} with text '{}' converted to By {}.",
                     selector, keyword, by);
@@ -966,7 +967,7 @@ public final class WebUtils {
      * @param selector The element selector.
      * @return The true/false flag.
      */
-    public static boolean isPngImage(String selector) {
+    public static boolean isPngImageSelector(String selector) {
         DataValidationUtils.validateNotBlank(selector, "selector");
 
         boolean result = selector.trim().endsWith(".png");
@@ -1023,7 +1024,7 @@ public final class WebUtils {
             org.openqa.selenium.Point previousPoint = nativeElement.getLocation();
 
             while (!timeOut.getExpired()) {
-                WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
+                TimerUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
                 org.openqa.selenium.Point currentPoint = nativeElement.getLocation();
 
                 if (currentPoint.equals(previousPoint)) {
@@ -1043,11 +1044,10 @@ public final class WebUtils {
         TimeOut timeOut = new TimeOut("Wait for element stable style", WAIT_ELEMENT_TIMEOUT_SECONDS);
 
         if (element instanceof SmartElement) {
-            WebElement nativeElement = ((SmartElement) element).getNativeElement();
             Map<String, Object> previousStyles = getElementStyles(element);
 
             while (!timeOut.getExpired()) {
-                WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
+                TimerUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
                 Map<String, Object> currentStyles = getElementStyles(element);
 
                 if (currentStyles.equals(previousStyles)) {
@@ -1071,7 +1071,7 @@ public final class WebUtils {
             Dimension previousSize = nativeElement.getSize();
 
             while (!timeOut.getExpired()) {
-                WaiterUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
+                TimerUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
                 Dimension currentSize = element.getSize();
 
                 if (currentSize.equals(previousSize)) {
@@ -1106,11 +1106,11 @@ public final class WebUtils {
     }
 
     /**
-     * Returns element smart value.
+     * Returns element value or text.
      * @param element The element.
-     * @return The smart value.
+     * @return The element value or text.
      */
-    public static Object getElementSmartValue(WebElement element) {
+    public static Object getElementValueOrText(WebElement element) {
         try {
             String elementTag = element.getTagName();
             Object elementValue = null;
@@ -1133,6 +1133,7 @@ public final class WebUtils {
                     case "datetime-local" -> ConvertUtils.stringToSmartLocalDateTime(value);
                     // Get local time value
                     case "time" -> ConvertUtils.stringToSmartLocalTime(value);
+                    case "file" -> FileSystemUtils.normalizeFilePathString(value);
                     default ->
                         // Get input text value
                         value;
@@ -1186,7 +1187,7 @@ public final class WebUtils {
             java.awt.Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
             Robot robot = new Robot();
             robot.mouseMove(0, 0);
-            WaiterUtils.waitSeconds(1);
+            TimerUtils.waitSeconds(1);
             waitForElementNotSizing(element);
             waitForElementNotMoving(element);
             waitForElementStableStyle(element);
@@ -1233,35 +1234,6 @@ public final class WebUtils {
                 COLORS_THRESHOLD_PERCENTS, PIXELS_THRESHOLD_PERCENTS, SIZE_THRESHOLD_PIXELS);
     }
 
-    private static void removeSelectorFromFile(String elementName) {
-        try {
-            JSONObject json;
-            String[] nameParts = elementName.split("\\.");
-
-            if (nameParts.length != 2) {
-                throw new SmartRuntimeException(String.format(
-                        "Element name has wrong format: '%s'.", elementName));
-            }
-            String pageName = nameParts[0];
-            String fieldName = nameParts[1];
-            String filePath = String.format("%s/%s.json", PAGE_OBJECTS_FOLDER_PATH, pageName);
-
-            if (FileSystemUtils.fileExists(filePath)) {
-                String jsonString = FileSystemUtils.readFile(filePath);
-                json = new JSONObject(jsonString);
-                json.remove(fieldName);
-            } else {
-                json = new JSONObject();
-            }
-            FileSystemUtils.createFile(filePath, json.toString());
-            log.debug("Element {} selector is removed from file {}.",
-                    elementName, filePath);
-        }
-        catch (Exception e) {
-            throw new SmartRuntimeException(String.format(
-                    "Cannot remove %s element selector from file.", elementName), e);
-        }
-    }
 
     private static synchronized void initializeKeyBoardListener() {
         if (keyboardListener.get() == null) {

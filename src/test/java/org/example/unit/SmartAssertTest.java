@@ -2,5 +2,5 @@ package org.example.unit;
 
 
 public class SmartAssertTest {
-    // TODO
+    // TODO - add unit tests
 }

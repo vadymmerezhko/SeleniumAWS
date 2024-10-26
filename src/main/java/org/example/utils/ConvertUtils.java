@@ -49,6 +49,7 @@ import java.util.regex.Pattern;
 import static java.lang.Float.POSITIVE_INFINITY;
 import static org.apache.commons.lang3.ObjectUtils.isArray;
 import static org.example.constants.Settings.*;
+import static org.example.utils.DataValidationUtils.FULL_CLASS_NAME_REGEX;
 
 /**
  * Convert utils class.
@@ -57,8 +58,8 @@ import static org.example.constants.Settings.*;
 @SuppressWarnings("unchecked")
 public final class ConvertUtils {
     private static final String ESCAPED_QUOTE = "\"\"";
-    private static final String US_INTEGER_NUMBER_STRING = "^[+-]?\\d{1,3}(,\\d{3})*$";
-    private static final String SCIENTIFIC_NUMBER_STRING_REGEX =
+    public static final String US_INTEGER_NUMBER_STRING = "^[+-]?\\d{1,3}(,\\d{3})*$";
+    public static final String SCIENTIFIC_NUMBER_STRING_REGEX =
             "^[+-]?(\\d{1,3}(,\\d{3})*|\\d+)(\\.\\d+)?[eE][+-]?\\d+$";
 
     // Map for converting various numeral systems to Arabic numerals
@@ -2624,7 +2625,7 @@ public final class ConvertUtils {
 
         try {
             JSONArray jsonArray = new JSONArray();
-            String[] lines = csvString.split("\n");
+            String[] lines = TextUtils.splitMultilineString(csvString);
 
             if (lines.length < 2) {
                 throw new SmartRuntimeException(String.format("""
@@ -2640,6 +2641,11 @@ public final class ConvertUtils {
 
             // Iterate over the rest of the lines
             for (String line : lines) {
+
+                // Skip empty or blank line
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
                 List<String> fieldValues = parseCsvRowString(line);
 
                 if (columnsSize == 0) {
@@ -5585,6 +5591,33 @@ public final class ConvertUtils {
                     """.stripIndent(),
                     object.getClass(), object), e);
         }
+    }
+
+    /**
+     * Converts full class name string to the class package name string.
+     * @param fullClassName The full class name.
+     * @return The class package name.
+     */
+    public static String fullClassNameToPackageName(String fullClassName) {
+        DataValidationUtils.validateNotBlank(fullClassName, "fullClassName");
+        DataValidationUtils.validateMatches(fullClassName, FULL_CLASS_NAME_REGEX, "fullClassName");
+
+        String simpleClassName;
+        // Extract the simple class name by finding the last '.' in the full class name
+        int lastDotIndex = fullClassName.lastIndexOf('.');
+
+        // If there's no '.' in the class name, return it as-is (already simple)
+        if (lastDotIndex == -1) {
+            throw new SmartRuntimeException(String.format(
+                    "Invalid class format. No package name: %s", fullClassName));
+        }
+        else {
+            // Return the part after the last '.'
+            simpleClassName = fullClassName.substring(0, lastDotIndex);
+        }
+        log.debug("Full class name {} converted to the class package name: {}",
+                fullClassName, simpleClassName);
+        return simpleClassName;
     }
 
     private static <T> Collection<T> jsonArrayToCollection(SmartType type, JSONArray jsonArray) {

@@ -2,7 +2,7 @@ package org.example.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
-import org.example.drivers.factories.WebDriverFactory;
+import org.example.ui.factories.WebDriverFactory;
 import org.example.utils.WebUtils;
 
 import java.io.StringWriter;

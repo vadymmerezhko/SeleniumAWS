@@ -5,10 +5,20 @@ import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.nio.file.Paths;
 
 public final class DataValidationUtils {
+    protected static final String FULL_CLASS_NAME_REGEX =
+            "^([a-zA-Z_][a-zA-Z0-9_]*)(\\.[a-zA-Z_][a-zA-Z0-9_]*)*\\.[A-Z][a-zA-Z0-9_$]*$";
+    private static final String CLASS_PACKAGE_NAME_REGEX =
+            "^([a-zA-Z_][a-zA-Z0-9_]*)(\\.[a-zA-Z_][a-zA-Z0-9_]*)*$";
+    private static final String SIMPLE_CLASS_NAME_REGEX = "^[A-Z][a-zA-Z0-9_$]*$";
+    private static final String FULL_METHOD_NAME_REGEX =
+            "^([a-z][a-z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)*)\\.[a-zA-Z_][a-zA-Z0-9_]*$";
+
+    private static final String SIMPLE_METHOD_NAME_REGEX = "^[a-z_][a-zA-Z0-9_]*$";
 
     private DataValidationUtils() {}
 
@@ -18,6 +28,8 @@ public final class DataValidationUtils {
      * @param valueName The value name.
      */
     public static void validateNotNull(Object value, String valueName) {
+        validateValueName(valueName);
+
         if (value == null || value == JSONObject.NULL) {
             handleError(String.format("%s has null value.", valueName));
         }
@@ -94,6 +106,7 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
+    // TODO - add unit tests
     public static void validateNotEmpty(SmartValue value, String valueName) {
         validateNotEmpty(value.toString(), valueName);
     }
@@ -105,6 +118,7 @@ public final class DataValidationUtils {
      * @param valueName1 The first value name.
      * @param valueName2 The second value name.
      */
+    // TODO: add unit tests
     public static void validateNotEqual(Object value1, Object value2, String valueName1, String valueName2) {
         validateNotNull(value1, valueName1);
         validateNotNull(value2, valueName2);
@@ -160,7 +174,7 @@ public final class DataValidationUtils {
     public static void validateNotMultiline(String value, String valueName) {
         validateNotNull(value, valueName);
 
-        if (value.trim().contains("\n")) {
+        if (value.contains("\n")) {
             handleError(String.format("%s has multiline value:\n'%s'", valueName, value));
         }
     }
@@ -292,8 +306,9 @@ public final class DataValidationUtils {
      * Validated that value object is instance of exact type.
      * @param value The value object.
      * @param type The type class.
-     * @param valueName The
+     * @param valueName The value name.
      */
+    // TODO: add unit tests
     public static void validateInstanceOf(Object value, Class<?> type, String valueName) {
         validateNotNull(value, valueName);
         validateNotNull(type, "type");
@@ -305,9 +320,140 @@ public final class DataValidationUtils {
         }
     }
 
+    /**
+     * Validates that folder exists.
+     * @param folderPath The folder path
+     * @param valueName The value name.
+     */
+    public static void validateFolder(String folderPath, String valueName) {
+        validateFilePathFormat(folderPath, valueName);
+        File folder = new File(folderPath);
+
+        // Validate the folder path
+        if (!folder.exists() || !folder.isDirectory()) {
+            handleError(String.format(
+                    "The folder path provided is invalid or not a directory: %s",
+                    folderPath));
+        }
+    }
+
+    /**
+     * Validates that string value matches regex.
+     * @param value The value.
+     * @param regex The regex.
+     * @param valueName The value name.
+     */
+    public static void validateMatches(String value, String regex, String valueName) {
+        validateNotNull(value, valueName);
+
+        // Validate the value matches the regex
+        if (!value.matches(regex)) {
+            handleError(String.format(
+                    "The value '%s' does not match regex: '%s'",
+                    value, regex));
+        }
+    }
+
+    /**
+     * Validates if the provided class name is a valid full class name.
+     * A valid full class name consists of a package and class name,
+     * following Java naming conventions.
+     * @param className The full class name to validate.
+     * @param valueName The value name.
+     * @throws IllegalArgumentException if the class name is invalid.
+     */
+    public static void validateFullClassName(String className, String valueName) {
+        validateNotBlank(valueName, "valueName");
+        validateNotBlank(className, valueName);
+        validateNotMultiline(className, valueName);
+
+        // match a valid full class name with regex
+        if (!className.matches(FULL_CLASS_NAME_REGEX)) {
+            handleError(String.format("Invalid full class name: %s", className));
+        }
+    }
+
+    /**
+     * Validates if the provided package name is a valid Java package name.
+     * A valid package name consists of segments separated by dots, following Java naming conventions.
+     * Each segment must start with a letter or underscore, followed by letters, digits, or underscores.
+     * @param packageName The package name to validate.
+     * @param valueName The value name.
+     */
+    public static void validatePackageName(String packageName, String valueName) {
+        validateNotBlank(packageName, valueName);
+        validateNotMultiline(packageName, valueName);
+
+        // Match a valid package name with regex
+        if (!packageName.matches(CLASS_PACKAGE_NAME_REGEX)) {
+            handleError(String.format("Invalid class package name: %s", packageName));
+        }
+    }
+
+    /**
+     * Validates if the provided simple class name is a valid Java class name,
+     * including names with inner classes (denoted by a $ sign).
+     * A valid class name follows Java naming conventions, allowing for nested class names.
+     * @param className The class name to validate.
+     * @param valueName The value name.
+     */
+    public static void validatesSimpleClassName(String className, String valueName) {
+        validateNotBlank(className, valueName);
+
+        // match a valid simple class name, including nested class names with $ sign
+        if (!className.matches(SIMPLE_CLASS_NAME_REGEX)) {
+            handleError(String.format("Invalid class name: '%s'", className));
+        }
+    }
+
+    /**
+     * Validates if the provided string is a valid full Java method name.
+     * A valid full method name consists of a package name, class name, and method name,
+     * following Java naming conventions.
+     * Example of valid method names:
+     * - com.example.MyClass.myMethod
+     * - org.project.service.AccountService.getAccount
+     * - com.package.InnerClass$NestedClass.methodName
+     * @param fullMethodName The full method name to validate.
+     * @param valueName The value name.
+     */
+    public static void validateFullMethodName(String fullMethodName, String valueName) {
+        validateNotBlank(fullMethodName, valueName);
+
+        // Validate full method name with regex: package, class, and method
+        if (!fullMethodName.matches(FULL_METHOD_NAME_REGEX)) {
+            throw new SmartRuntimeException(String.format("Invalid full method name: '%s'", fullMethodName));
+        }
+    }
+
+    /**
+     * Validates if the provided string is a valid simple Java method name.
+     * A valid method name must start with a lowercase letter or underscore,
+     * and can contain letters, digits, or underscores.
+     * @param methodName The method name to validate.
+     * @param valueName The value name.
+     * @throws IllegalArgumentException if the method name is invalid.
+     */
+    public static void validateSimpleMethodName(String methodName, String valueName) {
+        DataValidationUtils.validateNotBlank(methodName, valueName);
+        DataValidationUtils.validateNotMultiline(methodName, valueName);
+
+        // validate a simple method name with regex
+        if (!methodName.matches(SIMPLE_METHOD_NAME_REGEX)) {
+            handleError(String.format("Invalid method name: '%s'", methodName));
+        }
+    }
+
     private static void handleError(String errorMessage) {
         // Make wait to get time to highlight the failed element.
-        WaiterUtils.waitMilliSeconds(500);
+        TimerUtils.waitMilliSeconds(500);
         throw new SmartValidationException(errorMessage);
+    }
+
+    private static void validateValueName(String valueName) {
+
+        if (valueName == null || valueName.isEmpty()) {
+            handleError(String.format("Invalid value name: %s", valueName));
+        }
     }
 }

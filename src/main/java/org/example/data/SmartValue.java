@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
-import org.example.drivers.factories.WebDriverFactory;
+import org.example.ui.factories.WebDriverFactory;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.*;
 import org.json.JSONArray;
@@ -176,10 +176,27 @@ public class SmartValue extends SmartObject implements FormattedValue {
                 this.valueTemplate, this.keywordString);
     }
 
+    /**
+     * Converts smart value to string.
+     * @return The value string.
+     */
+    @Override
+    public String toString() {
+        setUp();
+        log.debug("Smart value is converted to string:\n{}", valueString);
+        return valueString;
+    }
+
+    /**
+     * Compares this smart value to other object.
+     * @param object The object.
+     * @return The result: equals - true, otherwise - false.
+     */
+    @Override
     public boolean equals(Object object) {
 
         if (object == null) {
-            log.debug("Smart value equals() called. The actual smart value object is null.");
+            log.debug("Smart value equals() called. The actual object is null.");
             return false;
         }
         if (this == object) {
@@ -187,34 +204,33 @@ public class SmartValue extends SmartObject implements FormattedValue {
             return true;
         }
         if (object instanceof SmartValue actualValue) {
-            SmartValue expectedValue = this;
             try {
                 boolean result = CompareUtils.compareObjects(
-                        expectedValue, actualValue,
+                        this, actualValue,
                         strictType, strictOrder);
                 log.debug("""
-                                Two smart class objects are compared.
-                                Strict order: {}
-                                Strict type: {}
-                                Expected:
-                                {}
-                                Actual:
-                                {}
-                                Result:
-                                {}
-                                """.stripIndent(),
-                        strictOrder, expectedValue, actualValue, result);
+                        Two smart class objects are compared.
+                        Strict order: {}
+                        Strict type: {}
+                        Expected:
+                        {}
+                        Actual:
+                        {}
+                        Result:
+                        {}
+                        """.stripIndent(),
+                        strictOrder, this, actualValue, result);
                 return result;
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 throw new SmartRuntimeException(String.format("""
-                                Cannot compare two smart class objects.
-                                Expected:
-                                %s
-                                Actual:
-                                %s
-                                """.stripIndent(),
-                        expectedValue,
-                        actualValue), e);
+                        Cannot compare two smart value objects.
+                        Expected:
+                        %s
+                        Actual:
+                        %s
+                        """.stripIndent(),
+                        this, actualValue), e);
             }
         }
         log.debug("Smart value equals() returned false.\n" +
@@ -222,16 +238,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         return false;
     }
 
-    /**
-     * Converts smart value to string.
-     * @return The value string.
-     */
-    public String toString() {
-        setUp();
-        log.debug("Smart value is returned: {}", valueString);
-        return valueString;
-    }
-
+    @Override
     public int hashCode() {
         setUp();
         return Objects.hash(smartType, value, valueString,
@@ -312,6 +319,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
      * Gets keyword string.
      * @return The keyword string.
      */
+    // TODO: add unit tests
     String getKeywordString() {
         setUp();
         log.debug("Smart type keyword string is returned: {}", keywordString);
@@ -1332,7 +1340,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
                         }
                         if (tempValue.toString().equals(SOME_VALUE)) {
                             WebElement element = WebUtils.selectWebElement("DATA SOURCE ELEMENT");
-                            tempValue.setValue(WebUtils.getElementSmartValue(element));
+                            tempValue.setValue(WebUtils.getElementValueOrText(element));
                         }
                         String stringValue;
 

@@ -30,7 +30,7 @@ public final class SmartLocalDate extends SmartObject implements SmartTemporal,
      * @param dateString The local time format.
      * @return The smart local date.
      */
-    public static SmartLocalDate parse(String dateString) {
+    public static SmartLocalDate fromString(String dateString) {
         SmartDate smartDate = ConvertUtils.stringToSmartDate(dateString);
         LocalDate localDate = ConvertUtils.dateToLocalDate(smartDate);
         String dateFormat = ConvertUtils.dateTimeFormatToDateFormat(smartDate.getFormat());

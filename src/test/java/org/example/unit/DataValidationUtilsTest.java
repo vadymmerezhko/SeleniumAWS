@@ -1,5 +1,6 @@
 package org.example.unit;
 
+import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
 import org.example.utils.DataValidationUtils;
 import org.testng.Assert;
@@ -183,6 +184,19 @@ public class DataValidationUtilsTest {
         DataValidationUtils.validateRange(10.0, 1.0, 10.0, "Test Value");
     }
 
+    @Test
+    public void testValidateFullClassNameWithValidClassName() {
+        String validClassName = "org.example.MyClass";
+        DataValidationUtils.validateFullClassName(validClassName, "validClassName");
+    }
+
+    @Test
+    public void testValidateFullClassNameWithValidNestedClassName() {
+        String validClassName = "com.company.project.SomeClass$NestedClass";
+        DataValidationUtils.validateFullClassName(validClassName, "validClassName");
+    }
+
+
     // Helper method to capture the handleError exception
     private void expectHandleError(Runnable action, String expectedMessage) {
         try {
@@ -192,4 +206,122 @@ public class DataValidationUtilsTest {
             Assert.assertEquals(e.getMessage(), expectedMessage);
         }
     }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidateFullClassNameWithNullClassName() {
+        DataValidationUtils.validateFullClassName(null, "invalidClassName");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidateFullClassNameWithEmptyClassName() {
+        DataValidationUtils.validateFullClassName("", "invalidClassName");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidateFullClassNameWithMultilineClassName() {
+        DataValidationUtils.validateFullClassName(
+                "\ncom.company.project.SomeClass$NestedClass",
+                "invalidClassName");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidateFullClassNameWithInvalidLowercaseClassName() {
+        String invalidClassName = "org.example.myClass";  // Class name starts with lowercase
+        DataValidationUtils.validateFullClassName(invalidClassName, "invalidClassName");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidateFullClassNameWithInvalidPackageName() {
+        String invalidClassName = "org.ex@ample.MyClass";  // Invalid character '@' in package name
+        DataValidationUtils.validateFullClassName(invalidClassName, "invalidClassName");
+    }
+
+    @Test
+    public void testValidatePackageNameWithValidPackageName() {
+        String validPackageName = "org.example.utils";
+        DataValidationUtils.validatePackageName(validPackageName, "invalidClassName");
+    }
+
+    @Test
+    public void testValidatePackageNameWithSingleSegment() {
+        String validPackageName = "com";
+        DataValidationUtils.validatePackageName(validPackageName, "invalidClassName");
+    }
+
+    @Test
+    public void testValidatePackageNameWithUnderscore() {
+        String validPackageName = "org.example_project.utils";
+        DataValidationUtils.validatePackageName(validPackageName, "invalidClassName");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidatePackageNameWithNullPackageName() {
+        DataValidationUtils.validatePackageName(null, "invalidClassName");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidatePackageNameWithEmptyPackageName() {
+        DataValidationUtils.validatePackageName("", "invalidClassName");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testInValidateMultilinePackageName() {
+        String validPackageName = "\norg.example_project.utils";
+        DataValidationUtils.validatePackageName(validPackageName, "invalidClassName");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidatePackageNameWithInvalidCharacters() {
+        String invalidPackageName = "org.ex@ample.utils";  // Invalid '@' character
+        DataValidationUtils.validatePackageName(invalidPackageName, "invalidPackageName");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidatePackageNameStartingWithNumber() {
+        String invalidPackageName = "123example.utils";
+        DataValidationUtils.validatePackageName(invalidPackageName, "invalidPackageName");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidatePackageNameStartingWithNullValueName() {
+        String invalidPackageName = "norg.example_project.utils";
+        DataValidationUtils.validatePackageName(invalidPackageName, null);
+    }
+
+    @Test
+    public void testValidatesSimpleClassNameWithValidClassName() {
+        String validClassName = "MyClass";
+        DataValidationUtils.validatesSimpleClassName(validClassName, "className");
+        Assert.assertTrue(true);  // If no exception is thrown, the test passes
+    }
+
+    @Test
+    public void testValidatesSimpleClassNameWithInnerClassName() {
+        String validInnerClassName = "OuterClass$InnerClass";
+        DataValidationUtils.validatesSimpleClassName(validInnerClassName, "className");
+        Assert.assertTrue(true);  // If no exception is thrown, the test passes
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidatesSimpleClassNameWithNullClassName() {
+        DataValidationUtils.validatesSimpleClassName(null, "className");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testValidatesSimpleClassNameWithEmptyClassName() {
+        DataValidationUtils.validatesSimpleClassName("", "className");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testValidatesSimpleClassNameWithInvalidLowercaseClassName() {
+        String invalidClassName = "myClass";  // Invalid: starts with lowercase
+        DataValidationUtils.validatesSimpleClassName(invalidClassName, "className");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testValidatesSimpleClassNameWithInvalidCharacters() {
+        String invalidClassName = "Class@Name";  // Invalid character '@'
+        DataValidationUtils.validatesSimpleClassName(invalidClassName, "className");
+    }
+
 }

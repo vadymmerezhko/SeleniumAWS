@@ -1,6 +1,6 @@
 package org.example.unit;
 
-import org.example.drivers.factories.WebDriverFactory;
+import org.example.ui.factories.WebDriverFactory;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
 import org.example.utils.ImageUtils;
@@ -31,7 +31,7 @@ public class ImageUtilsTest {
 
     @AfterClass
     public void tearDown() {
-        WebDriverFactory.quiteAllBrowsersAndServers();
+        WebDriverFactory.quiteAllDriversAndServers();
     }
 
     @Test

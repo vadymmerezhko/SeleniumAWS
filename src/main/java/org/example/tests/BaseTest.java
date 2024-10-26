@@ -3,29 +3,32 @@ package org.example.tests;
 import lombok.extern.slf4j.Slf4j;
 import org.example.balancers.LoadBalancer;
 import org.example.configs.Config;
-import org.example.drivers.factories.WebDriverFactory;
+import org.example.ui.factories.WebDriverFactory;
 import org.example.exceptions.SmartRuntimeException;
+import org.example.helpers.RunAloneTestListener;
 import org.example.utils.FileSystemUtils;
 import org.example.utils.WebUtils;
+import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import org.testng.Reporter;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.*;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static org.example.constants.Settings.BLANK_PAGE_URL;
+
 @Slf4j
+@Listeners(RunAloneTestListener.class)
 public abstract class BaseTest {
     static private final String SCREENSHOTS_FOLDER_PATH = "./target/surefire-reports/screenshots";
     static private final String VIDEOS_FOLDER_PATH = "./target/surefire-reports/videos";
     static private final String DEFAULT_BROWSER_VERSION = "default";
     static private final Config config = Config.getInstance();
 
-    @BeforeSuite
+    @BeforeSuite()
     public void beforeSuite() {
         FileSystemUtils.deleteFolder(VIDEOS_FOLDER_PATH);
         FileSystemUtils.deleteFolder(SCREENSHOTS_FOLDER_PATH);
@@ -33,50 +36,62 @@ public abstract class BaseTest {
 
     @AfterSuite()
     public void afterSuite() {
-        WebDriverFactory.quiteAllBrowsersAndServers();
+        WebDriverFactory.quiteAllDriversAndServers();
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void beforeMethod(ITestResult result) {
-        LoadBalancer.getInstance().incrementServerThreadCount();
-        WebDriverFactory.getDriver().manage().deleteAllCookies();
-        WebDriverFactory.getDriver().navigate().refresh();
+    public void beforeMethod(Method method) {
 
         try {
-            if (config.getVideoOnFail()) {
-                startVideoRecording(result.getMethod().getMethodName());
+            LoadBalancer.getInstance().incrementServerThreadCount();
+
+            if (method.isAnnotationPresent(Test.class)) {
+
+                if (Config.getInstance().getRetainBrowser()) {
+                    // Reset cookies and open blank page before every @Test method
+                    WebDriver driver = WebDriverFactory.getDriver();
+                    driver.manage().deleteAllCookies();
+                    driver.get(BLANK_PAGE_URL);
+                }
+                if (config.getVideoOnFail()) {
+                    startVideoRecording(method.getName());
+                }
             }
         }
-           catch (Exception e) {
+        catch (Exception e) {
             throw new SmartRuntimeException("'Before' method failed.", e);
         }
     }
 
     @AfterMethod
-    public void afterMethod(ITestResult result) {
+    public void afterMethod(Method method, ITestResult result) {
         Reporter.setCurrentTestResult(result);
         LoadBalancer.getInstance().decrementServerThreadCount();
         int status = result.getStatus();
 
         try {
-            if (config.getScreenshotOnFail() && status == ITestResult.FAILURE) {
-                takeScreenshot(result);
-            }
-            if (config.getVideoOnFail()) {
-                WebDriverFactory.stopVideoRecording();
+            if (method.isAnnotationPresent(Test.class)) {
 
-                if (status != ITestResult.FAILURE) {
-                    FileSystemUtils.deleteFile(WebDriverFactory.getVideoFilePath());
-                } else {
-                    addVideoLinkToTestReport();
+                if (config.getScreenshotOnFail() && status == ITestResult.FAILURE) {
+                    takeScreenshot(result);
                 }
-            }
-            if (status == ITestResult.FAILURE && Config.getInstance().getDebugMode()) {
-                showDebugConfirm(result.getMethod().getQualifiedName(),
-                        result.getThrowable().getMessage());
-            }
-            if (!Config.getInstance().getRetainBrowser()) {
-                WebDriverFactory.quitDriver();
+                if (config.getVideoOnFail()) {
+                    WebDriverFactory.stopVideoRecording();
+
+                    if (status != ITestResult.FAILURE) {
+                        FileSystemUtils.deleteFile(WebDriverFactory.getVideoFilePath());
+                    } else {
+                        addVideoLinkToTestReport();
+                    }
+                }
+                if (status == ITestResult.FAILURE && Config.getInstance().getDebugMode()) {
+                    showDebugConfirm(result.getMethod().getQualifiedName(),
+                            result.getThrowable().getMessage());
+                }
+                if (!Config.getInstance().getRetainBrowser()) {
+                    // Quit browser and driver after every @Test method
+                    WebDriverFactory.quitDriver();
+                }
             }
         }
         catch (Exception e) {

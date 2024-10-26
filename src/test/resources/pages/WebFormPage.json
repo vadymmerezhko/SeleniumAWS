@@ -1,16 +1,17 @@
 {
+    "PAGE_URL": "url=#SITE_HOST#/selenium/web/web-form.html",
     "submitButton": "image=src/test/resources/images/WebFormPage.submitButton.png",
-    "checkbox1": "css=#my-check-1",
-    "checkbox2": "css=#my-check-2",
     "datePicker": "css=input[name='my-date']",
     "textarea": "xpath=//textarea[@name='#KEYWORD#']",
-    "PAGE_URL": "url=#SITE_HOST#/selenium/web/web-form.html",
-    "radiobutton1": "css=#my-radio-1",
+    "checkbox1": "css=input[id='my-check-1']",
+    "checkbox2": "css=input[id='my-check-2']",
+    "radiobutton1": "css=input[id='my-radio-1']",
+    "radiobutton2": "css=input[id='my-radio-2']",
     "dropdown": "css=select[name='my-select']",
-    "radiobutton2": "css=#my-radio-2",
     "password": "css=input[name='my-password']",
     "textInput": "css=#my-text-id",
     "dataList": "css=input[name='my-datalist']",
     "rangeSlider": "css=input[name='my-range']",
-    "colorPicker": "css=input[name='my-colors']"
+    "colorPicker": "css=input[name='my-colors']",
+    "fileInput": "css=input[name='my-file']"
 }

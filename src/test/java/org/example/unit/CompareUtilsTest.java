@@ -464,7 +464,7 @@ public class CompareUtilsTest  {
     @Test
     public void testCompareStringWithSmartLocalDateNotStrictType() {
         String expected = "05/23/1970";
-        Object actual = SmartLocalDate.parse("05/23/1970");
+        Object actual = SmartLocalDate.fromString("05/23/1970");
 
         boolean strictType = false;
         boolean strictOrder = true;
@@ -521,7 +521,6 @@ public class CompareUtilsTest  {
     @Test
     public void testCompareXmlStringWithXmlNodeNoStrictOrder() {
         String expectedXmlString = """
-                <?xml version="1.0" encoding="UTF-8"?>
                 <items>
                     <item>
                         <name>Item 1</name>
@@ -534,7 +533,6 @@ public class CompareUtilsTest  {
                 </items>
                 """.stripIndent();
         Node actualXml = ConvertUtils.stringToXmlNode("""
-                <?xml version="1.0" encoding="UTF-8"?>
                 <items>
                     <item>
                         <name>Item 1</name>

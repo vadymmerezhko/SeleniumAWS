@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+
 @Slf4j
 public final class TextUtils {
 
@@ -150,6 +151,7 @@ public final class TextUtils {
      * @param singular The singular noun.
      * @return The plural noun.
      */
+    // TODO - add unit tests
     public static String singularToPlural(String singular) {
         DataValidationUtils.validateNotBlank(singular, "singular");
 
@@ -163,7 +165,6 @@ public final class TextUtils {
                 // StanfordCoreNLP can be used for POS tagging,
                 // but manual rules handle pluralization
                 Sentence sentence = new Sentence(singular);
-                String posTag = sentence.posTag(0);
 
                 // Apply basic English pluralization rules
                 if (singular.endsWith("y") && !isVowelBeforeY(singular)) {
@@ -186,6 +187,33 @@ public final class TextUtils {
             throw new SmartRuntimeException(String.format(
                     "Cannot convert singular '%s' noun to plural.", singular), e);
         }
+    }
+
+    /**
+     * Splits a multiline string into individual lines, handling all types of newline characters:
+     * "\n" (Unix/Linux), "\r\n" (Windows), and "\r" (older MacOS).
+     * @param multilineString The multiline string to split.
+     * @return An array of strings, each representing a line, including empty or blank lines.
+     */
+    public static String[] splitMultilineString(String multilineString) {
+        DataValidationUtils.validateNotNull(multilineString, "multilineString");
+
+        // Return the original string as a single-element array if it's empty
+        if (multilineString.isEmpty()) {
+            return new String[] { multilineString };
+        }
+        // Normalize multiline string - replace carriage return and new line with one new line character
+        String normilizedString = multilineString.replace("\n\r", "\n");
+        // Use "\\R" with -1 to retain all line breaks and empty lines
+        String[] lines = normilizedString.split("\\R", -1);
+        log.debug("""
+        Multiline string was split into an array of strings.
+        Original string:
+        {}
+        Split lines:
+        {}
+        """, multilineString, lines);
+        return lines;
     }
 
     // Utility method to check if the letter before 'y' is a vowel

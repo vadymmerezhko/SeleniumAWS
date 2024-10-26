@@ -5,7 +5,7 @@ import org.example.utils.ConvertUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.example.configs.Config;
-import org.example.drivers.factories.WebDriverFactory;
+import org.example.ui.factories.WebDriverFactory;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.DataValidationUtils;
 import org.example.utils.WebUtils;

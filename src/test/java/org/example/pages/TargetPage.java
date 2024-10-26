@@ -1,13 +1,12 @@
 package org.example.pages;
 
 import lombok.Getter;
-import org.example.annotations.SmartElement;
-import org.example.drivers.elements.Label;
+import org.example.ui.elements.Label;
+import org.example.ui.pages.SmartPage;
 
-@SmartElement
 @Getter
 public class TargetPage extends SmartPage {
 
-    private Label header;
-    private Label status;
+    private final Label header = new Label();
+    private final Label status = new Label();
 }

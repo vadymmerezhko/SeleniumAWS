@@ -109,7 +109,7 @@ public final class AwsUtils {
         timeOut.start();
 
         do {
-            WaiterUtils.waitSeconds(1);
+            TimerUtils.waitSeconds(1);
             timeOut.checkExpired();
             ec2InstanceId = AwsUtils.runEC2(ec2, threadCount, imageId, keyPairName, groupName, userData);
         } while (ec2InstanceId == null);
@@ -131,7 +131,7 @@ public final class AwsUtils {
         timeOut.start();
 
         do {
-            WaiterUtils.waitSeconds(1);
+            TimerUtils.waitSeconds(1);
             timeOut.checkExpired();
             ec2InstanceIp = AwsUtils.getEC2PublicIp(ec2Client, ec2InstanceId);
         } while (ec2InstanceIp == null);

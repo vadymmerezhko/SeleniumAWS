@@ -16,6 +16,7 @@ import java.util.Set;
  */
 @Slf4j
 public final class FileSystemUtils {
+    private static final String FAKE_PATH = "fakepath";
 
     private FileSystemUtils() {}
 
@@ -272,5 +273,98 @@ public final class FileSystemUtils {
                     "Cannot get file name without extension form the file name: %s",
                     fileName), e);
         }
+    }
+
+    /**
+     * Recursively searches for the file in the folder
+     * and relative file path string.
+     * @param folderPath The folder path to search in.
+     * @param fileName The name of the file to search for.
+     * @return The relative file path string if found
+     * or null otherwise.
+     */
+    private static String recursivelyFindFileInFolder(String folderPath, String fileName) {
+        DataValidationUtils.validateFolder(folderPath, "folderPath");
+        File folder = new File(folderPath);
+        File[] files = folder.listFiles();
+        String filePath = null;
+
+        try {
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        // Recursively search in subdirectories
+                        filePath = recursivelyFindFileInFolder(file.getPath(), fileName);
+                    }
+                    else if (fileName.equals(file.getName())) {
+                        filePath = file.getPath();
+                    }
+                    if (filePath != null) {
+                        break;
+                    }
+                }
+            }
+            if (filePath != null) {
+                log.debug("File '{}' is found in folder '{}': {}",
+                        fileName, folderPath, filePath);
+            }
+            else {
+                log.debug("No file '{}' is found in folder '{}': {}",
+                        fileName, folderPath, filePath);
+            }
+            return filePath;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot find '%s' file in folder: %s",
+                    fileName, folderPath), e);
+        }
+    }
+
+    /**
+     * Returns the folder path for the current working directory.
+     * @return The current folder path as a String.
+     */
+    public static String getCurrentFolderPath() {
+        return normalizeFilePathString(System.getProperty("user.dir"));
+    }
+
+    /**
+     * Normalizes file path string - replaces
+     * Windows slashes with Unix slashes and replaces "fakepath"
+     * with actual file path found by file name in current
+     * directory and all directories child directories.
+     * This is a workaround for the case, when "fakepath" directory
+     * is returned as file input value by WebDriver for security purpose.
+     * @param filePath The file path to normalize.
+     * @return The normalized file path.
+     */
+    public static String normalizeFilePathString(String filePath) {
+        DataValidationUtils.validateNotNull(filePath, "filePath");
+
+        // Recursively searches for the file in the current folder
+        // if file path contains "fakepath" substring - workaround for RemoteWebDriver
+        if (filePath.contains(FAKE_PATH)) {
+            String folderPath = FileSystemUtils.getCurrentFolderPath();
+            File file = new File(filePath);
+            String fileName = file.getName();
+            filePath = recursivelyFindFileInFolder(folderPath, fileName);
+
+            if (filePath == null) {
+                throw new SmartRuntimeException(String.format(
+                        "Cannot recursively find %s file in folder: %s",
+                        fileName, folderPath));
+            }
+        }
+        // Replace windows slashes with Unix slashes
+        String normalizedFilePath = filePath.replace("\\", "/");
+        log.debug("""
+                File path is normalized.
+                Input: {}
+                Output: {}
+                """.stripIndent(),
+                filePath,
+                normalizedFilePath);
+        return normalizedFilePath;
     }
 }

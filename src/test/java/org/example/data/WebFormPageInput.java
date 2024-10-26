@@ -13,8 +13,7 @@ public class WebFormPageInput extends SmartData {
     private SmartValue textareaInput;
     private SmartValue dropdownSelectedOption;
     private SmartValue dataListSelectOption;
-    // TODO: fix file path for remote web driver.
-    //private SmartValue filePath;
+    private SmartValue filePath;
     private SmartValue checkbox1Value;
     private SmartValue checkbox2Value;
     private SmartValue radiobutton1Value;

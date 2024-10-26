@@ -1,10 +1,12 @@
 package org.example.e2e;
+import org.example.annotations.RunAlone;
 import org.example.testng.RetryAnalyzer;
 import org.testng.annotations.*;
 
 public class Selenium1Test extends CommonTest {
 
-    @Test(description = "This method validates the Web Form functionality", invocationCount = 1, retryAnalyzer = RetryAnalyzer.class)
+    @RunAlone
+    @Test(description = "This method validates the Web Form functionality", retryAnalyzer = RetryAnalyzer.class)
     public void testWebForm1() {
         failFillWebForm();
         submitWebForm();
@@ -22,9 +24,9 @@ public class Selenium1Test extends CommonTest {
         submitWebForm();
     }
 
-    @Test(description = "This method validates the Web Form functionality", invocationCount = 1, retryAnalyzer = RetryAnalyzer.class)
+    @Test(description = "This method validates the Web Form functionality", invocationCount = 4, retryAnalyzer = RetryAnalyzer.class)
     public void testWebForm4() {
-        failFillWebForm();
+        fillWebForm();
         submitWebForm();
     }
 

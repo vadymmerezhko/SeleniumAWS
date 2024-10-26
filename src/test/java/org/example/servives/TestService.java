@@ -2,6 +2,7 @@ package org.example.servives;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.*;
+import org.example.ui.elements.Button;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.pages.TargetPage;
 import org.example.pages.WebFormPage;
@@ -45,10 +46,9 @@ public class TestService implements TestServiceInterface {
             webFormPage.getTextarea().enterText(input.getTextareaInput());
             webFormPage.getDropdown().selectOption(input.getDropdownSelectedOption());
             webFormPage.getDataList().selectOption(input.getDataListSelectOption());
-            // TODO: Fix file path for remote run.
-            //webFormPage.getFileInput().enterText(input.getFilePath());
             webFormPage.getCheckbox1().setValue(input.getCheckbox1Value());
             webFormPage.getCheckbox2().setValue(input.getCheckbox2Value());
+            webFormPage.getFileInput().enterFilePath(input.getFilePath());
 
             if (input.getRadiobutton1Value().toBoolean()) {
                 webFormPage.getRadiobutton1().select();
@@ -64,18 +64,17 @@ public class TestService implements TestServiceInterface {
 
             output.getTextInput().setValue(webFormPage.getTextInput().getValue());
             output.getTextareaInput().setValue(webFormPage.getTextarea().getValue());
-            output.getDropdownSelectedOption().setValue(webFormPage.getDropdown().getValue());
+            output.getDropdownSelectedOption().setValue(webFormPage.getDropdown().getSelectedOption());
             output.getDataListSelectOption().setValue(webFormPage.getDataList().getValue());
-            // TODO fix file path on remote driver.
-            //output.getFilePath().setValue(webFormPage.getFileInput().getValue());
-            output.getCheckbox1Value().setValue(webFormPage.getCheckbox1().isChecked());
-            output.getCheckbox2Value().setValue(webFormPage.getCheckbox2().isChecked());
+            output.getCheckbox1Value().setValue(webFormPage.getCheckbox1().getValue());
+            output.getCheckbox2Value().setValue(webFormPage.getCheckbox2().getValue());
             output.getRadiobutton1Value().setValue(webFormPage.getRadiobutton1().isSelected());
             output.getRadiobutton2Value().setValue(webFormPage.getRadiobutton2().isSelected());
             output.getColor().setValue(webFormPage.getColorPicker().getValue());
             output.getDate().setKeyword(thisYear);
             output.getDate().setValue(webFormPage.getDatePicker().getValue());
             output.getRange().setValue(webFormPage.getRangeSlider().getValue());
+            output.getFilePath().setValue(webFormPage.getFileInput().getValue());
             log.debug("Web Form page output data is returned: {}", output);
             return output;
         }
@@ -91,7 +90,8 @@ public class TestService implements TestServiceInterface {
     @Override
     public TargetPageOutput submitWebForm() {
         WebFormPage webFormPage = new WebFormPage();
-        webFormPage.getSubmitButton().click();
+        Button submitButton =  webFormPage.getSubmitButton();
+        submitButton.click();
 
         TargetPage targetPage = new TargetPage();
         TargetPageOutput output = new TargetPageOutput();

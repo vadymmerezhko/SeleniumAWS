@@ -4,7 +4,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>SeleniumTestNGParentPom</artifactId>
-  <version>1.12.5</version>
+  <version>1.12.8</version>
   <packaging>pom</packaging>
 
   <name>SeleniumTestNGParentPom</name>
@@ -112,7 +112,7 @@
     <dependency>
       <groupId>com.microsoft.playwright</groupId>
       <artifactId>playwright</artifactId>
-      <version>1.40.0</version>
+      <version>1.47.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.deque.html.axe-core/playwright -->
     <dependency>
@@ -228,6 +228,12 @@
       <groupId>com.ibm.icu</groupId>
       <artifactId>icu4j</artifactId>
       <version>75.1</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy -->
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.15.4</version>
     </dependency>
   </dependencies>
 </project>

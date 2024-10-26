@@ -7,6 +7,7 @@ import org.example.exceptions.SmartRuntimeException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.math.BigDecimal;
@@ -201,14 +202,15 @@ public final class CompareUtils {
      * @return true/false result.
      */
     public static <T> boolean compareObjects(Object expected, Object actual,
-                                               boolean strictType, boolean strictOrder) {
+                                             boolean strictType, boolean strictOrder) {
         try {
             boolean result;
 
             if (expected == null && actual == null) {
                 log.debug("Expected and actual objects are null.");
                 return true;
-            } else if (expected == actual) {
+            }
+            else if (expected == actual) {
                 log.debug("Expected and actual objects are the same object.");
                 return true;
             }
@@ -220,7 +222,8 @@ public final class CompareUtils {
             if (strictType) {
                 DataValidationUtils.validateTheSameType(expected, actual,
                         "expected", "actual");
-            } else {
+            }
+            else {
                 // Convert actual string value to object
                 if (actualClass != expectedClass &&
                         !(actual instanceof Number && expected instanceof Number)) {
@@ -234,6 +237,9 @@ public final class CompareUtils {
             // JSON array
             else if (expected instanceof JSONArray expectedJsonArray) {
                 result = compareJsonArrays(expectedJsonArray, (JSONArray) actual, strictOrder);
+            }
+            else if (expected instanceof Document expectedDocument) {
+                result = compareXmlNodes(expectedDocument, (Document) actual, strictOrder);
             }
             // XML node
             else if (expected instanceof Node expectedNode) {

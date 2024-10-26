@@ -4,7 +4,7 @@ import org.example.data.*;
 import org.example.enums.Platform;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
-import org.example.unit.supplemental.PojoClass;
+import org.example.unit.supplemental.classes.PojoClass;
 import org.example.utils.ConvertUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -256,7 +256,7 @@ public class SmartValueTest {
     public void testToStringWithSmartLocalDateUsingCustomFormat() {
         // Create a SmartLocalDate with a date string and a custom format
         String dateString = "2024-09-10";
-        SmartLocalDate smartLocalDate = SmartLocalDate.parse(dateString);
+        SmartLocalDate smartLocalDate = SmartLocalDate.fromString(dateString);
         SmartValue smartValue = new SmartValue(smartLocalDate);
         String result = smartValue.toString();
 
@@ -268,7 +268,7 @@ public class SmartValueTest {
     public void testToStringWithSmartLocalDateTimeUsingCustomFormat() {
         // Create a SmartLocalDateTime with a date-time string and a custom format
         String dateTimeString = "2024-09-10T15:30:45";
-        SmartLocalDateTime smartLocalDateTime = SmartLocalDateTime.parse(dateTimeString);
+        SmartLocalDateTime smartLocalDateTime = SmartLocalDateTime.fromString(dateTimeString);
         SmartValue smartValue = new SmartValue(smartLocalDateTime);
         String result = smartValue.toString();
 
@@ -280,7 +280,7 @@ public class SmartValueTest {
     public void testToStringWithSmartLocalTimeUsingCustomFormat() {
         // Create a SmartLocalTime with a time string and a custom format
         String timeString = "15:30:45";
-        SmartLocalTime smartLocalTime = SmartLocalTime.parse(timeString);
+        SmartLocalTime smartLocalTime = SmartLocalTime.fromString(timeString);
         SmartValue smartValue = new SmartValue(smartLocalTime);
         String result = smartValue.toString();
 
@@ -1121,8 +1121,8 @@ public class SmartValueTest {
 
     @Test
     public void testEqualsWithSmartLocalDate() {
-        SmartLocalDate smartLocalDate1 = SmartLocalDate.parse("2024-09-10");
-        SmartLocalDate smartLocalDate2 = SmartLocalDate.parse("Sep 10th, 2024");
+        SmartLocalDate smartLocalDate1 = SmartLocalDate.fromString("2024-09-10");
+        SmartLocalDate smartLocalDate2 = SmartLocalDate.fromString("Sep 10th, 2024");
         SmartValue smartValue1 = new SmartValue(smartLocalDate1);
         SmartValue smartValue2 = new SmartValue(smartLocalDate2);
         boolean result = smartValue1.equals(smartValue2);
@@ -1132,8 +1132,8 @@ public class SmartValueTest {
 
     @Test
     public void testEqualsWithDifferentSmartLocalDate() {
-        SmartLocalDate smartLocalDate1 = SmartLocalDate.parse("2024-09-10");
-        SmartLocalDate smartLocalDate2 = SmartLocalDate.parse("2025-09-10");
+        SmartLocalDate smartLocalDate1 = SmartLocalDate.fromString("2024-09-10");
+        SmartLocalDate smartLocalDate2 = SmartLocalDate.fromString("2025-09-10");
         SmartValue smartValue1 = new SmartValue(smartLocalDate1);
         SmartValue smartValue2 = new SmartValue(smartLocalDate2);
         boolean result = smartValue1.equals(smartValue2);
@@ -1143,8 +1143,8 @@ public class SmartValueTest {
 
     @Test
     public void testEqualsWithSmartLocalDateTime() {
-        SmartLocalDateTime smartLocalDateTime1 = SmartLocalDateTime.parse("2024-9-1 5:30:45 am");
-        SmartLocalDateTime smartLocalDateTime2 = SmartLocalDateTime.parse("1st Sep 2024 5:30:45");
+        SmartLocalDateTime smartLocalDateTime1 = SmartLocalDateTime.fromString("2024-9-1 5:30:45 am");
+        SmartLocalDateTime smartLocalDateTime2 = SmartLocalDateTime.fromString("1st Sep 2024 5:30:45");
         SmartValue smartValue1 = new SmartValue(smartLocalDateTime1);
         SmartValue smartValue2 = new SmartValue(smartLocalDateTime2);
         boolean result = smartValue1.equals(smartValue2);
@@ -1154,8 +1154,8 @@ public class SmartValueTest {
 
     @Test
     public void testEqualsWithDifferentSmartLocalDateTime() {
-        SmartLocalDateTime smartLocalDateTime1 = SmartLocalDateTime.parse("2024-09-10T15:30:45");
-        SmartLocalDateTime smartLocalDateTime2 = SmartLocalDateTime.parse("2025-09-10T15:30:45");
+        SmartLocalDateTime smartLocalDateTime1 = SmartLocalDateTime.fromString("2024-09-10T15:30:45");
+        SmartLocalDateTime smartLocalDateTime2 = SmartLocalDateTime.fromString("2025-09-10T15:30:45");
         SmartValue smartValue1 = new SmartValue(smartLocalDateTime1);
         SmartValue smartValue2 = new SmartValue(smartLocalDateTime2);
         boolean result = smartValue1.equals(smartValue2);
@@ -1165,8 +1165,8 @@ public class SmartValueTest {
 
     @Test
     public void testEqualsWithSmartLocalTime() {
-        SmartLocalTime smartLocalTime1 = SmartLocalTime.parse("5:30:05 PM");
-        SmartLocalTime smartLocalTime2 = SmartLocalTime.parse("17:30:05");
+        SmartLocalTime smartLocalTime1 = SmartLocalTime.fromString("5:30:05 PM");
+        SmartLocalTime smartLocalTime2 = SmartLocalTime.fromString("17:30:05");
         SmartValue smartValue1 = new SmartValue(smartLocalTime1);
         SmartValue smartValue2 = new SmartValue(smartLocalTime2);
         boolean result = smartValue1.equals(smartValue2);
@@ -1176,8 +1176,8 @@ public class SmartValueTest {
 
     @Test
     public void testEqualsWithDifferentSmartLocalTime() {
-        SmartLocalTime smartLocalTime1 = SmartLocalTime.parse("15:30:45");
-        SmartLocalTime smartLocalTime2 = SmartLocalTime.parse("16:30:45");
+        SmartLocalTime smartLocalTime1 = SmartLocalTime.fromString("15:30:45");
+        SmartLocalTime smartLocalTime2 = SmartLocalTime.fromString("16:30:45");
         SmartValue smartValue1 = new SmartValue(smartLocalTime1);
         SmartValue smartValue2 = new SmartValue(smartLocalTime2);
         boolean result = smartValue1.equals(smartValue2);
@@ -1344,7 +1344,7 @@ public class SmartValueTest {
 
     @Test
     public void testGetFormatWithSmartLocalDate() {
-        SmartLocalDate smartLocalDate = SmartLocalDate.parse("10th SEP 2024");
+        SmartLocalDate smartLocalDate = SmartLocalDate.fromString("10th SEP 2024");
         SmartValue smartValue = new SmartValue(smartLocalDate);
         String format = smartValue.getFormat();
 
@@ -1354,7 +1354,7 @@ public class SmartValueTest {
 
     @Test
     public void testGetFormatWithSmartLocalDateTime() {
-        SmartLocalDateTime smartLocalDateTime = SmartLocalDateTime.parse("2024-09-10T15:30:00");
+        SmartLocalDateTime smartLocalDateTime = SmartLocalDateTime.fromString("2024-09-10T15:30:00");
         SmartValue smartValue = new SmartValue(smartLocalDateTime);
         String format = smartValue.getFormat();
 
@@ -1364,7 +1364,7 @@ public class SmartValueTest {
 
     @Test
     public void testGetFormatWithSmartLocalTime() {
-        SmartLocalTime smartLocalTime = SmartLocalTime.parse("15:30:45:123");
+        SmartLocalTime smartLocalTime = SmartLocalTime.fromString("15:30:45:123");
         SmartValue smartValue = new SmartValue(smartLocalTime);
         String format = smartValue.getFormat();
 
@@ -2165,7 +2165,7 @@ public class SmartValueTest {
     @Test
     public void testToSmartLocalDateWithValidSmartLocalDate() {
         SmartValue smartValue = new SmartValue();
-        SmartLocalDate expectedSmartLocalDate = SmartLocalDate.parse("2024-09-14");
+        SmartLocalDate expectedSmartLocalDate = SmartLocalDate.fromString("2024-09-14");
         smartValue.setValue(expectedSmartLocalDate);
         SmartLocalDate actualSmartLocalDate = smartValue.toSmartLocalDate();
 
@@ -2180,7 +2180,7 @@ public class SmartValueTest {
         smartValue.setValue(dateString);
         SmartLocalDate actualSmartLocalDate = smartValue.toSmartLocalDate();
 
-        SmartLocalDate expectedSmartLocalDate = SmartLocalDate.parse(dateString);
+        SmartLocalDate expectedSmartLocalDate = SmartLocalDate.fromString(dateString);
         Assert.assertEquals(actualSmartLocalDate, expectedSmartLocalDate,
                 "The SmartLocalDate value should match the expected SmartLocalDate parsed from the string.");
     }
@@ -2192,7 +2192,7 @@ public class SmartValueTest {
         smartValue.setValue(dateString);
         SmartLocalDate actualSmartLocalDate = smartValue.toSmartLocalDate();
 
-        SmartLocalDate expectedSmartLocalDate = SmartLocalDate.parse(dateString);
+        SmartLocalDate expectedSmartLocalDate = SmartLocalDate.fromString(dateString);
         Assert.assertEquals(actualSmartLocalDate, expectedSmartLocalDate,
                 "The SmartLocalDate value should match the expected SmartLocalDate parsed from the string.");
     }
@@ -2308,7 +2308,7 @@ public class SmartValueTest {
     @Test
     public void testToSmartLocalDateTimeWithValidSmartLocalDateTime() {
         SmartValue smartValue = new SmartValue();
-        SmartLocalDateTime expectedSmartLocalDateTime = SmartLocalDateTime.parse("2024-09-14T15:30:00");
+        SmartLocalDateTime expectedSmartLocalDateTime = SmartLocalDateTime.fromString("2024-09-14T15:30:00");
         smartValue.setValue(expectedSmartLocalDateTime);
         SmartLocalDateTime actualSmartLocalDateTime = smartValue.toSmartLocalDateTime();
 
@@ -2324,7 +2324,7 @@ public class SmartValueTest {
         smartValue.setValue(dateTimeString);
         SmartLocalDateTime actualSmartLocalDateTime = smartValue.toSmartLocalDateTime();
 
-        SmartLocalDateTime expectedSmartLocalDateTime = SmartLocalDateTime.parse(dateTimeString);
+        SmartLocalDateTime expectedSmartLocalDateTime = SmartLocalDateTime.fromString(dateTimeString);
         Assert.assertEquals(actualSmartLocalDateTime, expectedSmartLocalDateTime,
                 "The SmartLocalDateTime value should match the expected value parsed from the string.");
     }
@@ -2336,7 +2336,7 @@ public class SmartValueTest {
         smartValue.setValue(epochMillis);
         SmartLocalDateTime actualSmartLocalDateTime = smartValue.toSmartLocalDateTime();
 
-        SmartLocalDateTime expectedSmartLocalDateTime = SmartLocalDateTime.parse(
+        SmartLocalDateTime expectedSmartLocalDateTime = SmartLocalDateTime.fromString(
                 Instant.ofEpochMilli(epochMillis).atZone(ZoneId.systemDefault()).toLocalDateTime().toString());
 
         Assert.assertEquals(actualSmartLocalDateTime, expectedSmartLocalDateTime,
@@ -2442,7 +2442,7 @@ public class SmartValueTest {
     @Test
     public void testToSmartLocalTimeWithValidSmartLocalTime() {
         SmartValue smartValue = new SmartValue();
-        SmartLocalTime expectedSmartLocalTime = SmartLocalTime.parse("15:30:00");
+        SmartLocalTime expectedSmartLocalTime = SmartLocalTime.fromString("15:30:00");
         smartValue.setValue(expectedSmartLocalTime);
         SmartLocalTime actualSmartLocalTime = smartValue.toSmartLocalTime();
 
@@ -2458,7 +2458,7 @@ public class SmartValueTest {
         smartValue.setValue(timeString);
         SmartLocalTime actualSmartLocalTime = smartValue.toSmartLocalTime();
 
-        SmartLocalTime expectedSmartLocalTime = SmartLocalTime.parse(timeString);
+        SmartLocalTime expectedSmartLocalTime = SmartLocalTime.fromString(timeString);
         Assert.assertEquals(actualSmartLocalTime, expectedSmartLocalTime,
                 "The SmartLocalTime value should match the expected value parsed from the string.");
     }
@@ -2470,7 +2470,7 @@ public class SmartValueTest {
         smartValue.setValue(epochMillis);
         SmartLocalTime actualSmartLocalTime = smartValue.toSmartLocalTime();
 
-        SmartLocalTime expectedSmartLocalTime = SmartLocalTime.parse(
+        SmartLocalTime expectedSmartLocalTime = SmartLocalTime.fromString(
                 Instant.ofEpochMilli(epochMillis).atZone(ZoneId.systemDefault()).toLocalTime().toString());
 
         Assert.assertEquals(actualSmartLocalTime, expectedSmartLocalTime,

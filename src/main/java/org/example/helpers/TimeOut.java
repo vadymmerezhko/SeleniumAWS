@@ -2,7 +2,7 @@ package org.example.helpers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartTimeOutException;
-import org.example.utils.WaiterUtils;
+import org.example.utils.TimerUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -32,7 +32,7 @@ public class TimeOut {
         long startMilliSeconds = System.currentTimeMillis();
         Thread thread = new Thread(() -> {
             while ((System.currentTimeMillis() - startMilliSeconds) / 1000 < timeoutSeconds) {
-                WaiterUtils.waitSeconds(1);
+                TimerUtils.waitSeconds(1);
             }
             isExpired.set(true);
         });

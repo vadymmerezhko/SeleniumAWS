@@ -1,0 +1,127 @@
+package org.example.ui.elements;
+
+import lombok.extern.slf4j.Slf4j;
+import org.example.annotations.RunAlone;
+import org.example.exceptions.SmartRuntimeException;
+import org.example.utils.DataValidationUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
+
+/**
+ * The text input element class.
+ */
+@Slf4j
+public class TextInput extends SingleLineTextInput {
+
+    /**
+     * The text input constructor with auto selector.
+     */
+    public TextInput() {
+    }
+
+    /**
+     * The text input constructor by its selector.
+     * @param by The element selector.
+     */
+    public TextInput(By by) {
+        super(by);
+    }
+
+    /**
+     * Returns text input value.
+     * @return The text input value.
+     */
+    public String getValue() {
+        String value = getElement().getDomProperty("value");
+        log.debug("Text input {} value is returned: {}", elementName, value);
+        return value;
+    }
+
+    /**
+     * Selects all text.
+     */
+    @RunAlone // Run this method while other @Test or SmartElement  methods do not run or wait
+    public void selectAll() {
+        sendKeys(Keys.chord(Keys.CONTROL, "a"));
+        log.debug("Text input {} all text is selected.", elementName);
+    }
+
+    /**
+     * Selects a substring in a text input element based on "from" and "to" parameters.
+     * @param from The start index of the substring (can be negative).
+     * @param to The end index of the substring (can be negative).
+     */
+    @RunAlone // Run this method while other @Test or SmartElement  methods do not run or wait
+    public void selectSubstring(int from, int to) {
+        WebElement element = getElement();
+
+        try {
+            // Get the current text from the input element
+            String text = element.getAttribute("value");
+            int length = text.length();
+
+            // Handle negative values for 'from'
+            if (from < 0) {
+                from = length + from;
+            }
+            // Handle negative values for 'to'
+            if (to < 0) {
+                to = length + to + 1;
+            }
+            // Validate 'from' and 'to' parameters
+            DataValidationUtils.validateMin(from, 0, "from");
+            DataValidationUtils.validateMax(to, length, "to");
+
+            // Set focus to element
+            element.click();
+            // Move the cursor to the start position (from)
+            element.sendKeys(Keys.HOME);  // Move to the beginning of the input
+
+            for (int i = 0; i < from; i++) {
+                element.sendKeys(Keys.ARROW_RIGHT);  // Move cursor to the 'from' position
+            }
+            // Use Keys.chord() to simulate holding Shift and pressing the Right Arrow multiple times
+            String shiftAndArrows = Keys.chord(Keys.SHIFT, repeatArrowRight(to - from));
+            // Send the combined key press
+            element.sendKeys(shiftAndArrows);
+            log.debug("{} Text input '{}' substring '{}' is selected.",
+                    element.getTagName(), text, text.substring(from, to));
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot select substring in the text input.
+                    Text input: %s
+                    From index: %d
+                    To index: %d
+                    """.stripIndent(),
+                    elementName, from, to), e);
+        }
+    }
+
+
+    /**
+     * Copies input text to the clipboard.
+     */
+    @RunAlone // Run this method while other @Test or SmartElement  methods do not run or wait
+    public void copy() {
+        sendKeys(Keys.chord(Keys.CONTROL, "c"));
+        log.debug("Text input {} selected text is copied to buffer.", elementName);
+    }
+
+    /**
+     * Cuts text from text input to the clipboard.
+     */
+    @RunAlone // Run this method while other @Test or SmartElement  methods do not run or wait
+    public void cut() {
+        sendKeys(Keys.chord(Keys.CONTROL, "x"));
+        log.debug("Text input {} selected text is cut to buffer.", elementName);
+    }
+
+    private String repeatArrowRight(int count) {
+        StringBuilder arrows = new StringBuilder();
+
+        arrows.append(String.valueOf(Keys.ARROW_RIGHT).repeat(Math.max(0, count)));
+        return arrows.toString();
+    }
+}

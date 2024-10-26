@@ -5,8 +5,8 @@ import org.example.data.*;
 import org.example.enums.Platform;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
-import org.example.unit.supplemental.NestedPojoClass;
-import org.example.unit.supplemental.PojoClass;
+import org.example.unit.supplemental.classes.NestedPojoClass;
+import org.example.unit.supplemental.classes.PojoClass;
 import org.example.utils.ConvertUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -1034,7 +1034,7 @@ public class ConvertUtilsTest {
     @Test
     public void testObjectToObjectSmartLocalDate() {
         SmartType targetType = SmartType.fromClass(SmartLocalDate.class);
-        SmartLocalDate sourceObject = SmartLocalDate.parse("1970-05-23");
+        SmartLocalDate sourceObject = SmartLocalDate.fromString("1970-05-23");
         SmartLocalDate result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
@@ -1044,7 +1044,7 @@ public class ConvertUtilsTest {
     @Test
     public void testObjectToObjectSmartLocalDateTime() {
         SmartType targetType = SmartType.fromClass(SmartLocalDateTime.class);
-        SmartLocalDateTime sourceObject = SmartLocalDateTime.parse("1970-05-23 12:45");
+        SmartLocalDateTime sourceObject = SmartLocalDateTime.fromString("1970-05-23 12:45");
         SmartLocalDateTime result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
@@ -1054,7 +1054,7 @@ public class ConvertUtilsTest {
     @Test
     public void testObjectToObjectSmartLocalTime() {
         SmartType targetType = SmartType.fromClass(SmartLocalTime.class);
-        SmartLocalTime sourceObject = SmartLocalTime.parse("12:45:15");
+        SmartLocalTime sourceObject = SmartLocalTime.fromString("12:45:15");
         SmartLocalTime result = ConvertUtils.objectToObject(targetType, sourceObject);
 
         Assert.assertNotNull(result);
@@ -1411,7 +1411,7 @@ public class ConvertUtilsTest {
         ConvertUtils.csvStringToJsonArray(csvString);
     }
 
-    @Test(expectedExceptions = SmartRuntimeException.class)
+    @Test
     public void testCsvStringToJsonArrayEmptyRow() {
         // Invalid CSV string with an empty row
         String csvString = "name,age,city\nJohn,30,New York\n\nJane,25,Boston";
@@ -5256,6 +5256,43 @@ public class ConvertUtilsTest {
     public void testObjectToURLWithInvalidObjectType() {
         Object invalidObject = new Object();  // Unsupported object type
         ConvertUtils.objectToURL(invalidObject);
+    }
+
+    @Test
+    public void testFullClassNameToPackageNameWithValidFullClassName() {
+        String fullClassName = "org.example.SomeClass";
+        String packageName = ConvertUtils.fullClassNameToPackageName(fullClassName);
+        Assert.assertEquals(packageName, "org.example");
+    }
+
+    @Test
+    public void testFullClassNameToPackageNameWithMultipleLevelPackage() {
+        String fullClassName = "com.company.project.module.SomeClass";
+        String packageName = ConvertUtils.fullClassNameToPackageName(fullClassName);
+        Assert.assertEquals(packageName, "com.company.project.module");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testFullClassNameToPackageNameWithNoPackageName() {
+        String fullClassName = "SomeClass";  // No package
+        ConvertUtils.fullClassNameToPackageName(fullClassName);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testFullClassNameToPackageNameWithInvalidClassFormat() {
+        String fullClassName = "123invalid.ClassName";  // Invalid format
+        ConvertUtils.fullClassNameToPackageName(fullClassName);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testFullClassNameToPackageNameWithBlankFullClassName() {
+        String fullClassName = "";
+        ConvertUtils.fullClassNameToPackageName(fullClassName);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testFullClassNameToPackageNameWithNullFullClassName() {
+        ConvertUtils.fullClassNameToPackageName(null);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

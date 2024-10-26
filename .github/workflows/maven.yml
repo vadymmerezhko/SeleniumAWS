@@ -46,6 +46,10 @@ jobs:
         run: mvn test "-DtestSuite=./src/test/resources/testngUnitTests.xml" "-DthreadCount=2"
         continue-on-error: true
 
+      - name: Web Element Unit Tests
+        run: mvn test "-DtestSuite=./src/test/resources/testngWebElementSUnitTests.xml" "-DthreadCount=2"
+        continue-on-error: true
+
       # TODO: Uncomment when Maven exec plugin vulnerability is fixed.
       #- name: Test - AWS Local Docker - Chrome latest
       #  run: mvn -f aws-local-pom.xml clean compile exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"

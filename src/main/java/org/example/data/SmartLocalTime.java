@@ -29,7 +29,7 @@ public final class SmartLocalTime extends SmartObject implements SmartTemporal,
      * @param dateString The local time format.
      * @return The smart local time.
      */
-    public static SmartLocalTime parse(String dateString) {
+    public static SmartLocalTime fromString(String dateString) {
         SmartDate smartDate = ConvertUtils.stringToSmartDate(dateString);
         LocalTime localTime = ConvertUtils.dateToLocalTime(smartDate);
         String timeFormat = ConvertUtils.dateTimeFormatToTimeFormat(smartDate.getFormat());

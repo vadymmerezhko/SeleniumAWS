@@ -7,18 +7,19 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 /**
  * The method manger class.
  */
 @Slf4j
 public final class ClassUtils {
-
     private ClassUtils() {}
     private static final ConcurrentMap<Long, String> methodMap = new ConcurrentHashMap<>();
     private static final ConcurrentMap<Long, Object> parameterMap = new ConcurrentHashMap<>();
@@ -27,6 +28,7 @@ public final class ClassUtils {
      * Returns method name.
      * @return The method name.
      */
+    // TODO: add unit tests
     public static String getMethodName() {
         long threadId = Thread.currentThread().threadId();
         return methodMap.get(threadId);
@@ -37,6 +39,7 @@ public final class ClassUtils {
      * @return The parameter value.
      * @param <P> The parameter type.
      */
+    // TODO: add unit tests
     public static <P> P getParameterValue() {
         long threadId = Thread.currentThread().threadId();
         return (P) parameterMap.get(threadId);
@@ -47,7 +50,7 @@ public final class ClassUtils {
      * @param methodName The method name.
      */
     public static void throwMethodNotImplementedException(String methodName) {
-        DataValidationUtils.validateNotBlank(methodName, "methodName");
+        DataValidationUtils.validateFullMethodName(methodName, "methodName");
         throw new SmartRuntimeException(String.format("Method %s is not implemented.", methodName));
     }
 
@@ -98,7 +101,7 @@ public final class ClassUtils {
             String methodName,
             int waitMilliseconds,
             int waitTimeoutMilliseconds) {
-        performMethod(action, null, fix, methodName, 
+        performMethod(action, null, null, fix, methodName,
                 waitMilliseconds, waitTimeoutMilliseconds);
     }
 
@@ -122,7 +125,34 @@ public final class ClassUtils {
             int waitMilliseconds,
             int waitTimeoutMilliseconds) {
         DataValidationUtils.validateNotNull(parameter, "parameter");
-        performMethod(action, parameter, fix, methodName, 
+        performMethod(action, parameter, null, fix, methodName,
+                waitMilliseconds, waitTimeoutMilliseconds);
+    }
+
+    /**
+     * Performs bi-consumer method action with retries after exception.
+     * This method has P parameter and return void.
+     * If all reties caused exception then it throws the last exception.
+     * @param action The action to perform.
+     * @param parameter1 The first method parameter.
+     * @param parameter2 The second method parameter.
+     * @param fix The fix method that has Exception parameter.
+     * Optional - can be null.
+     * @param methodName - The method name for logging.
+     * @param waitMilliseconds - The wait milliseconds.
+     * @param waitTimeoutMilliseconds - The wait timeout milliseconds.
+     */
+    public static <P1, P2> void performBiConsumerMethod(
+            BiConsumer<P1, P2> action,
+            P1 parameter1,
+            P2 parameter2,
+            Consumer<Exception> fix,
+            String methodName,
+            int waitMilliseconds,
+            int waitTimeoutMilliseconds) {
+        DataValidationUtils.validateNotNull(parameter1, "parameter1");
+        DataValidationUtils.validateNotNull(parameter2, "parameter2");
+        performMethod(action, parameter1, parameter2, fix, methodName,
                 waitMilliseconds, waitTimeoutMilliseconds);
     }
 
@@ -143,7 +173,7 @@ public final class ClassUtils {
             String methodName,
             int waitMilliseconds,
             int waitTimeoutMilliseconds) {
-        return performMethod(action, null, fix, methodName,
+        return performMethod(action, null, null, fix, methodName,
                 waitMilliseconds, waitTimeoutMilliseconds);
     }
 
@@ -167,7 +197,7 @@ public final class ClassUtils {
             int waitMilliseconds,
             int waitTimeoutMilliseconds) {
         DataValidationUtils.validateNotNull(parameter, "parameter");
-        return performMethod(action, parameter, fix, methodName,
+        return performMethod(action, parameter, null, fix, methodName,
                 waitMilliseconds, waitTimeoutMilliseconds);
     }
 
@@ -206,7 +236,6 @@ public final class ClassUtils {
      */
     public static String getFullMethodNameFromStackTrace(int depthIndex) {
         DataValidationUtils.validateMin(depthIndex, 0, "depthIndex");
-
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
         // Adjust the depthIndex to account for the getStackTrace() call itself and this method
@@ -233,7 +262,7 @@ public final class ClassUtils {
      * or throws an exception if the class cannot be found.
      */
     public static Class<?> getClassFromFullMethodName(String fullMethodName) {
-        DataValidationUtils.validateNotBlank(fullMethodName, "fullMethodName");
+        DataValidationUtils.validateFullMethodName(fullMethodName, "fullMethodName");
 
         try {
             // Extract the class name
@@ -256,7 +285,7 @@ public final class ClassUtils {
      * @return The simple method name (e.g., "myMethod").
      */
     public static String getClassNameNameFromFullMethodName(String fullMethodName) {
-        DataValidationUtils.validateNotBlank(fullMethodName, "fullMethodName");
+        DataValidationUtils.validateFullMethodName(fullMethodName, "fullMethodName");
 
         // Find the last dot to isolate the method name
         int lastDotIndex = fullMethodName.lastIndexOf('.');
@@ -275,7 +304,7 @@ public final class ClassUtils {
      * @return The simple method name (e.g., "myMethod").
      */
     public static String getMethodNameFromFullMethodName(String methodFullName) {
-        DataValidationUtils.validateNotBlank(methodFullName, "methodFullName");
+        DataValidationUtils.validateFullMethodName(methodFullName, "methodFullName");
 
         // Find the last dot to isolate the method name
         int lastDotIndex = methodFullName.lastIndexOf('.');
@@ -301,7 +330,7 @@ public final class ClassUtils {
                                                 String methodName,
                                                 int parameterIndex) {
         DataValidationUtils.validateNotNull(clazz, "class");
-        DataValidationUtils.validateNotBlank(methodName, "methodName");
+        DataValidationUtils.validateSimpleMethodName(methodName, "methodName");
         DataValidationUtils.validateMin(parameterIndex, 0, "parameterIndex");
 
         // Get parent method source code
@@ -358,7 +387,7 @@ public final class ClassUtils {
                                                       String methodName,
                                                       String parameterType) {
         DataValidationUtils.validateNotNull(clazz, "class");
-        DataValidationUtils.validateNotBlank(methodName, "methodName");
+        DataValidationUtils.validateFullMethodName(methodName, "methodName");
 
         // Get the file path for the class
         String filePath = getJavaFilePathFromClass(clazz);
@@ -428,19 +457,47 @@ public final class ClassUtils {
     }
 
     /**
+     * Returns the source code of a clas by full class name.
+     * @param fullClassName The full class name.
+     * @return The source code.
+     */
+    public static String getClassSourceCode(String fullClassName) {
+        DataValidationUtils.validateFullClassName(fullClassName, "fullClassName");
+
+        try {
+            // Get the Java file path corresponding to the class
+            // Read the content of the Java file
+            Class<?> targetClass = Class.forName(fullClassName);
+            String filePath = getJavaFilePathFromClass(targetClass);
+            String sourceCode = FileSystemUtils.readFile(filePath);
+            log.debug("{} class source code is returned:\n{}", fullClassName, sourceCode);
+            return sourceCode;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(String.format("""
+                    Cannot get class source code by full class name.
+                    Class: %s
+                    """.stripIndent(),
+                    fullClassName));
+        }
+    }
+
+    /**
      * Returns the source code of a method in a given class
      * based on the method's full name.
-     * @param clazz The class where the method is located.
+     * @param targetClass The class where the method is located.
      * @param fullMethodName The full method name
      * (e.g., "myMethod").
      * @return The source code.
      */
-    public static String getMethodSourceCode(Class<?> clazz, String fullMethodName) {
+    public static String getMethodSourceCode(Class<?> targetClass, String fullMethodName) {
+        DataValidationUtils.validateNotNull(targetClass, "targetClass");
+        DataValidationUtils.validateFullMethodName(fullMethodName, "fullMethodName");
+
         try {
             // Get the Java file path corresponding to the class
             // Read the content of the Java file
-            String filePath = getJavaFilePathFromClass(clazz);
-            String content = FileSystemUtils.readFile(filePath);
+            String sourceCode = getClassSourceCode(targetClass.getName());
             String methodName = getMethodNameFromFullMethodName(fullMethodName);
             // Basic pattern to match a method signature and its body
             // This pattern looks for the method name and captures
@@ -449,15 +506,17 @@ public final class ClassUtils {
                     methodName + "\\s*\\([^)]*\\)\\s*\\{([\\s\\S]*?)\\n\\}",
                     Pattern.DOTALL
             );
-            Matcher matcher = pattern.matcher(content);
+            Matcher matcher = pattern.matcher(sourceCode);
 
             // If the method is found, return its source code
             if (matcher.find()) {
-                return matcher.group(0);
+                String methodSourceCode = matcher.group(0);
+                log.debug("{} method source code is returned:\n{}", methodName, sourceCode);
+                return methodSourceCode;
             }
             throw new RuntimeException(String.format(
                     "Cannot get method '%s' source code in class '%s'.",
-                    fullMethodName, clazz.getName()));
+                    fullMethodName, targetClass.getName()));
         }
         catch (Exception e) {
             throw new RuntimeException(String.format("""
@@ -465,13 +524,238 @@ public final class ClassUtils {
                     Class: %s
                     Method name: %s
                     """.stripIndent(),
-                    clazz.getName(), fullMethodName));
+                    targetClass.getName(), fullMethodName));
         }
     }
 
-    private static <P, R> R performMethod(
+    /**
+     * Returns the object name from source code
+     * by code line number.
+     * based on the method's full name.
+     * @param sourceCode The source code.
+     * @param lineNumber The line number.
+     * ATTENTION: It finds only the first object name in camel style
+     * that goes before '=' sign in the code number string or
+     * in the previous not empty and not blank string.
+     * So it will not work well if other object is assigned with "="
+     * sign in that line before the target one.
+     * @return The source code.
+     */
+    public static String getObjectNameFromSourceCode(String sourceCode, int lineNumber) {
+        DataValidationUtils.validateNotBlank(sourceCode, "sourceCode");
+        DataValidationUtils.validateMin(lineNumber, 1, "lineNumber");
+
+        try {
+            String[] lines = TextUtils.splitMultilineString(sourceCode);
+            // Validate the line number is within the given source code
+            DataValidationUtils.validateMax(lineNumber, lines.length, "lineNumber");
+
+            // Start with the specified line
+            String line = lines[lineNumber - 1].trim();
+
+            // Check if the line contains "="; if not, move to the previous non-empty line
+            while (!line.contains("=") && lineNumber > 1) {
+                line = lines[--lineNumber - 1].trim();
+            }
+
+            // Regex to find the variable name before "="
+            String regex = "\\b([a-zA-Z][a-zA-Z0-9]*)\\s*=";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(line);
+
+            if (matcher.find()) {
+                String objectName = matcher.group(1); // Return the variable name before "="
+                log.debug(String.format("""
+                        Object name is found in the source code code line.
+                        Line number: {}
+                        Class name: {}
+                        Object name: {}
+                        Source code:
+                        {}
+                        """.stripIndent(),
+                        lineNumber, objectName, sourceCode));
+                return objectName;
+            }
+            throw new SmartRuntimeException(String.format("""
+                    Cannot get object name from the source code line.
+                    Line number: %d
+                    Source code:
+                    %s
+                    """.stripIndent(),
+                    lineNumber, sourceCode));
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot get object name from source code line.
+                    Line number: %d
+                    Source code:
+                    %s
+                    """.stripIndent(),
+                    lineNumber, sourceCode), e);
+        }
+    }
+
+    /**
+     * Returns the class name of the declaring class
+     * that instantiated the field object by the class package name.
+     * This method should be called from the constructor
+     * of the field object.
+     * ATTENTION: There are some RESTRICTIONS:
+     * - The declaring class and its field class cannot have the same package name.
+     * @param packageName The class package name.
+     * @return The class name of the declaring class.
+     */
+    public static String getDeclaringClassName(String packageName) {
+        DataValidationUtils.validatePackageName(packageName, "packageName");
+        // Get the current stack trace
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+
+        // Traverse the stack trace to find the first record with target package name.
+        for (StackTraceElement stackTraceElement : stackTraceElements) {
+            String className = stackTraceElement.getClassName();
+            String actualPackageName = ConvertUtils.fullClassNameToPackageName(className);
+
+            // Search for the first class name by its package name
+            if (packageName.startsWith(actualPackageName)) {
+                // Return the first class name with the given package name or with derived package name
+                log.debug("The field's declaring class name is returned: {}", className);
+                return className;
+            }
+        }
+        throw new RuntimeException("Declaring class name not found.");
+    }
+
+    /**
+     * Returns the invocation code line number from the stack trace by
+     * declaring class name where a method or constructor was called from.
+     * ATTENTION: There is a RESTRICTION:
+     * - It returns code line number for the first class name found in the
+     * stack trace. So it may not work as expected for recursive invocations.
+     * @param declaringClassName The declaring class name
+     * where the invocation was done.
+     * @return The code line number.
+     */
+    public static int getInvocationCodeLineNumber(String declaringClassName) {
+        DataValidationUtils.validatePackageName(declaringClassName, "packageName");
+        // Get the current stack trace
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+
+        // Traverse the stack trace to find the first record with target package name.
+        for (StackTraceElement stackTraceElement : stackTraceElements) {
+            String className = stackTraceElement.getClassName();
+
+            // Search for the first class name by its package name
+            if (className.equals(declaringClassName)) {
+                // Return the line number of the first class name found in the stack trace
+                int lineNumber = stackTraceElement.getLineNumber();
+                log.debug("""
+                        The source code line number of the method or constructor invocation is returned
+                        by the declaring class name.
+                        The class name: {}
+                        The line number: {}
+                        """.stripIndent(),
+                        declaringClassName, lineNumber);
+                return lineNumber;
+            }
+        }
+        throw new RuntimeException(String.format("""
+                        The source code line number of the method or constructor invocation
+                        is not found by the declaring class name.
+                        The class name: {}
+                        """.stripIndent(),
+                        declaringClassName));
+    }
+
+    /**
+     * Returns the line number of the code where this method was called.
+     * @return The line number of the calling code.
+     */
+    public static int getCurrentInvocationCodeLineNumber() {
+        // Get the current stack trace
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+        // stackTrace[0] is getStackTrace, stackTrace[1] is getInvocationCodeLineNumber, stackTrace[2] is the caller
+        StackTraceElement invokingElement = stackTrace[2];  // The calling method’s stack trace element
+        int lineNumber = invokingElement.getLineNumber();   // Retrieve the line number of the calling code
+        log.debug("Invocation code line number is returned: " + lineNumber); // For debugging purposes
+        return lineNumber;
+    }
+
+    /**
+     * Returns the name of the first field instance
+     * that holds the given field object in the declaring class.
+     * ATTENTION: There are some RESTRICTIONS:
+     * - The declaring class and its field class cannot have the same package name.
+     * - The field class cannot be a subclass of the declaring class.
+     * - The field class should have not default equals() method.
+     * @param fieldObject The field object whose field name is needed.
+     * @return The field name of the field object.
+     */
+    public static String getFieldInstanceName(String declaringClassName, Object fieldObject) {
+        DataValidationUtils.validateFullClassName(declaringClassName, "declaringClassName");
+        DataValidationUtils.validateNotNull(fieldObject, "fieldObject");
+
+        try {
+            // Check if this subclass name
+            if (declaringClassName.contains("$")) {
+                throw new RuntimeException(String.format(
+                        "Cannot get field name for sub class: %s.",
+                        declaringClassName));
+            }
+            Class<?> declaringClass = Class.forName(declaringClassName);
+            // Crete expected object from its class
+            Object expectedClassObject = declaringClass.getDeclaredConstructor().newInstance();
+
+            // Iterate through the fields of the declaring class
+            for (Field field : declaringClass.getDeclaredFields()) {
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                // Get the expected field by its name
+                Field expectedField = declaringClass.getDeclaredField(fieldName);
+                expectedField.setAccessible(true);
+                Object expectedFieldObject = expectedField.get(expectedClassObject);
+
+                // Check if the field's value matches the provided field object type
+                if (expectedFieldObject.equals(fieldObject)) {
+                    // Return the name of the field instance
+                    log.debug("{} class field name is returned: {}",
+                            declaringClass.getName(), fieldName);
+                    return fieldName;
+                }
+            }
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException("Cannot retrieve field instance name for the given object.", e);
+        }
+        throw new SmartRuntimeException("Field instance name not found for the given object.");
+    }
+
+    /**
+     * Returns the simple class name from the full class name string.
+     * Example: for input "java.util.ArrayList", it returns "ArrayList".
+     * @param fullClassName The full class name (including the package).
+     * @return The simple class name (class name without the package).
+     */
+    public static String getSimpleClassName(String fullClassName) {
+        DataValidationUtils.validateFullClassName(fullClassName, "fullClassName");
+
+        String simpleClassName = fullClassName;
+        // Find the last occurrence of '.' to get the simple class name
+        int lastDotIndex = fullClassName.lastIndexOf('.');
+
+        // Return the substring after the last '.' or the entire string if no '.' is found
+        if (lastDotIndex != -1) {
+            simpleClassName = fullClassName.substring(lastDotIndex + 1);
+        }
+        log.debug("Simple class name {} is returned from full class name: {}",
+                simpleClassName, fullClassName);
+        return simpleClassName;
+    }
+
+    private static <P1, P2, R> R performMethod(
             Object action,
-            P parameter,
+            P1 parameter1,
+            P1 parameter2,
             Consumer<Exception> fix,
             String methodName,
             int waitMilliseconds,
@@ -480,11 +764,11 @@ public final class ClassUtils {
         long threadId = Thread.currentThread().threadId();
 
         methodMap.put(threadId, methodName);
-        if (parameter != null) {
-            parameterMap.put(threadId, parameter);
+        if (parameter1 != null) {
+            parameterMap.put(threadId, parameter1);
         }
         DataValidationUtils.validateNotNull(action, "action");
-        DataValidationUtils.validateNotBlank(methodName, "methodName");
+        DataValidationUtils.validateSimpleMethodName(methodName, "methodName");
         DataValidationUtils.validateMin(waitMilliseconds, 0,  "waitMilliseconds");
         DataValidationUtils.validateMin(waitTimeoutMilliseconds, 1, "waitTimeoutMilliseconds");
 
@@ -497,24 +781,33 @@ public final class ClassUtils {
                     if (action instanceof Runnable) {
                         ((Runnable) action).run();
                         return null;
-                    } else if (action instanceof Consumer<?>) {
-                        ((Consumer<P>) action).accept(parameter);
+                    }
+                    else if (action instanceof Consumer<?>) {
+                        ((Consumer<P1>) action).accept(parameter1);
                         return null;
-                    } else if (action instanceof Supplier<?>) {
+                    }
+                    else if (action instanceof BiConsumer<?, ?>) {
+                        ((BiConsumer<P1, P2>) action).accept((P1) parameter1, (P2) parameter2);
+                        return null;
+                    }
+                    else if (action instanceof Supplier<?>) {
                         R returnValue = ((Supplier<R>) action).get();
                         log.debug("Method {} return value is {}", methodName, returnValue);
                         return returnValue;
-                    } else if (action instanceof Function<?, ?>) {
-                        R returnValue = ((Function<P, R>) (action)).apply(parameter);
+                    }
+                    else if (action instanceof Function<?, ?>) {
+                        R returnValue = ((Function<P1, R>) (action)).apply(parameter1);
                         log.debug("Method {} with parameter {} return value is {}",
-                                methodName, parameter, returnValue);
+                                methodName, parameter1, returnValue);
                         return returnValue;
                     }
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
+
                     if (fix != null) {
                         fix.accept(e);
                     }
-                    WaiterUtils.waitMilliSeconds(waitMilliseconds);
+                    TimerUtils.waitMilliSeconds(waitMilliseconds);
                     log.debug("Method '{}' try count: {}.", methodName, retryCount);
                     lastException = e;
                 }

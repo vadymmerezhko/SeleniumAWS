@@ -99,7 +99,7 @@ public final class ServerUtils {
         log.info("Waiting for server availability: {}:{}", serverIP, port);
 
         while (true) {
-            WaiterUtils.waitSeconds(1);
+            TimerUtils.waitSeconds(1);
             timeOut.checkExpired();
 
             if (ServerUtils.isAddressReachable(serverIP, port, 15000)) {
@@ -122,7 +122,7 @@ public final class ServerUtils {
         log.info("Waiting for server unavailability: {}:{}", serverIP, port);
 
         while (true) {
-            WaiterUtils.waitSeconds(1);
+            TimerUtils.waitSeconds(1);
             timeOut.checkExpired();
             if (!ServerUtils.isAddressReachable(serverIP, port, 15000)) {
                 log.info("Server {}:{} is unavailable.", serverIP, port);

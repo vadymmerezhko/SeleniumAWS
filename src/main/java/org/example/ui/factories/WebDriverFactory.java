@@ -1,0 +1,681 @@
+package org.example.ui.factories;
+
+import com.microsoft.playwright.*;
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.android.options.UiAutomator2Options;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import lombok.extern.slf4j.Slf4j;
+import org.example.balancers.LoadBalancer;
+import org.example.configs.Config;
+import org.example.ui.wrappers.SmartWebDriver;
+import org.example.enums.BrowserName;
+import org.example.enums.TestMode;
+import org.example.exceptions.SmartRuntimeException;
+import org.example.helpers.TimeOut;
+import org.example.helpers.VideoRecorder;
+import org.example.utils.*;
+import org.example.ui.playwright.PlaywrightDriver;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.LocalFileDetector;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.safari.SafariOptions;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.devicefarm.DeviceFarmClient;
+import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlRequest;
+import software.amazon.awssdk.services.devicefarm.model.CreateTestGridUrlResponse;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import static org.example.constants.Settings.*;
+import static org.example.enums.BrowserName.*;
+import static org.example.enums.TestMode.*;
+
+/**
+ * The web driver factory class.
+ */
+@Slf4j
+public class WebDriverFactory {
+    static private final String SELENIUM_GRID_URL_TEMPLATE = "http://%s:4444";
+    static private final String LOCALHOST = "localhost";
+    static private final Config config = Config.getInstance();
+    static private final ConcurrentMap<Long, WebDriver> driverMap = new ConcurrentHashMap<>();
+    static private final ConcurrentMap<Long, Boolean> videoRecordingMap = new ConcurrentHashMap<>();
+    static private final ConcurrentMap<Long, String> videoFilePathMap = new ConcurrentHashMap<>();
+    static private final ConcurrentMap<Long, Thread> videoRecordingThreadMap = new ConcurrentHashMap<>();
+    static private final int ADB_EXEC_TIMEOUT_MILLISECONDS = 180000;
+    static private final int VIDEO_RECORDING_RATE = 10;
+    static private final int REMOTE_SERVER_TIMEOUT_SECONDS = 15;
+    static private final long VIDEO_FRAME_PERIOD_MILLISECONDS = 1000 / VIDEO_RECORDING_RATE;
+    private static final LoadBalancer loadBalancer = LoadBalancer.getInstance();
+    private static boolean dockerSeleniumGridStarted = false;
+
+    /**
+     * Returns web driver instance.
+     * The web driver type properties are defined with Config file and parameters.
+     * @return The web driver instance.
+     */
+    public static WebDriver getDriver() {
+        WebDriver driver;
+        long threadId = Thread.currentThread().threadId();
+        TestMode testMethod = config.getTestMode();
+        BrowserName browserName = config.getBrowserName();
+        int threadCount = config.getThreadCount();
+
+        if (!driverMap.containsKey(threadId)) {
+            log.info("Creating {} web driver for {} browser...", testMethod, config.getBrowser());
+
+            switch (testMethod) {
+                case LOCAL -> driver = new SmartWebDriver(getLocalWebDriver(browserName));
+                case LOCAL_AUTO -> driver = new SmartWebDriver(getLocalAutoWebDriver(browserName, config.getBrowserVersion()));
+                case LOCAL_DOCKER -> driver = new SmartWebDriver(getLocalDockerWebDriver(
+                        browserName, config.getBrowserVersion(), threadCount));
+                case LOCAL_DOCKER_AUTO -> driver = new SmartWebDriver(getLocalDockerAutoWebDriver(
+                        browserName, config.getBrowserVersion()));
+                case LOCAL_PLAYWRIGHT -> driver = getPlaywrightDriver(browserName);
+                case REMOTE -> driver = new SmartWebDriver(getRemoteWebDriver(
+                        config.getRemoteHost(), browserName, config.getBrowserVersion()));
+                case AWS_DOCKER -> driver = new SmartWebDriver(getAWSDockerDriver(
+                        browserName, config.getBrowserVersion(), threadCount));
+                case AWS_DEVICE_FARM -> driver = new SmartWebDriver(getAWSDeviceFarmWebDriver(
+                        browserName, config.getBrowserVersion()));
+                case LOCAL_APPIUM -> driver = new SmartWebDriver(
+                        getAppiumWebDriver(config.getEmulator((int)threadId % threadCount)));
+                case LOCAL_ACCESSIBILITY -> driver = getPlaywrightDriver(
+                        CHROMIUM, config.getHeadless(), true);
+                 default -> throw new SmartRuntimeException("Unsupported test mode: " + testMethod);
+            }
+            driver.manage().window().setSize(new Dimension(
+                    config.getBrowseWidth(),
+                    config.getBrowseHeight()));
+            driverMap.put(threadId, driver);
+        }
+        else {
+            driver = driverMap.get(threadId);
+        }
+        log.debug("Web driver is returned: {}", driver);
+        return driver;
+    }
+
+    /**
+     * Takes screenshot and saves it by the file path.
+     * @param filePath The destination file path.
+     */
+    public static void takeScreenshot(String filePath) {
+        long threadId = Thread.currentThread().threadId();
+        takeScreenshot(threadId, filePath);
+    }
+
+    /**
+     * Enables video recording and saves it by the file path.
+     */
+    public static void enableVideoRecording(String videoFilePath) {
+        try {
+            long threadId = Thread.currentThread().threadId();
+            videoFilePathMap.put(threadId, videoFilePath);
+            videoRecordingMap.put(threadId, false);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(e);
+        }
+    }
+
+    /**
+     * Starts video recording.
+     */
+    public static void startVideoRecording() {
+        long threadId = Thread.currentThread().threadId();
+
+        VideoRecorder videoRecorder = new VideoRecorder();
+        videoRecorder.setup(
+                videoFilePathMap.get(threadId),
+                config.getBrowseWidth(),
+                config.getBrowseHeight(),
+                VIDEO_RECORDING_RATE);
+        videoRecordingMap.put(threadId, true);
+
+        Thread thread = new Thread(() -> {
+            try {
+                videoRecorder.start();
+
+                while (videoRecordingMap.get(threadId)) {
+                    long startMilliSeconds = System.currentTimeMillis();
+                    byte[] imageBytes =  takeScreenshot(threadId);
+
+                    if (!driverMap.containsKey(threadId) || imageBytes == null) {
+                        TimerUtils.waitMilliSeconds(5);
+                        continue;
+                    }
+                    videoRecorder.record(imageBytes);
+
+                    long screenshotDilay = System.currentTimeMillis() - startMilliSeconds;
+
+                    if (screenshotDilay < VIDEO_FRAME_PERIOD_MILLISECONDS) {
+                        TimerUtils.waitMilliSeconds(VIDEO_FRAME_PERIOD_MILLISECONDS - screenshotDilay);
+                    }
+                }
+                videoRecorder.stop();
+            }
+            catch (Exception e) {
+                videoRecorder.stop();
+                throw new SmartRuntimeException("Starting video recorder failed.", e);
+            }
+        });
+        videoRecordingThreadMap.put(threadId, thread);
+        thread.start();
+    }
+
+    /**
+     * Stops video recording and saves it by the file path.
+     */
+    public static void stopVideoRecording() {
+        long threadId = Thread.currentThread().threadId();
+        videoRecordingMap.put(threadId, false);
+        try {
+            if (videoRecordingThreadMap.containsKey(threadId)) {
+                // Wait till video recording thread to be finished.
+                videoRecordingThreadMap.get(threadId).join();
+            }
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException("Stopping video recorder failed.", e);
+        }
+    }
+
+    /**
+     * Returns video recording file path.
+     * @return The file path.
+     */
+    public static String getVideoFilePath() {
+        long threadId = Thread.currentThread().threadId();
+        return videoFilePathMap.get(threadId);
+    }
+
+    /**
+     * Quites the current thread driver.
+     */
+    public static void quitDriver() {
+        long threadId = Thread.currentThread().threadId();
+        quitDriver(threadId);
+    }
+
+    /**
+     * Quites all web drivers in parallel.
+     */
+    public static void quitAllDrivers() {
+        Set<Thread> threadSet = new HashSet<>();
+
+        try {
+            for (Long threadId : driverMap.keySet()) {
+                threadSet.add(quitDriverInParallel(threadId));
+            }
+            // Wait for closing all drivers.
+            for (Thread thread : threadSet) {
+                thread.join();
+            }
+        }
+        catch (Exception e) {
+            log.error("Cannot close all drivers:\n{}", e.getMessage());
+        }
+        if (config.getTestMode() == LOCAL_APPIUM) {
+            AppiumUtils.stopAllAppiumServers();
+        }
+    }
+
+    /**
+     * Terminates all browsers and servers and makes hard system exit.
+     */
+    public static void quiteAllDriversAndServers() {
+        WebDriverFactory.quitAllDrivers();
+        ServerUtils.terminateAllSeleniumServers();
+        log.debug("All browsers and servers are quit.");
+    }
+
+    /**
+     * Terminates all browsers and servers and makes hard system exit.
+     */
+    synchronized public static void hardSystemExit() {
+        quiteAllDriversAndServers();
+        log.info("""
+            \n///////////////////////////////////////////////////////////
+            Hard system exit after all browsers and servers are quit.
+            ///////////////////////////////////////////////////////////
+            """.stripIndent());
+        System.exit(-1);
+    }
+
+    /**
+     * Returns local web driver by browser name and browser version.
+     * Downloads browser and WebDriver binaries before the test.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version (optional).
+     * @return The web driver instance.
+     */
+    private static WebDriver getLocalAutoWebDriver(BrowserName browserName, String browserVersion) {
+        WebDriver driver;
+
+        switch (browserName) {
+            case CHROME -> driver = new ChromeDriver(getChromeOptions(browserVersion));
+            case FIREFOX -> driver = new FirefoxDriver(getFirefoxOptions(browserVersion));
+            case EDGE -> driver = new EdgeDriver(getEdgeOptions(browserVersion));
+            default -> throw new SmartRuntimeException(String.format(
+                    "Unsupported browser: %s", browserName));
+        }
+        return driver;
+    }
+
+    /**
+     * Returns local auto web driver by browser name.
+     * Browser and corresponding WebDriver should be installed before test.
+     * @param browserName The browser name.
+     * @return The web driver instance.
+     */
+    private static WebDriver getLocalWebDriver(BrowserName browserName) {
+        WebDriver driver;
+
+        switch (browserName) {
+            case CHROME -> driver = new ChromeDriver(getChromeOptions(null));
+            case FIREFOX -> driver = new FirefoxDriver(getFirefoxOptions(null));
+            case EDGE -> driver = new EdgeDriver(getEdgeOptions(null));
+            case SAFARI -> driver = new SafariDriver(getSafariOptions());
+            default -> throw new SmartRuntimeException(String.format(
+                    "Unsupported browser: %s", browserName));
+        }
+        return driver;
+    }
+
+    /**
+     * Returns local Docker web driver by browser name, browser version and thread count.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version.
+     * @param threadCount The maximal thread count.
+     * @return The local Docker web driver instance.
+     */
+    private static WebDriver getLocalDockerWebDriver(BrowserName browserName, String browserVersion, int threadCount) {
+        try {
+            switch (browserName) {
+                case CHROME, FIREFOX, EDGE -> {
+                    runSeleniumGridOnDocker(browserName, browserVersion, threadCount);
+                    String url = String.format(SELENIUM_GRID_URL_TEMPLATE, LOCALHOST);
+
+                    // Waiting for remote WebDriver.
+                    return waitForRemoteDriver(browserName, browserVersion, url,
+                            REMOTE_SERVER_TIMEOUT_SECONDS, "Local Docker");
+                }
+                default -> throw new SmartRuntimeException(String.format(
+                        "Unsupported Docker browser: %s.", browserName));
+            }
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException("Cannot get local Docker WebDriver.");
+        }
+    }
+
+    /**
+     * Returns local Docker auto web driver by browser name, browser version and thread count.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version.
+     * @return The local Docker web driver instance.
+     */
+    private static WebDriver getLocalDockerAutoWebDriver(BrowserName browserName, String browserVersion) {
+        WebDriverManager webDriverManager;
+        String arguments = "--disable-gpu,--no-sandbox";
+
+        if (!WebDriverManager.isDockerAvailable()) {
+            throw new SmartRuntimeException("Docker is not available.");
+        }
+        if (config.getHeadless()) {
+            arguments += ",--headless";
+        }
+        switch (browserName) {
+            case CHROME -> webDriverManager = WebDriverManager.chromedriver().browserInDocker();
+            case FIREFOX -> webDriverManager = WebDriverManager.firefoxdriver().browserInDocker();
+            case EDGE -> webDriverManager = WebDriverManager.edgedriver().browserInDocker();
+            case SAFARI -> webDriverManager = WebDriverManager.safaridriver().browserInDocker();
+            default -> throw new SmartRuntimeException(String.format(
+                    "Unsupported Docker browser: %s.", browserName));
+        }
+        return webDriverManager.dockerDefaultArgs(arguments)
+                .browserVersion(browserVersion)
+                .create();
+    }
+
+    /**
+     * Returns AWS EC2 remote web driver by browser name, browser version and thread count.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version.
+     * @param threadCount The maximal thread count.
+     * @return The remote web driver instance.
+     */
+    private static WebDriver getAWSDockerDriver(BrowserName browserName, String browserVersion, int threadCount) {
+        long serverId = loadBalancer.getThreadServerId();
+
+        switch (browserName) {
+            case CHROME, FIREFOX, EDGE -> {
+                String ec2InstanceIp = loadBalancer.getServerPublicIp(
+                        serverId, threadCount, browserName, browserVersion);
+
+                log.info("Waiting for AWS EC2 instance...");
+                ServerUtils.waitForServerAvailability(ec2InstanceIp, REMOTE_WEB_DRIVER_PORT);
+                String url = String.format(SELENIUM_GRID_URL_TEMPLATE, ec2InstanceIp);
+
+                // Waiting for remote WebDriver.
+                return waitForRemoteDriver(browserName, browserVersion, url,
+                        REMOTE_SERVER_TIMEOUT_SECONDS, "AWS Docker");
+            }
+            default -> throw new SmartRuntimeException(String.format(
+                    "Unsupported Docker browser: %s.", browserName));
+        }
+    }
+
+    private static WebDriver waitForRemoteDriver(
+            BrowserName browserName,
+            String browserVersion,
+            String url,
+            int timeoutSeconds,
+            String type) {
+        TimeOut timeOut = new TimeOut(String.format(
+                "%s remote WebDriver wait", type), timeoutSeconds);
+
+        while (!timeOut.getExpired()) {
+            try {
+                return getRemoteWebDriver(url, browserName, browserVersion);
+            } catch (Exception e) {
+                // Ignore exception.
+                TimerUtils.waitSeconds(1);
+            }
+        }
+        throw new SmartRuntimeException(String.format(
+                "Cannot start %s:%s %s WebDriver on %s.",
+                browserName, browserVersion, type, url));
+    }
+
+    private static WebDriver getPlaywrightDriver(BrowserName browserName) {
+        return getPlaywrightDriver(browserName, config.getHeadless(), false);
+    }
+
+    /**
+     * Returns local Playwright web driver by browser name.
+     * @param browserName The browser name.
+     * @return The Playwright web driver instance.
+     */
+    private static WebDriver getPlaywrightDriver(
+            BrowserName browserName, boolean headless, boolean accessibilityTest) {
+        Playwright playwright = Playwright.create();
+        BrowserType browserType;
+
+        try {
+            switch (browserName) {
+                case CHROMIUM -> browserType = playwright.chromium();
+                case FIREFOX -> browserType = playwright.firefox();
+                case WEBKIT -> browserType = playwright.webkit();
+                default -> throw new SmartRuntimeException(String.format(
+                        "Unsupported Playwright browser: %s.", browserName));
+            }
+            Browser browser = browserType.launch(
+                    new BrowserType.LaunchOptions()
+                    .setHeadless(headless)
+                    .setSlowMo(0));
+            BrowserContext context = browser.newContext();
+            Page page = context.newPage();
+            page.setDefaultTimeout(RETRY_TIMEOUT_MILLISECONDS);
+            PlaywrightDriver driver = new PlaywrightDriver(browser, page);
+            driver.setAccessibilityTestEnabled(accessibilityTest);
+            return driver;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException("Cannot get Playwright web driver.", e);
+        }
+    }
+
+    /**
+     * Returns remote web driver by browser name and browser version.
+     * @param remoteHost The remote host URL in format like: http://<IP>:<port>.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version (optional).
+     * @return The remote web driver instance.
+     */
+    private static WebDriver getRemoteWebDriver(String remoteHost, BrowserName browserName, String browserVersion) {
+        Capabilities options;
+        URI uri;
+        try {
+            uri = new URI(remoteHost);
+        } catch (URISyntaxException e) {
+            throw new SmartRuntimeException("Cannot get remote WebDriver.", e);
+        }
+        // Wait for Selenium remote server.
+        ServerUtils.waitForServerAvailability(uri.getHost(), uri.getPort());
+
+        switch (browserName) {
+            case CHROME -> options = getChromeOptions(browserVersion);
+            case FIREFOX -> options = getFirefoxOptions(browserVersion);
+            case EDGE -> options = getEdgeOptions(browserVersion);
+            default -> throw new SmartRuntimeException(String.format(
+                    "Unsupported browser: %s.", browserName));
+        }
+        try {
+            RemoteWebDriver  driver = new RemoteWebDriver(uri.toURL(), options);
+            // Enable file detection for file upload
+            driver.setFileDetector(new LocalFileDetector());
+            return driver;
+        }
+        catch (MalformedURLException e) {
+            throw new SmartRuntimeException("Cannot get remote WebDriver.", e);
+        }
+    }
+
+    /**
+     * Returns AWS Device Farm web driver by browser name and browser version.
+     * @param browserName The browser name.
+     * @param browserVersion The browser version (optional).
+     * @return The AWS Device Farm web driver instance.
+     */
+    private static WebDriver getAWSDeviceFarmWebDriver(BrowserName browserName, String browserVersion) {
+        WebDriver driver = null;
+        URL testGridUrl;
+        String awsDeviceFarmBrowserName = browserName.toString();
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+
+        if (browserName == EDGE) {
+            awsDeviceFarmBrowserName = "MicrosoftEdge";
+            capabilities.setCapability("ms:edgeChromium", true);
+        }
+
+        capabilities.setCapability("browserName", awsDeviceFarmBrowserName);
+        capabilities.setCapability("browserVersion", browserVersion);
+
+        try {
+            log.info("Waiting for AWS Device Farm browser: {}", browserName);
+            DeviceFarmClient client = DeviceFarmClient.builder().region(Region.US_WEST_2).build();
+            CreateTestGridUrlRequest request = CreateTestGridUrlRequest.builder()
+                    .expiresInSeconds(AWS_URL_EXPIRES_SECONDS)
+                    .projectArn(AWS_DEVICE_FARM_BROWSERS_ARM)
+                    .build();
+            CreateTestGridUrlResponse response = client.createTestGridUrl(request);
+            URI uri = new URI(response.url());
+            testGridUrl = uri.toURL();
+            driver = new RemoteWebDriver(testGridUrl, capabilities);
+        }
+        catch (Exception e) {
+            log.error("""
+                \n///////////////////////////////////////////////////////////
+                Hard system exit after AWS Device Farm exception:
+                {}
+                ///////////////////////////////////////////////////////////
+                """.stripIndent(), e.getMessage());
+            WebDriverFactory.hardSystemExit();
+        }
+        return driver;
+    }
+
+    /**
+     * Returns Appium web driver by emulator name.
+     * @param emulatorName The emulator name.
+     * @return The Appium web driver instance.
+     */
+    private static WebDriver getAppiumWebDriver(String emulatorName) {
+        try {
+            String deviceName = AppiumUtils.getDeviceName(emulatorName);
+            String platformName = AppiumUtils.getPlatformName(emulatorName);
+            String platformVersion = AppiumUtils.getPlatformVersion(emulatorName);
+            BrowserName browserName = AppiumUtils.getBrowserName(emulatorName);
+            String browserVersion = AppiumUtils.getBrowserVersion(emulatorName);
+            String chromeDriverPath = BrowserUtils.downloadWebDriverBinary(browserName, browserVersion);
+
+            URL appiumServiceUrl = AppiumUtils.startAppiumServer(config.getThreadCount());
+
+            log.info("Starting emulator {}...", emulatorName);
+            UiAutomator2Options options = new UiAutomator2Options();
+            options.setPlatformName(platformName);
+            options.setPlatformVersion(platformVersion);
+            options.setCapability("avd", deviceName);
+            options.setDeviceName(deviceName);
+            options.setCapability(CapabilityType.BROWSER_NAME, browserName);
+            options.setCapability("chromedriverExecutable", chromeDriverPath);
+            options.setCapability("adbExecTimeout", ADB_EXEC_TIMEOUT_MILLISECONDS);
+            options.setCapability("noReset", "true");
+            options.setCapability("maxInstances", config.getThreadCount());
+
+            return new AppiumDriver(appiumServiceUrl, options);
+        }
+        catch (Exception e) {
+            AppiumUtils.stopAppiumServer();
+            throw new SmartRuntimeException("Cannot get Appium WebDriver.", e);
+        }
+    }
+
+    private static ChromeOptions getChromeOptions(String browserVersion) {
+        ChromeOptions options = new ChromeOptions();
+
+        if (config.getTestMode() == LOCAL_AUTO) {
+            String chromeDriverPath = BrowserUtils.downloadWebDriverBinary(CHROME, browserVersion);
+            String chromeBrowserPath = BrowserUtils.downloadBrowserBinary(CHROME, browserVersion);
+
+            System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+            options.setBinary(chromeBrowserPath);
+        }
+        options.addArguments("--disable-gpu"); // applicable to Windows os only
+        options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+        options.addArguments("--no-sandbox"); // bypass OS security model
+        options.addArguments("--disable-extensions"); // disabling extensions
+        options.addArguments("--disable-infobars"); // disabling infobars
+        options.setCapability("acceptInsecureCerts", true);
+
+        if (config.getHeadless()) {
+            options.addArguments("--headless"); // headless only
+        }
+        return options;
+    }
+
+    private static FirefoxOptions getFirefoxOptions(String browserVersion) {
+        FirefoxOptions options = new FirefoxOptions();
+
+        if (config.getTestMode().equals(LOCAL_AUTO)) {
+            String geckoDriverPath = BrowserUtils.downloadWebDriverBinary(FIREFOX, browserVersion);
+            System.setProperty("webdriver.chrome.driver", geckoDriverPath);
+        }
+        options.addArguments("--disable-gpu"); // applicable to Windows os only
+        options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+        options.addArguments("--no-sandbox"); // bypass OS security model
+        options.addArguments("--disable-extensions"); // disabling extensions
+        options.addArguments("--disable-infobars"); // disabling infobars
+        options.setCapability("acceptInsecureCerts", true);
+
+        if (config.getHeadless()) {
+            options.addArguments("--headless"); // headless only
+        }
+        return options;
+    }
+
+    private static EdgeOptions getEdgeOptions(String browserVersion) {
+       EdgeOptions options = new EdgeOptions();
+
+        if (config.getTestMode().equals(LOCAL_AUTO)) {
+            String edgeDriverPath = BrowserUtils.downloadWebDriverBinary(EDGE, browserVersion);
+            System.setProperty("webdriver.chrome.driver", edgeDriverPath);
+        }
+        options.addArguments("--disable-gpu"); // applicable to Windows os only
+        options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+        options.addArguments("--no-sandbox"); // bypass OS security model
+        options.addArguments("--disable-extensions"); // disabling extensions
+        options.addArguments("--disable-infobars"); // disabling infobars
+        options.setCapability("acceptInsecureCerts", true);
+        options.setExperimentalOption("excludeSwitches", List.of("disable-popup-blocking"));
+
+        if (config.getHeadless()) {
+            options.addArguments("--headless"); // headless only
+        }
+        return options;
+    }
+
+    private static SafariOptions getSafariOptions() {
+        SafariOptions options = new SafariOptions();
+        WebDriverManager.safaridriver().clearDriverCache().setup();
+        return options;
+    }
+
+    synchronized private static void quitDriver(long threadId) {
+        if (driverMap.containsKey(threadId)) {
+            driverMap.get(threadId).quit();
+            driverMap.remove(threadId);
+        }
+    }
+
+    synchronized private static Thread quitDriverInParallel(long threadId) {
+        Thread thread = new Thread(() -> WebDriverFactory.quitDriver(threadId));
+        thread.start();
+        return thread;
+    }
+
+    synchronized private static void runSeleniumGridOnDocker(
+            BrowserName browserName, String browserVersion, int threadCount) {
+
+        if (!dockerSeleniumGridStarted) {
+            stopSeleniumGridOnDocker();
+            log.info("Starting {}:{} Selenium Standalone on Docker...", browserName, browserVersion);
+            DockerUtils.runSeleniumStandalone(browserName, browserVersion, threadCount);
+            ServerUtils.waitForServerAvailability(LOCALHOST, REMOTE_WEB_DRIVER_PORT);
+            dockerSeleniumGridStarted = true;
+        }
+    }
+
+    synchronized private static void stopSeleniumGridOnDocker() {
+        log.info("Stopping Selenium Grid on Docker...");
+        DockerUtils.stopAllContainers();
+        DockerUtils.removeAllContainers();
+        dockerSeleniumGridStarted = false;
+    }
+
+    private static byte[] takeScreenshot(long threadId) {
+        if (driverMap.containsKey(threadId)) {
+            WebDriver driver = driverMap.get(threadId);
+            return ((TakesScreenshot)driver).getScreenshotAs(OutputType.BYTES);
+        }
+        return null;
+    }
+
+    private static void takeScreenshot(long threadId, String filePath) {
+        if (driverMap.containsKey(threadId)) {
+            WebDriver driver = driverMap.get(threadId);
+            File file = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+            FileSystemUtils.moveFile(file.getPath(), filePath);
+        }
+    }
+}

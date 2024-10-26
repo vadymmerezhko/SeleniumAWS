@@ -7,21 +7,29 @@
         "type": {"objectClass": "java.lang.String"},
         "value": "Text input"
     },
+    "color": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "#ff8000"
+    },
     "checkbox1Value": {
         "type": {"objectClass": "java.lang.Boolean"},
         "value": "false"
+    },
+    "checkbox2Value": {
+        "type": {"objectClass": "java.lang.Boolean"},
+        "value": "true"
     },
     "radiobutton1Value": {
         "type": {"objectClass": "java.lang.Boolean"},
         "value": "false"
     },
-    "color": {
-        "type": {"objectClass": "java.lang.String"},
-        "value": "#ff8000"
-    },
-    "checkbox2Value": {
+    "radiobutton2Value": {
         "type": {"objectClass": "java.lang.Boolean"},
         "value": "true"
+    },
+    "filePath": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "src/test/java/org/example/unit/WebElementsTest.java"
     },
     "textareaInput": {
         "type": {"objectClass": "java.lang.String"},
@@ -38,9 +46,5 @@
     "dropdownSelectedOption": {
         "type": {"objectClass": "java.lang.String"},
         "value": "Two"
-    },
-    "radiobutton2Value": {
-        "type": {"objectClass": "java.lang.Boolean"},
-        "value": "true"
     }
 }

@@ -1,7 +1,7 @@
 package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.drivers.factories.WebDriverFactory;
+import org.example.ui.factories.WebDriverFactory;
 import org.example.exceptions.SmartRuntimeException;
 import org.openqa.selenium.*;
 
