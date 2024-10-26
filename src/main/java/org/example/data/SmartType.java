@@ -126,7 +126,6 @@ public final class SmartType extends SmartObject {
     /**
      * Creates smart type from array class and value smart type.
      * @return The smart type.
-     * @param <T> The object type.
      */
     public static SmartType fromArrayValueSmartType(SmartType valueSmartType) {
         DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
@@ -701,7 +700,6 @@ public final class SmartType extends SmartObject {
                 map, keyClass.getName());
         return keyClass;
     }
-
 
     /**
      * Gets map value smart type.
