@@ -2,6 +2,7 @@ package org.example.ui.elements;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.annotations.RunAlone;
+import org.example.data.SmartValue;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
@@ -29,13 +30,12 @@ public class TextInput extends SingleLineTextInput {
     }
 
     /**
-     * Returns text input value.
-     * @return The text input value.
+     * Gets text input smart value.
+     * @return The smart value.
      */
-    public String getValue() {
-        String value = getElement().getDomProperty("value");
-        log.debug("Text input {} value is returned: {}", elementName, value);
-        return value;
+    @Override
+    public SmartValue getValue() {
+        return new SmartValue(getValueString());
     }
 
     /**
@@ -119,9 +119,6 @@ public class TextInput extends SingleLineTextInput {
     }
 
     private String repeatArrowRight(int count) {
-        StringBuilder arrows = new StringBuilder();
-
-        arrows.append(String.valueOf(Keys.ARROW_RIGHT).repeat(Math.max(0, count)));
-        return arrows.toString();
+        return String.valueOf(Keys.ARROW_RIGHT).repeat(Math.max(0, count));
     }
 }

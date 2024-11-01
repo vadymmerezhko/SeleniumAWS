@@ -9,7 +9,6 @@ import org.example.ui.selectors.SmartByType;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.helpers.GlobalKeyboardListener;
 import org.example.helpers.TimeOut;
-import org.json.JSONObject;
 import org.openqa.selenium.*;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
@@ -1134,6 +1133,7 @@ public final class WebUtils {
                     // Get local time value
                     case "time" -> ConvertUtils.stringToSmartLocalTime(value);
                     case "file" -> FileSystemUtils.normalizeFilePathString(value);
+                    case "color" -> ConvertUtils.stringToColor(value);
                     default ->
                         // Get input text value
                         value;

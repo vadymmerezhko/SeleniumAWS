@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import java.awt.*;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -20,6 +21,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.time.temporal.Temporal;
 import java.util.*;
+import java.util.List;
 
 /**
  * Smart value type. Encapsulates:
@@ -212,6 +214,9 @@ public final class SmartType extends SmartObject {
                 else if (object instanceof Map map) {
                     type = fromMap(map);
                 }
+                else if (object instanceof Color color) {
+                    type = fromClass(objectClass);
+                }
                 else if (isPojoClass(objectClass)) {
                     type = fromPojoObject(object);
                 }
@@ -276,6 +281,7 @@ public final class SmartType extends SmartObject {
                     URI.class.isAssignableFrom(objectClass) ||
                     Path.class.isAssignableFrom(objectClass) ||
                     Temporal.class.isAssignableFrom(objectClass) ||
+                    Color.class.isAssignableFrom(objectClass) ||
                     SmartObject.class.isAssignableFrom(objectClass) ||
                     SmartTemporal.class.isAssignableFrom(objectClass) ||
                     SmartType.class.isAssignableFrom(objectClass) ||

@@ -5,10 +5,7 @@ import com.ibm.icu.util.ULocale;
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.*;
 import org.example.exceptions.SmartRuntimeException;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.XML;
+import org.json.*;
 import org.springframework.web.util.HtmlUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -23,6 +20,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.StringReader;
@@ -41,6 +39,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
@@ -995,19 +994,31 @@ public final class ConvertUtils {
      * @param string The string value.
      * @return The JSON array value.
      */
-    public static JSONArray stringToJasonArray(String string) {
+    public static JSONArray stringToJsonArray(String string) {
         DataValidationUtils.validateNotBlank(string, "string");
 
         try {
             JSONArray jsonArray;
-            jsonArray = new JSONArray(string);
 
+            if (isJsonArrayString(string)) {
+                jsonArray = new JSONArray(string);
+            }
+            else if (isXmlArrayString(string)) {
+                jsonArray = xmlStringToJsonArray(string);
+            }
+            else if (isCsvString(string)) {
+                jsonArray = csvStringToJsonArray(string);
+            }
+            else {
+                throw new SmartRuntimeException(String.format(
+                        "Cannot convert string to JSON array: %s", string));
+            }
             log.debug("{} string converted to JSON array {}.", string, jsonArray);
             return jsonArray;
         }
         catch (JSONException | NullPointerException e) {
             throw new SmartRuntimeException(String.format(
-                    "Invalid JSON array format: %s.", string));
+                    "Cannot convert string to JSON array: %s", string), e);
         }
     }
 
@@ -1575,6 +1586,9 @@ public final class ConvertUtils {
             else if (object instanceof Temporal temporal) {
                 string = temporal.toString();
             }
+            else if (object instanceof Color color) {
+                string = colorToString(color);
+            }
             else if (object instanceof Record record) {
                 string = recordToString(record);
             }
@@ -1744,7 +1758,7 @@ public final class ConvertUtils {
      * @param pojObject The POJO object.
      * @return the JSON object.
      */
-    public static JSONObject pojoObjectToJson(Object pojObject) {
+    public static JSONObject pojoObjectToJsonObject(Object pojObject) {
         DataValidationUtils.validateNotNull(pojObject, "pojObject");
 
         try {
@@ -1767,7 +1781,7 @@ public final class ConvertUtils {
                 else {
                     if (isPojoObject(value)) {
                         // Recursive call for nested POJO
-                        jsonObject.put(fieldName, pojoObjectToJson(value));
+                        jsonObject.put(fieldName, pojoObjectToJsonObject(value));
                     }
                     else {
                         String valueString = objectToString(value);
@@ -1908,7 +1922,7 @@ public final class ConvertUtils {
             Class<?> objectClass = targetType.getObjectClass();
             SmartType collectionType = SmartType.fromObject(collection);
             SmartType valueType = targetType.getValueSmartType();
-            T[] array = (T[]) collectionToArray(valueType, collection);
+            T[] array = collectionToArray(valueType, collection);
 
             if (targetType.equals(collectionType)) {
                 targetobject = collection;
@@ -2151,7 +2165,7 @@ public final class ConvertUtils {
      */
     public static <T> String pojoObjectToString(T object) {
         try {
-            JSONObject jsonObject = pojoObjectToJson(object);
+            JSONObject jsonObject = pojoObjectToJsonObject(object);
             String string = jsonObjectToString(jsonObject);
             log.debug("""
                             Java POJO class object  converted to string.
@@ -2545,7 +2559,7 @@ public final class ConvertUtils {
                     object = (T) ConvertUtils.stringToJsonObject(string);
                 }
                 else if (JSONArray.class.isAssignableFrom(objectClass)) {
-                    object = (T) stringToJasonArray(string);
+                    object = (T) stringToJsonArray(string);
                 }
                 else if (Document.class.isAssignableFrom(objectClass)) {
                     object = (T) ConvertUtils.stringToXmlDocument(string);
@@ -2558,6 +2572,9 @@ public final class ConvertUtils {
                 }
                 else if (Date.class.isAssignableFrom(objectClass)) {
                     object = (T) SmartDate.fromString(string).toDate();
+                }
+                else if (Color.class.isAssignableFrom(objectClass)) {
+                    object = (T) stringToColor(string);
                 }
                 else if (objectClass.isEnum()) {
                     object = (T) stringToEnumValue(type, string);
@@ -2891,7 +2908,7 @@ public final class ConvertUtils {
 
         try {
             String rootName = getParameterName(0);
-            JSONObject jsonObject = pojoObjectToJson(pojo);
+            JSONObject jsonObject = pojoObjectToJsonObject(pojo);
             Document xml = jsonObjectToXmlDocument(jsonObject);
             Document document = updateXmlRootName(xml, rootName);
             log.debug("""
@@ -2919,7 +2936,8 @@ public final class ConvertUtils {
         DataValidationUtils.validateNotNull(pojo, "pojo");
 
         String rootName = getParameterName(0);
-        Document xml = pojoObjectToXmlDocument(pojo);
+        JSONObject jsonObject = pojoObjectToJsonObject(pojo);
+        Document xml = jsonObjectToXmlDocument(jsonObject);
         Document document = updateXmlRootName(xml, rootName);
         Node xmlNode = document.getDocumentElement();
         log.debug("""
@@ -2934,7 +2952,48 @@ public final class ConvertUtils {
     }
 
     /**
-     * Convers JSON array to array.
+     * Converts XML array to array.
+     * @param xmlNode The XML array node.
+     * @param <T> The array type.
+     * @return The array.
+     */
+    public static <T> T[] xmlArrayNodeToArray(Node xmlNode) {
+        DataValidationUtils.validateNotNull(xmlNode, "xmlNode");
+
+        try {
+            String xmlString = xmlNodeToString(xmlNode);
+            JSONArray jsonArray = xmlStringToJsonArray(xmlString);
+            T[] array;
+
+            if (jsonArray.length() == 0) {
+                // Crete an empty array for empty JSON array
+                array = (T[]) Array.newInstance(Object.class, 0);
+            }
+            else {
+                array = jsonArrayToArray(jsonArray);
+            }
+            log.debug("""
+                    XML array node converted to array.
+                    XML array:
+                    {}
+                    Array:
+                    {}
+                    """.stripIndent(),
+                    xmlNode, array);
+            return array;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot convert XML array node to array.
+                    XML array:
+                    %s
+                    """.stripIndent(),
+                    xmlNode), e);
+        }
+    }
+
+    /**
+     * Converts JSON array to array.
      * @param jsonArray The JSON array.
      * @param <T>       The array type.
      * @return The array.
@@ -2944,6 +3003,12 @@ public final class ConvertUtils {
 
         try {
             SmartType valueType = SmartType.getJsonArrayValueSmartType(jsonArray);
+
+            if (JSONObject.class.isAssignableFrom(valueType.getObjectClass())) {
+                SmartType mapValueType = SmartType.getJsonObjectValueSmartType(jsonArray.getJSONObject(0));
+                valueType = SmartType.fromMapClass(HashMap.class, String.class, mapValueType);
+            }
+
             Class<?> valueClass = valueType.getObjectClass();
             int rowsLength  = getJsonRowsLength(jsonArray);
             int columnsLength = getJsonArrayColumnsLength(jsonArray);
@@ -2961,7 +3026,10 @@ public final class ConvertUtils {
             for (int i = 0; i < limit; i++) {
                 Object element = jsonArray.get(i);
 
-                if (element instanceof JSONArray elemntJsonArray) {
+                if (element == null || element == JSONObject.NULL) {
+                    array[i] = null;
+                }
+                else if (element instanceof JSONArray elemntJsonArray) {
                     Object[] subArray = jsonArrayToArray(elemntJsonArray);
                     array[i] = (T) subArray;
                 }
@@ -2993,10 +3061,10 @@ public final class ConvertUtils {
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                            Cannot convert JSON array to array.
-                            JSON array:
-                            %s
-                            """.stripIndent(),
+                    Cannot convert JSON array to array.
+                    JSON array:
+                    %s
+                    """.stripIndent(),
                     jsonArray), e);
         }
     }
@@ -3039,7 +3107,7 @@ public final class ConvertUtils {
                     jsonArray.put(recordJson);
                 }
                 else if (isPojoObject(element)) {
-                    JSONObject pojoJson = pojoObjectToJson(element);
+                    JSONObject pojoJson = pojoObjectToJsonObject(element);
                     jsonArray.put(pojoJson);
                 }
                 else {
@@ -3094,8 +3162,8 @@ public final class ConvertUtils {
             }
             else if (object instanceof String string) {
 
-                if (isJsonArrayString(string)) {
-                    jsonArray = stringToJasonArray(string);
+                if (isJsonArrayString(string) || isXmlArrayString(string)) {
+                    jsonArray = stringToJsonArray(string);
                 }
                 else if (isCsvString(string)) {
                     jsonArray = csvStringToJsonArray(string);
@@ -3165,7 +3233,7 @@ public final class ConvertUtils {
                 jsonObject = recordToJsonObject(record);
             }
             else if (isPojoObject(object)) {
-                jsonObject = pojoObjectToJson(object);
+                jsonObject = pojoObjectToJsonObject(object);
             }
             else {
                 throw new SmartRuntimeException(String.format(
@@ -3515,16 +3583,12 @@ public final class ConvertUtils {
 
             if (isCsvString(string)) {
                 jsonArray = csvStringToJsonArray(string);
-                string = jsonArrayToString(jsonArray);
             }
             else if (isJsonArrayString(string)) {
-                jsonArray = stringToJasonArray(string);
+                jsonArray = stringToJsonArray(string);
             }
-            // Workaround for case when XML list converted to JSON object
-            else if (isJsonObjectString(string)) {
-                JSONObject jsonObject = stringToJsonObject(string);
-                String firstKey = jsonObject.keys().next();
-                jsonArray = jsonObject.getJSONArray(firstKey);
+            else if (isXmlArrayString(string)) {
+                jsonArray = xmlStringToJsonArray(string);
             }
             else {
                 throw new SmartRuntimeException(String.format("""
@@ -3540,11 +3604,28 @@ public final class ConvertUtils {
             // Normalize immutable collection and map classes
             valueClass = normalizeClass(valueClass);
             // Create array from value class
-            T[] array = (T[]) Array.newInstance(valueClass, jsonArray.length());
+            T[] array = null;
 
+            if (jsonArray.length() == 0) {
+                array = (T[]) Array.newInstance(valueClass, 0);
+            }
             for (int i = 0; i < jsonArray.length(); i++) {
                 Object object = jsonArray.get(i);
-                T element = objectToObject(valueType, object);
+                T element;
+
+                if (object instanceof JSONArray subJsonArray) {
+                    if (array == null) {
+                        array = (T[]) Array.newInstance(Integer.class,
+                                jsonArray.length(), subJsonArray.length());
+                    }
+                    element = (T) jsonArrayToArray(subJsonArray);
+                }
+                else {
+                    if (array == null) {
+                        array = (T[]) Array.newInstance(valueClass, jsonArray.length());
+                    }
+                    element = objectToObject(valueType, object);
+                }
                 array[i] = element;
             }
             log.debug("""
@@ -3580,8 +3661,34 @@ public final class ConvertUtils {
         DataValidationUtils.validateNotBlank(string, "string");
 
         try {
-            T[] array = stringToArray(valueType, string);
-            List<T> list = arrayToList(array);
+            List<T> list;
+            T[] array = null;
+            // Workaround for XML array converted to JSON object
+            if (isJsonObjectString(string)) {
+                JSONObject jsonObject = stringToJsonObject(string);
+                // Check the JSON object contains only one element - JSON array
+                // Get all keys from the JSONObject
+                var keys = jsonObject.keys();
+
+                // Check if there’s only one key and its value is a JSONArray
+                if (keys.hasNext()) {
+                    String key = keys.next();
+                    JSONArray jsonArray = jsonObject.getJSONArray(key);
+                    array = jsonArrayToArray(jsonArray);
+                }
+                if (keys.hasNext()) {
+                    throw new SmartRuntimeException(String.format("""
+                            Cannot convert string to list. Invalid JSON format.
+                            String:
+                            %s
+                            """.stripIndent(),
+                            string));
+                }
+            }
+            else {
+                array = stringToArray(valueType, string);
+            }
+            list = arrayToList(array);
             log.debug("""
                     String converted to List.
                     String:
@@ -3840,6 +3947,69 @@ public final class ConvertUtils {
                             XML string:
                             %s
                             """.stripIndent(),
+                    xmlString), e);
+        }
+    }
+
+    /**
+     * Converts XML array string to JSON array.
+     * @param xmlString XML string.
+     * @return The JSON object.
+     */
+    public static JSONArray xmlStringToJsonArray(String xmlString) {
+        DataValidationUtils.validateNotBlank(xmlString, "xmlString");
+
+        try {
+            if (ConvertUtils.isXmlArrayString(xmlString)) {
+                Node xmlNode = stringToXmlNode(xmlString);
+                JSONObject jsonObject = xmlNodeToJsonObject(xmlNode);
+                String rootName = jsonObject.keys().next();
+                JSONArray jsonArray;
+                Object element = jsonObject.get(rootName);
+
+                if (element instanceof String && ((String)element).isEmpty()) {
+                    // Create empty json array for empty XML array string
+                    jsonArray = new JSONArray();
+                }
+                else {
+                    JSONObject itemsJson = jsonObject.getJSONObject(rootName);
+                    String itemName = itemsJson.keys().next();
+                    Object itemObject = itemsJson.get(itemName);
+
+                    if (itemObject instanceof JSONArray) {
+                        jsonArray = (JSONArray) itemObject;
+                    }
+                    else {
+                        // Return an empty JSON array and add the only item
+                        jsonArray = new JSONArray();
+                        jsonArray.put(itemObject);
+                    }
+                }
+                log.debug("""
+                        XML array string converted to JSON array.
+                        XML string:
+                        {}
+                        JSON array:
+                        {}
+                        """.stripIndent(),
+                        xmlString, jsonArray);
+                return jsonArray;
+            }
+            else {
+                throw new SmartRuntimeException(String.format("""
+                        Cannot convert XML array string to JSON array.
+                        XML string:
+                        %s
+                        """.stripIndent(),
+                        xmlString));
+            }
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                        Cannot convert XML array string to JSON array.
+                        XML string:
+                        %s
+                        """.stripIndent(),
                     xmlString), e);
         }
     }
@@ -5168,8 +5338,12 @@ public final class ConvertUtils {
                     array = jsonArrayToArray(jsonArray);
                 }
                 else if (isJsonArrayString(string)) {
-                    JSONArray jsonArray = stringToJasonArray(string);
+                    JSONArray jsonArray = stringToJsonArray(string);
                     array = jsonArrayToArray(jsonArray);
+                }
+                else if (isXmlArrayString(string)) {
+                    Node xmlArrayNode = stringToXmlNode(string);
+                    array = xmlArrayNodeToArray(xmlArrayNode);
                 }
                 else {
                     throw new SmartRuntimeException(String.format("""
@@ -5261,7 +5435,7 @@ public final class ConvertUtils {
 
                 if (isJsonArrayString(string)) {
                     // Try to convert JSON array string to JSONn array
-                    jsonArray = stringToJasonArray(string);
+                    jsonArray = stringToJsonArray(string);
                     T[] array = jsonArrayToArray(jsonArray);
                     list = Arrays.asList(array);
                 }
@@ -5620,6 +5794,298 @@ public final class ConvertUtils {
         return simpleClassName;
     }
 
+    /**
+     * Converts a Color object to a hex string compatible with HTML color input.
+     * @param color The Color object to convert.
+     * @return A hex color string in the format "#RRGGBB".
+     */
+    public static String colorToString(Color color) {
+        DataValidationUtils.validateNotNull(color, "color");
+
+        String colorString = String.format(
+                "#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue())
+                .toLowerCase();
+        log.debug("""
+                Color converted to string.
+                Color: {}
+                String: {}
+                """.stripIndent(),
+                color, colorString);
+        return colorString;
+    }
+
+    /**
+     * Converts a hex color string to a Color object.
+     * @param colorString The hex color string in the format "#RRGGBB".
+     * @return A Color object representing the hex color.
+     * @throws IllegalArgumentException if the input string is not a valid hex color.
+     */
+    public static Color stringToColor(String colorString) {
+        DataValidationUtils.validateColorFormat(colorString, "colorString");
+
+        try {
+            int red = Integer.parseInt(colorString.substring(1, 3), 16);
+            int green = Integer.parseInt(colorString.substring(3, 5), 16);
+            int blue = Integer.parseInt(colorString.substring(5, 7), 16);
+            Color color = new Color(red, green, blue);
+            log.debug("Color string '{}' converted to color: {}", colorString, color);
+            return color;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot convert string to color object.
+                    String: %s
+                    """.stripIndent(),
+                    colorString), e);
+        }
+    }
+
+
+    /**
+     * Returns true for JSON object
+     * or false otherwise.
+     * @param object The object.
+     * @return true/false flag.
+     */
+    public static boolean isJsonTypeObject(Object object) {
+        boolean result;
+        if (object == null) {
+            result = true;
+        }
+        else {
+            Class<?> objectClass = object.getClass();
+
+            result = objectClass.isPrimitive() ||
+                    objectClass == String.class ||
+                    objectClass == Boolean.class ||
+                    objectClass == Byte.class ||
+                    objectClass == Character.class ||
+                    objectClass.isArray() ||
+                    objectClass.isEnum() ||
+                    object instanceof Number ||
+                    object instanceof JSONArray ||
+                    object instanceof JSONObject ||
+                    object instanceof Collection ||
+                    object instanceof Map;
+        }
+        log.debug("""
+                Object type is JSON type?
+                Result: {}
+                Object:
+                {}
+                """.stripIndent(),
+                result, object);
+        return result;
+    }
+
+    /**
+     * Returns true string is XML node string
+     * or false otherwise.
+     * @param string The object.
+     * @return true/false flag.
+     */
+    public static boolean isXmlNodeString(String string) {
+        try {
+            string = escapeXmlString(string);
+            string = unescapeXmlString(string);
+
+            // Initialize a document builder
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+
+            builder.parse(new ByteArrayInputStream(string.getBytes()));
+            return true;
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns true object is XML document.
+     * or false otherwise.
+     * @param string The object.
+     * @return true/false flag.
+     */
+    public static boolean isXmlDocumentString(String string) {
+        string = escapeXmlString(string);
+        string = unescapeXmlString(string);
+
+        return  (string.trim().startsWith("<?xml") &&
+            isXmlNodeString(string));
+    }
+
+    /**
+     * Returns true if sting is XML document or XML node
+     * and all nodes under the root node has the same name
+     * or false otherwise.
+     * @param string The sating
+     * @return true/false flag.
+     */
+    public static boolean isXmlArrayString(String string) {
+        DataValidationUtils.validateNotBlank(string, "string");
+        boolean result;
+
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new java.io.ByteArrayInputStream(string.getBytes()));
+            Node rootNode = document.getDocumentElement();
+
+            if (rootNode == null) {
+                return false;
+            }
+            NodeList childNodes = rootNode.getChildNodes();
+            String commonNodeName = null;
+
+            if (childNodes.getLength() == 0) {
+                // Return true for empty XML document or node
+                result = true;
+            }
+            else {
+                for (int i = 0; i < childNodes.getLength(); i++) {
+                    Node child = childNodes.item(i);
+
+                    // Only check element nodes
+                    if (child.getNodeType() == Node.ELEMENT_NODE) {
+
+                        if (commonNodeName == null) {
+                            commonNodeName = child.getNodeName();
+                        } else if (!commonNodeName.equals(child.getNodeName())) {
+                            // Found a node with a different name
+                            commonNodeName = null;
+                            break;
+                        }
+                    }
+                }
+                result = commonNodeName != null;
+            }
+        }
+        catch (Exception e) {
+            result = false;
+        }
+        log.debug("XML string is an XML array: {}\nXML:\n{}", result, string);
+        return result;
+    }
+
+    /**
+     * Returns true if string is JSON object string.
+     * or false otherwise.
+     * @param string The string.
+     * @return true/false flag.
+     */
+    public static boolean isJsonObjectString(String string) {
+
+        if (isXmlNodeString(string)) {
+            return false;
+        }
+        try {
+            new JSONObject(string);
+            return true;
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns true if string is JSON array string.
+     * or false otherwise.
+     * @param string The string.
+     * @return true/false flag.
+     */
+    public static boolean isJsonArrayString(String string) {
+
+        if (isXmlNodeString(string)) {
+            return false;
+        }
+        try {
+            new JSONArray(string);
+            return true;
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns true if string is CSV string.
+     * or false otherwise.
+     * @param string The string.
+     * @return true/false flag.
+     */
+    public static boolean isCsvString(String string) {
+        if (string == null || string.isEmpty()) {
+            return false;
+        }
+        string = string.trim();
+
+        if (string.startsWith("[") || string.startsWith("{") ||
+           (string.endsWith("]") || string.endsWith("}"))) {
+            return false;
+        }
+        try {
+            csvStringToJsonArray(string);
+            return true;
+        }
+        catch (SmartRuntimeException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns true if string is a number string,
+     * or false otherwise.
+     * @param sting The string.
+     * @return true/false flag.
+     */
+    public static boolean isNumberString(String sting) {
+        return stringToNumberValue(sting) != null;
+    }
+
+    private static boolean isCsvNoneStringObject(Object object) {
+        boolean result;
+
+        if (object == null) {
+            result = true;
+        }
+        else if (object instanceof String) {
+            result = false;
+        }
+        else {
+            Class<?> objectClass = object.getClass();
+
+            result = objectClass.isPrimitive() ||
+                    objectClass == Boolean.class ||
+                    objectClass == Byte.class ||
+                    objectClass == Character.class ||
+                    object instanceof Number;
+        }
+        log.debug("""
+                Object type is not a CSV string type?
+                Result: {}
+                Object:
+                {}
+                """.stripIndent(),
+                result, object);
+        return result;
+    }
+
+    private static <K,V> Map<K,V> createMapFromClasses(Class<K> keyClass, Class<V> valueClass) {
+        Map<K, V> map = new HashMap<>();
+        log.debug("""
+                Map created from:
+                Key class: {}
+                Value class: {}
+                Map:
+                {}
+                """.stripIndent(),
+                keyClass.getName(),
+                valueClass.getName(),
+                map);
+        return map;
+    }
+
     private static <T> Collection<T> jsonArrayToCollection(SmartType type, JSONArray jsonArray) {
         DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
 
@@ -5778,164 +6244,6 @@ public final class ConvertUtils {
                 elementValueType,
                 collectionClass.getSimpleName(),
                 collection);
-    }
-
-    public static <K,V> Map<K,V> createMapFromClasses(Class<K> keyClass, Class<V> valueClass) {
-        Map<K, V> map = new HashMap<>();
-        log.debug("""
-                Map created from:
-                Key class: {}
-                Value class: {}
-                Map:
-                {}
-                """.stripIndent(),
-                keyClass.getName(),
-                valueClass.getName(),
-                map);
-        return map;
-    }
-
-    private static <T>  T[] createArrayFromClass(Class<?> valueClass) {
-        T[] array = (T[]) Array.newInstance(valueClass, 0);
-        log.debug("""
-                Array created from value class:
-                Class: {}
-                Array:
-                {}
-                """.stripIndent(),
-                valueClass, array);
-        return array;
-    }
-
-    private static boolean isJsonTypeObject(Object object) {
-        boolean result;
-        if (object == null) {
-            result = true;
-        }
-        else {
-            Class<?> objectClass = object.getClass();
-
-            result = objectClass.isPrimitive() ||
-                    objectClass == String.class ||
-                    objectClass == Boolean.class ||
-                    objectClass == Byte.class ||
-                    objectClass == Character.class ||
-                    objectClass.isArray() ||
-                    objectClass.isEnum() ||
-                    object instanceof Number ||
-                    object instanceof JSONArray ||
-                    object instanceof JSONObject ||
-                    object instanceof Collection ||
-                    object instanceof Map;
-        }
-        log.debug("""
-                Object type is JSON type?
-                Result: {}
-                Object:
-                {}
-                """.stripIndent(),
-                result, object);
-        return result;
-    }
-
-    private static boolean isCsvNoneStringObject(Object object) {
-        boolean result;
-
-        if (object == null) {
-            result = true;
-        }
-        else if (object instanceof String) {
-            result = false;
-        }
-        else {
-            Class<?> objectClass = object.getClass();
-
-            result = objectClass.isPrimitive() ||
-                    objectClass == Boolean.class ||
-                    objectClass == Byte.class ||
-                    objectClass == Character.class ||
-                    object instanceof Number;
-        }
-        log.debug("""
-                Object type is JSON type?
-                Result: {}
-                Object:
-                {}
-                """.stripIndent(),
-                result, object);
-        return result;
-    }
-
-    private static boolean isXmlNodeString(String string) {
-        try {
-            string = escapeXmlString(string);
-            string = unescapeXmlString(string);
-
-            // Initialize a document builder
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-
-            builder.parse(new ByteArrayInputStream(string.getBytes()));
-            return true;
-        }
-        catch (Exception e) {
-            return false;
-        }
-    }
-
-    private static boolean isXmlDocumentString(String string) {
-        string = escapeXmlString(string);
-        string = unescapeXmlString(string);
-
-        return  (string.trim().startsWith("<?xml") &&
-            isXmlNodeString(string));
-    }
-
-    private static boolean isJsonObjectString(String string) {
-
-        if (isXmlNodeString(string)) {
-            return false;
-        }
-        try {
-            new JSONObject(string);
-            return true;
-        }
-        catch (Exception e) {
-            return false;
-        }
-    }
-
-    private static boolean isJsonArrayString(String string) {
-
-        if (isXmlNodeString(string)) {
-            return false;
-        }
-        try {
-            new JSONArray(string);
-            return true;
-        }
-        catch (Exception e) {
-            return false;
-        }
-    }
-
-    private static boolean isCsvString(String string) {
-        if (string == null || string.isEmpty()) {
-            return false;
-        }
-        string = string.trim();
-
-        if (string.startsWith("[") || string.startsWith("{") ||
-           (string.endsWith("]") || string.endsWith("}"))) {
-            return false;
-        }
-        try {
-            csvStringToJsonArray(string);
-            return true;
-        }
-        catch (SmartRuntimeException e) {
-            return false;
-        }
     }
 
     private static <T> T createRecordInstanceFromJson(Class<?> recordClass, JSONObject jsonObject) throws Exception {
@@ -6169,10 +6477,6 @@ public final class ConvertUtils {
             }
         }
         return false;
-    }
-
-    private static boolean isNumberString(String sting) {
-        return stringToNumberValue(sting) != null;
     }
 
     private static boolean isBooleanString(String sting) {

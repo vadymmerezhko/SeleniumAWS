@@ -18,6 +18,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import java.awt.*;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -29,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.*;
 import java.util.*;
+import java.util.List;
 
 import static org.example.constants.Settings.JSON_LAYOUT_SPACES;
 
@@ -3787,7 +3789,7 @@ public class SmartValueTest {
     public void testToJsonObjectWithValidPojo() {
         PojoClass pojo = ConvertUtilsTest.createPojoObject();
         SmartValue smartValue = new SmartValue(pojo);
-        JSONObject expected = ConvertUtils.pojoObjectToJson(pojo);
+        JSONObject expected = ConvertUtils.pojoObjectToJsonObject(pojo);
         JSONObject result = smartValue.toJsonObject();
 
         Assert.assertNotNull(result);
@@ -4169,6 +4171,18 @@ public class SmartValueTest {
     }
 
     @Test
+    public void testSmartValueToPojoObjectWithValidJsonString() {
+        PojoClass pojo = ConvertUtilsTest.createPojoObject();
+        JSONObject jsonObject = ConvertUtils.pojoObjectToJsonObject(pojo);
+        String jsonString = ConvertUtils.jsonObjectToString(jsonObject);
+        SmartValue smartValue = new SmartValue(jsonString);
+        SmartType pojoType = SmartType.fromObject(pojo);
+        PojoClass result = smartValue.toPojoObject(pojoType);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result, pojo);
+    }
+
+    @Test
     public void testToPojoObjectWithValidXmlString() {
         PojoClass pojo = ConvertUtilsTest.createPojoObject();
         Node xmlNode = ConvertUtils.pojoObjectToXmlNode(pojo);
@@ -4176,7 +4190,6 @@ public class SmartValueTest {
         SmartValue smartValue = new SmartValue(xmlString);
         SmartType pojoType = SmartType.fromObject(pojo);
         PojoClass result = smartValue.toPojoObject(pojoType);
-
         Assert.assertNotNull(result);
         Assert.assertEquals(result, pojo);
     }
@@ -4184,7 +4197,7 @@ public class SmartValueTest {
     @Test
     public void testToPojoObjectWithValidJsonObject() {
         PojoClass pojo = ConvertUtilsTest.createPojoObject();
-        JSONObject jsonObject = ConvertUtils.pojoObjectToJson(pojo);
+        JSONObject jsonObject = ConvertUtils.pojoObjectToJsonObject(pojo);
         SmartValue smartValue = new SmartValue(jsonObject);
         SmartType pojoType = SmartType.fromObject(pojo);
         PojoClass result = smartValue.toPojoObject(pojoType);
@@ -4444,5 +4457,24 @@ public class SmartValueTest {
         Assert.assertEquals(result[0][0], Integer.valueOf(11));
         Assert.assertEquals(result[1][1], Integer.valueOf(22));
         Assert.assertEquals(result[2][2], Integer.valueOf(33));
+    }
+
+    @Test
+    public void testToColorWithValidColorValue() {
+        SmartValue smartValue = new SmartValue(new Color(255, 0, 0)); // Red color
+        Color result = smartValue.toColor();
+        Assert.assertEquals(result, new Color(255, 0, 0));
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testToColorWithInvalidValue() {
+        SmartValue smartValue = new SmartValue("invalidColor");
+        smartValue.toColor();
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testToColorWithNullValue() {
+        SmartValue smartValue = new SmartValue(null);
+        smartValue.toColor();
     }
 }

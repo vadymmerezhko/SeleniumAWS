@@ -44,27 +44,22 @@ public class TestService implements TestServiceInterface {
             webFormPage.getPassword().enterText("Password123");
             webFormPage.getTextarea().setKeyword(textAreaKeyword);
             webFormPage.getTextarea().enterText(input.getTextareaInput());
-            webFormPage.getDropdown().selectOption(input.getDropdownSelectedOption());
-            webFormPage.getDataList().selectOption(input.getDataListSelectOption());
+            webFormPage.getDropdown().setValue(input.getDropdownSelectedOption());
+            webFormPage.getDataList().setValue(input.getDataListSelectOption());
             webFormPage.getCheckbox1().setValue(input.getCheckbox1Value());
             webFormPage.getCheckbox2().setValue(input.getCheckbox2Value());
             webFormPage.getFileInput().enterFilePath(input.getFilePath());
-
-            if (input.getRadiobutton1Value().toBoolean()) {
-                webFormPage.getRadiobutton1().select();
-            }
-            if (input.getRadiobutton2Value().toBoolean()) {
-                webFormPage.getRadiobutton2().select();
-            }
-            webFormPage.getColorPicker().pickColor(input.getColor());
+            webFormPage.getRadiobutton1().setValue(input.getRadiobutton1Value());
+            webFormPage.getRadiobutton2().setValue(input.getRadiobutton2Value());
+            webFormPage.getColorPicker().setValue(input.getColor());
             input.getDate().setKeyword(thisYear);
-            webFormPage.getDatePicker().pickDate(input.getDate());
+            webFormPage.getDatePicker().setSmartValue(input.getDate());
             webFormPage.getRangeSlider().setValue(input.getRange());
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
             output.getTextInput().setValue(webFormPage.getTextInput().getValue());
             output.getTextareaInput().setValue(webFormPage.getTextarea().getValue());
-            output.getDropdownSelectedOption().setValue(webFormPage.getDropdown().getSelectedOption());
+            output.getDropdownSelectedOption().setValue(webFormPage.getDropdown().getValueString());
             output.getDataListSelectOption().setValue(webFormPage.getDataList().getValue());
             output.getCheckbox1Value().setValue(webFormPage.getCheckbox1().getValue());
             output.getCheckbox2Value().setValue(webFormPage.getCheckbox2().getValue());

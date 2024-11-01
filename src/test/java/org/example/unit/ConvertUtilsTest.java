@@ -18,6 +18,7 @@ import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.awt.*;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -132,7 +133,7 @@ public class ConvertUtilsTest {
     @Test
     public void testValidJsonArray() {
         String validJsonArray = "[{\"name\":\"John\"}, {\"name\":\"Doe\"}]";
-        JSONArray result = ConvertUtils.stringToJasonArray(validJsonArray);
+        JSONArray result = ConvertUtils.stringToJsonArray(validJsonArray);
         Assert.assertNotNull(result, "The result should not be null.");
         Assert.assertEquals(result.length(), 2, "There should be two elements.");
         Assert.assertEquals(result.getJSONObject(0).getString("name"), "John", "The first name should be John.");
@@ -141,18 +142,18 @@ public class ConvertUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testInvalidJsonArray() {
         String invalidJsonArray = "[{name:\"John'}, {name:\"Doe\"}]";
-        ConvertUtils.stringToJasonArray(invalidJsonArray);
+        ConvertUtils.stringToJsonArray(invalidJsonArray);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testBlankJsonArray() {
         String invalidJsonArray = " ";
-        ConvertUtils.stringToJasonArray(invalidJsonArray);
+        ConvertUtils.stringToJsonArray(invalidJsonArray);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testNullJsonArray() {
-        ConvertUtils.stringToJasonArray(null);
+        ConvertUtils.stringToJsonArray(null);
     }
 
     @Test
@@ -1167,7 +1168,7 @@ public class ConvertUtilsTest {
     public void testPojoToJsonWithNullValue() {
         // Create a POJO with null value
         Person person = new Person(null, "Doe", 30);
-        JSONObject jsonObject = ConvertUtils.pojoObjectToJson(person);
+        JSONObject jsonObject = ConvertUtils.pojoObjectToJsonObject(person);
 
         Assert.assertTrue(jsonObject.has("firstName"));
         Assert.assertTrue(jsonObject.isNull("firstName"));
@@ -1179,13 +1180,13 @@ public class ConvertUtilsTest {
     public void testPojoToJsonWithInvalidTypeObject() {
         // Passing a invalid object to pojoObjectToJson
         boolean notPojo = true;
-        ConvertUtils.pojoObjectToJson(notPojo);
+        ConvertUtils.pojoObjectToJsonObject(notPojo);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testPojoToJsonWithNullObject() {
         // Passing a null object to pojoObjectToJson
-        ConvertUtils.pojoObjectToJson(null);
+        ConvertUtils.pojoObjectToJsonObject(null);
     }
 
     @Test
@@ -1539,9 +1540,78 @@ public class ConvertUtilsTest {
         Integer[] result = ConvertUtils.jsonArrayToArray(jsonArray);
 
         Assert.assertEquals(result.length, 3);
-        Assert.assertEquals(result[0], Integer.valueOf(1));
-        Assert.assertEquals(result[1], Integer.valueOf(2));
-        Assert.assertEquals(result[2], Integer.valueOf(3));
+        Assert.assertEquals(result[0], 1);
+        Assert.assertEquals(result[1], 2);
+        Assert.assertEquals(result[2], 3);
+    }
+
+    @Test
+    public void testJsonArrayToMapArray() {
+        // Positive test case - JSONArray of integers
+        Map<String, Integer> map1 = new HashMap<>();
+        map1.put("one", 1);
+        map1.put("two", 2);
+        Map<String, Integer> map2 = new HashMap<>();
+        map2.put("three", 3);
+        map2.put("four", 4);
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(map1);
+        jsonArray.put(map2);
+        Map<String, Integer>[] result = ConvertUtils.jsonArrayToArray(jsonArray);
+
+        Assert.assertEquals(result.length, 2);
+        Assert.assertEquals(result[0].get("one"), 1);
+        Assert.assertEquals(result[0].get("two"), 2);
+        Assert.assertEquals(result[1].get("three"), 3);
+        Assert.assertEquals(result[1].get("four"), 4);
+    }
+
+    @Test
+    public void testJsonArrayToMapArrayWithDifferentValueTypes() {
+        // Positive test case - JSONArray of integers
+        PojoClass pojo = createPojoObject();
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("one", 1);
+        map1.put("two", 2.0);
+        map1.put("three", true);
+        map1.put("four", "four");
+        map1.put("five", pojo);
+        Map<String, Object> map2 = new HashMap<>();
+        map2.put("one", 1.0);
+        map2.put("two", 2);
+        map2.put("three", false);
+        map2.put("four", "FOUR");
+        map2.put("five", JSONObject.NULL);
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(map1);
+        jsonArray.put(map2);
+        Map<String, Object>[] result = ConvertUtils.jsonArrayToArray(jsonArray);
+        String actualPojoNameFieldValue = ((Map<String, String>) result[0].get("five")).get("name");
+
+        Assert.assertEquals(result.length, 2);
+        Assert.assertEquals(result[0].get("one"), 1);
+        Assert.assertEquals(result[0].get("two"), 2.0);
+        Assert.assertEquals(result[0].get("three"), true);
+        Assert.assertEquals(result[0].get("four"), "four");
+        Assert.assertEquals(actualPojoNameFieldValue, pojo.getName());
+        Assert.assertEquals(result[1].get("one"), 1.0);
+        Assert.assertEquals(result[1].get("two"), 2);
+        Assert.assertEquals(result[1].get("three"), false);
+        Assert.assertEquals(result[1].get("four"), "FOUR");
+        Assert.assertEquals(result[1].get("five"), null);
+    }
+
+    @Test
+    public void testEmptyJsonArrayToArray() {
+        JSONArray jsonArray = new JSONArray();
+        Object[] result = ConvertUtils.jsonArrayToArray(jsonArray);
+
+        Assert.assertEquals(result.length, 0);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testNullJsonArrayToArray() {
+        ConvertUtils.jsonArrayToArray(null);
     }
 
     @Test
@@ -2169,6 +2239,80 @@ public class ConvertUtilsTest {
     }
 
     @Test
+    public void testStringToIntegerArrayWithTableJsonArrayString() {
+        SmartType valueType = SmartType.fromClass(Integer.class);
+        String jsonArrayString = """
+                [[11, 12],
+                [21, 22]]
+                """;
+        Integer[][] expectedArray = {{11, 12}, {21, 22}};
+        Integer[][] result = ConvertUtils.stringToArray(valueType, jsonArrayString);
+
+        // Assert the results
+        Assert.assertEquals(result, expectedArray, "The array should match the expected result.");
+    }
+
+    @Test
+    public void testJsonArrayToArrayWithSingleElementJsonElement() {
+        SmartType valueType = SmartType.fromClass(Integer.class);
+        Integer[] result  = ConvertUtils.stringToArray(valueType, "[100]");
+        Assert.assertEquals(result.length, 1);
+        Assert.assertEquals(result[0], Integer.valueOf(100));
+    }
+
+    @Test
+    public void testJsonArrayToArrayWithValidCsvString() {
+        SmartType valueType = SmartType.fromArrayValueSmartType(SmartType.fromClass(Integer.class));
+        String csvString = """
+                11,12
+                21,22
+                """.stripIndent();
+        Integer[][] result = ConvertUtils.stringToArray(valueType, csvString);
+        Assert.assertEquals(result.length, 2);
+        Assert.assertEquals(result[0][0], 11);
+        Assert.assertEquals(result[0][1], 12);
+        Assert.assertEquals(result[1][0], 21);
+        Assert.assertEquals(result[1][1], 22);
+    }
+
+    @Test
+    public void tesStringToIntegerArrayWithXmlArrayString() {
+        SmartType valueType = SmartType.fromClass(Integer.class);
+        String xmlArrayString = """
+                <root>
+                    <item>1</item>
+                    <item>2</item>
+                </root>
+                """.stripIndent();
+        Integer[] result = ConvertUtils.stringToArray(valueType, xmlArrayString);
+        Integer[] expectedArray = {1, 2};
+
+        // Assert the results
+        Assert.assertEquals(result, expectedArray, "The array should match the expected result.");
+    }
+
+    @Test
+    public void tesStringToIntegerArrayWithDifferentTypesXmlArrayString() {
+        SmartType valueType = SmartType.fromClass(Object.class);
+        String xmlArrayString = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <root>
+                    <item>1</item>
+                    <item>2.0</item>
+                    <item>three</item>
+                    <item>true</item>
+                    <item>null</item>
+                </root>
+                """.stripIndent();
+        Object[] result = ConvertUtils.stringToArray(valueType, xmlArrayString);
+        // Convert double value 2.0 to BigDecimal because JSON type cast
+        Object[] expectedArray = {1, new BigDecimal("2.0"), "three", true, null};
+
+        // Assert the results
+        Assert.assertEquals(result, expectedArray, "The array should match the expected result.");
+    }
+
+    @Test
     public void testStringToStringArrayWithJsonArrayString() {
         SmartType valueType = SmartType.fromClass(String.class);
         String jsonArrayString = "['1', '2', '3', '4', '5']";
@@ -2195,7 +2339,30 @@ public class ConvertUtilsTest {
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testStringToArrayWithInvalidJson() {
         SmartType smartType = SmartType.fromClass(Integer.class);
-        String invalidJsonString = "[1, 2, invalid, 4]";
+        String invalidJsonString = "[1, 2, 4";
+
+        // This should throw a SmartRuntimeException due to the invalid JSON
+        ConvertUtils.stringToArray(smartType, invalidJsonString);
+    }
+
+    @Test
+    public void testJsonArrayToArrayWithEmptyJsonArrayString() {
+        SmartType valueType = SmartType.fromClass(Integer.class);
+        Integer[] result = ConvertUtils.stringToArray(valueType, "[]");
+        Assert.assertEquals(result.length, 0);
+    }
+
+    @Test
+    public void testJsonArrayToArrayWithEmptyXmlArrayString() {
+        SmartType valueType = SmartType.fromClass(Object.class);
+        Object[] result = ConvertUtils.stringToArray(valueType, "<items/>");
+        Assert.assertEquals(result.length, 0);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testStringToArrayWithInvalidXml() {
+        SmartType smartType = SmartType.fromClass(Integer.class);
+        String invalidJsonString = "<root><item></root>";
 
         // This should throw a SmartRuntimeException due to the invalid JSON
         ConvertUtils.stringToArray(smartType, invalidJsonString);
@@ -4275,13 +4442,6 @@ public class ConvertUtilsTest {
         Assert.assertEquals(result[2], "three");
     }
 
-    // Negative Test: Convert XML document string to array
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testObjectToArrayWithXmlDocumentString() {
-        String xmlDocumentString = "<?xml version=\"1.0\"?><root><child>value</child></root>";
-        ConvertUtils.objectToArray(xmlDocumentString);
-    }
-
     // Negative Test: Convert XML node string to array
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testObjectToArrayWithXmlNodeString() {
@@ -5293,6 +5453,155 @@ public class ConvertUtilsTest {
     @Test(expectedExceptions = SmartValidationException.class)
     public void testFullClassNameToPackageNameWithNullFullClassName() {
         ConvertUtils.fullClassNameToPackageName(null);
+    }
+
+    @Test
+    public void testColorToStringWithValidColor() {
+        Color color = new Color(255, 165, 0); // Orange
+        String result = ConvertUtils.colorToString(color);
+        Assert.assertEquals(result, "#ffa500");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testColorToStringWithNullColor() {
+        ConvertUtils.colorToString(null);
+    }
+
+    @Test
+    public void testIsXmlArrayStringWithValidXmlArray() {
+        String xmlContent = "<root><item>1</item><item>2</item></root>";
+        boolean result = ConvertUtils.isXmlArrayString(xmlContent);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void testIsXmlArrayStringWithValidXmlDocumentArray() {
+        String xmlContent = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <root>
+                    <item>1</item>
+                    <item>2</item>
+                </root>
+                """.stripIndent();
+        boolean result = ConvertUtils.isXmlArrayString(xmlContent);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void testIsXmlArrayStringWithSingleElementXml() {
+        String xmlContent = "<root><item></item></root>";
+        boolean result = ConvertUtils.isXmlArrayString(xmlContent);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void testIsXmlArrayStringWithMixedNodeNames() {
+        String xmlContent = "<root><item></item><other></other></root>";
+        boolean result = ConvertUtils.isXmlArrayString(xmlContent);
+        Assert.assertFalse(result);
+    }
+
+    @Test
+    public void testIsXmlArrayStringWithEmptyRootNode() {
+        String xmlContent = "<root></root>";
+        boolean result = ConvertUtils.isXmlArrayString(xmlContent);
+        Assert.assertTrue(result);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testIsXmlArrayStringWithBlankString() {
+        ConvertUtils.isXmlArrayString("   ");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testIsXmlArrayStringWithNullString() {
+        ConvertUtils.isXmlArrayString(null);
+    }
+
+    @Test
+    public void testIsXmlArrayStringWithInvalidXml() {
+        String invalidXml = "<root><item></root>";
+        Assert.assertFalse(ConvertUtils.isXmlArrayString(invalidXml));
+    }
+
+    @Test
+    public void testJsonArrayToArrayWithValidXmlNode() {
+        Node xmlNode = ConvertUtils.stringToXmlNode("<root><item>1</item><item>2</item></root>");
+        Integer[] result = ConvertUtils.xmlArrayNodeToArray(xmlNode);
+        Assert.assertEquals(result.length, 2);
+        Assert.assertEquals(result[0], 1);
+        Assert.assertEquals(result[1], 2);
+    }
+
+    @Test
+    public void testJsonArrayToArrayWithValidXmlNodeWithDifferentTypes() {
+        Node xmlNode = ConvertUtils.stringToXmlNode("""
+            <root>
+                <item>1</item>
+                <item>two</item>
+                <item>true</item>
+                <item>null</item>
+            </root>
+            """.stripIndent());
+        Object[] result = ConvertUtils.xmlArrayNodeToArray(xmlNode);
+        Assert.assertEquals(result.length, 4);
+        Assert.assertEquals(result[0], 1);
+        Assert.assertEquals(result[1], "two");
+        Assert.assertEquals(result[2], true);
+        Assert.assertEquals(result[3], null);
+    }
+
+    @Test
+    public void testJsonArrayToArrayWithValidXmlNodeWithSubNodes() {
+        Node xmlNode = ConvertUtils.stringToXmlNode("""
+            <root>
+                <item>
+                    <name>John Doe</name>
+                    <age>33</age>
+                </item>
+                <item>
+                     <name>Sara Smith</name>
+                    <age>25</age>
+                </item>
+            </root>
+            """.stripIndent());
+        Map[] result = ConvertUtils.xmlArrayNodeToArray(xmlNode);
+        Assert.assertEquals(result.length, 2);
+        Assert.assertEquals(result[0].get("name"), "John Doe");
+        Assert.assertEquals(result[0].get("age"), 33);
+        Assert.assertEquals(result[1].get("name"), "Sara Smith");
+        Assert.assertEquals(result[1].get("age"), 25);
+    }
+
+    @Test
+    public void testJsonArrayToArrayWithSingleElementXmlNode() {
+        Node xmlNode = ConvertUtils.stringToXmlNode("<root><item>100</item></root>");
+        Integer[] result = ConvertUtils.xmlArrayNodeToArray(xmlNode);
+        Assert.assertEquals(result.length, 1);
+        Assert.assertEquals(result[0], Integer.valueOf(100));
+    }
+
+    @Test
+    public void testJsonArrayToArrayWithEmptyXmlNode() {
+        Node xmlNode = ConvertUtils.stringToXmlNode("<root></root>");
+        Object[] result = ConvertUtils.xmlArrayNodeToArray(xmlNode);
+        Assert.assertEquals(result.length, 0);
+    }
+
+    @Test
+    public void testJsonArrayToArrayWithNestedXmlNode() {
+        Node xmlNode = ConvertUtils.stringToXmlNode("<root><item><value>10</value></item></root>");
+        HashMap<String, Integer>[] result = ConvertUtils.xmlArrayNodeToArray(xmlNode);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result[0].get("value"), 10);
+    }
+
+    @Test
+    public void testJsonArrayToArrayWithNullXmlNode() {
+        Assert.expectThrows(SmartRuntimeException.class, () -> {
+            ConvertUtils.jsonArrayToArray(null);
+        });
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

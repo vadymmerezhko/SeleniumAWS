@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.annotations.RunAlone;
 import org.example.data.SmartValue;
 import org.example.exceptions.SmartRuntimeException;
+import org.example.interfaces.ReadableObject;
+import org.example.interfaces.WritableObject;
 import org.example.ui.playwright.PlaywrightElement;
 import org.example.ui.wrappers.SmartElement;
 import org.example.utils.DataValidationUtils;
@@ -17,7 +19,7 @@ import java.util.List;
  * The dropdown element class.
  */
 @Slf4j
-public class Dropdown extends SmartElement {
+public class Dropdown extends SmartElement implements ReadableObject, WritableObject {
 
     /**
      * The dropdown constructor with auto selector.
@@ -34,12 +36,52 @@ public class Dropdown extends SmartElement {
     }
 
     /**
+     * Sets dropdown value.
+     * @param value The value.
+     * @param <T> The value type.
+     */
+    @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
+    public <T> void setValue(T value) {
+        DataValidationUtils.validateNotNull(value, "value");
+        SmartValue smartValue = new SmartValue(value);
+
+        try {
+            if (value instanceof String stringValue) {
+                try {
+                    selectOption(stringValue);
+                }
+                catch (Exception e) {
+                    selectOptionByValue(stringValue);
+                }
+            }
+            else if (smartValue.isNumeric()) {
+                selectOptionByIndex(smartValue.toInteger());
+            }
+            else if (value instanceof SmartValue smartValue2) {
+                setValue(smartValue2.getValue());
+            }
+            else {
+                throw new SmartRuntimeException(String.format(
+                        "%s dropdown invalid value type: %s",
+                        elementName, value.getClass().getName()));
+            }
+            log.debug("{} dropdown value is set to: {}", elementName, value);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot set %s dropdown value: %s",
+                    elementName, value), e);
+        }
+    }
+
+    /**
      * Selects option by its text.
      * @param optionString The text of the option to select.
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOption(String optionString) {
         DataValidationUtils.validateNotBlank(optionString, "optionString");
+        DataValidationUtils.validateNotMultiline(optionString, "optionString");
         WebElement dropdown = getElement();
 
         try {
@@ -62,30 +104,13 @@ public class Dropdown extends SmartElement {
     }
 
     /**
-     * Selects option by its text smart value.
-     * @param optionSmartValue The text smart value of the option to select.
-     */
-    public void selectOption(SmartValue optionSmartValue) {
-        DataValidationUtils.validateNotNull(optionSmartValue, "optionSmartValue");
-        selectOption(optionSmartValue.toString());
-    }
-
-    /**
-     * Selects option by its value.
-     * @param value The value of the option to select.
-     */
-    public void selectOptionByValue(SmartValue value) {
-        DataValidationUtils.validateNotNull(value, "value");
-        selectOptionByValue(value.toString());
-    }
-
-    /**
      * Selects option by its value.
      * @param valueString The value of the option to select.
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOptionByValue(String valueString) {
         DataValidationUtils.validateNotBlank(valueString, "valueString");
+        DataValidationUtils.validateNotMultiline(valueString, "valueString");
         WebElement dropdown = getElement();
 
         try {
@@ -104,15 +129,6 @@ public class Dropdown extends SmartElement {
                     elementName, valueString), e);
 
         }
-    }
-
-    /**
-     * Selects option by its index.
-     * @param index The index of the option to select.
-     */
-    public void selectOptionByIndex(SmartValue index) {
-        DataValidationUtils.validateNotNull(index, "index");
-        selectOptionByIndex(index.toInteger());
     }
 
     /**
@@ -148,7 +164,7 @@ public class Dropdown extends SmartElement {
      */
     public int getSelectedOptionIndex() {
         Select select = new Select(getElement());
-        String selectedOption = getSelectedOption();
+        String selectedOption = getValueString();
         List<WebElement> options = select.getOptions();
         int selectedIndex = -1;
 
@@ -163,10 +179,10 @@ public class Dropdown extends SmartElement {
     }
 
     /**
-     * Returns text of the selected option.
-     * @return The text of the selected option.
+     * Returns selected option string.
+     * @return The selected option string.
      */
-    public String getSelectedOption() {
+    public String getValueString() {
         Select select = new Select(getElement());
         return select.getFirstSelectedOption().getText();
     }
@@ -175,8 +191,8 @@ public class Dropdown extends SmartElement {
      * Returns the dropdown text selected option smart value.
      * @return The selected option text smart value.
      */
-    public SmartValue getSmartValue() {
-        SmartValue smartValue = new SmartValue(getSelectedOption());
+    public SmartValue getValue() {
+        SmartValue smartValue = new SmartValue(getValueString());
         log.debug("{} dropdown selected option smart value is returned: {}", elementName, smartValue);
         return smartValue;
     }

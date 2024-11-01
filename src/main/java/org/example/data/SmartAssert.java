@@ -43,6 +43,7 @@ public abstract class SmartAssert {
      * @param expected The expected smart type.
      * @param actual The actual one.
      */
+    // TODO: Add unit test
     public static void assertDataStrictType(SmartData expected, SmartData actual) {
         assertData(expected, actual, true, false);
     }
@@ -55,6 +56,7 @@ public abstract class SmartAssert {
      * @param expected The expected smart type.
      * @param actual The actual one.
      */
+    // TODO: Add unit test
     public static void assertDataStrictOrder(SmartData expected, SmartData actual) {
         assertData(expected, actual, true, true);
     }
@@ -67,6 +69,7 @@ public abstract class SmartAssert {
      * @param expected The expected smart type.
      * @param actual The actual one.
      */
+    // TODO: Add unit test
     public static void assertDataStrictTypeAndOrder(SmartData expected, SmartData actual) {
         assertData(expected, actual, true, true);
     }
@@ -91,41 +94,45 @@ public abstract class SmartAssert {
         try {
             for (Field expectdField : expectedFields) {
                 expectdField.setAccessible(true);
-                SmartValue expectedSmartValue = ((SmartValue) expectdField.get(expected));
-                Object expectedValue = expectedSmartValue.getValue();
-                Class<?> expectedValueClass = expectedValue.getClass();
                 String fieldName = expectdField.getName();
                 Field actualField = actualClass.getDeclaredField(fieldName);
                 actualField.setAccessible(true);
-                SmartValue actualSmartValue = ((SmartValue) actualField.get(actual));
-                Object actualValue = actualSmartValue.getValue();
-                Class<?> actualValueClass = actualValue.getClass();
+                SmartValue actualValue = (SmartValue) actualField.get(actual);
+                SmartValue expectedValue = (SmartValue) expectdField.get(expected);
+                Class<?> expectedValueClass = expectedValue.getClass();
+                SmartType expectedValueType = expectedValue.getSmartType();
+                SmartType actualValueType = actualValue.getSmartType();
 
                 if (strictType) {
                     DataValidationUtils.validateTheSameType(expectedValue, actualValue,
                             "expectedValue", "actualValue");
                 }
                 else {
-                    // Convert actual string value to object
-                    if (actualValueClass != expectedValueClass) {
-                        SmartType expectedValueType = SmartType.fromClass(expectedClass);
-                        actualValue = ConvertUtils.objectToObject(expectedValueType, actualValue);
+                    // Convert actual value to expected type value
+                    if (!actualValueType.equals(expectedValueType)) {
+                        actualValue = new SmartValue(ConvertUtils.objectToObject(
+                                expectedValueType, actualValue.getValue()));
                     }
                 }
+                Object expectedValueObject = expectedValue.getValue();
+                Object actualValueObject = actualValue.getValue();
+
+                // Make possibility to update expected value in debug mode
+                // if it doesn't equals actual one in debug mode
                 if (Config.getInstance().getDebugMode() && !expectedValue.equals(actualValue)) {
-                    SmartAssert.updateExpectedValue(expectedSmartValue, actualSmartValue);
+                    SmartAssert.updateExpectedValue(expectedValue, actualValue);
                 }
                 // JSONObject
-                if (expectedValueClass == JSONObject.class) {
-                    assertJsonObject((JSONObject) expectedValue, (JSONObject) actualValue, strictOrder);
+                if (expectedValueObject instanceof JSONObject expectedJsonObject) {
+                    assertJsonObject(expectedJsonObject, (JSONObject) actualValueObject, strictOrder);
                 }
                 // JSONArray
-                else if (expectedValueClass == JSONArray.class) {
-                    assertJsonArray((JSONArray) expectedValue, (JSONArray) actualValue, strictOrder);
+                else if (expectedValueObject instanceof JSONArray expectedJsonArray) {
+                    assertJsonArray(expectedJsonArray, (JSONArray) actualValueObject, strictOrder);
                 }
                 // XML Node
-                else if (expectedValue instanceof Node) {
-                    assertXmlNode((Node) expectedValue, (Node) actualValue, strictOrder);
+                else if (expectedValueObject instanceof Node expectedNode) {
+                    assertXmlNode(expectedNode, (Node) actualValueObject, strictOrder);
                 }
                 else {
                     Assert.assertEquals(expectedValue, actualValue, expectedName);

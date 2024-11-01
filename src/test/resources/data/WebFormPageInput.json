@@ -1,29 +1,25 @@
 {
     "date": {
         "type": {"objectClass": "java.lang.String"},
-        "value": "09/10/#KEYWORD#"
+        "value": "11/07/#KEYWORD#"
     },
     "textInput": {
         "type": {"objectClass": "java.lang.String"},
         "value": "Text input"
     },
-    "color": {
-        "type": {"objectClass": "java.lang.String"},
-        "value": "#ff8000"
-    },
     "checkbox1Value": {
         "type": {"objectClass": "java.lang.Boolean"},
         "value": "false"
-    },
-    "checkbox2Value": {
-        "type": {"objectClass": "java.lang.Boolean"},
-        "value": "true"
     },
     "radiobutton1Value": {
         "type": {"objectClass": "java.lang.Boolean"},
         "value": "false"
     },
-    "radiobutton2Value": {
+    "color": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "#ff8000"
+    },
+    "checkbox2Value": {
         "type": {"objectClass": "java.lang.Boolean"},
         "value": "true"
     },
@@ -42,6 +38,10 @@
     "range": {
         "type": {"objectClass": "java.lang.Integer"},
         "value": "9"
+    },
+    "radiobutton2Value": {
+        "type": {"objectClass": "java.lang.Boolean"},
+        "value": "true"
     },
     "dropdownSelectedOption": {
         "type": {"objectClass": "java.lang.String"},

@@ -12,13 +12,14 @@ import java.nio.file.Paths;
 public final class DataValidationUtils {
     protected static final String FULL_CLASS_NAME_REGEX =
             "^([a-zA-Z_][a-zA-Z0-9_]*)(\\.[a-zA-Z_][a-zA-Z0-9_]*)*\\.[A-Z][a-zA-Z0-9_$]*$";
-    private static final String CLASS_PACKAGE_NAME_REGEX =
+    protected static final String CLASS_PACKAGE_NAME_REGEX =
             "^([a-zA-Z_][a-zA-Z0-9_]*)(\\.[a-zA-Z_][a-zA-Z0-9_]*)*$";
-    private static final String SIMPLE_CLASS_NAME_REGEX = "^[A-Z][a-zA-Z0-9_$]*$";
-    private static final String FULL_METHOD_NAME_REGEX =
+    protected static final String SIMPLE_CLASS_NAME_REGEX = "^[A-Z][a-zA-Z0-9_$]*$";
+    protected static final String VARIABLE_NAME_REGEX = "\\b([a-zA-Z][a-zA-Z0-9]*)\\s*=";
+    protected static final String FULL_METHOD_NAME_REGEX =
             "^([a-z][a-z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)*)\\.[a-zA-Z_][a-zA-Z0-9_]*$";
 
-    private static final String SIMPLE_METHOD_NAME_REGEX = "^[a-z_][a-zA-Z0-9_]*$";
+    protected static final String SIMPLE_METHOD_NAME_REGEX = "^[a-z_][a-zA-Z0-9_]*$";
 
     private DataValidationUtils() {}
 

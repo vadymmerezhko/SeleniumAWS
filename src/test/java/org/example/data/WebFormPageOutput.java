@@ -1,12 +1,14 @@
 package org.example.data;
 
 import lombok.Getter;
+import org.example.annotations.SmartValueField;
+
 
 /**
  * The Web Form output data class.
  */
 @SuppressWarnings("unused")
-@org.example.annotations.SmartValue
+@SmartValueField
 @Getter
 public class WebFormPageOutput extends SmartData {
     private SmartValue textInput;

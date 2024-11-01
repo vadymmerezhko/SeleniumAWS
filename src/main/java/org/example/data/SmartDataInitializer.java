@@ -1,12 +1,14 @@
 package org.example.data;
 
+import org.example.annotations.SmartValueField;
+
 import java.lang.reflect.Field;
 
 public class SmartDataInitializer {
 
     public static void initialize(SmartData parent) {
         // Check if the class is annotated with @SmartPage
-        if (parent.getClass().isAnnotationPresent(org.example.annotations.SmartValue.class)) {
+        if (parent.getClass().isAnnotationPresent(SmartValueField.class)) {
             // Get all declared fields in the class
             Field[] fields = parent.getClass().getDeclaredFields();
 

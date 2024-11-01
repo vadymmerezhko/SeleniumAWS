@@ -3,6 +3,8 @@ package org.example.ui.elements;
 import lombok.extern.slf4j.Slf4j;
 import org.example.annotations.RunAlone;
 import org.example.data.SmartValue;
+import org.example.interfaces.ReadableObject;
+import org.example.interfaces.WritableObject;
 import org.example.ui.wrappers.SmartElement;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
@@ -14,7 +16,7 @@ import static org.example.constants.Settings.*;
  * The checkbox element class.
  */
 @Slf4j
-public class Checkbox extends SmartElement {
+public class Checkbox extends SmartElement implements ReadableObject, WritableObject {
 
     /**
      * The checkbox element constructor with auto selector.
@@ -31,10 +33,10 @@ public class Checkbox extends SmartElement {
     }
 
     /**
-     * Checks (sets true value) the checkbox.
+     * Selects (sets true value) the checkbox.
      */
     @RunAlone
-    public void check() {
+    public void select() {
         WebElement element = getElement();
 
         if (!element.isSelected()) {
@@ -45,10 +47,10 @@ public class Checkbox extends SmartElement {
     }
 
     /**
-     * Unchecks (sets false value) the checkbox.
+     * Unselects (sets false value) the checkbox.
      */
     @RunAlone
-    public void uncheck() {
+    public void unselect() {
         WebElement element = getElement();
 
         if (element.isSelected()) {
@@ -61,30 +63,28 @@ public class Checkbox extends SmartElement {
     /**
      * Sets the checkbox value.
      * @param value The teu/false value to set.
+     * @param <T> The value type.
      */
-    public void setValue(SmartValue value) {
+    @Override
+    public <T> void setValue(T value) {
         DataValidationUtils.validateNotNull(value, "value");
-        setValue(value.toBoolean());
-    }
+        SmartValue smartValue = new SmartValue(value);
 
-    /**
-     * Sets the checkbox value.
-     * @param value The teu/false value to set.
-     */
-    public void setValue(boolean value) {
-        if (value) {
-            check();
-        } else {
-            uncheck();
+        if (smartValue.toBoolean()) {
+            select();
         }
-        log.debug("Checkbox {} value is set to: {}", elementName, value);
+        else {
+            unselect();
+        }
+        log.debug("{} checkbox value is set to: {}", elementName, value);
     }
 
     /**
      * Returns true - checked or false - unchecked checkbox value.
      * @return The true/false value.
      */
-    public boolean getValue() {
+    @Override
+    public boolean isSelected() {
         boolean value = getElement().isSelected();
         log.debug("Checkbox {} value is returned: {}", elementName, value);
         return value;
@@ -94,8 +94,9 @@ public class Checkbox extends SmartElement {
      * Returns the checkbox boolean smart value.
      * @return The boolean smart value.
      */
-    public SmartValue getSmartValue() {
-        SmartValue smartValue = new SmartValue(getValue());
+    @Override
+    public SmartValue getValue() {
+        SmartValue smartValue = new SmartValue(isSelected());
         log.debug("Checkbox {} smart value is returned: {}", elementName, smartValue);
         return smartValue;
     }

@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.openqa.selenium.WebElement;
 import org.w3c.dom.Node;
 
+import java.awt.*;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -250,7 +252,15 @@ public class SmartValue extends SmartObject implements FormattedValue {
      * @param value The value object.
      */
     public void setValue(Object value) {
-        this.value = value;
+        // Check if value is also smart value object
+        if (value instanceof SmartValue smartValue) {
+            // Set just wrapped value of the smart value
+            setValue(smartValue.getValue());
+        }
+        else {
+            // Set value as is
+            this.value = value;
+        }
         smartType = SmartType.fromObject(value);
         valueSet = true;
         log.debug("Smart type value object is set to: {}", value);
@@ -334,7 +344,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         char result = ConvertUtils.objectToObject(SmartType.fromClass(Character.class), value);
         log.debug("""
-                Smart class value converted to character.
+                Smart value converted to character.
                 Value: {}
                 Boolean: {}
                 """.stripIndent(),
@@ -351,7 +361,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         short result = ConvertUtils.objectToObject(SmartType.fromClass(Short.class), value);
         log.debug("""
-                Smart class value converted to short.
+                Smart value converted to short.
                 Value: {}
                 Boolean: {}
                 """.stripIndent(),
@@ -368,7 +378,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         int result = ConvertUtils.objectToObject(SmartType.fromClass(Integer.class), value);
         log.debug("""
-                Smart class value converted to integer.
+                Smart value converted to integer.
                 Value: {}
                 Boolean: {}
                 """.stripIndent(),
@@ -385,7 +395,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         long result = ConvertUtils.objectToObject(SmartType.fromClass(Long.class), value);
         log.debug("""
-                Smart class value converted to long.
+                Smart value converted to long.
                 Value: {}
                 Boolean: {}
                 """.stripIndent(),
@@ -402,7 +412,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         BigInteger result = ConvertUtils.objectToObject(SmartType.fromClass(BigInteger.class), value);
         log.debug("""
-                Smart class value converted to big integer.
+                Smart value converted to big integer.
                 Value: {}
                 Boolean: {}
                 """.stripIndent(),
@@ -419,7 +429,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         float result = ConvertUtils.objectToObject(SmartType.fromClass(Float.class), value);
         log.debug("""
-                Smart class value converted to float.
+                Smart value converted to float.
                 Value: {}
                 Boolean: {}
                 """.stripIndent(),
@@ -436,7 +446,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         double result = ConvertUtils.objectToObject(SmartType.fromClass(Double.class), value);
         log.debug("""
-                Smart class value converted to double.
+                Smart value converted to double.
                 Value: {}
                 Boolean: {}
                 """.stripIndent(),
@@ -453,7 +463,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         BigDecimal result = ConvertUtils.objectToObject(SmartType.fromClass(BigDecimal.class), value);
         log.debug("""
-                Smart class value converted to decimal.
+                Smart value converted to decimal.
                 Value: {}
                 Boolean: {}
                 """.stripIndent(),
@@ -470,7 +480,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         boolean result = ConvertUtils.objectToObject(SmartType.fromClass(Boolean.class), value);
         log.debug("""
-                Smart class value converted to boolean.
+                Smart value converted to boolean.
                 Value: {}
                 Boolean: {}
                 """.stripIndent(),
@@ -487,7 +497,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         Date result = ConvertUtils.objectToObject(SmartType.fromClass(Date.class), value);
         log.debug("""
-                Smart class value converted to date.
+                Smart value converted to date.
                 Value: {}
                 Format: {}
                 Date: {}
@@ -506,7 +516,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         SmartDate result = ConvertUtils.objectToObject(SmartType.fromClass(SmartDate.class), value);
         log.debug("""
-                Smart class value converted to smart date.
+                Smart value converted to smart date.
                 Value: {}
                 Format: {}
                 Date: {}
@@ -525,7 +535,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         LocalDate result = ConvertUtils.objectToObject(SmartType.fromClass(LocalDate.class), value);
         log.debug("""
-                Smart class value converted to local date.
+                Smart value converted to local date.
                 Value: {}
                 Format: {}
                 Local date: {}
@@ -544,7 +554,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         SmartLocalDate result = ConvertUtils.objectToObject(SmartType.fromClass(SmartLocalDate.class), value);
         log.debug("""
-                Smart class value converted to smart local date.
+                Smart value converted to smart local date.
                 Value: {}
                 Format: {}
                 Date: {}
@@ -563,7 +573,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         LocalDateTime result = ConvertUtils.objectToObject(SmartType.fromClass(LocalDateTime.class), value);
         log.debug("""
-                Smart class value converted to local date time.
+                Smart value converted to local date time.
                 Value: {}
                 Format: {}
                 Local date time: {}
@@ -582,7 +592,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         SmartLocalDateTime result = ConvertUtils.objectToObject(SmartType.fromClass(SmartLocalDateTime.class), value);
         log.debug("""
-                Smart class value converted to smart local date time.
+                Smart value converted to smart local date time.
                 Value: {}
                 Format: {}
                 Date: {}
@@ -601,7 +611,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         LocalTime result = ConvertUtils.objectToObject(SmartType.fromClass(LocalTime.class), value);
         log.debug("""
-                Smart class value converted to local time.
+                Smart value converted to local time.
                 Value: {}
                 Format: {}
                 Local time: {}
@@ -620,7 +630,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         SmartLocalTime result = ConvertUtils.objectToObject(SmartType.fromClass(SmartLocalTime.class), value);
         log.debug("""
-                Smart class value converted to smart local time.
+                Smart value converted to smart local time.
                 Value: {}
                 Format: {}
                 Date: {}
@@ -639,7 +649,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         SmartNumber result = ConvertUtils.objectToObject(SmartType.fromClass(SmartNumber.class), value);
         log.debug("""
-                Smart class value converted to smart number.
+                Smart value converted to smart number.
                 Value: {}
                 Format: {}
                 Date: {}
@@ -658,7 +668,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         SmartCurrency result = ConvertUtils.objectToObject(SmartType.fromClass(SmartCurrency.class), value);
         log.debug("""
-                Smart class value converted to smart currency.
+                Smart value converted to smart currency.
                 Value: {}
                 Format: {}
                 Date: {}
@@ -677,7 +687,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         SmartPhoneNumber result = ConvertUtils.objectToObject(SmartType.fromClass(SmartPhoneNumber.class), value);
         log.debug("""
-                Smart class value converted to smart phone number.
+                Smart value converted to smart phone number.
                 Value: {}
                 Format: {}
                 Date: {}
@@ -696,7 +706,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         File result = ConvertUtils.objectToFile(value);
         log.debug("""
-                Smart class value converted to file.
+                Smart value converted to file.
                 Value: {}
                 Path: {}
                 """.stripIndent(),
@@ -712,7 +722,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         Path result = ConvertUtils.objectToPath(value);
         log.debug("""
-                Smart class value converted to path.
+                Smart value converted to path.
                 Value: {}
                 Path: {}
                 """.stripIndent(),
@@ -728,7 +738,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         URL result = ConvertUtils.objectToURL(value);
         log.debug("""
-                Smart class value converted to URL.
+                Smart value converted to URL.
                 Value: {}
                 URL: {}
                 """.stripIndent(),
@@ -744,11 +754,30 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         URI result = ConvertUtils.objectToURI(value);
         log.debug("""
-                Smart class value converted to URI.
+                Smart value converted to URI.
                 Value: {}
                 URI: {}
                 """.stripIndent(),
                 value, result);
+        return result;
+    }
+
+    /**
+     * Converts value to color value.
+     * @return The color value.
+     */
+    public Color toColor() {
+        setUp();
+        Color result = ConvertUtils.objectToObject(SmartType.fromClass(Color.class), value);
+        log.debug("""
+                Smart value converted to color.
+                Value: {}
+                Format: {}
+                Color: {}
+                """.stripIndent(),
+                value,
+                format,
+                result);
         return result;
     }
 
@@ -761,7 +790,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         T[] result = ConvertUtils.objectToArray(value);
         log.debug("""
-                Smart class value converted to array.
+                Smart value converted to array.
                 Value:
                 {}
                 Array:
@@ -780,7 +809,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         List<T> result = ConvertUtils.objectToList(value);
         log.debug("""
-                Smart class value converted to list.
+                Smart value converted to list.
                 Value:
                 {}
                 List:
@@ -799,7 +828,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         Set<T> result = new HashSet<>(toList());
         log.debug("""
-                Smart class value converted to set.
+                Smart value converted to set.
                 Value:
                 {}
                 Set:
@@ -818,7 +847,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         Queue<T> result = new LinkedList<>(toList());
         log.debug("""
-                Smart class value converted to queue.
+                Smart value converted to queue.
                 Value:
                 {}
                 Queue:
@@ -837,7 +866,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         Vector<T> result = new Vector<>(toList());
         log.debug("""
-                Smart class value converted to vector.
+                Smart value converted to vector.
                 Value:
                 {}
                 Vector:
@@ -859,7 +888,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         Map<K, V> result = ConvertUtils.objectToMap(value);
         log.debug("""
-                Smart class value converted to map.
+                Smart value converted to map.
                 Value:
                 {}
                 Map:
@@ -941,6 +970,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
      * @return The POJO object.
      */
     public <T> T toPojoObject(SmartType targetType) {
+        DataValidationUtils.validateNotNull(targetType, "targetType");
         setUp();
         T classValue = ConvertUtils.objectToObject(targetType, value);
         log.debug("""
@@ -993,6 +1023,64 @@ public class SmartValue extends SmartObject implements FormattedValue {
         setUp();
         log.debug("Returned smart value name: {}.", name);
         return name;
+    }
+
+    /**
+     * Returns true if smart value can be converted
+     * to collection or false otherwise.
+     * @return true/false flag.
+     */
+    public boolean isCollectable() {
+        boolean isCollectable =
+                value != null &&
+                        (value instanceof Collection ||
+                        value instanceof JSONArray ||
+                        value.getClass().isArray() ||
+                        (value instanceof String &&
+                                (ConvertUtils.isJsonArrayString((String) value) ||
+                                ConvertUtils.isCsvString((String) value) ||
+                                ConvertUtils.isXmlArrayString((String) value))));
+        log.debug("""
+                Smart value is collectable.
+                Result: {}
+                Value:
+                {}
+                """.stripIndent(),
+                isCollectable, value);
+        return isCollectable;
+    }
+
+    /**
+     * Returns true if smart value can be converted
+     * to map or false otherwise.
+     * @return true/false flag.
+     */
+    public boolean isMappable() {
+        boolean isCollectable =
+                value != null &&
+                        (value instanceof Map<?,?> ||
+                         value instanceof JSONObject ||
+                         value instanceof Node ||
+                         ConvertUtils.isPojoObject(value) ||
+                         (value instanceof String &&
+                                 (ConvertUtils.isJsonObjectString((String) value) ||
+                                 ConvertUtils.isXmlNodeString((String) value) ||
+                                 ConvertUtils.isXmlDocumentString((String) value))));
+        log.debug("""
+                Smart value is collectable.
+                Result: {}
+                Value:
+                {}
+                """.stripIndent(),
+                isCollectable, value);
+        return isCollectable;
+    }
+
+    public boolean isNumeric() {
+        return value != null &&
+                (value instanceof Number ||
+                (value instanceof String &&
+                        ConvertUtils.isNumberString((String) value)));
     }
 
     /**
@@ -1192,7 +1280,8 @@ public class SmartValue extends SmartObject implements FormattedValue {
             keywordString = ConvertUtils.objectToString(keyword);
             replaceKeywordPlaceholderWithValue();
             value = ConvertUtils.stringToObject(smartType, valueString);
-        } else {
+        }
+        else {
             valueString = ConvertUtils.objectToString(value);
             valueTemplate = valueString;
             replaceKeywordPlaceholderWithValue();
@@ -1451,7 +1540,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
             jsonString = json.toString(JSON_LAYOUT_SPACES);
             FileSystemUtils.createFile(filePath, jsonString);
             log.debug("""
-                            Smart class value is saved to file.
+                            Smart value is saved to file.
                             Name: {}
                             Type: {}
                             Format: {}
@@ -1461,7 +1550,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
                     name, type, format, valueTemplate, filePath);
         } catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                            Smart class value is saved to file.
+                            Smart value is saved to file.
                             Name: {}
                             Type: {}
                             Format: {}

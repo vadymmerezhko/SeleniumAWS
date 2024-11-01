@@ -269,8 +269,8 @@ public final class CompareUtils {
                 }
                 // POJO
                 else if (ConvertUtils.isPojoObject(expected)) {
-                    JSONObject expectedPojoJson = ConvertUtils.pojoObjectToJson(expected);
-                    JSONObject actualPojoJson = ConvertUtils.pojoObjectToJson(actual);
+                    JSONObject expectedPojoJson = ConvertUtils.pojoObjectToJsonObject(expected);
+                    JSONObject actualPojoJson = ConvertUtils.pojoObjectToJsonObject(actual);
                     result = compareJsonObjects(expectedPojoJson, actualPojoJson, strictOrder);
                 }
                 else {

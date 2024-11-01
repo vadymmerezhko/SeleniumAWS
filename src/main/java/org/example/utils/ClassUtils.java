@@ -14,6 +14,8 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.example.utils.DataValidationUtils.VARIABLE_NAME_REGEX;
+
 
 /**
  * The method manger class.
@@ -21,6 +23,8 @@ import java.util.regex.Pattern;
 @Slf4j
 public final class ClassUtils {
     private ClassUtils() {}
+    private static final ConcurrentMap<String, String> classSourceCodeMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, String> methodSourceCodeMap = new ConcurrentHashMap<>();
     private static final ConcurrentMap<Long, String> methodMap = new ConcurrentHashMap<>();
     private static final ConcurrentMap<Long, Object> parameterMap = new ConcurrentHashMap<>();
 
@@ -465,11 +469,19 @@ public final class ClassUtils {
         DataValidationUtils.validateFullClassName(fullClassName, "fullClassName");
 
         try {
-            // Get the Java file path corresponding to the class
-            // Read the content of the Java file
-            Class<?> targetClass = Class.forName(fullClassName);
-            String filePath = getJavaFilePathFromClass(targetClass);
-            String sourceCode = FileSystemUtils.readFile(filePath);
+            String sourceCode;
+
+            if (classSourceCodeMap.containsKey(fullClassName)) {
+                sourceCode = classSourceCodeMap.get(fullClassName);
+            }
+            else {
+                // Get the Java file path corresponding to the class
+                // Read the content of the Java file
+                Class<?> targetClass = Class.forName(fullClassName);
+                String filePath = getJavaFilePathFromClass(targetClass);
+                sourceCode = FileSystemUtils.readFile(filePath);
+                classSourceCodeMap.put(fullClassName, sourceCode);
+            }
             log.debug("{} class source code is returned:\n{}", fullClassName, sourceCode);
             return sourceCode;
         }
@@ -507,10 +519,19 @@ public final class ClassUtils {
                     Pattern.DOTALL
             );
             Matcher matcher = pattern.matcher(sourceCode);
+            String methodSourceCode = null;
 
-            // If the method is found, return its source code
-            if (matcher.find()) {
-                String methodSourceCode = matcher.group(0);
+            if (methodSourceCodeMap.containsKey(fullMethodName)) {
+                sourceCode = methodSourceCodeMap.get(fullMethodName);
+            }
+            else {
+                // If the method is found, return its source code
+                if (matcher.find()) {
+                    methodSourceCode = matcher.group(0);
+                }
+            }
+            if (methodSourceCode != null) {
+                methodSourceCodeMap.put(fullMethodName, methodSourceCode);
                 log.debug("{} method source code is returned:\n{}", methodName, sourceCode);
                 return methodSourceCode;
             }
@@ -559,8 +580,7 @@ public final class ClassUtils {
             }
 
             // Regex to find the variable name before "="
-            String regex = "\\b([a-zA-Z][a-zA-Z0-9]*)\\s*=";
-            Pattern pattern = Pattern.compile(regex);
+            Pattern pattern = Pattern.compile(VARIABLE_NAME_REGEX);
             Matcher matcher = pattern.matcher(line);
 
             if (matcher.find()) {

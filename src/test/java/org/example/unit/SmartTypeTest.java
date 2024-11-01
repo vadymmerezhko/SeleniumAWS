@@ -5,8 +5,8 @@ import org.example.data.SmartType;
 import org.example.enums.Platform;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
-import org.example.unit.supplemental.NestedPojoClass;
-import org.example.unit.supplemental.PojoClass;
+import org.example.unit.supplemental.classes.NestedPojoClass;
+import org.example.unit.supplemental.classes.PojoClass;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

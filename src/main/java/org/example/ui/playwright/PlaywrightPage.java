@@ -2,7 +2,6 @@ package org.example.ui.playwright;
 
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.*;
-import org.example.utils.ClassUtils;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -244,11 +243,6 @@ public class PlaywrightPage implements Page {
         page.offWorker(handler);
     }
 
-    @Override
-    public Clock clock() {
-        ClassUtils.throwMethodNotImplementedException("clock");
-        return null;
-    }
 
     @Override
     public void addInitScript(String script) {
@@ -586,16 +580,6 @@ public class PlaywrightPage implements Page {
     }
 
     @Override
-    public void addLocatorHandler(Locator locator, Consumer<Locator> handler, AddLocatorHandlerOptions options) {
-        ClassUtils.throwMethodNotImplementedException("addLocatorHandler");
-    }
-
-    @Override
-    public void removeLocatorHandler(Locator locator) {
-        ClassUtils.throwMethodNotImplementedException("removeLocatorHandler");
-    }
-
-    @Override
     public Response reload(ReloadOptions options) {
         return page.reload(options);
     }
@@ -738,11 +722,6 @@ public class PlaywrightPage implements Page {
     @Override
     public void uncheck(String selector, UncheckOptions options) {
         page.uncheck(selector, options);
-    }
-
-    @Override
-    public void unrouteAll() {
-        ClassUtils.throwMethodNotImplementedException("unrouteAll");
     }
 
     @Override

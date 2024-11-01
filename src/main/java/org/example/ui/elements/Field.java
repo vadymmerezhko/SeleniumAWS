@@ -1,9 +1,16 @@
 package org.example.ui.elements;
 
+import lombok.extern.slf4j.Slf4j;
+import org.example.data.SmartValue;
+import org.example.interfaces.ReadableObject;
 import org.example.ui.wrappers.SmartElement;
 import org.openqa.selenium.By;
 
-public class Field extends SmartElement {
+/**
+ * Read-only field element class.
+ */
+@Slf4j
+public class Field extends SmartElement implements ReadableObject {
 
     /**
      * Field element constructor with auto selector.
@@ -17,5 +24,32 @@ public class Field extends SmartElement {
      */
     public Field(By by) {
         super(by);
+    }
+
+    /**
+     * Gets field value or text.
+     * @return The value or text.
+     */
+    public String getStringValue() {
+        getElement();
+        String value;
+
+        try {
+            value = getAttribute("value");
+        }
+        catch (Exception e) {
+            value = getText();
+        }
+        log.debug("{} field value or text is returned: {}", elementName, value);
+        return value;
+    }
+
+    /**
+     * Gets field smart value.
+     * @return The smart value.
+     */
+    @Override
+    public SmartValue getValue() {
+        return new SmartValue(getStringValue());
     }
 }

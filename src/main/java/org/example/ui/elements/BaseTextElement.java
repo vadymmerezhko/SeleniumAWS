@@ -3,6 +3,8 @@ package org.example.ui.elements;
 import lombok.extern.slf4j.Slf4j;
 import org.example.annotations.RunAlone;
 import org.example.data.SmartValue;
+import org.example.interfaces.ReadableObject;
+import org.example.interfaces.WritableObject;
 import org.example.ui.wrappers.SmartElement;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
@@ -15,7 +17,7 @@ import static org.example.constants.Settings.WAIT_ELEMENT_TIMEOUT_SECONDS;
  * Base text element class.
  */
 @Slf4j
-public abstract class BaseTextElement extends SmartElement {
+public abstract class BaseTextElement extends SmartElement implements WebElement, ReadableObject, WritableObject {
 
     /**
      * Base text element constructor.
@@ -53,6 +55,38 @@ public abstract class BaseTextElement extends SmartElement {
         element.sendKeys(text);
         synchro.waitForAttributeValue(element, "value", text, WAIT_ELEMENT_TIMEOUT_SECONDS);
         log.debug("Text element {} value is entered to: {}", elementName, text);
+    }
+
+    /**
+     * Sets base text element text value.
+     * @param value The text value.
+     */
+    @Override
+    public <T> void setValue(T value) {
+        DataValidationUtils.validateNotNull(value, "text");
+        SmartValue smartValue = new SmartValue(value);
+        enterText(smartValue.toString());
+        log.debug("{} input value is entered: {}", elementName, value);
+    }
+
+    /**
+     * Gets base text element text smart value.
+     * @return The text smart value.
+     */
+    @Override
+    public SmartValue getValue() {
+        return new SmartValue(getValueString());
+    }
+
+    /**
+     * Gets base text element text value string.
+     * @return The text value string.
+     */
+    public String getValueString() {
+        getElement();
+        String value = getAttribute("value");
+        log.debug("{} input value is returned: {}", elementName, value);
+        return value;
     }
 
     /**

@@ -2,7 +2,6 @@ package org.example.ui.wrappers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.configs.Config;
-import org.example.data.SmartValue;
 import org.example.ui.factories.WebDriverFactory;
 import org.example.ui.selectors.*;
 import org.example.exceptions.SmartRuntimeException;
@@ -94,16 +93,6 @@ public abstract class SmartElement implements WebElement, WrapsElement {
         }
         synchro = new WebSynchronizer();
         jsExecutor = (JavascriptExecutor) driver;
-    }
-
-    /**
-     * Returns smart value of the smart element.
-     * Should be implements in by child class.
-     * @return The smart value.
-     */
-    public SmartValue getSmartValue() {
-        ClassUtils.throwMethodNotImplementedException("getSmartValue");
-        return null;
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.example.unit;
 
 import org.example.annotations.RunAlone;
+import org.example.data.SmartDate;
 import org.example.data.SmartLocalDate;
 import org.example.data.SmartValue;
 import org.example.ui.elements.*;
@@ -13,13 +14,20 @@ import org.example.exceptions.SmartValidationException;
 import org.example.pages.TestPage;
 import org.example.testng.RetryAnalyzer;
 import org.example.tests.BaseTest;
+import org.example.utils.ConvertUtils;
 import org.example.utils.FileSystemUtils;
+import org.json.JSONObject;
 import org.openqa.selenium.By;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 
@@ -43,7 +51,44 @@ public class WebElementsTest extends BaseTest {
         textInput.enterText("Test value");
 
         // Verify the input value
-        Assert.assertEquals(textInput.getValue(), "Test value");
+        Assert.assertEquals(textInput.getValueString(), "Test value");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testTextInputSetValueWithValidString() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        TextInput textInput = testPage.getTextInput();
+        // Enter text using SingleLineTextInput's enterText method
+        textInput.setValue("Test value");
+
+        // Verify the input value
+        Assert.assertEquals(textInput.getValue().toString(), "Test value");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testTextInputSetValueWithValidInteger() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        TextInput textInput = testPage.getTextInput();
+        // Enter text using SingleLineTextInput's enterText method
+        textInput.setValue(123);
+
+        // Verify the input value
+        Assert.assertEquals(textInput.getValueString(), "123");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testTextInputSetSmartValueWithValidString() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        TextInput textInput = testPage.getTextInput();
+        SmartValue smartValue = new SmartValue("Some value");
+        // Enter text using SingleLineTextInput's enterText method
+        textInput.setValue(smartValue);
+
+        // Verify the input value
+        Assert.assertEquals(textInput.getValue(), smartValue);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -60,13 +105,13 @@ public class WebElementsTest extends BaseTest {
         textInput.cut();
 
         // Verify input text is empty
-        Assert.assertEquals(textInput.getValue(), "");
+        Assert.assertEquals(textInput.getValueString(), "");
 
         // Paste input cut text back
         textInput.paste();
 
         // Verify the input value
-        Assert.assertEquals(textInput.getValue(), "Test value");
+        Assert.assertEquals(textInput.getValueString(), "Test value");
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -85,13 +130,13 @@ public class WebElementsTest extends BaseTest {
         textInput.clear();
 
         // Verify input text is empty
-        Assert.assertEquals(textInput.getValue(), "");
+        Assert.assertEquals(textInput.getValueString(), "");
 
         // Paste copied input text back
         textInput.paste();
 
         // Verify the input value
-        Assert.assertEquals(textInput.getValue(), "Test value");
+        Assert.assertEquals(textInput.getValueString(), "Test value");
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -110,13 +155,13 @@ public class WebElementsTest extends BaseTest {
         textInput.clear();
 
         // Verify input text is empty
-        Assert.assertEquals(textInput.getValue(), "");
+        Assert.assertEquals(textInput.getValueString(), "");
 
         // Paste copied input substring text back
         textInput.paste();
 
         // Verify the input value
-        Assert.assertEquals(textInput.getValue(), "value");
+        Assert.assertEquals(textInput.getValueString(), "value");
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -135,13 +180,13 @@ public class WebElementsTest extends BaseTest {
         textInput.clear();
 
         // Verify input text is empty
-        Assert.assertEquals(textInput.getValue(), "");
+        Assert.assertEquals(textInput.getValueString(), "");
 
         // Paste copied input substring text back
         textInput.paste();
 
         // Verify the input value
-        Assert.assertEquals(textInput.getValue(), "value");
+        Assert.assertEquals(textInput.getValueString(), "value");
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -160,13 +205,13 @@ public class WebElementsTest extends BaseTest {
         textInput.clear();
 
         // Verify input text is empty
-        Assert.assertEquals(textInput.getValue(), "");
+        Assert.assertEquals(textInput.getValueString(), "");
 
         // Paste copied input substring text back
         textInput.paste();
 
         // Verify the input value
-        Assert.assertEquals(textInput.getValue(), "value");
+        Assert.assertEquals(textInput.getValueString(), "value");
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
@@ -200,7 +245,7 @@ public class WebElementsTest extends BaseTest {
         textInput.enterText(new SmartValue("Test value"));
 
         // Verify the input value
-        Assert.assertEquals(textInput.getValue(), "Test value");
+        Assert.assertEquals(textInput.getValueString(), "Test value");
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -211,7 +256,42 @@ public class WebElementsTest extends BaseTest {
         SmartValue smartValue = new SmartValue("Multiline\nTest value");
         textarea.enterText(smartValue);
 
-        Assert.assertEquals(textarea.getValue(), "Multiline\nTest value");
+        Assert.assertEquals(textarea.getValue(), smartValue);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testTextareaSetValueWithValidSmartValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Textarea textarea = testPage.getTextarea();
+        SmartValue smartValue = new SmartValue("Multiline\nTest value");
+        textarea.setValue(smartValue);
+
+        Assert.assertEquals(textarea.getValue(), smartValue);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testTextareaSetValueWithValidValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Textarea textarea = testPage.getTextarea();
+        String value = "Multiline\nTest value";
+        textarea.setValue(value);
+
+        Assert.assertEquals(textarea.getValue().toString(), value);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testTextareaSetValueWithValidJsonValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Textarea textarea = testPage.getTextarea();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("one", 1);
+        jsonObject.put("two", 2);
+        textarea.setValue(jsonObject);
+
+        Assert.assertEquals(textarea.getValueString(), ConvertUtils.jsonObjectToString(jsonObject));
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -222,7 +302,7 @@ public class WebElementsTest extends BaseTest {
         String text = "Multiline\nTest value";
         textarea.enterText(text);
 
-        Assert.assertEquals(textarea.getValue(), text);
+        Assert.assertEquals(textarea.getValueString(), text);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -234,7 +314,7 @@ public class WebElementsTest extends BaseTest {
         textarea.enterText("Some text");
         textarea.enterText(text);
 
-        Assert.assertEquals(textarea.getValue(), text);
+        Assert.assertEquals(textarea.getValueString(), text);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
@@ -350,9 +430,9 @@ public class WebElementsTest extends BaseTest {
 
         // Simulate unchecking the checkbox first if it's already checked
         if (checkbox.isSelected()) {
-            checkbox.uncheck();
+            checkbox.unselect();
         }
-        checkbox.check();
+        checkbox.select();
 
         Assert.assertTrue(checkbox.isSelected());
     }
@@ -365,11 +445,56 @@ public class WebElementsTest extends BaseTest {
 
         // Simulate checking the checkbox first if it's unchecked
         if (!checkbox.isSelected()) {
-            checkbox.check();
+            checkbox.select();
         }
-        checkbox.uncheck();
+        checkbox.unselect();
 
         Assert.assertFalse(checkbox.isSelected());
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testCheckboxSetValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Checkbox checkbox = testPage.getCheckbox();
+
+        // Simulate checking the checkbox first if it's unchecked
+        if (!checkbox.isSelected()) {
+            checkbox.setValue(true);
+        }
+        checkbox.setValue(false);
+
+        Assert.assertFalse(checkbox.isSelected());
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testCheckboxSetStringValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Checkbox checkbox = testPage.getCheckbox();
+
+        // Simulate checking the checkbox first if it's unchecked
+        if (!checkbox.isSelected()) {
+            checkbox.setValue("true");
+        }
+        checkbox.setValue("false");
+
+        Assert.assertFalse(checkbox.getValue().toBoolean());
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testCheckboxSetSmartValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Checkbox checkbox = testPage.getCheckbox();
+
+        // Simulate checking the checkbox first if it's unchecked
+        if (!checkbox.isSelected()) {
+            checkbox.setValue(new SmartValue("true"));
+        }
+        checkbox.setValue(new SmartValue(false));
+
+        Assert.assertFalse(checkbox.getValue().toBoolean());
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -422,7 +547,7 @@ public class WebElementsTest extends BaseTest {
         // Ensure the checkbox is checked
         checkbox.setValue(true);
 
-        Assert.assertTrue(checkbox.getValue());
+        Assert.assertTrue(checkbox.getValue().toBoolean());
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -433,7 +558,7 @@ public class WebElementsTest extends BaseTest {
         // Ensure the checkbox is unchecked
         checkbox.setValue(false);
 
-        Assert.assertFalse(checkbox.getValue());
+        Assert.assertFalse(checkbox.getValue().toBoolean());
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -444,7 +569,7 @@ public class WebElementsTest extends BaseTest {
         // Ensure the checkbox is checked
         checkbox.setValue(true);
 
-        Assert.assertTrue(checkbox.getSmartValue().toBoolean());
+        Assert.assertTrue(checkbox.getValue().toBoolean());
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -455,7 +580,23 @@ public class WebElementsTest extends BaseTest {
         // Ensure the checkbox is checked
         checkbox.setValue(false);
 
-        Assert.assertFalse(checkbox.getSmartValue().toBoolean());
+        Assert.assertFalse(checkbox.getValue().toBoolean());
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testCheckboxSetInvalidStringValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Checkbox checkbox = testPage.getCheckbox();
+        checkbox.setValue("Invalid");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testCheckboxSetNullValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Checkbox checkbox = testPage.getCheckbox();
+        checkbox.setValue(null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -464,9 +605,9 @@ public class WebElementsTest extends BaseTest {
         testPage.open(WEB_PAGE_URL);
         ColorPicker colorPicker = testPage.getColorPicker();
         SmartValue smartColor = new SmartValue("#0088ff");
-        colorPicker.pickColor(smartColor);
+        colorPicker.setValue(smartColor);
 
-        Assert.assertEquals(colorPicker.getValue(), "#0088ff");
+        Assert.assertEquals(colorPicker.getColor(), smartColor.toColor());
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -474,10 +615,24 @@ public class WebElementsTest extends BaseTest {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
         ColorPicker colorPicker = testPage.getColorPicker();
-        String color = "#ff5733";
-        colorPicker.pickColor(color);
+        String colorString = "#ff5733";
+        colorPicker.setValue(colorString);
+        Color expectedColor = ConvertUtils.stringToColor(colorString);
 
-        Assert.assertEquals(colorPicker.getValue(), color);
+        Assert.assertEquals(colorPicker.getValue().toColor(), expectedColor);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testSetSmartValueWithValidString() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        ColorPicker colorPicker = testPage.getColorPicker();
+        String colorString = "#ff5733";
+        SmartValue smartValue = new SmartValue(colorString);
+        colorPicker.setValue(smartValue);
+        Color expectedColor = smartValue.toColor();
+
+        Assert.assertEquals(colorPicker.getColor(), expectedColor);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -485,10 +640,23 @@ public class WebElementsTest extends BaseTest {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
         ColorPicker colorPicker = testPage.getColorPicker();
-        String color = "#ff5733";
-        colorPicker.pickColor(color);
+        String colorString = "#ff5733";
+        colorPicker.setValue(colorString);
+        SmartValue actualSmartValue = colorPicker.getValue();
+        String actualColorSting = actualSmartValue.toString();
 
-        Assert.assertEquals(colorPicker.getSmartValue().toString(), color);
+        Assert.assertEquals(actualColorSting, colorString);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testGetColorWithValidColorValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        ColorPicker colorPicker = testPage.getColorPicker();
+        Color color = Color.GREEN;
+        colorPicker.setValue(color);
+
+        Assert.assertEquals(colorPicker.getColor(), color);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
@@ -497,38 +665,54 @@ public class WebElementsTest extends BaseTest {
         testPage.open(WEB_PAGE_URL);
         ColorPicker colorPicker = testPage.getColorPicker();
         // Passing null SmartValue should throw an exception
-        colorPicker.pickColor((SmartValue) null);
+        colorPicker.setValue((SmartValue) null);
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testPickColorWithInvalidStringFormat() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
         ColorPicker colorPicker = testPage.getColorPicker();
         // Passing an invalid color format string should throw an exception
-        colorPicker.pickColor("invalidColor");
+        colorPicker.setValue("invalidColor");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testColorPickerSetValueWithNullValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        ColorPicker colorPicker = testPage.getColorPicker();
+        // Passing an invalid color format string should throw an exception
+        colorPicker.setValue(null);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testColorPickerSetSmartValueWithInvalidSmartValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        ColorPicker colorPicker = testPage.getColorPicker();
+        // Passing null should throw an exception
+        colorPicker.setValue(new SmartValue("invalidColor"));
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testColorPickerSetSmartValueWithNullValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        ColorPicker colorPicker = testPage.getColorPicker();
+        // Passing null string should throw an exception
+        colorPicker.setValue(null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void testSelectOptionWithValidSmartValue() {
+    public void testSetValueWithValidString() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
         DataList dataList = testPage.getDataList();
-        SmartValue smartOption = new SmartValue("Chicago");
-        dataList.selectOption(smartOption);
+        String option = "New York";
+        dataList.setValue(option);
 
-        Assert.assertEquals(dataList.getValue(), smartOption.toString());
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void testSelectOptionSmartValueWithValidSmartValue() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        DataList dataList = testPage.getDataList();
-        SmartValue smartOption = new SmartValue("Chicago");
-        dataList.selectOption(smartOption);
-
-        Assert.assertEquals(dataList.getSmartValue().toString(), smartOption.toString());
+        Assert.assertEquals(dataList.getValue().toString(), option);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -539,7 +723,57 @@ public class WebElementsTest extends BaseTest {
         String option = "New York";
         dataList.selectOption(option);
 
-        Assert.assertEquals(dataList.getValue(), option);
+        Assert.assertEquals(dataList.getValueString(), option);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testSelectOptionWithValidIndexValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        DataList dataList = testPage.getDataList();
+        SmartValue smartOption = new SmartValue("San Francisco");
+        dataList.setValue(1);
+
+        Assert.assertEquals(dataList.getValue(), smartOption);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testSelectOptionWithValidStringIndexValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        DataList dataList = testPage.getDataList();
+        SmartValue smartOption = new SmartValue("San Francisco");
+        dataList.setValue("1");
+
+        Assert.assertEquals(dataList.getValue(), smartOption);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testSetValueWithEmptyValue() {
+        TestPage testPage = new TestPage();
+        DataList dataList = testPage.getDataList();
+        dataList.setValue("");
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testSelectOptionWithEmptyValue() {
+        TestPage testPage = new TestPage();
+        DataList dataList = testPage.getDataList();
+        dataList.selectOption("");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testStValueWithNullValue() {
+        TestPage testPage = new TestPage();
+        DataList dataList = testPage.getDataList();
+        dataList.setValue(null);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testSelectOptionWithNullValue() {
+        TestPage testPage = new TestPage();
+        DataList dataList = testPage.getDataList();
+        dataList.selectOption(null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -550,7 +784,7 @@ public class WebElementsTest extends BaseTest {
         int index = 1;  // Assume the first option
         dataList.selectOptionByIndex(index);
 
-        Assert.assertEquals(dataList.getValue(), "San Francisco");
+        Assert.assertEquals(dataList.getValueString(), "San Francisco");
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -561,39 +795,31 @@ public class WebElementsTest extends BaseTest {
         SmartValue index = new SmartValue(2);
         dataList.selectOptionByIndex(index);
 
-        Assert.assertEquals(dataList.getValue(), "New York");
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
-    public void testSelectOptionWithNullSmartValue() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        DataList dataList = testPage.getDataList();
-        dataList.selectOption((SmartValue) null);
+        Assert.assertEquals(dataList.getValue().toString(), "New York");
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
     public void testSelectOptionWithNullString() {
         TestPage testPage = new TestPage();
         DataList dataList = testPage.getDataList();
-        dataList.selectOption((String) null);
+        dataList.setValue((String) null);
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testSelectOptionWithBlankString() {
         TestPage testPage = new TestPage();
         DataList dataList = testPage.getDataList();
-        dataList.selectOption("");
+        dataList.setValue("");
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testSelectOptionByNullSmartIndex() {
         TestPage testPage = new TestPage();
         DataList dataList = testPage.getDataList();
         dataList.selectOptionByIndex(new SmartValue(null));
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testSelectOptionByInvalidIndex() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
@@ -606,10 +832,12 @@ public class WebElementsTest extends BaseTest {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
         DatePicker datePicker = testPage.getDatePicker();
-        SmartValue date = new SmartValue("12/25/2024");
-        datePicker.pickDate(date);
+        SmartValue smartValue = new SmartValue("12/25/2024");
+        datePicker.setSmartValue(smartValue);
 
-        Assert.assertEquals(datePicker.getValue(), "12/25/2024");
+        Assert.assertEquals(
+                datePicker.getValue().toLocalDate(),
+                smartValue.toLocalDate());
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -617,21 +845,47 @@ public class WebElementsTest extends BaseTest {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
         DatePicker datePicker = testPage.getDatePicker();
-        String date = "01/01/2024";
-        datePicker.pickDate(date);
+        String dateString = "01/01/2024";
+        datePicker.setValue(dateString);
 
-        Assert.assertEquals(datePicker.getValue(), date);
+        Assert.assertEquals(datePicker.getValue().toString(), dateString);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void testGetValue() {
+    public void testDatePickerGetValue() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
         DatePicker datePicker = testPage.getDatePicker();
         // Simulate picking a date
-        datePicker.pickDate("05/10/2024");
+        datePicker.setValue("05/10/2024");
+        LocalDate expectedLocalDate = LocalDate.parse("2024-05-10");
 
-        Assert.assertEquals(datePicker.getValue(), "05/10/2024");
+        Assert.assertEquals(datePicker.getValue().toLocalDate(), expectedLocalDate);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testDatePickerGetSmartValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        DatePicker datePicker = testPage.getDatePicker();
+        String dateString = "05/10/2024";
+        // Simulate picking a date
+        datePicker.setValue(dateString);
+        SmartValue expectedSmartValue = new SmartValue(SmartLocalDate.fromString(dateString));
+
+        Assert.assertEquals(datePicker.getValue(), expectedSmartValue);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testGetDatePickerLocalDate() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        DatePicker datePicker = testPage.getDatePicker();
+        // Simulate picking a date
+        datePicker.setValue("05/10/2024");
+        SmartLocalDate expectedSmartLocalDate = SmartLocalDate.fromString("2024-05-10");
+
+        Assert.assertEquals(datePicker.getSmartLocalDate(), expectedSmartLocalDate);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -640,33 +894,128 @@ public class WebElementsTest extends BaseTest {
         testPage.open(WEB_PAGE_URL);
         DatePicker datePicker = testPage.getDatePicker();
         // Simulate picking a date
-        datePicker.pickDate("12/25/2024");
-        SmartValue smartValue = datePicker.getSmartValue();
+        datePicker.setValue("12/25/2024");
+        LocalDate expectedLocalDate = LocalDate.of(2024, 12, 25);
+        SmartValue smartValue = datePicker.getValue();
 
-        Assert.assertEquals(smartValue.toString(), "12/25/2024");
+        Assert.assertEquals(smartValue.toLocalDate(), expectedLocalDate);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void testGetSmartLocalDate() {
+    public void testGetDatePickerSmartLocalDate() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
         DatePicker datePicker = testPage.getDatePicker();
         // Simulate picking a date
-        datePicker.pickDate("12/25/2024");
+        datePicker.setValue("12/25/2024");
         SmartLocalDate smartLocalDate = datePicker.getSmartLocalDate();
 
-        Assert.assertEquals(smartLocalDate.toString(), "12/25/2024");
+        Assert.assertEquals(smartLocalDate, SmartLocalDate.fromString("12/25/2024"));
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void testDropdownSelectOptionWithValidSmartValue() {
+    public void testDatePickerSetValueWithLocalDate() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        Dropdown dropdown = testPage.getDropdown();
-        SmartValue option = new SmartValue("One");
-        dropdown.selectOption(option);
+        DatePicker datePicker = testPage.getDatePicker();
+        SmartLocalDate smartLocalDate = SmartLocalDate.fromString("12/25/2024");
+        // Simulate picking a date
+        datePicker.setValue(smartLocalDate);
 
-        Assert.assertEquals(dropdown.getSelectedOption(), "One");
+        Assert.assertEquals(datePicker.getValue().toSmartLocalDate(), smartLocalDate);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testDatePickerSetValueWithSmartLocalDate() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        DatePicker datePicker = testPage.getDatePicker();
+        SmartLocalDate smartLocalDate = SmartLocalDate.fromString("12/25/2024");
+        // Simulate picking a date
+        datePicker.setValue(smartLocalDate);
+
+        Assert.assertEquals(datePicker.getValue().toSmartLocalDate(), smartLocalDate);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testDatePickerSetValueWithDate() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        DatePicker datePicker = testPage.getDatePicker();
+        Date date = ConvertUtils.stringToSmartDate("12/25/2024").toDate();
+        // Simulate picking a date
+        datePicker.setValue(date);
+
+        Assert.assertEquals(datePicker.getValue().toDate(), date);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testDatePickerSetValueWithSmartDate() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        DatePicker datePicker = testPage.getDatePicker();
+        SmartDate smartDate = ConvertUtils.stringToSmartDate("12/25/2024");
+        // Simulate picking a date
+        datePicker.setValue(smartDate);
+
+        Assert.assertEquals(datePicker.getValue().toSmartDate(), smartDate);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testDatePickerSetSmartValueWithLocalDate() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        DatePicker datePicker = testPage.getDatePicker();
+        SmartLocalDate smartLocalDate = SmartLocalDate.fromString("12/25/2024");
+        SmartValue smartValue = new SmartValue(smartLocalDate);
+        // Simulate picking a date
+        datePicker.setSmartValue(smartValue);
+
+        Assert.assertEquals(datePicker.getValue(), smartValue);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testDatePickerSetValueWithInvalidDateString() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        DatePicker datePicker = testPage.getDatePicker();
+        // Should throw an exception
+        datePicker.setValue("Invalid date");
+    }
+
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testDatePickerSetValueWithInvalidValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        DatePicker datePicker = testPage.getDatePicker();
+        // Should throw an exception
+        datePicker.setValue(this);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testDatePickerSetSmartValueWithInvalidSmartValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        DatePicker datePicker = testPage.getDatePicker();
+        // Should throw an exception
+        datePicker.setSmartValue(new SmartValue(this));
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testDatePickerSetValueWithNullValue() {
+        TestPage testPage = new TestPage();
+        DatePicker datePicker = testPage.getDatePicker();
+        // Should throw an exception
+        datePicker.setValue(null);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testDatePickerSetSmartValueWithNullValue() {
+        TestPage testPage = new TestPage();
+        DatePicker datePicker = testPage.getDatePicker();
+        // Should throw an exception
+        datePicker.setSmartValue(null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -677,7 +1026,7 @@ public class WebElementsTest extends BaseTest {
         String  option = "Three";
         dropdown.selectOption(option);
 
-        Assert.assertEquals(dropdown.getSelectedOption(), "Three");
+        Assert.assertEquals(dropdown.getValueString(), "Three");
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -688,18 +1037,7 @@ public class WebElementsTest extends BaseTest {
         String value = "2";
         dropdown.selectOptionByValue(value);
 
-        Assert.assertEquals(dropdown.getSelectedOption(), "Two");
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void testDropdownSelectOptionByValidSmartValue() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        Dropdown dropdown = testPage.getDropdown();
-        SmartValue value = new SmartValue(1);
-        dropdown.selectOptionByValue(value);
-
-        Assert.assertEquals(dropdown.getSelectedOption(), "One");
+        Assert.assertEquals(dropdown.getValueString(), "Two");
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -710,38 +1048,7 @@ public class WebElementsTest extends BaseTest {
         int index = 2; // Assuming index 2 corresponds to "Three"
         dropdown.selectOptionByIndex(index);
 
-        Assert.assertEquals(dropdown.getSelectedOption(), "Two");
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void testDropdownGetSmartValue() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        Dropdown dropdown = testPage.getDropdown();
-        // Simulate selecting an option
-        dropdown.selectOptionByValue(new SmartValue(2));
-        SmartValue smartValue = dropdown.getSmartValue();
-
-        Assert.assertEquals(smartValue.toString(), "Two");
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
-    public void testDropdownSelectOptionWithBlankSmartValue() {
-        TestPage testPage = new TestPage();
-        Dropdown dropdown = testPage.getDropdown();
-        SmartValue option = new SmartValue("");
-
-        dropdown.selectOption(option);
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
-    public void testDropdownSelectOptionWithInvalidSmartValue() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        Dropdown dropdown = testPage.getDropdown();
-        SmartValue option = new SmartValue("Invalid");
-
-        dropdown.selectOption(option);
+        Assert.assertEquals(dropdown.getValueString(), "Two");
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
@@ -751,7 +1058,7 @@ public class WebElementsTest extends BaseTest {
         dropdown.selectOptionByValue("");
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testDropdownSelectOptionByValueWithInvalidString() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
@@ -760,20 +1067,13 @@ public class WebElementsTest extends BaseTest {
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
-    public void testDropdownSelectOptionByNullSmartValue() {
-        TestPage testPage = new TestPage();
-        Dropdown dropdown = testPage.getDropdown();
-        dropdown.selectOptionByValue((SmartValue) null);
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
     public void testDropdownSelectOptionByNullSting() {
         TestPage testPage = new TestPage();
         Dropdown dropdown = testPage.getDropdown();
-        dropdown.selectOptionByValue((String) null);
+        dropdown.selectOptionByValue(null);
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testDropdownSelectOptionByInvalidIndex() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
@@ -829,56 +1129,6 @@ public class WebElementsTest extends BaseTest {
         Assert.assertEquals(result, 0);
     }
 
-    @Test
-    public void testSelectOptionByIndexWithValidIndex() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        Dropdown dropdown = testPage.getDropdown();
-        SmartValue index = new SmartValue(2);
-        dropdown.selectOptionByIndex(index);
-
-        Assert.assertEquals(dropdown.getSelectedOptionIndex(), 2);
-    }
-
-    @Test
-    public void testSelectOptionByIndexWithZeroIndex() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        Dropdown dropdown = testPage.getDropdown();
-        SmartValue index = new SmartValue(0);
-        dropdown.selectOptionByIndex(index);
-
-        Assert.assertEquals(dropdown.getSelectedOptionIndex(), 0);
-    }
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testSelectOptionByIndexWithMaxIntegerIndex() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        Dropdown dropdown = testPage.getDropdown();
-        SmartValue index = new SmartValue(Integer.MAX_VALUE);
-        dropdown.selectOptionByIndex(index);
-
-        Assert.assertEquals(dropdown.getSelectedOptionIndex(), Integer.MAX_VALUE);
-    }
-
-    @Test(expectedExceptions = SmartValidationException.class)
-    public void testSelectOptionByIndexWithNullIndex() {
-        TestPage testPage = new TestPage();
-        Dropdown dropdown = testPage.getDropdown();
-        SmartValue index = null;
-        dropdown.selectOptionByIndex(index);
-    }
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testSelectOptionByIndexWithNonIntegerSmartValue() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        Dropdown dropdown = testPage.getDropdown();
-        SmartValue index = new SmartValue("nonIntegerValue");
-        dropdown.selectOptionByIndex(index);
-    }
-
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testFieldConstructorWithValidSelector() {
         TestPage testPage = new TestPage();
@@ -910,7 +1160,7 @@ public class WebElementsTest extends BaseTest {
         fileInput.enterFilePath(validFilePath);
 
         // Verify the entered file path using getValue
-        Assert.assertEquals(new File(fileInput.getValue()), expectedFile);
+        Assert.assertEquals(new File(fileInput.getValueString()), expectedFile);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -924,7 +1174,7 @@ public class WebElementsTest extends BaseTest {
         fileInput.enterFilePath(file);
 
         // Verify the entered file path using getValue
-        Assert.assertEquals(fileInput.getValue(), FileSystemUtils.normalizeFilePathString(file.getPath()));
+        Assert.assertEquals(fileInput.getValue().toFile(), file);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -938,7 +1188,7 @@ public class WebElementsTest extends BaseTest {
         fileInput.enterFilePath(fileSmartValue);
 
         // Verify the entered file path using getValue
-        Assert.assertEquals(fileInput.getValue(), fileSmartValue.toString());
+        Assert.assertEquals(fileInput.getValue(), fileSmartValue);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -951,7 +1201,7 @@ public class WebElementsTest extends BaseTest {
         fileInput.enterFilePath(validFilePath);
 
         // Verify the SmartValue returned by getSmartValue
-        SmartValue smartValue = fileInput.getSmartValue();
+        SmartValue smartValue = fileInput.getValue();
         Assert.assertEquals(smartValue.toFile(), new File(validFilePath));
     }
 
@@ -965,10 +1215,10 @@ public class WebElementsTest extends BaseTest {
         fileInput.enterFilePath(validFilePath);
 
         // Verify the file path returned by getValue
-        Assert.assertEquals(new File(fileInput.getValue()), new File(validFilePath));
+        Assert.assertEquals(fileInput.getValue().toFile(), new File(validFilePath));
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testEnterFilePathWithInvalidFilePath() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
@@ -1010,7 +1260,7 @@ public class WebElementsTest extends BaseTest {
         FileInput fileInput = testPage.getFileInput();
         // Simulate a scenario where getElement().getAttribute("value") returns invalid data
         // This should throw a SmartRuntimeException
-        String result = fileInput.getValue();
+        String result = fileInput.getValue().toString();
 
         Assert.assertEquals(result, "");
     }
@@ -1025,7 +1275,7 @@ public class WebElementsTest extends BaseTest {
         Assert.assertEquals(label.getText(), expectedLabelText);
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testGetElementWithInvalidSelector() {
         // Initialize the Label with a selector that does not exist on the page
         By invalidSelector = By.id("invalidLabelId");
@@ -1035,7 +1285,6 @@ public class WebElementsTest extends BaseTest {
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testSelectOptionByText() {
         TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
         testPage.open(MULTI_SELECT_PAGE_URL);
         Multiselect multiselect = testPage.getMultiselect();
         // Simulate selecting a valid option by its text
@@ -1043,13 +1292,168 @@ public class WebElementsTest extends BaseTest {
         multiselect.selectOption(optionText);
 
         // Verify that the correct option is selected
-        Assert.assertEquals(multiselect.getFirstSelectedOptionText(), optionText);
+        Assert.assertEquals(multiselect.getFirstSelectedOption(), optionText);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testSelectOptionsByText() {
+        TestPage testPage = new TestPage();
+        testPage.open(MULTI_SELECT_PAGE_URL);
+        Multiselect multiselect = testPage.getMultiselect();
+        // Simulate selecting a valid options by their text
+        String[] options = {"Option 1", "Option 2"};
+        List<String> optionsList = Arrays.asList(options);
+        multiselect.selectOptions(optionsList);
+
+        // Verify that the correct options are selected
+        Assert.assertEquals(multiselect.getAllSelectedOptions(), optionsList);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testSelectOptionsByValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(MULTI_SELECT_PAGE_URL);
+        Multiselect multiselect = testPage.getMultiselect();
+        // Simulate selecting a valid options by their text
+        String[] values = {"1", "2"};
+        List<String> valuesList = Arrays.asList(values);
+        multiselect.selectOptionsByValue(valuesList);
+
+        // Verify that the correct option values are selected
+        Assert.assertEquals(multiselect.getAllSelectedOptionValues(), valuesList);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testSelectOptionsByIndexes() {
+        TestPage testPage = new TestPage();
+        testPage.open(MULTI_SELECT_PAGE_URL);
+        Multiselect multiselect = testPage.getMultiselect();
+        // Simulate selecting a valid options by their text
+        Integer[] indexes = {0, 1};
+        List<Integer> indexesList = Arrays.asList(indexes);
+        multiselect.selectOptionsByIndexes(indexesList);
+
+        // Verify that the correct option indexes are selected
+        Assert.assertEquals(multiselect.getAllSelectedOptionIndexes(), indexesList);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testDeselectOptionsByIndexes() {
+        TestPage testPage = new TestPage();
+        testPage.open(MULTI_SELECT_PAGE_URL);
+        Multiselect multiselect = testPage.getMultiselect();
+        // Simulate selecting a valid options by their text
+        Integer[] indexes = {0, 1};
+        List<Integer> indexesList = Arrays.asList(indexes);
+        multiselect.selectOptionsByIndexes(indexesList);
+        multiselect.deselectOptionsByIndexes(indexesList);
+
+        // Verify that the correct option indexes are selected
+        Assert.assertTrue(multiselect.getAllSelectedOptionIndexes().isEmpty());
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testMultiselectSelectOptionByValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(MULTI_SELECT_PAGE_URL);
+        Multiselect multiselect = testPage.getMultiselect();
+        String value = "1";
+        // Select option by value
+        multiselect.selectOptionByValue(value);
+
+        // Verify that the correct option is selected by value
+        Assert.assertEquals(multiselect.getFirstSelectedOptionValue(), value);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testMultiselectDeselectOptionByValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(MULTI_SELECT_PAGE_URL);
+        Multiselect multiselect = testPage.getMultiselect();
+        String value = "1";
+        // Select option by value
+        multiselect.selectOptionByValue(value);
+        // Deselect selected option by value
+        multiselect.deselectOptionByValue(value);
+
+        // Verify that the correct option is deselected by value
+        Assert.assertEquals(multiselect.getAllSelectedOptions().size(), 0);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testDeselectOptionsByText() {
+        TestPage testPage = new TestPage();
+        testPage.open(MULTI_SELECT_PAGE_URL);
+        Multiselect multiselect = testPage.getMultiselect();
+        // Simulate selecting a valid option by its text
+        multiselect.selectOption("Option 3");
+        String[] options = {"Option 1", "Option 2"};
+        List<String> optionsList = Arrays.asList(options);
+        List<String> expectedOptionsList = new ArrayList<>();
+        expectedOptionsList.add("Option 3");
+        // Simulate selecting a valid options by their text
+        multiselect.selectOptions(optionsList);
+        // Simulate deselecting a valid options by their text
+        multiselect.deselectOptions(optionsList);
+
+        // Verify that the correct options are deselected
+        Assert.assertEquals(multiselect.getAllSelectedOptions(), expectedOptionsList);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testMultiselectDeselectOptionsByIndexes() {
+        TestPage testPage = new TestPage();
+        testPage.open(MULTI_SELECT_PAGE_URL);
+        Multiselect multiselect = testPage.getMultiselect();
+        // Simulate selecting a valid option by its index
+        multiselect.selectOptionByIndex(3);
+        Integer[] indexes = {0,  2};
+        List<Integer> indexesList = Arrays.asList(indexes);
+        List<Integer> expectedOptionsList = new ArrayList<>();
+        expectedOptionsList.add(3);
+        // Simulate selecting a valid options by their indexes
+        multiselect.selectOptionsByIndexes(indexesList);
+        // Simulate deselecting a valid options by their indexes
+        multiselect.deselectOptionsByIndexes(indexesList);
+
+        // Verify that the correct option indexes are deselected
+        Assert.assertEquals(multiselect.getAllSelectedOptionIndexes(), expectedOptionsList);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testMultiselectSelectAllOptions() {
+        TestPage testPage = new TestPage();
+        testPage.open(MULTI_SELECT_PAGE_URL);
+        Multiselect multiselect = testPage.getMultiselect();
+        List<String> expectedOptionsList = new ArrayList<>();
+        expectedOptionsList.add("Option 1");
+        expectedOptionsList.add("Option 2");
+        expectedOptionsList.add("Option 3");
+        expectedOptionsList.add("Option 4");
+        // Simulate selecting all options
+        multiselect.selectAllOptions();
+
+        // Verify that the all option are selected
+        Assert.assertEquals(multiselect.getAllSelectedOptions(), expectedOptionsList);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testMultiselectDeselectAllOptions() {
+        TestPage testPage = new TestPage();
+        testPage.open(MULTI_SELECT_PAGE_URL);
+        Multiselect multiselect = testPage.getMultiselect();
+        // Simulate selecting all options
+        multiselect.selectAllOptions();
+        // Simulate deselecting all options
+        multiselect.deselectAllOptions();
+
+        // Verify that the all option are deselected
+        Assert.assertTrue(multiselect.getAllSelectedOptionIndexes().isEmpty());
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testSelectOptionByValue() {
         TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
         testPage.open(MULTI_SELECT_PAGE_URL);
         Multiselect multiselect = testPage.getMultiselect();
         // Simulate selecting a valid option by its value
@@ -1063,19 +1467,17 @@ public class WebElementsTest extends BaseTest {
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testSelectOptionByIndex() {
         TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
         testPage.open(MULTI_SELECT_PAGE_URL);
         Multiselect multiselect = testPage.getMultiselect();
         multiselect.selectOptionByIndex(0);
 
         // Verify that the correct option index is selected
-        Assert.assertEquals(multiselect.getFirstSelectedOptionText(), "Option 1");
+        Assert.assertEquals(multiselect.getFirstSelectedOption(), "Option 1");
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testDeselectOptionByText() {
         TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
         testPage.open(MULTI_SELECT_PAGE_URL);
         Multiselect multiselect = testPage.getMultiselect();
         // Simulate deselecting an option by its text
@@ -1084,13 +1486,12 @@ public class WebElementsTest extends BaseTest {
         multiselect.deselectOption(optionText);
 
         // Verify that no option is selected
-        Assert.assertTrue(multiselect.getAlSelectedOptions().isEmpty());
+        Assert.assertTrue(multiselect.getAllSelectedOptions().isEmpty());
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testGetAllSelectedOptions() {
         TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
         testPage.open(MULTI_SELECT_PAGE_URL);
         Multiselect multiselect = testPage.getMultiselect();
         // Simulate selecting multiple options
@@ -1098,7 +1499,7 @@ public class WebElementsTest extends BaseTest {
         multiselect.selectOption("Option 2");
 
         // Verify that all selected options are returned
-        List<String> selectedOptions = multiselect.getAlSelectedOptions();
+        List<String> selectedOptions = multiselect.getAllSelectedOptions();
         Assert.assertTrue(selectedOptions.contains("Option 1"));
         Assert.assertTrue(selectedOptions.contains("Option 2"));
     }
@@ -1106,7 +1507,6 @@ public class WebElementsTest extends BaseTest {
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testGetAllSelectedValues() {
         TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
         testPage.open(MULTI_SELECT_PAGE_URL);
         Multiselect multiselect = testPage.getMultiselect();
         // Simulate selecting multiple options by value
@@ -1119,13 +1519,76 @@ public class WebElementsTest extends BaseTest {
         Assert.assertTrue(selectedValues.contains("2"));
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
-    public void testSelectOptionByTextWithNullValue() {
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testGetAllSelectedIndexes() {
         TestPage testPage = new TestPage();
         testPage.open(MULTI_SELECT_PAGE_URL);
         Multiselect multiselect = testPage.getMultiselect();
-        // Call selectOption with a null value
-        multiselect.selectOption((SmartValue) null);
+        // Simulate selecting multiple options by value
+        multiselect.selectOptionByIndex(1);
+        multiselect.selectOptionByIndex(2);
+
+        // Verify that all selected option indexes are returned
+        List<Integer> selectedValues = multiselect.getAllSelectedOptionIndexes();
+        Assert.assertTrue(selectedValues.contains(1));
+        Assert.assertTrue(selectedValues.contains(2));
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testSelectOptionsByTextWithNullValue() {
+        TestPage testPage = new TestPage();
+        Multiselect multiselect = testPage.getMultiselect();
+        // Call selectOption by null text
+        multiselect.selectOptions(null);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testSelectOptionsByValuesWithNullValue() {
+        TestPage testPage = new TestPage();
+        Multiselect multiselect = testPage.getMultiselect();
+        // Call selectOption by null text
+        multiselect.selectOptionsByValue(null);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testSelectOptionsByValueWithBlankValue() {
+        TestPage testPage = new TestPage();
+        Multiselect multiselect = testPage.getMultiselect();
+        // Call selectOption by null value
+        multiselect.selectOptionByValue("  ");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testSelectOptionsByValueWithNullValue() {
+        TestPage testPage = new TestPage();
+        Multiselect multiselect = testPage.getMultiselect();
+        // Call selectOption by null value
+        multiselect.selectOptionByValue(null);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testSelectOptionsByValueWithNullValues() {
+        TestPage testPage = new TestPage();
+        Multiselect multiselect = testPage.getMultiselect();
+        // Call deselectOption by null values
+        multiselect.deselectOptionsByValues(null);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testSelectOptionsByIndexesWithNullIndexes() {
+        TestPage testPage = new TestPage();
+        Multiselect multiselect = testPage.getMultiselect();
+        // Call deselectOption by null indexes
+        multiselect.deselectOptionsByIndexes(null);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testSelectOptionsByValuesWithNullIndexes() {
+        TestPage testPage = new TestPage();
+        Multiselect multiselect = testPage.getMultiselect();
+        // Call deselectOption by null values
+        multiselect.deselectOptionsByValues(null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
@@ -1137,7 +1600,7 @@ public class WebElementsTest extends BaseTest {
         multiselect.selectOptionByValue("");
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testDeselectOptionWithInvalidText() {
         TestPage testPage = new TestPage();
         testPage.open(MULTI_SELECT_PAGE_URL);
@@ -1155,16 +1618,7 @@ public class WebElementsTest extends BaseTest {
         multiselect.selectOptionByIndex(null);
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
-    public void testDeselectOptionByValueWithNull() {
-        TestPage testPage = new TestPage();
-        testPage.open(MULTI_SELECT_PAGE_URL);
-        Multiselect multiselect = testPage.getMultiselect();
-        // Call deselectOptionByValue with a null value
-        multiselect.deselectOptionByValue((SmartValue) null);
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testDeselectOptionByIndexWithInvalidIndex() {
         TestPage testPage = new TestPage();
         testPage.open(MULTI_SELECT_PAGE_URL);
@@ -1173,127 +1627,19 @@ public class WebElementsTest extends BaseTest {
         multiselect.deselectOptionByIndex(999);
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void testDeselectOptionByIndexWithValidIndex() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        testPage.open(MULTI_SELECT_PAGE_URL);
-        Multiselect multiselect = testPage.getMultiselect();
-        // Assume the multiselect has some options selected initially
-        int validIndex = 1;
-        multiselect.selectOptionByIndex(validIndex);
-        // Deselect the option using a valid index
-        multiselect.deselectOptionByIndex(new SmartValue(validIndex));
-
-        // Assert that the option is no longer selected
-        Assert.assertFalse(multiselect.getAlSelectedOptions().contains("Option 2"));
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void testDeselectOptionByIndexWithZeroIndex() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        testPage.open(MULTI_SELECT_PAGE_URL);
-        Multiselect multiselect = testPage.getMultiselect();
-        // Select the option at index 0
-        multiselect.selectOptionByIndex(0);
-        // Deselect the option using index 0
-        multiselect.deselectOptionByIndex(new SmartValue(0));
-
-        // Assert that the option is no longer selected
-        Assert.assertFalse(multiselect.getAlSelectedOptions().contains("Option 1"));
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
-    public void testDeselectOptionByIndexWithNullIndex() {
-        TestPage testPage = new TestPage();
-        testPage.open(MULTI_SELECT_PAGE_URL);
-        Multiselect multiselect = testPage.getMultiselect();
-        // Call deselectOptionByIndex with a null SmartValue
-        multiselect.deselectOptionByIndex(null);
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
-    public void testDeselectOptionByIndexWithNegativeIndex() {
-        TestPage testPage = new TestPage();
-        testPage.open(MULTI_SELECT_PAGE_URL);
-        Multiselect multiselect = testPage.getMultiselect();
-        // Call deselectOptionByIndex with a negative index
-        multiselect.deselectOptionByIndex(new SmartValue(-1));
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
-    public void testDeselectOptionByIndexWithNonExistentIndex() {
-        TestPage testPage = new TestPage();
-        testPage.open(MULTI_SELECT_PAGE_URL);
-        Multiselect multiselect = testPage.getMultiselect();
-        // Assume the multiselect has only a few options
-        int nonExistentIndex = 100;
-
-        // Attempt to deselect a non-existent index
-        multiselect.deselectOptionByIndex(new SmartValue(nonExistentIndex));
-    }
-
-    @Test
-    public void testDeselectOptionWithValidOption() {
-        TestPage testPage = new TestPage();
-        testPage.open(MULTI_SELECT_PAGE_URL);
-        Multiselect multiselect = testPage.getMultiselect();
-        SmartValue option = new SmartValue("Option 2");
-        multiselect.selectOption(option);
-        multiselect.deselectOption(option);
-
-        Assert.assertTrue(multiselect.getAlSelectedOptions().isEmpty());
-    }
-
-    @Test(expectedExceptions = SmartValidationException.class)
-    public void testDeselectOptionWithSmartValueNullOption() {
-        TestPage testPage = new TestPage();
-        Multiselect multiselect = testPage.getMultiselect();
-        multiselect.deselectOption((SmartValue) null);
-    }
-
     @Test(expectedExceptions = SmartValidationException.class)
     public void testDeselectOptionWithStringNullOption() {
         TestPage testPage = new TestPage();
         Multiselect multiselect = testPage.getMultiselect();
-        multiselect.deselectOption((String) null);
-    }
-
-    @Test
-    public void testSelectOptionByValueWithValidSmartValue() {
-        TestPage testPage = new TestPage();
-        testPage.open(MULTI_SELECT_PAGE_URL);
-        Multiselect multiselect = testPage.getMultiselect();
-        SmartValue validValue = new SmartValue("2");
-        multiselect.selectOptionByValue(validValue);
-
-        Assert.assertTrue(multiselect.getAlSelectedValues().contains("2"));
+        multiselect.deselectOption(null);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testSelectOptionByValueWithStringNullSmartValue() {
         TestPage testPage = new TestPage();
         Multiselect multiselect = testPage.getMultiselect();
-        multiselect.selectOptionByValue((String) null);
+        multiselect.selectOptionByValue(null);
     }
-
-    @Test(expectedExceptions = SmartValidationException.class)
-    public void testSelectOptionByValueWithNullSmartValueSmartValue() {
-        TestPage testPage = new TestPage();
-        Multiselect multiselect = testPage.getMultiselect();
-        multiselect.selectOptionByValue((SmartValue) null);
-    }
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testDeselectOptionWithBlankOption() {
-        TestPage testPage = new TestPage();
-        testPage.open(MULTI_SELECT_PAGE_URL);
-        Multiselect multiselect = testPage.getMultiselect();
-        SmartValue option = new SmartValue("");
-        multiselect.deselectOption(option);
-    }
-
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testSelectRadiobutton() {
@@ -1321,7 +1667,61 @@ public class WebElementsTest extends BaseTest {
         radiobutton.select();
 
         // Assert that getValue() returns true
-        Assert.assertTrue(radiobutton.getValue());
+        Assert.assertTrue(radiobutton.isSelected());
+    }
+
+    @Test
+    public void testRadiobuttonSetValueWithBooleanValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Radiobutton radiobutton = testPage.getRadiobutton();
+        // Select the radiobutton
+        radiobutton.setValue(true);
+
+        // Assert that getValue() returns true
+        Assert.assertTrue(radiobutton.isSelected());
+    }
+
+    @Test
+    public void testRadiobuttonSetValueWithString() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Radiobutton radiobutton = testPage.getRadiobutton();
+        // Select the radiobutton
+        radiobutton.setValue("true");
+
+        // Assert that isSelected() returns true
+        Assert.assertTrue(radiobutton.isSelected());
+    }
+
+    @Test
+    public void testRadiobuttonSetValueWithFalseValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Radiobutton radiobutton = testPage.getRadiobutton();
+        // Select the radiobutton
+        radiobutton.setValue(false);
+
+        // Assert that isSelected() returns false
+        Assert.assertFalse(radiobutton.isSelected());
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testRadiobuttonSetValueWithInvalidString() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Radiobutton radiobutton = testPage.getRadiobutton();
+        // Select the radiobutton
+        radiobutton.setValue("Invalid");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testRadiobuttonSetValueWithNullValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(WEB_PAGE_URL);
+        Radiobutton radiobutton = testPage.getRadiobutton();
+        // Select the radiobutton
+        radiobutton.setValue(null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -1333,7 +1733,7 @@ public class WebElementsTest extends BaseTest {
         rangeSlider1.setValue(3);
 
         // Assert that the value is correctly set to 3
-        Assert.assertEquals(rangeSlider1.getValue(), 3);
+        Assert.assertEquals(rangeSlider1.getRange(), 3);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -1346,7 +1746,7 @@ public class WebElementsTest extends BaseTest {
         rangeSlider1.setValue(smartValue);
 
         // Assert that the value is correctly set to 8
-        Assert.assertEquals(rangeSlider1.getValue(), 8);
+        Assert.assertEquals(rangeSlider1.getRange(), 8);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -1359,80 +1759,74 @@ public class WebElementsTest extends BaseTest {
         rangeSlider1.setValue(smartValue);
 
         // Assert that the value is correctly set to 7
-        Assert.assertEquals(rangeSlider1.getValue(), 7);
+        Assert.assertEquals(rangeSlider1.getRange(), 7);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testSetValueToRangeSliderWithNegativeValues() {
         TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
         testPage.open(RANGE_SLIDER_PAGE_URL);
         RangeSlider rangeSlider2 = testPage.getRangeSlider2();
         // Set the value to -333.0
         rangeSlider2.setValue(-333.0);
 
         // Assert that the value is correctly set to -333.0
-        Assert.assertEquals(rangeSlider2.getValue(), -333);
+        Assert.assertEquals(rangeSlider2.getRange(), -333);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testSetValueToRangeSliderWithDefaultValues() {
         TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
         testPage.open(RANGE_SLIDER_PAGE_URL);
         RangeSlider rangeSlider3 = testPage.getRangeSlider3();
         // Set the value to 0
         rangeSlider3.setValue(0);
 
         // Assert that the value is correctly set to 0
-        Assert.assertEquals(rangeSlider3.getValue(), 0);
+        Assert.assertEquals(rangeSlider3.getRange(), 0);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testSetValueToRangeSliderWithValuesBelowOne() {
         TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
         testPage.open(RANGE_SLIDER_PAGE_URL);
         RangeSlider rangeSlider4 = testPage.getRangeSlider4();
         // Set the value to 0.9
         rangeSlider4.setValue(0.9);
 
         // Assert that the value is correctly set to 0.9
-        Assert.assertEquals(rangeSlider4.getValue(), 0.9);
+        Assert.assertEquals(rangeSlider4.getValue().toDouble(), 0.9);
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testSetValueToRangeSliderWithTooBigValue() {
         TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
         testPage.open(RANGE_SLIDER_PAGE_URL);
         RangeSlider rangeSlider4 = testPage.getRangeSlider4();
         // Set the value to 1.0 that is bigger than max=0.9
         rangeSlider4.setValue(1.0);
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testSetValueToRangeSliderWithTooSmallValue() {
         TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
         testPage.open(RANGE_SLIDER_PAGE_URL);
         RangeSlider rangeSlider4 = testPage.getRangeSlider4();
         // Set the value to 0.09 that is smaller than min=0.1
         rangeSlider4.setValue(0.09);
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testSetValueWithNullSmartValue() {
         TestPage testPage = new TestPage();
         RangeSlider rangeSlider1 = testPage.getRangeSlider1();
         // Attempt to set a null SmartValue
-        rangeSlider1.setValue((SmartValue) null);
+        rangeSlider1.setValue(null);
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartRuntimeException.class)
+    @Test(expectedExceptions = SmartValidationException.class)
     public void testSetValueWithInvalidTypeSmartValue() {
         TestPage testPage = new TestPage();
-        testPage.open(RANGE_SLIDER_PAGE_URL);
         RangeSlider rangeSlider1 = testPage.getRangeSlider1();
         // Attempt to set a invalid type SmartValue
         rangeSlider1.setValue(new SmartValue(true));

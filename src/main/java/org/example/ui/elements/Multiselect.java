@@ -4,12 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.annotations.RunAlone;
 import org.example.data.SmartValue;
 import org.example.exceptions.SmartRuntimeException;
+import org.example.interfaces.ReadableObject;
+import org.example.interfaces.WritableObject;
 import org.example.ui.wrappers.SmartElement;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +21,7 @@ import java.util.stream.Collectors;
  * The multiselect element class.
  */
 @Slf4j
-public class Multiselect extends SmartElement {
+public class Multiselect extends SmartElement implements ReadableObject, WritableObject {
     private Select select;
 
     /**
@@ -42,7 +46,7 @@ public class Multiselect extends SmartElement {
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                    Cannot get multiselect web elemnt by:
+                    Cannot get multiselect web element by:
                     %s
                     """.stripIndent(),
                     smartBy), e);
@@ -51,24 +55,17 @@ public class Multiselect extends SmartElement {
 
     /**
      * Selects option by its text.
-     * @param option The option of the option to select.
-     */
-    public void selectOption(SmartValue option) {
-        DataValidationUtils.validateNotNull(option, "option");
-        selectOption(option.toString());
-    }
-
-    /**
-     * Selects option by its text.
      * @param optionString The option text of the option to select.
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOption(String optionString) {
-        DataValidationUtils.validateNotBlank(optionString, "option");
+        DataValidationUtils.validateNotBlank(optionString, "optionString");
+        DataValidationUtils.validateNotMultiline(optionString, "optionString");
         getElement();
         try {
             select.selectByVisibleText(optionString);
-            log.debug("Multiselect {} option is selected: {}", elementName, optionString);
+            log.debug("Multiselect {} option is selected: {}",
+                    elementName, optionString);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
@@ -82,14 +79,84 @@ public class Multiselect extends SmartElement {
     }
 
     /**
-     * Deselects option by its text.
-     * @param option The text of the option to deselect.
+     * Selects options by collection of options.
+     * @param options The collection to select.
      */
-    public void deselectOption(SmartValue option) {
-        DataValidationUtils.validateNotNull(option, "option");
-        DataValidationUtils.validateNotBlank(option.toString(), "option");
+    public void selectOptions(Collection<String> options) {
+        DataValidationUtils.validateNotNull(options, "options");
         getElement();
-        deselectOption(option.toString());
+
+        try {
+            for (String option : options) {
+                selectOption(option);
+            }
+            log.debug("Multiselect {} options are selected:\n{}",
+                    elementName, options);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot select multiselect options.
+                    Multiselect:
+                    %s
+                    Options:
+                    %s
+                    """.stripIndent(),
+                    smartBy, options), e);
+        }
+    }
+
+    /**
+     * Selects options by collection of values.
+     * @param values The values.
+     */
+    public void selectOptionsByValue(Collection<String> values) {
+        DataValidationUtils.validateNotNull(values, "options");
+        getElement();
+
+        try {
+            for (String value : values) {
+                selectOptionByValue(value);
+            }
+            log.debug("Multiselect {} options are selected by values:\n{}",
+                    elementName, values);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot select multiselect options by values.
+                    Multiselect:
+                    %s
+                    Values:
+                    %s
+                    """.stripIndent(),
+                    smartBy, values), e);
+        }
+    }
+
+    /**
+     * Selects options by collection of indexes.
+     * @param indexes The indexes.
+     */
+    public void selectOptionsByIndexes(Collection<Integer> indexes) {
+        DataValidationUtils.validateNotNull(indexes, "indexes");
+        getElement();
+
+        try {
+            for (Integer index : indexes) {
+                selectOptionByIndex(index);
+            }
+            log.debug("Multiselect {} options are selected by indexes:\n{}",
+                    elementName, indexes);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot select multiselect options by indexes.
+                    Multiselect:
+                    %s
+                    Indexes:
+                    %s
+                    """.stripIndent(),
+                    smartBy, indexes), e);
+        }
     }
 
     /**
@@ -98,31 +165,154 @@ public class Multiselect extends SmartElement {
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void deselectOption(String  optionString) {
-        DataValidationUtils.validateNotBlank(optionString, "option");
+        DataValidationUtils.validateNotBlank(optionString, "optionString");
+        DataValidationUtils.validateNotMultiline(optionString, "optionString");
         getElement();
+
         try {
             select.deselectByVisibleText(optionString);
             log.debug("Multiselect {} option is deselected: {}", elementName, optionString);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-               Cannot deselect multiselect option.
-               Multiselect:
-               %s
-               Option: %s
-               """.stripIndent(),
-               smartBy, optionString), e);
+                   Cannot deselect multiselect option.
+                   Multiselect:
+                   %s
+                   Option: %s
+                   """.stripIndent(),
+                   smartBy, optionString), e);
         }
     }
 
     /**
-     * Selects option by its value.
-     * @param value The value of the option to select.
+     * Deselects options by collection of options.
+     * @param options The options.
      */
-    public void selectOptionByValue(SmartValue value) {
-        DataValidationUtils.validateNotNull(value, "value");
+    @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
+    public void deselectOptions(Collection<String>  options) {
+        DataValidationUtils.validateNotNull(options, "options");
         getElement();
-        selectOptionByValue(value.toString());
+        try {
+            for (String option : options) {
+                select.deselectByVisibleText(option);
+            }
+            log.debug("Multiselect {} options are deselected:\n{}", elementName, options);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                   Cannot deselect multiselect options.
+                   Multiselect:
+                   %s
+                   Options:
+                   %s
+                   """.stripIndent(),
+                    smartBy, options), e);
+        }
+    }
+
+    /**
+     * Deselects options by list of values.
+     * @param values The list of values.
+     */
+    @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
+    public void deselectOptionsByValues(Collection<String>  values) {
+        DataValidationUtils.validateNotNull(values, "values");
+        getElement();
+
+        try {
+            for (String option : values) {
+                select.deselectByValue(option);
+            }
+            log.debug("Multiselect {} options are deselected by values:\n{}", elementName, values);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                   Cannot deselect multiselect options by values.
+                   Multiselect:
+                   %s
+                   Values:
+                   %s
+                   """.stripIndent(),
+                    smartBy, values), e);
+        }
+    }
+
+    /**
+     * Deselects options by list of indexes.
+     * @param indexes The list of indexes.
+     */
+    @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
+    public void deselectOptionsByIndexes(Collection<Integer>  indexes) {
+        DataValidationUtils.validateNotNull(indexes, "indexes");
+        getElement();
+        try {
+            for (Integer index : indexes) {
+                select.deselectByIndex(index);
+            }
+            log.debug("Multiselect {} options are deselected by indexes:\n{}", elementName, indexes);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                   Cannot deselect multiselect options by values.
+                   Multiselect:
+                   %s
+                   Values:
+                   %s
+                   """.stripIndent(),
+                    smartBy, indexes), e);
+        }
+    }
+
+    /**
+     * Selects all options.
+     */
+    @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
+    public void selectAllOptions() {
+        getElement();
+
+        try {
+            int size = select.getOptions().size();
+
+            for (int i = 0; i < size; i++) {
+                selectOptionByIndex(i);
+            }
+            log.debug("All {} multiselect option are selected.", elementName);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                   Cannot select all multiselect options.
+                   Multiselect:
+                   %s
+                   Options:
+                   %s
+                   """.stripIndent(),
+                    smartBy), e);
+        }
+    }
+
+    /**
+     * Deselects all options.
+     */
+    @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
+    public void deselectAllOptions() {
+        List<String> options = getAllSelectedOptions();
+
+        try {
+            for (String option : options) {
+                select.deselectByVisibleText(option);
+            }
+            log.debug("All {} multiselect option are deselected.", elementName);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                   Cannot deselect multiselect options.
+                   Multiselect:
+                   %s
+                   Options:
+                   %s
+                   """.stripIndent(),
+                    smartBy, options), e);
+        }
     }
 
     /**
@@ -131,7 +321,8 @@ public class Multiselect extends SmartElement {
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOptionByValue(String valueString) {
-        DataValidationUtils.validateNotBlank(valueString, "value");
+        DataValidationUtils.validateNotBlank(valueString, "valueString");
+        DataValidationUtils.validateNotMultiline(valueString, "valueString");
         getElement();
         try {
             select.selectByValue(valueString);
@@ -150,20 +341,12 @@ public class Multiselect extends SmartElement {
 
     /**
      * Deelects option by its value.
-     * @param value The value of the option to deselect.
-     */
-    public void deselectOptionByValue(SmartValue  value) {
-        DataValidationUtils.validateNotNull(value, "value");
-        deselectOptionByValue(value.toString());
-    }
-
-    /**
-     * Deelects option by its value.
      * @param valueString The value of the option to deselect.
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void deselectOptionByValue(String  valueString) {
         DataValidationUtils.validateNotBlank(valueString, "value");
+        DataValidationUtils.validateNotMultiline(valueString, "valueString");
         getElement();
         try {
             select.deselectByValue(valueString);
@@ -202,23 +385,13 @@ public class Multiselect extends SmartElement {
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-               Cannot select multiselect option by index.
-               Multiselect:
-               %s
-               Index: %s
-               """.stripIndent(),
-               smartBy, index), e);
+                   Cannot select multiselect option by index.
+                   Multiselect:
+                   %s
+                   Index: %s
+                   """.stripIndent(),
+                   smartBy, index), e);
         }
-    }
-
-    /**
-     * Deselects option by its index.
-     * @param index The index of the option to deselect.
-     */
-    public void deselectOptionByIndex(SmartValue index) {
-        DataValidationUtils.validateNotNull(index, "index");
-        DataValidationUtils.validateMin(index.toInteger(), 0, "index");
-        deselectOptionByIndex(index.toInteger());
     }
 
     /**
@@ -235,12 +408,12 @@ public class Multiselect extends SmartElement {
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-               Cannot deselect multiselect option by index.
-               Multiselect:
-               %s
-               Index: %s
-               """.stripIndent(),
-               smartBy, index), e);
+                   Cannot deselect multiselect option by index.
+                   Multiselect:
+                   %s
+                   Index: %s
+                   """.stripIndent(),
+                   smartBy, index), e);
         }
     }
 
@@ -248,7 +421,7 @@ public class Multiselect extends SmartElement {
      * Returns the firs selected option text.
      * @return The text of the first selected option.
      */
-    public String getFirstSelectedOptionText() {
+    public String getFirstSelectedOption() {
         getElement();
         try {
             String text = select.getFirstSelectedOption().getText();
@@ -287,10 +460,10 @@ public class Multiselect extends SmartElement {
     }
 
     /**
-     * Returns text list of selected options.
-     * @return The text list of the selected options.
+     * Returns list of selected options.
+     * @return The list of the selected options.
      */
-    public List<String> getAlSelectedOptions() {
+    public List<String> getAllSelectedOptions() {
         getElement();
         try {
             List<String> options = select.getAllSelectedOptions().stream()
@@ -298,14 +471,66 @@ public class Multiselect extends SmartElement {
                     .collect(Collectors.toList());
             log.debug("All multiselect {} selected option text values are returned:\n{}", elementName, options);
             return options;
+        } catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot get all multiselect selected options.
+                    Multiselect:
+                    %s
+                    """.stripIndent(),
+                    smartBy), e);
+        }
+    }
+
+    /**
+     * Returns text list of selected option values.
+     * @return The list of the selected option values.
+     */
+    public List<String> getAllSelectedOptionValues() {
+        getElement();
+        try {
+            List<String> options = select.getAllSelectedOptions().stream()
+                    .map(element -> element.getAttribute("value"))
+                    .collect(Collectors.toList());
+            log.debug("All multiselect {} selected option values are returned:\n{}", elementName, options);
+            return options;
+        } catch (Exception e) {
+            throw new SmartRuntimeException(String.format("""
+                    Cannot get all multiselect selected option values.
+                    Multiselect:
+                    %s
+                    """.stripIndent(),
+                    smartBy), e);
+        }
+    }
+
+    /**
+     * Returns list of selected option indexes.
+     * @return The list of the selected option indexes.
+     */
+    public List<Integer> getAllSelectedOptionIndexes() {
+        getElement();
+
+        try {
+            List<Integer> indexes = new ArrayList<>();
+            List<WebElement> options = select.getOptions();
+            int size = options.size();
+
+            for (int i = 0; i < size; i++) {
+
+                if (options.get(i).isSelected()) {
+                    indexes.add(i);
+                }
+            }
+            log.debug("All multiselect {} selected option indexes are returned:\n{}", elementName, options);
+            return indexes;
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
-                Cannot get all multiselect selected options.
-                Multiselect:
-                %s
-                """.stripIndent(),
-                smartBy), e);
+                    Cannot get all multiselect selected option indexes.
+                    Multiselect:
+                    %s
+                    """.stripIndent(),
+                    smartBy), e);
         }
     }
 
@@ -329,6 +554,63 @@ public class Multiselect extends SmartElement {
                 %s
                 """.stripIndent(),
                 smartBy), e);
+        }
+    }
+
+    /**
+     * Gets multiselect smart value - the list of selected options.
+     * @return The smart value.
+     */
+    @Override
+    public SmartValue getValue() {
+        return new SmartValue(getAllSelectedOptions());
+    }
+
+    /**
+     * Sets multiselect value - the list of selected options.
+     * @param value The value.
+     * @param <T> The list type.
+     */
+    @Override
+    public <T> void setValue(T value) {
+        DataValidationUtils.validateNotNull(value, "value");
+        SmartValue smartValue = new SmartValue(value);
+
+        if (smartValue.isCollectable()) {
+
+            try {
+                List<String> options = smartValue.toList();
+                selectOptions(options);
+            }
+            catch (Exception e1) {
+                List<String> options = smartValue.toList();
+                try {
+                    selectOptionsByValue(options);
+                }
+                catch (Exception e2) {
+                    List<Integer> indexes = smartValue.toList();
+                    selectOptionsByIndexes(indexes);
+                }
+            }
+        }
+        else if (value instanceof String stringValue) {
+            try {
+                selectOption(stringValue);
+            }
+            catch (Exception e) {
+                selectOptionByValue(stringValue);
+            }
+        }
+        else if (smartValue.isNumeric()) {
+            selectOptionByIndex(smartValue.toInteger());
+        }
+        else if (value instanceof SmartValue smartValue2) {
+            setValue(smartValue2.getValue());
+        }
+        else {
+            throw new SmartRuntimeException(String.format(
+                    "%s multiselect invalid options item type: %s",
+                    elementName, value));
         }
     }
 }

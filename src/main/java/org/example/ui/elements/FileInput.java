@@ -3,6 +3,8 @@ package org.example.ui.elements;
 import org.example.annotations.RunAlone;
 import org.example.data.SmartValue;
 import org.example.exceptions.SmartRuntimeException;
+import org.example.interfaces.ReadableObject;
+import org.example.interfaces.WritableObject;
 import org.example.ui.wrappers.SmartElement;
 import org.example.utils.DataValidationUtils;
 import org.example.utils.FileSystemUtils;
@@ -15,7 +17,7 @@ import java.nio.file.Path;
 /**
  * File input element class that extents text input class.
  */
-public class FileInput extends SmartElement {
+public class FileInput extends SmartElement implements ReadableObject, WritableObject {
 
     /**
      * File input element constructor with auto selector.
@@ -82,6 +84,19 @@ public class FileInput extends SmartElement {
     }
 
     /**
+     * Sets file input value.
+     * @param value The value.
+     * @param <T> The value type.
+     */
+    @Override
+    public <T> void setValue(T value) {
+        DataValidationUtils.validateNotNull(value, "value");
+        SmartValue smartValue = new SmartValue(value);
+
+        enterFilePath(smartValue.toPath());
+    }
+
+    /**
      * Returns file input value - file path string.
      * It normalizes file path string - replaces
      * Windows slashes with Unix slashes and replaces "fakepath"
@@ -91,7 +106,7 @@ public class FileInput extends SmartElement {
      * is returned as file input value by WebDriver for security purpose.
      * @return The file path string.
      */
-    public String getValue() {
+    public String getValueString() {
         WebElement fileInput = getElement();
 
         try {
@@ -115,9 +130,10 @@ public class FileInput extends SmartElement {
      * Returns file input smart value - file path smart value.
      * @return The file path smart value.
      */
-    public SmartValue getSmartValue() {
+    @Override
+    public SmartValue getValue() {
         try {
-            return new SmartValue(getValue());
+            return new SmartValue(getValueString());
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(

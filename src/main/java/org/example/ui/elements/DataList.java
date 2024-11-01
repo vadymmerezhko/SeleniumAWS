@@ -3,6 +3,9 @@ package org.example.ui.elements;
 import lombok.extern.slf4j.Slf4j;
 import org.example.annotations.RunAlone;
 import org.example.data.SmartValue;
+import org.example.exceptions.SmartRuntimeException;
+import org.example.interfaces.ReadableObject;
+import org.example.interfaces.WritableObject;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -11,7 +14,7 @@ import org.openqa.selenium.WebElement;
  * The data list element class.
  */
 @Slf4j
-public class DataList extends BaseTextElement {
+public class DataList extends BaseTextElement implements ReadableObject, WritableObject {
 
     /**
      * The data list element constructor with auto selector.
@@ -31,15 +34,6 @@ public class DataList extends BaseTextElement {
      * Selects data list option by its text.
      * @param option The text of the option to select.
      */
-    public void selectOption(SmartValue option) {
-        DataValidationUtils.validateNotNull(option, "option");
-        selectOption(option.toString());
-    }
-
-    /**
-     * Selects data list option by its text.
-     * @param option The text of the option to select.
-     */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOption(String option) {
         DataValidationUtils.validateNotBlank(option, "option");
@@ -49,13 +43,40 @@ public class DataList extends BaseTextElement {
     }
 
     /**
+     * Sets data list option value by its text.
+     * @param value The text of the option to select.
+     * @param <T> The value type.
+     */
+    @Override
+    @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
+    public <T> void setValue(T value) {
+        DataValidationUtils.validateNotNull(value, "option");
+        SmartValue smartValue = new SmartValue(value);
+
+        if (smartValue.isNumeric()) {
+            selectOptionByIndex(smartValue.toInteger());
+        }
+        else if (value instanceof String stringValue) {
+            selectOption(stringValue);
+        }
+        else if (value instanceof SmartValue smartValue2) {
+            setValue(smartValue2.getValue());
+        }
+        else {
+            throw new SmartRuntimeException(String.format(
+                    "%s data list invalid value type: %s",
+                    elementName, value.getClass().getName()));
+        }
+        log.debug("{} data list value is set to: {}", elementName, value);
+    }
+
+    /**
      * Selects data list option by its index.
      * @param index The data list option index.
      */
     public void selectOptionByIndex(SmartValue index) {
         DataValidationUtils.validateNotNull(index, "index");
         selectOptionByIndex(index.toInteger());
-
     }
 
     /**
@@ -69,19 +90,19 @@ public class DataList extends BaseTextElement {
 
         if (optionText == null || optionText.isEmpty()) {
             SmartValue optionValue = new SmartValue(option.getDomProperty("value"));
-            selectOption(optionValue);
+            setValue(optionValue);
         }
         else {
-            selectOption(new SmartValue(optionText));
+            setValue(new SmartValue(optionText));
         }
         log.debug("Data list {} option {} is selected by index: {}", elementName, option, index);
     }
 
     /**
-     * Returns the text of the dat list selected option.
-     * @return The selected option text.
+     * Returns the data list selected option string.
+     * @return The selected option string.
      */
-    public String getValue() {
+    public String getValueString() {
         String value = getElement().getDomProperty("value");
         log.debug("Data list {} value is returned: {}", elementName, value);
         return value;
@@ -91,8 +112,9 @@ public class DataList extends BaseTextElement {
      * Returns the date list selected option smart value.
      * @return The selected option smart value.
      */
-    public SmartValue getSmartValue() {
-        SmartValue smartValue = new SmartValue(getValue());
+    @Override
+    public SmartValue getValue() {
+        SmartValue smartValue = new SmartValue(getValueString());
         log.debug("Data list {} selected option smart value is returned: {}", elementName, smartValue);
         return smartValue;
     }
