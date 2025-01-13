@@ -83,7 +83,7 @@ public class RangeSlider extends SmartElement implements ReadableObject, Writabl
                 increment = currentRange.doubleValue() - currentValue.doubleValue();
             }
         }
-        log.debug("Range slider {} value is set to: {}", elementName, value);
+        log.debug("{} range slider value is set to: {}", elementName, value);
     }
 
     /**
@@ -92,9 +92,9 @@ public class RangeSlider extends SmartElement implements ReadableObject, Writabl
      * The value can have any Double or Long numeric value.
      */
     public Number getRange() {
-        String valueString = getDomProperty("value");
+        String valueString = getValueDomProperty();
         Number value = ConvertUtils.stringToNumber(valueString);
-        log.debug("Range slider {} value is returned: {}", elementName, value);
+        log.debug("{} range slider value is returned: {}", elementName, value);
         return value;
     }
 
@@ -104,6 +104,8 @@ public class RangeSlider extends SmartElement implements ReadableObject, Writabl
      */
     @Override
     public SmartValue getValue() {
-        return new SmartValue(getRange());
+        SmartValue smartValue = new SmartValue(getRange());
+        log.debug("{} range slider smart value is returned: {}", elementName, smartValue);
+        return smartValue;
     }
 }

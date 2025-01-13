@@ -2524,8 +2524,8 @@ public final class ConvertUtils {
             else if (objectClass == SmartCurrency.class) {
                 object = (T) SmartCurrency.fromString(string);
             }
-            else if (objectClass == SmartPhoneNumber.class) {
-                object = (T) SmartPhoneNumber.fromString(string);
+            else if (objectClass == SmartTelephoneNumber.class) {
+                object = (T) SmartTelephoneNumber.fromString(string);
             }
             else if (objectClass == File.class) {
                 object = (T) stringToFile(string);

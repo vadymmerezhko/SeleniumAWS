@@ -13,7 +13,7 @@
             <class name="org.example.unit.SmartAssertTest"/>
             <class name="org.example.unit.SmartCurrencyTest"/>
             <class name="org.example.unit.SmartNumberTest"/>
-            <class name="org.example.unit.SmartPhoneNumberTest"/>
+            <class name="org.example.unit.SmartTelephoneNumberTest"/>
             <class name="org.example.unit.SmartTypeTest"/>
             <class name="org.example.unit.SmartValueTest"/>
             <class name="org.example.unit.SystemUtilsTest"/>

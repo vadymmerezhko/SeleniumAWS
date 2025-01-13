@@ -37,7 +37,6 @@ public class DataList extends BaseTextElement implements ReadableObject, Writabl
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOption(String option) {
         DataValidationUtils.validateNotBlank(option, "option");
-        getElement();
         enterText(option);
         log.debug("Data list {} option is selected: {}", elementName, option);
     }
@@ -85,7 +84,7 @@ public class DataList extends BaseTextElement implements ReadableObject, Writabl
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOptionByIndex(int index) {
-        WebElement option = getElement().findElement(By.xpath(String.format("..//option[%d]", index)));
+        WebElement option = findElement(By.xpath(String.format("..//option[%d]", index)));
         String optionText = option.getText();
 
         if (optionText == null || optionText.isEmpty()) {
@@ -103,7 +102,7 @@ public class DataList extends BaseTextElement implements ReadableObject, Writabl
      * @return The selected option string.
      */
     public String getValueString() {
-        String value = getElement().getDomProperty("value");
+        String value = getValueDomProperty();
         log.debug("Data list {} value is returned: {}", elementName, value);
         return value;
     }

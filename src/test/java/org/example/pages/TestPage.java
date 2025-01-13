@@ -9,7 +9,7 @@ import org.openqa.selenium.By;
 @Getter
 public class TestPage extends SmartPage {
     private final TextInput textInput = new TextInput(SmartBy.id("my-text-id"));
-    private final Password password = new Password(By.name("my-password"));
+    private final PasswordInput passwordInput = new PasswordInput(By.name("my-password"));
     private final Textarea textarea = new Textarea(SmartBy.name("my-textarea"));
     private final Button button = new Button(SmartBy.keyword("Submit"));
     private final Button buttonByStrictKeyword = new Button(SmartBy.strictKeyword("Submit"));
@@ -27,4 +27,10 @@ public class TestPage extends SmartPage {
     private final RangeSlider rangeSlider2 = new RangeSlider(SmartBy.id("range2"));
     private final RangeSlider rangeSlider3 = new RangeSlider(SmartBy.id("range3"));
     private final RangeSlider rangeSlider4 = new RangeSlider(SmartBy.id("range4"));
+    private final EmailInput emailInput = new EmailInput(SmartBy.id("email"));
+    private final TelephoneInput telephoneInput = new TelephoneInput(SmartBy.id("phone"));
+    private final URLInput urlInput = new URLInput(SmartBy.id("url"));
+    private final SearchInput searchInput = new SearchInput(SmartBy.id("search"));
+    private final NumberInput numberInput = new NumberInput(SmartBy.id("quantity"));
+    private final HiddenInput hiddenInput = new HiddenInput(SmartBy.name("userId"));
 }

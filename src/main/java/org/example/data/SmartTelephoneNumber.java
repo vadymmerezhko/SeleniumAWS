@@ -16,7 +16,7 @@ import static org.example.constants.Settings.MIN_PHONE_NUMBER;
  * Smart phone number class.
  */
 @Slf4j
-public final class SmartPhoneNumber extends SmartObject implements FormattedValue {
+public final class SmartTelephoneNumber extends SmartObject implements FormattedValue {
 
     @Getter
     private final Number number;
@@ -28,12 +28,12 @@ public final class SmartPhoneNumber extends SmartObject implements FormattedValu
      * @param phoneNumberString The number string.
      * @return The smart number.
      */
-    public static SmartPhoneNumber fromString(String phoneNumberString) {
+    public static SmartTelephoneNumber fromString(String phoneNumberString) {
         DataValidationUtils.validateNotBlank(phoneNumberString, "phoneNumberString");
 
         try {
             Number phoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
-            SmartPhoneNumber smartNumber = new SmartPhoneNumber(phoneNumber);
+            SmartTelephoneNumber smartNumber = new SmartTelephoneNumber(phoneNumber);
             smartNumber.format = phoneNumberString.replaceAll("[0-9]", "#");
             log.debug("""
                 Number string converted to smart phone number.
@@ -59,7 +59,7 @@ public final class SmartPhoneNumber extends SmartObject implements FormattedValu
      * @param phoneNumber The phone number.
      * @return The smart number.
      */
-    public static SmartPhoneNumber fromNumber(Number phoneNumber) {
+    public static SmartTelephoneNumber fromNumber(Number phoneNumber) {
         DataValidationUtils.validateNotNull(phoneNumber, "phoneNumber");
         // The minimal 6 digits phone number
         DataValidationUtils.validateMin(phoneNumber, MIN_PHONE_NUMBER, "phoneNumber");
@@ -68,7 +68,7 @@ public final class SmartPhoneNumber extends SmartObject implements FormattedValu
 
         try {
             String numberString = String.valueOf(phoneNumber);
-            SmartPhoneNumber smartNumber = new SmartPhoneNumber(phoneNumber);
+            SmartTelephoneNumber smartNumber = new SmartTelephoneNumber(phoneNumber);
             smartNumber.format = ConvertUtils.numberStringToFormat(numberString);
             log.debug("""
                 Number string converted to smart phone number.
@@ -89,7 +89,7 @@ public final class SmartPhoneNumber extends SmartObject implements FormattedValu
         }
     }
 
-    SmartPhoneNumber(Number number) {
+    SmartTelephoneNumber(Number number) {
         this.number = number;
     }
 
@@ -112,8 +112,8 @@ public final class SmartPhoneNumber extends SmartObject implements FormattedValu
         try {
             boolean result = false;
 
-            if (object instanceof SmartPhoneNumber smartPhoneNumber) {
-                result = CompareUtils.compareNumbers(getNumber(), smartPhoneNumber.getNumber());
+            if (object instanceof SmartTelephoneNumber smartTelephoneNumber) {
+                result = CompareUtils.compareNumbers(getNumber(), smartTelephoneNumber.getNumber());
             }
             log.debug("""
                     Smart number equals() called.

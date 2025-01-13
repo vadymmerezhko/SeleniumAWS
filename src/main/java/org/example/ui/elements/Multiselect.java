@@ -40,6 +40,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
 
     @Override
     protected WebElement getElement() {
+        
         try {
             select = new Select(super.getElement());
             return select.getWrappedElement();
@@ -62,9 +63,10 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
         DataValidationUtils.validateNotBlank(optionString, "optionString");
         DataValidationUtils.validateNotMultiline(optionString, "optionString");
         getElement();
+
         try {
             select.selectByVisibleText(optionString);
-            log.debug("Multiselect {} option is selected: {}",
+            log.debug("{} multiselect option is selected: {}",
                     elementName, optionString);
         }
         catch (Exception e) {
@@ -90,7 +92,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
             for (String option : options) {
                 selectOption(option);
             }
-            log.debug("Multiselect {} options are selected:\n{}",
+            log.debug("{} multiselect options are selected:\n{}",
                     elementName, options);
         }
         catch (Exception e) {
@@ -117,7 +119,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
             for (String value : values) {
                 selectOptionByValue(value);
             }
-            log.debug("Multiselect {} options are selected by values:\n{}",
+            log.debug("{} multiselect options are selected by values:\n{}",
                     elementName, values);
         }
         catch (Exception e) {
@@ -144,7 +146,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
             for (Integer index : indexes) {
                 selectOptionByIndex(index);
             }
-            log.debug("Multiselect {} options are selected by indexes:\n{}",
+            log.debug("{} multiselect options are selected by indexes:\n{}",
                     elementName, indexes);
         }
         catch (Exception e) {
@@ -171,7 +173,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
 
         try {
             select.deselectByVisibleText(optionString);
-            log.debug("Multiselect {} option is deselected: {}", elementName, optionString);
+            log.debug("{} multiselect option is deselected: {}", elementName, optionString);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
@@ -192,11 +194,12 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
     public void deselectOptions(Collection<String>  options) {
         DataValidationUtils.validateNotNull(options, "options");
         getElement();
+
         try {
             for (String option : options) {
                 select.deselectByVisibleText(option);
             }
-            log.debug("Multiselect {} options are deselected:\n{}", elementName, options);
+            log.debug("{} multiselect options are deselected:\n{}", elementName, options);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
@@ -223,7 +226,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
             for (String option : values) {
                 select.deselectByValue(option);
             }
-            log.debug("Multiselect {} options are deselected by values:\n{}", elementName, values);
+            log.debug("{} multiselect options are deselected by values:\n{}", elementName, values);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
@@ -245,11 +248,12 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
     public void deselectOptionsByIndexes(Collection<Integer>  indexes) {
         DataValidationUtils.validateNotNull(indexes, "indexes");
         getElement();
+
         try {
             for (Integer index : indexes) {
                 select.deselectByIndex(index);
             }
-            log.debug("Multiselect {} options are deselected by indexes:\n{}", elementName, indexes);
+            log.debug("{} multiselect options are deselected by indexes:\n{}", elementName, indexes);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
@@ -324,9 +328,10 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
         DataValidationUtils.validateNotBlank(valueString, "valueString");
         DataValidationUtils.validateNotMultiline(valueString, "valueString");
         getElement();
+
         try {
             select.selectByValue(valueString);
-            log.debug("Multiselect {} option is selected by value: {}", elementName, valueString);
+            log.debug("{} multiselect option is selected by value: {}", elementName, valueString);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
@@ -350,7 +355,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
         getElement();
         try {
             select.deselectByValue(valueString);
-            log.debug("Multiselect {} option is deselected by value: {}", elementName, valueString);
+            log.debug("{} multiselect option is deselected by value: {}", elementName, valueString);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
@@ -404,7 +409,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
         getElement();
         try {
             select.deselectByIndex(index);
-            log.debug("Multiselect {} option is deselected by index: {}", elementName, index);
+            log.debug("{} multiselect option is deselected by index: {}", elementName, index);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
@@ -425,7 +430,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
         getElement();
         try {
             String text = select.getFirstSelectedOption().getText();
-            log.debug("Multiselect {} first selected option text is returned: {}", elementName, text);
+            log.debug("{} multiselect first selected option text is returned: {}", elementName, text);
             return text;
         }
         catch (Exception e) {
@@ -446,7 +451,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
         getElement();
         try {
             String value = select.getFirstSelectedOption().getDomProperty("value");
-            log.debug("Multiselect {} first selected option value is returned: {}", elementName, value);
+            log.debug("{} multiselect first selected option value is returned: {}", elementName, value);
             return value;
         }
         catch (Exception e) {
@@ -465,13 +470,15 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     public List<String> getAllSelectedOptions() {
         getElement();
+
         try {
             List<String> options = select.getAllSelectedOptions().stream()
                     .map(WebElement::getText)
                     .collect(Collectors.toList());
-            log.debug("All multiselect {} selected option text values are returned:\n{}", elementName, options);
+            log.debug("All {} multiselect selected option text values are returned:\n{}", elementName, options);
             return options;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
                     Cannot get all multiselect selected options.
                     Multiselect:
@@ -487,13 +494,15 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     public List<String> getAllSelectedOptionValues() {
         getElement();
+
         try {
             List<String> options = select.getAllSelectedOptions().stream()
                     .map(element -> element.getAttribute("value"))
                     .collect(Collectors.toList());
-            log.debug("All multiselect {} selected option values are returned:\n{}", elementName, options);
+            log.debug("All {} multiselect selected option values are returned:\n{}", elementName, options);
             return options;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
                     Cannot get all multiselect selected option values.
                     Multiselect:
@@ -521,7 +530,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
                     indexes.add(i);
                 }
             }
-            log.debug("All multiselect {} selected option indexes are returned:\n{}", elementName, options);
+            log.debug("All {} multiselect selected option indexes are returned:\n{}", elementName, options);
             return indexes;
         }
         catch (Exception e) {
@@ -540,11 +549,12 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     public List<String> getAlSelectedValues() {
         getElement();
+
         try {
             List<String> values = select.getAllSelectedOptions().stream()
                     .map(option -> option.getAttribute("value"))
                     .collect(Collectors.toList());
-            log.debug("All multiselect {} selected option values are returned:\n{}", elementName, values);
+            log.debug("All {} multiselect selected option values are returned:\n{}", elementName, values);
             return values;
         }
         catch (Exception e) {

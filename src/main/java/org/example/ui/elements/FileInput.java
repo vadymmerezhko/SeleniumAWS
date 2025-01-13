@@ -1,5 +1,6 @@
 package org.example.ui.elements;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.annotations.RunAlone;
 import org.example.data.SmartValue;
 import org.example.exceptions.SmartRuntimeException;
@@ -9,14 +10,15 @@ import org.example.ui.wrappers.SmartElement;
 import org.example.utils.DataValidationUtils;
 import org.example.utils.FileSystemUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import java.io.File;
 import java.nio.file.Path;
 
+
 /**
  * File input element class that extents text input class.
  */
+@Slf4j
 public class FileInput extends SmartElement implements ReadableObject, WritableObject {
 
     /**
@@ -52,29 +54,21 @@ public class FileInput extends SmartElement implements ReadableObject, WritableO
     }
 
     /**
-     * Enters file path from file smart value.
-     * @param fileSmartValue The file smart value.
-     */
-    public void enterFilePath(SmartValue fileSmartValue) {
-        DataValidationUtils.validateNotNull(fileSmartValue, "fileSmartValue");
-        enterFilePath(fileSmartValue.toPath());
-    }
-
-    /**
      * Enters file path string.
      * @param filePath The file path string.
      */
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public void enterFilePath(Path filePath) {
         DataValidationUtils.validateNotNull(filePath, "filePath");
-        WebElement fileInput = getElement();
         // Normalize file path - replace Windows slashes with Unix slashes
         String filePathString = FileSystemUtils.normalizeFilePathString(filePath.toString());
         filePath = Path.of(filePathString);
 
         try {
-            fileInput.clear();
-            fileInput.sendKeys(filePath.toAbsolutePath().toString());
+            clear();
+            sendKeys(filePath.toAbsolutePath().toString());
+            // Do not log file path for security purpose.
+            log.debug("{} file input path is entered", elementName);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
@@ -94,6 +88,8 @@ public class FileInput extends SmartElement implements ReadableObject, WritableO
         SmartValue smartValue = new SmartValue(value);
 
         enterFilePath(smartValue.toPath());
+        // Do not log file path for security purpose.
+        log.debug("{} file input value is set.", elementName);
     }
 
     /**
@@ -107,21 +103,20 @@ public class FileInput extends SmartElement implements ReadableObject, WritableO
      * @return The file path string.
      */
     public String getValueString() {
-        WebElement fileInput = getElement();
-
         try {
             // Normalize file path - replace Windows slashes with Unix slashes and
             // replace "fakepath" with actual path in the project folder or its sub folders
-            String value = FileSystemUtils.normalizeFilePathString(
-                    fileInput.getAttribute("value"));
+            String value = FileSystemUtils.normalizeFilePathString(getValueDomProperty());
             // Remove current folder path from file path to provide consistency for Unix and Mac
             String currentFolderPath = FileSystemUtils.getCurrentFolderPath();
             value = value.replace(currentFolderPath + "/", "");
+            // Do not log file path for security purpose.
+            log.debug("{} file input value is returned.", elementName);
             return value;
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format(
-                    "Cannot gwt %s file input file path value.",
+                    "Cannot get %s file input file path value.",
                     elementName), e);
         }
     }
@@ -132,13 +127,8 @@ public class FileInput extends SmartElement implements ReadableObject, WritableO
      */
     @Override
     public SmartValue getValue() {
-        try {
-            return new SmartValue(getValueString());
-        }
-        catch (Exception e) {
-            throw new SmartRuntimeException(String.format(
-                    "Cannot gwt %s file input file path value.",
-                    elementName), e);
-        }
+        SmartValue smartValue = new SmartValue(getValueString());
+        log.debug("{} file input smart value is returned.", elementName);
+        return smartValue;
     }
 }

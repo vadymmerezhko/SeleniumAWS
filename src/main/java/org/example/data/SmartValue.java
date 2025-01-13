@@ -683,9 +683,9 @@ public class SmartValue extends SmartObject implements FormattedValue {
      * Converts value to smart phone number value.
      * @return The smart phone value.
      */
-    public SmartPhoneNumber toSmartPhoneNumber() {
+    public SmartTelephoneNumber toSmartPhoneNumber() {
         setUp();
-        SmartPhoneNumber result = ConvertUtils.objectToObject(SmartType.fromClass(SmartPhoneNumber.class), value);
+        SmartTelephoneNumber result = ConvertUtils.objectToObject(SmartType.fromClass(SmartTelephoneNumber.class), value);
         log.debug("""
                 Smart value converted to smart phone number.
                 Value: {}

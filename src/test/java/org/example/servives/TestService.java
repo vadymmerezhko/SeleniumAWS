@@ -40,20 +40,20 @@ public class TestService implements TestServiceInterface {
             String textAreaKeyword = "my-textarea";
 
             webFormPage.open();
-            webFormPage.getTextInput().enterText(input.getTextInput());
-            webFormPage.getPassword().enterText("Password123");
+            webFormPage.getTextInput().setValue(input.getTextInput());
+            webFormPage.getPasswordInput().enterText("Password123");
             webFormPage.getTextarea().setKeyword(textAreaKeyword);
             webFormPage.getTextarea().enterText(input.getTextareaInput());
             webFormPage.getDropdown().setValue(input.getDropdownSelectedOption());
             webFormPage.getDataList().setValue(input.getDataListSelectOption());
             webFormPage.getCheckbox1().setValue(input.getCheckbox1Value());
             webFormPage.getCheckbox2().setValue(input.getCheckbox2Value());
-            webFormPage.getFileInput().enterFilePath(input.getFilePath());
+            webFormPage.getFileInput().setValue(input.getFilePath());
             webFormPage.getRadiobutton1().setValue(input.getRadiobutton1Value());
             webFormPage.getRadiobutton2().setValue(input.getRadiobutton2Value());
             webFormPage.getColorPicker().setValue(input.getColor());
             input.getDate().setKeyword(thisYear);
-            webFormPage.getDatePicker().setSmartValue(input.getDate());
+            webFormPage.getDatePicker().setValue(input.getDate());
             webFormPage.getRangeSlider().setValue(input.getRange());
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 

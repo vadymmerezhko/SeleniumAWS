@@ -31,11 +31,10 @@ public class Field extends SmartElement implements ReadableObject {
      * @return The value or text.
      */
     public String getStringValue() {
-        getElement();
         String value;
 
         try {
-            value = getAttribute("value");
+            value = getValueDomProperty();
         }
         catch (Exception e) {
             value = getText();
@@ -50,6 +49,8 @@ public class Field extends SmartElement implements ReadableObject {
      */
     @Override
     public SmartValue getValue() {
-        return new SmartValue(getStringValue());
+        SmartValue smartValue = new SmartValue(getStringValue());
+        log.debug("{} field smart value is returned: {}", elementName, smartValue);
+        return smartValue;
     }
 }

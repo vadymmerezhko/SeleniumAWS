@@ -37,24 +37,15 @@ public abstract class BaseTextElement extends SmartElement implements WebElement
      * Enters element text.
      * @param text The text to enter.
      */
-    public void enterText(SmartValue text) {
-        DataValidationUtils.validateNotNull(text, "text");
-        enterText(text.toString());
-        log.debug("Text input {} value is entered to: {}", elementName, text);
-    }
-
-    /**
-     * Enters element text.
-     * @param text The text to enter.
-     */
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public void enterText(String text) {
         DataValidationUtils.validateNotNull(text, "text");
-        WebElement element = getElement();
-        element.clear();
-        element.sendKeys(text);
-        synchro.waitForAttributeValue(element, "value", text, WAIT_ELEMENT_TIMEOUT_SECONDS);
-        log.debug("Text element {} value is entered to: {}", elementName, text);
+        clear();
+        sendKeys(text);
+        synchro.waitForAttributeValue(getElement(),
+                "value", text, WAIT_ELEMENT_TIMEOUT_SECONDS);
+        // Do not log hidden input value for security purpose.
+        log.debug("{} text input element value is entered.", elementName);
     }
 
     /**
@@ -66,7 +57,8 @@ public abstract class BaseTextElement extends SmartElement implements WebElement
         DataValidationUtils.validateNotNull(value, "text");
         SmartValue smartValue = new SmartValue(value);
         enterText(smartValue.toString());
-        log.debug("{} input value is entered: {}", elementName, value);
+        // Do not log hidden input value for security purpose.
+        log.debug("{} text input value is set.", elementName);
     }
 
     /**
@@ -75,7 +67,10 @@ public abstract class BaseTextElement extends SmartElement implements WebElement
      */
     @Override
     public SmartValue getValue() {
-        return new SmartValue(getValueString());
+        SmartValue smartValue = new SmartValue(getValueString());
+        // Do not log hidden input value for security purpose.
+        log.debug("{} text input smart value is returned.", elementName);
+        return smartValue;
     }
 
     /**
@@ -83,9 +78,9 @@ public abstract class BaseTextElement extends SmartElement implements WebElement
      * @return The text value string.
      */
     public String getValueString() {
-        getElement();
-        String value = getAttribute("value");
-        log.debug("{} input value is returned: {}", elementName, value);
+        String value = getValueDomProperty();
+        // Do not log hidden input value for security purpose.
+        log.debug("{} text input value is returned.", elementName);
         return value;
     }
 
@@ -95,9 +90,8 @@ public abstract class BaseTextElement extends SmartElement implements WebElement
     @Override
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public void clear() {
-        WebElement element = getElement();
-        element.clear();
-        log.debug("Text element {}: value is cleared.", elementName);
+        super.clear();
+        log.debug("{} text input element value is cleared.", elementName);
     }
 
     /**
@@ -108,9 +102,8 @@ public abstract class BaseTextElement extends SmartElement implements WebElement
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public void sendKeys(CharSequence... keysToSend) {
         DataValidationUtils.validateNotNull(keysToSend, "keysToSend");
-        WebElement element = getElement();
-        element.sendKeys(keysToSend);
-        log.debug("Keyboard keys are sent to text element {}: {}", elementName, keysToSend);
+        super.sendKeys(keysToSend);
+        log.debug("Keyboard keys are sent to {} text element.", elementName);
     }
 
     /**
@@ -119,6 +112,7 @@ public abstract class BaseTextElement extends SmartElement implements WebElement
     @RunAlone // Run this method while other @Test or SmartElement  methods do not run or wait
     public void paste() {
         sendKeys(Keys.chord(Keys.CONTROL, "v"));
+        // Do not log hidden input value for security purpose.
         log.debug("Text from buffer is pasted to text element {}.", elementName);
     }
 }

@@ -8,9 +8,9 @@ import org.example.interfaces.WritableObject;
 import org.example.ui.wrappers.SmartElement;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import static org.example.constants.Settings.*;
+
 
 /**
  * The checkbox element class.
@@ -37,11 +37,11 @@ public class Checkbox extends SmartElement implements ReadableObject, WritableOb
      */
     @RunAlone
     public void select() {
-        WebElement element = getElement();
 
-        if (!element.isSelected()) {
-            element.click();
-            synchro.waitForCheckboxOrRadioButton(element, true, WAIT_ELEMENT_TIMEOUT_SECONDS);
+        if (!isSelected()) {
+            click();
+            synchro.waitForCheckboxOrRadioButton(getElement(),
+                    true, WAIT_ELEMENT_TIMEOUT_SECONDS);
             log.debug("Checkbox {} is checked.", elementName);
         }
     }
@@ -51,11 +51,11 @@ public class Checkbox extends SmartElement implements ReadableObject, WritableOb
      */
     @RunAlone
     public void unselect() {
-        WebElement element = getElement();
 
-        if (element.isSelected()) {
-            element.click();
-            synchro.waitForCheckboxOrRadioButton(element, false, WAIT_ELEMENT_TIMEOUT_SECONDS);
+        if (isSelected()) {
+            click();
+            synchro.waitForCheckboxOrRadioButton(getElement(),
+                    false, WAIT_ELEMENT_TIMEOUT_SECONDS);
             log.debug("Checkbox {} is unchecked.", elementName);
         }
     }
@@ -72,20 +72,22 @@ public class Checkbox extends SmartElement implements ReadableObject, WritableOb
 
         if (smartValue.toBoolean()) {
             select();
+            log.debug("{} checkbox value is set to: {}", elementName, value);
         }
         else {
             unselect();
+            log.debug("{} checkbox value is set to: {}", elementName, value);
         }
-        log.debug("{} checkbox value is set to: {}", elementName, value);
+        log.debug("{} checkbox value is not changed: {}", elementName, value);
     }
 
     /**
      * Returns true - checked or false - unchecked checkbox value.
      * @return The true/false value.
      */
-    @Override
+    @Override @RunAlone
     public boolean isSelected() {
-        boolean value = getElement().isSelected();
+        boolean value = super.isSelected();
         log.debug("Checkbox {} value is returned: {}", elementName, value);
         return value;
     }

@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import java.awt.*;
 import java.io.File;
+import java.net.URL;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,13 +35,33 @@ import java.util.List;
 public class WebElementsTest extends BaseTest {
     private static final String WEB_PAGE_URL = "https://www.selenium.dev/selenium/web/web-form.html";
     private static final String WEB_ELEMENTS_TEST = "src/test/java/org/example/unit/WebElementsTest.java";
+    private static final String HTML_PAGES_FOLDER = "/src/test/resources/html";
     private static final String MULTI_SELECT_PAGE_URL =
             "file:///" + FileSystemUtils.getCurrentFolderPath() +
-            "/src/test/resources/html/MultiSelectPage.html";
-
+            HTML_PAGES_FOLDER + "/MultiSelectPage.html";
     private static final String RANGE_SLIDER_PAGE_URL =
             "file:///" + FileSystemUtils.getCurrentFolderPath() +
-            "/src/test/resources/html/RangeSliderPage.html";
+            HTML_PAGES_FOLDER + "/RangeSliderPage.html";
+    private static final String EMAIL_INPUT_PAGE_URL =
+            "file:///" + FileSystemUtils.getCurrentFolderPath() +
+            HTML_PAGES_FOLDER + "/EmailInputPage.html";
+    private static final String TELEPHONE_INPUT_PAGE_URL =
+            "file:///" + FileSystemUtils.getCurrentFolderPath() +
+            HTML_PAGES_FOLDER + "/TelephoneInputPage.html";
+    private static final String URL_INPUT_PAGE_URL =
+            "file:///" + FileSystemUtils.getCurrentFolderPath() +
+            HTML_PAGES_FOLDER + "/URLInputPage.html";
+    private static final String SEARCH_INPUT_PAGE_URL =
+            "file:///" + FileSystemUtils.getCurrentFolderPath() +
+                    HTML_PAGES_FOLDER + "/SearchInputPage.html";
+    private static final String NUMBER_INPUT_PAGE_URL =
+            "file:///" + FileSystemUtils.getCurrentFolderPath() +
+                    HTML_PAGES_FOLDER + "/NumberInputPage.html";
+
+    private static final String HIDDEN_INPUT_PAGE_URL =
+            "file:///" + FileSystemUtils.getCurrentFolderPath() +
+                    HTML_PAGES_FOLDER + "/HiddenInputPage.html";
+
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testEnterTextWithValidString() {
@@ -216,17 +237,6 @@ public class WebElementsTest extends BaseTest {
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     @RunAlone // Run test when other tests wait to provide valid clipboard value
-    public void testTextInputToCopyAndPasteSubstringTextWithInvalidIndexes() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        TextInput textInput = testPage.getTextInput();
-        // Enter text using SingleLineTextInput's enterText method
-        textInput.enterText("Test value");
-        textInput.selectSubstring(6, 2);
-    }
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    @RunAlone // Run test when other tests wait to provide valid clipboard value
     public void testTextInputToCopyAndPasteSubstringTextWithTooBigIndexes() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
@@ -242,7 +252,7 @@ public class WebElementsTest extends BaseTest {
         TextInput textInput = testPage.getTextInput();
         testPage.open(WEB_PAGE_URL);
         // Enter text using SingleLineTextInput's enterText method
-        textInput.enterText(new SmartValue("Test value"));
+        textInput.setValue(new SmartValue("Test value"));
 
         // Verify the input value
         Assert.assertEquals(textInput.getValueString(), "Test value");
@@ -335,24 +345,24 @@ public class WebElementsTest extends BaseTest {
     public void testPasswordWithValidText() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        Password password = testPage.getPassword();
+        PasswordInput passwordInput = testPage.getPasswordInput();
         // Enter valid password
         String validPassword = "StrongPassword123!";
-        password.enterText(validPassword);
+        passwordInput.enterText(validPassword);
 
-        Assert.assertEquals(password.getWrappedElement().getAttribute("value"), validPassword);
+        Assert.assertEquals(passwordInput.getWrappedElement().getAttribute("value"), validPassword);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testPasswordWithValidSmartValueString() {
         TestPage testPage = new TestPage();
-        Password password = testPage.getPassword();
+        PasswordInput passwordInput = testPage.getPasswordInput();
         testPage.open(WEB_PAGE_URL);
         // Enter valid password
         SmartValue validPassword = new SmartValue("StrongPassword123!");
-        password.enterText(validPassword);
+        passwordInput.setValue(validPassword);
 
-        Assert.assertEquals(password.getWrappedElement().getAttribute("value"),
+        Assert.assertEquals(passwordInput.getWrappedElement().getAttribute("value"),
                 validPassword.toString());
     }
 
@@ -360,29 +370,29 @@ public class WebElementsTest extends BaseTest {
     public void testPasswordWithEmptyText() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        Password password = testPage.getPassword();
+        PasswordInput passwordInput = testPage.getPasswordInput();
         // Enter empty password
         String emptyPassword = "";
-        password.enterText("Some_password");
-        password.enterText(emptyPassword);
+        passwordInput.enterText("Some_password");
+        passwordInput.enterText(emptyPassword);
 
-        Assert.assertEquals(password.getWrappedElement().getAttribute("value"), emptyPassword);
+        Assert.assertEquals(passwordInput.getWrappedElement().getAttribute("value"), emptyPassword);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
     public void testPasswordWithNullText() {
         TestPage testPage = new TestPage();
-        Password password = testPage.getPassword();
+        PasswordInput passwordInput = testPage.getPasswordInput();
         // Passing null as text should throw an exception
-        password.enterText((String) null);
+        passwordInput.enterText(null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
     public void testPasswordWithNullSmartValue() {
         TestPage testPage = new TestPage();
-        Password password = testPage.getPassword();
+        PasswordInput passwordInput = testPage.getPasswordInput();
         // Passing null as text should throw an exception
-        password.enterText((SmartValue) null);
+        passwordInput.setValue(null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -833,7 +843,7 @@ public class WebElementsTest extends BaseTest {
         testPage.open(WEB_PAGE_URL);
         DatePicker datePicker = testPage.getDatePicker();
         SmartValue smartValue = new SmartValue("12/25/2024");
-        datePicker.setSmartValue(smartValue);
+        datePicker.setValue(smartValue);
 
         Assert.assertEquals(
                 datePicker.getValue().toLocalDate(),
@@ -871,7 +881,7 @@ public class WebElementsTest extends BaseTest {
         String dateString = "05/10/2024";
         // Simulate picking a date
         datePicker.setValue(dateString);
-        SmartValue expectedSmartValue = new SmartValue(SmartLocalDate.fromString(dateString));
+        SmartValue expectedSmartValue = new SmartValue(dateString);
 
         Assert.assertEquals(datePicker.getValue(), expectedSmartValue);
     }
@@ -885,7 +895,7 @@ public class WebElementsTest extends BaseTest {
         datePicker.setValue("05/10/2024");
         SmartLocalDate expectedSmartLocalDate = SmartLocalDate.fromString("2024-05-10");
 
-        Assert.assertEquals(datePicker.getSmartLocalDate(), expectedSmartLocalDate);
+        Assert.assertEquals(datePicker.getDate(), expectedSmartLocalDate);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -908,7 +918,7 @@ public class WebElementsTest extends BaseTest {
         DatePicker datePicker = testPage.getDatePicker();
         // Simulate picking a date
         datePicker.setValue("12/25/2024");
-        SmartLocalDate smartLocalDate = datePicker.getSmartLocalDate();
+        SmartLocalDate smartLocalDate = datePicker.getDate();
 
         Assert.assertEquals(smartLocalDate, SmartLocalDate.fromString("12/25/2024"));
     }
@@ -961,45 +971,17 @@ public class WebElementsTest extends BaseTest {
         Assert.assertEquals(datePicker.getValue().toSmartDate(), smartDate);
     }
 
-    @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void testDatePickerSetSmartValueWithLocalDate() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
-        SmartLocalDate smartLocalDate = SmartLocalDate.fromString("12/25/2024");
-        SmartValue smartValue = new SmartValue(smartLocalDate);
-        // Simulate picking a date
-        datePicker.setSmartValue(smartValue);
-
-        Assert.assertEquals(datePicker.getValue(), smartValue);
-    }
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
+    @Test
     public void testDatePickerSetValueWithInvalidDateString() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
         DatePicker datePicker = testPage.getDatePicker();
-        // Should throw an exception
-        datePicker.setValue("Invalid date");
-    }
+        String invalidValue = "Invalid date";
+        LocalDate expectedLocalDate = LocalDate.now();
+        // Should not change default today's date
+        datePicker.setValue(invalidValue);
 
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testDatePickerSetValueWithInvalidValue() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
-        // Should throw an exception
-        datePicker.setValue(this);
-    }
-
-    @Test(expectedExceptions = SmartRuntimeException.class)
-    public void testDatePickerSetSmartValueWithInvalidSmartValue() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
-        // Should throw an exception
-        datePicker.setSmartValue(new SmartValue(this));
+        Assert.assertEquals(datePicker.getValue().toLocalDate(), expectedLocalDate);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
@@ -1008,14 +990,6 @@ public class WebElementsTest extends BaseTest {
         DatePicker datePicker = testPage.getDatePicker();
         // Should throw an exception
         datePicker.setValue(null);
-    }
-
-    @Test(expectedExceptions = SmartValidationException.class)
-    public void testDatePickerSetSmartValueWithNullValue() {
-        TestPage testPage = new TestPage();
-        DatePicker datePicker = testPage.getDatePicker();
-        // Should throw an exception
-        datePicker.setSmartValue(null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -1185,7 +1159,7 @@ public class WebElementsTest extends BaseTest {
         // Create a valid SmartValue object
         SmartValue fileSmartValue = new SmartValue(WEB_ELEMENTS_TEST);
         // Call the method with a SmartValue object
-        fileInput.enterFilePath(fileSmartValue);
+        fileInput.setValue(fileSmartValue);
 
         // Verify the entered file path using getValue
         Assert.assertEquals(fileInput.getValue(), fileSmartValue);
@@ -1242,7 +1216,7 @@ public class WebElementsTest extends BaseTest {
         TestPage testPage = new TestPage();
         FileInput fileInput = testPage.getFileInput();
         // Call enterFilePath with null SmartValue
-        fileInput.enterFilePath((SmartValue) null);
+        fileInput.enterFilePath((String) null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
@@ -1831,4 +1805,386 @@ public class WebElementsTest extends BaseTest {
         // Attempt to set a invalid type SmartValue
         rangeSlider1.setValue(new SmartValue(true));
     }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testEmailInputEnterTextWithValidEmail() {
+        TestPage testPage = new TestPage();
+        testPage.open(EMAIL_INPUT_PAGE_URL);
+        EmailInput emailInput = testPage.getEmailInput();
+        String emailString = "John.Doe+alias_name@Sub.Example.co.uk";
+        // Enter email value
+        emailInput.enterText(emailString);
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), emailString);
+
+        // Submit the input
+        emailInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), "");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testEmailInputEnterTextWithValidShortestEmail() {
+        TestPage testPage = new TestPage();
+        testPage.open(EMAIL_INPUT_PAGE_URL);
+        EmailInput emailInput = testPage.getEmailInput();
+        String emailString = "a@b.cd";
+        // Enter email value
+        emailInput.enterText(emailString);
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), emailString);
+
+        // Submit the input
+        emailInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), "");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testEmailInputEnterTextWithInvalidEmail() {
+        TestPage testPage = new TestPage();
+        testPage.open(EMAIL_INPUT_PAGE_URL);
+        EmailInput emailInput = testPage.getEmailInput();
+        String emailString = "invalid.email";
+        // Enter invalid without error email value
+        emailInput.enterText(emailString);
+
+        // Submit the input
+        emailInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), "");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testEmailInputEnterTextWithEmptyValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(EMAIL_INPUT_PAGE_URL);
+        EmailInput emailInput = testPage.getEmailInput();
+        // Enter blank email value
+        emailInput.enterText("");
+
+        // Submit the input
+        emailInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), "");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testEmailInputEnterTextWithMultilineEmail() {
+        TestPage testPage = new TestPage();
+        EmailInput emailInput = testPage.getEmailInput();
+        String emailString = "test@email1.com\ntest@email2.com";
+        // Enter email value
+        emailInput.enterText(emailString);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testEmailInputEnterTextWithNullValue() {
+        TestPage testPage = new TestPage();
+        EmailInput emailInput = testPage.getEmailInput();
+        // Enter blank email value
+        emailInput.enterText(null);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testTelephoneInputEnterTextWithValidTelephone() {
+        TestPage testPage = new TestPage();
+        testPage.open(TELEPHONE_INPUT_PAGE_URL);
+        TelephoneInput emailInput = testPage.getTelephoneInput();
+        String phoneString = "+49(223) 456-789-0123 x123456";
+        // Enter phone value
+        emailInput.enterText(phoneString);
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), phoneString);
+
+        // Submit the input
+        emailInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), "");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testTelephoneInputEnterTextWithValidTelephoneWithLetters() {
+        TestPage testPage = new TestPage();
+        testPage.open(TELEPHONE_INPUT_PAGE_URL);
+        TelephoneInput emailInput = testPage.getTelephoneInput();
+        String phoneString = "+1-800-CONTACTS";
+        // Enter phone value
+        emailInput.enterText(phoneString);
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValue().toString(), phoneString);
+
+        // Submit the input
+        emailInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), "");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testTelephoneInputEnterTextWithInvalidTelephone() {
+        TestPage testPage = new TestPage();
+        testPage.open(TELEPHONE_INPUT_PAGE_URL);
+        TelephoneInput emailInput = testPage.getTelephoneInput();
+        String phoneString = "Invalid phone number";
+        // Enter phone value
+        emailInput.enterText(phoneString);
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), phoneString);
+
+        // Submit the input
+        emailInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), "");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testTelephoneInputEnterTextWithEmptyValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(TELEPHONE_INPUT_PAGE_URL);
+        TelephoneInput emailInput = testPage.getTelephoneInput();
+        // Enter empty value
+        emailInput.enterText("");
+
+        // Submit the input
+        emailInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(emailInput.getValueString(), "");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testTelephoneInputEnterTextWithMultilineTelephone() {
+        TestPage testPage = new TestPage();
+        TelephoneInput emailInput = testPage.getTelephoneInput();
+        // Enter null value
+        emailInput.enterText("123-456-789\n");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testTelephoneInputEnterTextWithNullValue() {
+        TestPage testPage = new TestPage();
+        TelephoneInput emailInput = testPage.getTelephoneInput();
+        // Enter null value
+        emailInput.enterText(null);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testURLInputEnterTextWithValidURL() {
+        TestPage testPage = new TestPage();
+        testPage.open(URL_INPUT_PAGE_URL);
+        URLInput urlInput = testPage.getUrlInput();
+        String urlString = "https://username:password@sub.example.com:8080/path/to/page" +
+                "?query=param1+param2&name=value#section-1";
+        URL expectedURL = ConvertUtils.stringToURL(urlString);
+        // Enter URL value
+        urlInput.enterText(urlString);
+
+        // Verify the input value
+        Assert.assertEquals(urlInput.getValue().toURL(), expectedURL);
+
+        // Submit URL
+        urlInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(urlInput.getValueString(), "");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testURLInputEnterTextWithShortestValidURL() {
+        TestPage testPage = new TestPage();
+        testPage.open(URL_INPUT_PAGE_URL);
+        URLInput urlInput = testPage.getUrlInput();
+        String urlString = "http://a.co";
+        URL expectedURL = ConvertUtils.stringToURL(urlString);
+        // Enter URL value
+        urlInput.enterText(urlString);
+
+        // Verify the input value
+        Assert.assertEquals(urlInput.getValue().toURL(), expectedURL);
+
+        // Submit URL
+        urlInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(urlInput.getValueString(), "");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testURLInputEnterTextWithMultilineURL() {
+        TestPage testPage = new TestPage();
+        URLInput urlInput = testPage.getUrlInput();
+        String urlString = "https://username:password@sub.example.com:8080/path/to/page\n" +
+                "?query=param1+param2&name=value#section-1";
+        // Enter URL value
+        urlInput.enterText(urlString);
+    }
+
+    @Test
+    public void testURLInputEnterTextWithInvalidURL() {
+        TestPage testPage = new TestPage();
+        testPage.open(URL_INPUT_PAGE_URL);
+        URLInput urlInput = testPage.getUrlInput();
+        String invaslidUrlString = "Invalid URL !%^#$&^#$%&!@~%$(^&$)";
+        // Enter URL value
+        urlInput.enterText(invaslidUrlString);
+
+        // Verify the input value
+        Assert.assertEquals(urlInput.getValueString(), invaslidUrlString);
+
+        // Submit URL
+        urlInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(urlInput.getValueString(), "");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testURLInputEnterTextWithNullValue() {
+        TestPage testPage = new TestPage();
+        URLInput urlInput = testPage.getUrlInput();
+        // Enter null value
+        urlInput.enterText(null);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testSearchInputEnterTextWithSearchValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(SEARCH_INPUT_PAGE_URL);
+        SearchInput searchInput = testPage.getSearchInput();
+        String searchString = "Some search string!";
+        // Enter search value
+        searchInput.enterText(searchString);
+
+        // Verify the input value
+        Assert.assertEquals(searchInput.getValueString(), searchString);
+
+        // Submit search
+        searchInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(searchInput.getValueString(), "");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testSearchInputEnterTextWithNullValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(SEARCH_INPUT_PAGE_URL);
+        SearchInput searchInput = testPage.getSearchInput();
+        // Enter search value
+        // Do not log hidden input value for security purpose..enterText("");
+
+        Assert.assertEquals(searchInput.getValueString(), "");
+
+        // Submit search
+        searchInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(searchInput.getValueString(), "");
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testSearchInputEnterTextWithMultilineValue() {
+        TestPage testPage = new TestPage();
+        SearchInput searchInput = testPage.getSearchInput();
+        // Enter search value
+        searchInput.enterText("Some\nsearch text");
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testNumberInputEnterTextWithDoubleValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(NUMBER_INPUT_PAGE_URL);
+        NumberInput numberInput = testPage.getNumberInput();
+        String value = "12.5";
+        // Enter search value
+        numberInput.enterText(value);
+
+        // Verify the input value
+        Assert.assertEquals(numberInput.getValueString(), value);
+    }
+
+    @Test(retryAnalyzer = RetryAnalyzer.class)
+    public void testNumberInputSetValueWithMaximalDoubleValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(NUMBER_INPUT_PAGE_URL);
+        NumberInput numberInput = testPage.getNumberInput();
+        double value = 99.5;
+        // Enter search value
+        numberInput.setValue(value);
+
+        // Verify the input value
+        Assert.assertEquals(numberInput.getValue().toDouble(), value);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testNumberInputSetValueWithOverMaximalDoubleValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(NUMBER_INPUT_PAGE_URL);
+        NumberInput numberInput = testPage.getNumberInput();
+        double value = 100.0;
+        // Enter search value
+        numberInput.setValue(value);
+
+        // Verify the input value
+        Assert.assertEquals(numberInput.getValue().toDouble(), value);
+
+        // Try to submit invalid value.
+        numberInput.submit();
+
+        // Verify the input value
+        Assert.assertEquals(numberInput.getValue().toDouble(), value);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testNumberInputEnterTextWithNullValue() {
+        TestPage testPage = new TestPage();
+        NumberInput numberInput = testPage.getNumberInput();
+        // Should throw an exception
+        numberInput.enterText(null);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testNumberInputSetValueWithNullValue() {
+        TestPage testPage = new TestPage();
+        NumberInput numberInput = testPage.getNumberInput();
+        // Should throw an exception
+        numberInput.setValue(null);
+    }
+
+    @Test
+    public void testGetHiddenInputValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(HIDDEN_INPUT_PAGE_URL);
+        HiddenInput hiddenInput = testPage.getHiddenInput();
+        String expectedValue = "12345";
+        SmartValue smartValue = hiddenInput.getValue();
+
+        Assert.assertNotNull(smartValue);
+        Assert.assertEquals(smartValue.toString(), expectedValue);
+    }
+
+    @Test
+    public void testGetHiddenInputValueString() {
+        TestPage testPage = new TestPage();
+        testPage.open(HIDDEN_INPUT_PAGE_URL);
+        HiddenInput hiddenInput = testPage.getHiddenInput();
+        String expectedValue = "12345";
+        String actualValue = hiddenInput.getValueString();
+
+        Assert.assertNotNull(actualValue);
+        Assert.assertEquals(actualValue, expectedValue);
+    }
+
 }

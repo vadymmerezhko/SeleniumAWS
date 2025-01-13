@@ -45,7 +45,7 @@ public class ColorPicker extends SmartElement implements ReadableObject, Writabl
     @Override
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public <T> void setValue(T value) {
-        DataValidationUtils.validateNotNull(value, "color");
+        DataValidationUtils.validateNotNull(value, "value");
         SmartValue smartValue = new SmartValue(value);
 
         String colorString = smartValue.toString();
@@ -72,7 +72,7 @@ public class ColorPicker extends SmartElement implements ReadableObject, Writabl
      * @return The color value.
      */
     public Color getColor() {
-        String colorString = getElement().getDomProperty("value");
+        String colorString = getValueDomProperty();
         Color color = ConvertUtils.stringToColor(colorString);
         log.debug("Color picker {} value is returned: {}", elementName, color);
         return color;
@@ -84,7 +84,8 @@ public class ColorPicker extends SmartElement implements ReadableObject, Writabl
      */
     @Override
     public SmartValue getValue() {
-        SmartValue smartValue = new SmartValue(getColor());
+        String colorString = getValueDomProperty();
+        SmartValue smartValue = new SmartValue(colorString);
         log.debug("Color picker {} smart value is returned: {}", elementName, smartValue);
         return smartValue;
     }

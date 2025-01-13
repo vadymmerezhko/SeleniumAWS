@@ -11,7 +11,7 @@ import org.example.ui.pages.SmartPage;
 @Getter
 public class WebFormPage extends SmartPage {
     private final TextInput textInput = new TextInput();
-    private final Password password = new Password();
+    private final PasswordInput passwordInput = new PasswordInput();
     private final Textarea textarea = new Textarea();
     private final Dropdown dropdown = new Dropdown();
     private final FileInput fileInput = new FileInput();

@@ -2608,12 +2608,12 @@ public class SmartValueTest {
     @Test
     public void testToSmartPhoneNumberWithValidSmartPhoneNumber() {
         SmartValue smartValue = new SmartValue();
-        SmartPhoneNumber expectedSmartPhoneNumber = SmartPhoneNumber.fromString("+1234567890");
-        smartValue.setValue(expectedSmartPhoneNumber);
-        SmartPhoneNumber actualSmartPhoneNumber = smartValue.toSmartPhoneNumber();
+        SmartTelephoneNumber expectedSmartTelephoneNumber = SmartTelephoneNumber.fromString("+1234567890");
+        smartValue.setValue(expectedSmartTelephoneNumber);
+        SmartTelephoneNumber actualSmartTelephoneNumber = smartValue.toSmartPhoneNumber();
 
-        Assert.assertNotNull(actualSmartPhoneNumber, "The SmartPhoneNumber object should not be null.");
-        Assert.assertEquals(actualSmartPhoneNumber, expectedSmartPhoneNumber,
+        Assert.assertNotNull(actualSmartTelephoneNumber, "The SmartPhoneNumber object should not be null.");
+        Assert.assertEquals(actualSmartTelephoneNumber, expectedSmartTelephoneNumber,
                 "The SmartPhoneNumber value should match the expected value.");
     }
 
@@ -2622,16 +2622,16 @@ public class SmartValueTest {
         SmartValue smartValue = new SmartValue();
         String phoneNumberString = "+1234567890";  // Valid phone number string
         smartValue.setValue(phoneNumberString);
-        SmartPhoneNumber actualSmartPhoneNumber = smartValue.toSmartPhoneNumber();
+        SmartTelephoneNumber actualSmartTelephoneNumber = smartValue.toSmartPhoneNumber();
 
-        SmartPhoneNumber expectedSmartPhoneNumber = SmartPhoneNumber.fromString(phoneNumberString);
-        Assert.assertEquals(actualSmartPhoneNumber.toString(), expectedSmartPhoneNumber.toString(),
+        SmartTelephoneNumber expectedSmartTelephoneNumber = SmartTelephoneNumber.fromString(phoneNumberString);
+        Assert.assertEquals(actualSmartTelephoneNumber.toString(), expectedSmartTelephoneNumber.toString(),
                 "The SmartPhoneNumber value should match the expected value parsed from the string.");
     }
 
     @Test
     public void testToSmartPhoneNumberWithExtension() {
-        SmartPhoneNumber phoneNumber = SmartPhoneNumber.fromString("+1(800)123-456 x1234");
+        SmartTelephoneNumber phoneNumber = SmartTelephoneNumber.fromString("+1(800)123-456 x1234");
         Number expectedPhoneNumber = new BigInteger("18001234561234");
         SmartValue smartValue = new SmartValue(phoneNumber);
         Number actualPhoneNumber = smartValue.toSmartPhoneNumber().getNumber();
@@ -2643,7 +2643,7 @@ public class SmartValueTest {
 
     @Test
     public void testToSmartPhoneNumberWithLettersAndExtension() {
-        SmartPhoneNumber phoneNumber = SmartPhoneNumber.fromString("+1-800-MY-APPLE x123");
+        SmartTelephoneNumber phoneNumber = SmartTelephoneNumber.fromString("+1-800-MY-APPLE x123");
         Number expectedPhoneNumber = new BigInteger("18006927753123");
         SmartValue smartValue = new SmartValue(phoneNumber);
         Number actualPhoneNumber = smartValue.toSmartPhoneNumber().getNumber();

@@ -116,7 +116,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      * @return The web element.
      */
     public WebElement getNativeElement() {
-        log.debug("Native web element returned: {}", element);
+        log.debug("{} native element is returned: {}", elementName, element);
         return element;
     }
 
@@ -126,6 +126,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public WebElement getWrappedElement() {
+        log.debug("{} wrapped element is returned: {}", elementName, element);
         return getElement();
     }
 
@@ -135,6 +136,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
     @Override
     public void click() {
         getElement().click();
+        log.debug("{} element is clicked.", elementName);
     }
 
     /**
@@ -143,6 +145,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
     @Override
     public void submit() {
         getElement().submit();
+        log.debug("{} element is submitted.", elementName);
     }
 
     /**
@@ -152,6 +155,8 @@ public abstract class SmartElement implements WebElement, WrapsElement {
     @Override
     public void sendKeys(CharSequence... keysToSend) {
         getElement().sendKeys(keysToSend);
+        // Do not log keys sent for security purpose.
+        log.debug("Keys are sent to {} element.", elementName);
     }
 
     /**
@@ -160,6 +165,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
     @Override
     public void clear() {
         getElement().clear();
+        log.debug("{} element is cleared.", elementName);
     }
 
     /**
@@ -168,7 +174,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public String getTagName() {
-        return getElement().getTagName();
+        String tagName = getElement().getTagName();
+        log.debug("{} element tag name is returned: {}", elementName, tagName);
+        return tagName;
     }
 
     /**
@@ -178,7 +186,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public String getAttribute(String name) {
-        return getElement().getAttribute(name);
+        String value = getElement().getAttribute(name);
+        log.debug("{} element '{}' attribute is returned: {}", elementName, name, value);
+        return value;
     }
 
     /**
@@ -188,7 +198,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public String getDomProperty(String name) {
-        return getElement().getDomProperty(name);
+        String value = getElement().getDomProperty(name);
+        log.debug("{} element '{}' DOM property is returned: {}", elementName, name, value);
+        return value;
     }
 
     /**
@@ -198,7 +210,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public String getDomAttribute(String name) {
-        return getElement().getDomAttribute(name);
+        String value = getElement().getDomAttribute(name);
+        log.debug("{} element '{}' DOM attribute is returned: {}", elementName, name, value);
+        return value;
     }
 
     /**
@@ -207,7 +221,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public String getAriaRole() {
-        return getElement().getAriaRole();
+        String role = getElement().getAriaRole();
+        log.debug("{} element aria role is returned: {}", elementName, role);
+        return role;
     }
 
     /**
@@ -216,7 +232,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public String getAccessibleName() {
-        return getElement().getAccessibleName();
+        String name = getElement().getAccessibleName();
+        log.debug("{} element accessibility name is returned: {}", elementName, name);
+        return name;
     }
 
     /**
@@ -225,7 +243,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public boolean isSelected() {
-        return getElement().isSelected();
+        boolean isSelected = getElement().isSelected();
+        log.debug("{} element is selected: {}", elementName, isSelected);
+        return isSelected;
     }
 
     /**
@@ -234,7 +254,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public boolean isEnabled() {
-        return getElement().isEnabled();
+        boolean isEnabled = getElement().isEnabled();
+        log.debug("{} element is selected: {}", elementName, isEnabled);
+        return isEnabled;
     }
 
     /**
@@ -244,7 +266,7 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     public boolean isPresent() {
         boolean isPresent = !driver.findElements(smartBy.getBy()).isEmpty();
-        log.debug("Element {} is present: {}", elementName, isPresent);
+        log.debug("{} element is present: {}", elementName, isPresent);
         return isPresent;
     }
 
@@ -254,7 +276,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public String getText() {
-        return getElement().getText();
+        String text = getElement().getText();
+        log.debug("{} element text is returned: {}", elementName, text);
+        return text;
     }
 
     /**
@@ -264,7 +288,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public List<WebElement> findElements(By by) {
-        return getElement().findElements(by);
+        List<WebElement> webElements = getElement().findElements(by);
+        log.debug("{} child elements are found: {}", elementName, webElements);
+        return webElements;
     }
 
     /**
@@ -274,7 +300,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public WebElement findElement(By by) {
-        return getElement().findElement(by);
+        WebElement webElement = getElement().findElement(by);
+        log.debug("{} element is found: {}", elementName, webElement);
+        return webElement;
     }
 
     /**
@@ -283,7 +311,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public boolean isDisplayed() {
-        return getElement().isDisplayed();
+        boolean isDisplayed = getElement().isDisplayed();
+        log.debug("{} element is present: {}", elementName, isDisplayed);
+        return isDisplayed;
     }
 
     /**
@@ -292,7 +322,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public Point getLocation() {
-        return getElement().getLocation();
+        Point location = getElement().getLocation();
+        log.debug("{} element location is returned: {}", elementName, location);
+        return location;
     }
 
     /**
@@ -301,7 +333,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public Dimension getSize() {
-        return getElement().getSize();
+        Dimension size = getElement().getSize();
+        log.debug("{} element size is returned: {}", elementName, size);
+        return size;
     }
 
     /**
@@ -310,7 +344,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public Rectangle getRect() {
-        return getElement().getRect();
+        Rectangle rectangle = getElement().getRect();
+        log.debug("{} element rectangle is returned: {}", elementName, rectangle);
+        return rectangle;
     }
 
     /**
@@ -320,7 +356,9 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public String getCssValue(String propertyName) {
-        return getElement().getCssValue(propertyName);
+        String value = getElement().getCssValue(propertyName);
+        log.debug("{} element CSS value returned: {}", elementName, value);
+        return value;
     }
 
     /**
@@ -328,11 +366,13 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      * @return The search context.
      */
     public SearchContext getShadowRoot() {
-        return getElement().getShadowRoot();
+        SearchContext shadowRoot = getElement().getShadowRoot();
+        log.debug("{} element shadow root is returned: {}", elementName, shadowRoot);
+        return shadowRoot;
     }
 
     /**
-     * Returs elemwnt screenshot.
+     * Returns element screenshot.
      * @param target The screenshot target.
      * @return The screenshot data.
      * @param <X> The screenshot data type.
@@ -340,7 +380,19 @@ public abstract class SmartElement implements WebElement, WrapsElement {
      */
     @Override
     public <X> X getScreenshotAs(OutputType<X> target) throws WebDriverException {
-        return getElement().getScreenshotAs(target);
+        X image = getElement().getScreenshotAs(target);
+        log.debug("{} element '{}' screenshot is taken.", element, target);
+        return image;
+    }
+
+    /**
+     * Returns element value DOM property.
+     * @return The search context.
+     */
+    public String getValueDomProperty() {
+        String value = getDomProperty("value");
+        log.debug("{} element value DOM property is returned: {}", element, value);
+        return value;
     }
 
     /**

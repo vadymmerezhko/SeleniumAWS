@@ -11,7 +11,6 @@ import org.example.utils.ConvertUtils;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebElement;
 
 
 /**
@@ -35,15 +34,6 @@ public class DatePicker extends SmartElement implements ReadableObject, Writable
     }
 
     /**
-     * Picks the smart value date in format "mm/DD/YYYY".
-     * @param date The date to pick.
-     */
-    public void setSmartValue(SmartValue date) {
-        DataValidationUtils.validateNotNull(date, "date");
-        setValue(date.toSmartLocalDate());
-    }
-
-    /**
      * Picks the date in format "mm/DD/YYYY".
      * @param value The date to pick.
      * @param <T> The value type.
@@ -51,15 +41,13 @@ public class DatePicker extends SmartElement implements ReadableObject, Writable
     @Override
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public <T> void setValue(T value) {
-        DataValidationUtils.validateNotNull(value, "dateString");
+        DataValidationUtils.validateNotNull(value, "value");
         SmartValue smartValue = new SmartValue(value);
-        SmartLocalDate smartLocalDate = smartValue.toSmartLocalDate();
-        String dateString = smartLocalDate.toString();
-        WebElement datePickerInput = getElement();
-        datePickerInput.clear();
-        datePickerInput.sendKeys(dateString);
+        String dateString = smartValue.toString();
+        clear();
+        sendKeys(dateString);
         // Clos date picker dropdown pop-up by pressing TAB button to change focus
-        datePickerInput.sendKeys(Keys.TAB);
+        sendKeys(Keys.TAB);
         log.debug("{} date picker value is set to: {}", elementName, value);
     }
 
@@ -67,9 +55,9 @@ public class DatePicker extends SmartElement implements ReadableObject, Writable
      * Returns the picked local date object.
      * @return The picked date.
      */
-    public SmartLocalDate getSmartLocalDate() {
-        String valueSting = getElement().getAttribute("value");
-        SmartLocalDate smartLocalDate = ConvertUtils.stringToSmartLocalDate(valueSting);
+    public SmartLocalDate getDate() {
+        String valueString = getValueDomProperty();
+        SmartLocalDate smartLocalDate = ConvertUtils.stringToSmartLocalDate(valueString);
         log.debug("Date picker {} smart local date is returned: {}", elementName, smartLocalDate);
         return smartLocalDate;
     }
@@ -80,7 +68,8 @@ public class DatePicker extends SmartElement implements ReadableObject, Writable
      */
     @Override
     public SmartValue getValue() {
-        SmartValue smartValue = new SmartValue(getSmartLocalDate());
+        String valueString = getValueDomProperty();
+        SmartValue smartValue = new SmartValue(valueString);
         log.debug("Date picker {} smart value is returned: {}", elementName, smartValue);
         return smartValue;
     }

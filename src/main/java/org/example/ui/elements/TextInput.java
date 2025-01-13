@@ -7,7 +7,6 @@ import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebElement;
 
 /**
  * The text input element class.
@@ -44,7 +43,7 @@ public class TextInput extends SingleLineTextInput {
     @RunAlone // Run this method while other @Test or SmartElement  methods do not run or wait
     public void selectAll() {
         sendKeys(Keys.chord(Keys.CONTROL, "a"));
-        log.debug("Text input {} all text is selected.", elementName);
+        log.debug("{} text input all text is selected.", elementName);
     }
 
     /**
@@ -54,11 +53,10 @@ public class TextInput extends SingleLineTextInput {
      */
     @RunAlone // Run this method while other @Test or SmartElement  methods do not run or wait
     public void selectSubstring(int from, int to) {
-        WebElement element = getElement();
 
         try {
             // Get the current text from the input element
-            String text = element.getAttribute("value");
+            String text = getValueDomProperty();
             int length = text.length();
 
             // Handle negative values for 'from'
@@ -74,19 +72,19 @@ public class TextInput extends SingleLineTextInput {
             DataValidationUtils.validateMax(to, length, "to");
 
             // Set focus to element
-            element.click();
+            click();
             // Move the cursor to the start position (from)
-            element.sendKeys(Keys.HOME);  // Move to the beginning of the input
+            sendKeys(Keys.HOME);  // Move to the beginning of the input
 
             for (int i = 0; i < from; i++) {
-                element.sendKeys(Keys.ARROW_RIGHT);  // Move cursor to the 'from' position
+                sendKeys(Keys.ARROW_RIGHT);  // Move cursor to the 'from' position
             }
             // Use Keys.chord() to simulate holding Shift and pressing the Right Arrow multiple times
             String shiftAndArrows = Keys.chord(Keys.SHIFT, repeatArrowRight(to - from));
             // Send the combined key press
-            element.sendKeys(shiftAndArrows);
-            log.debug("{} Text input '{}' substring '{}' is selected.",
-                    element.getTagName(), text, text.substring(from, to));
+            sendKeys(shiftAndArrows);
+            // Do not log hidden input value for security purpose.
+            log.debug("{} text input substring is selected.", elementName);
         }
         catch (Exception e) {
             throw new SmartRuntimeException(String.format("""
@@ -99,14 +97,14 @@ public class TextInput extends SingleLineTextInput {
         }
     }
 
-
     /**
      * Copies input text to the clipboard.
      */
     @RunAlone // Run this method while other @Test or SmartElement  methods do not run or wait
     public void copy() {
         sendKeys(Keys.chord(Keys.CONTROL, "c"));
-        log.debug("Text input {} selected text is copied to buffer.", elementName);
+        // Do not log hidden input value for security purpose.
+        log.debug("{} text input selected text is copied to buffer.", elementName);
     }
 
     /**
@@ -115,7 +113,8 @@ public class TextInput extends SingleLineTextInput {
     @RunAlone // Run this method while other @Test or SmartElement  methods do not run or wait
     public void cut() {
         sendKeys(Keys.chord(Keys.CONTROL, "x"));
-        log.debug("Text input {} selected text is cut to buffer.", elementName);
+        // Do not log hidden input value for security purpose.
+        log.debug("{} text input selected text is cut to buffer.", elementName);
     }
 
     private String repeatArrowRight(int count) {

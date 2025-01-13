@@ -8,9 +8,9 @@ import org.example.interfaces.WritableObject;
 import org.example.ui.wrappers.SmartElement;
 import org.example.utils.DataValidationUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import static org.example.constants.Settings.WAIT_ELEMENT_TIMEOUT_SECONDS;
+
 
 /**
  * The radio button element class.
@@ -37,11 +37,11 @@ public class Radiobutton extends SmartElement implements ReadableObject, Writabl
      */
     @RunAlone
     public void select() {
-        WebElement element = getElement();
 
-        if (!element.isSelected()) {
-            element.click();
-            synchro.waitForCheckboxOrRadioButton(element, true, WAIT_ELEMENT_TIMEOUT_SECONDS);
+        if (!isSelected()) {
+            click();
+            synchro.waitForCheckboxOrRadioButton(getElement(),
+                    true, WAIT_ELEMENT_TIMEOUT_SECONDS);
         }
         log.debug("Radio button {} is selected.", elementName);
     }
@@ -63,7 +63,9 @@ public class Radiobutton extends SmartElement implements ReadableObject, Writabl
      */
     @Override
     public SmartValue getValue() {
-        return new SmartValue(isSelected());
+        SmartValue smartValue = new SmartValue(isSelected());
+        log.debug("{} radiobutton smart value is returned: {}", elementName, smartValue);
+        return smartValue;
     }
 
     /**
@@ -78,6 +80,8 @@ public class Radiobutton extends SmartElement implements ReadableObject, Writabl
 
         if (smartValue.toBoolean()) {
             select();
+            log.debug("{} radiobutton value is set: {}", elementName, value);
         }
+        log.debug("{} no radiobutton value not changed: {}", elementName, value);
     }
 }
