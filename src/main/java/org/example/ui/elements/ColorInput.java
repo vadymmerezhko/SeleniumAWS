@@ -21,19 +21,19 @@ import static org.example.constants.Settings.WAIT_ELEMENT_TIMEOUT_SECONDS;
  * The color picker element class.
  */
 @Slf4j
-public class ColorPicker extends SmartElement implements ReadableObject, WritableObject {
+public class ColorInput extends SmartElement implements ReadableObject, WritableObject {
 
     /**
      * The color picker element constructor with auto selector.
      */
-    public ColorPicker() {
+    public ColorInput() {
     }
 
     /**
      * The color picker element constructor by its selector.
      * @param by The element selector.
      */
-    public ColorPicker(By by) {
+    public ColorInput(By by) {
         super(by);
     }
 

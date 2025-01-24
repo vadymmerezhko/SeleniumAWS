@@ -51,9 +51,9 @@ public class TestService implements TestServiceInterface {
             webFormPage.getFileInput().setValue(input.getFilePath());
             webFormPage.getRadiobutton1().setValue(input.getRadiobutton1Value());
             webFormPage.getRadiobutton2().setValue(input.getRadiobutton2Value());
-            webFormPage.getColorPicker().setValue(input.getColor());
+            webFormPage.getColorInput().setValue(input.getColor());
             input.getDate().setKeyword(thisYear);
-            webFormPage.getDatePicker().setValue(input.getDate());
+            webFormPage.getDateInput().setValue(input.getDate());
             webFormPage.getRangeSlider().setValue(input.getRange());
             log.info("Page URL: {}", webFormPage.getCurrentUrl());
 
@@ -65,9 +65,9 @@ public class TestService implements TestServiceInterface {
             output.getCheckbox2Value().setValue(webFormPage.getCheckbox2().getValue());
             output.getRadiobutton1Value().setValue(webFormPage.getRadiobutton1().isSelected());
             output.getRadiobutton2Value().setValue(webFormPage.getRadiobutton2().isSelected());
-            output.getColor().setValue(webFormPage.getColorPicker().getValue());
+            output.getColor().setValue(webFormPage.getColorInput().getValue());
             output.getDate().setKeyword(thisYear);
-            output.getDate().setValue(webFormPage.getDatePicker().getValue());
+            output.getDate().setValue(webFormPage.getDateInput().getValue());
             output.getRange().setValue(webFormPage.getRangeSlider().getValue());
             output.getFilePath().setValue(webFormPage.getFileInput().getValue());
             log.debug("Web Form page output data is returned: {}", output);

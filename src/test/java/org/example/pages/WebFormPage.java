@@ -20,8 +20,8 @@ public class WebFormPage extends SmartPage {
     private final Checkbox checkbox2 = new Checkbox();
     private final Radiobutton radiobutton1 = new Radiobutton();
     private final Radiobutton radiobutton2 = new Radiobutton();
-    private final ColorPicker colorPicker = new ColorPicker();
-    private final DatePicker datePicker = new DatePicker();
+    private final ColorInput colorInput = new ColorInput();
+    private final DateInput dateInput = new DateInput();
     private final RangeSlider rangeSlider = new RangeSlider();
     private final Button submitButton = new Button();
  }

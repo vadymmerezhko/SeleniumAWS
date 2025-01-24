@@ -3,6 +3,7 @@ package org.example.unit;
 import org.example.annotations.RunAlone;
 import org.example.data.SmartDate;
 import org.example.data.SmartLocalDate;
+import org.example.data.SmartLocalTime;
 import org.example.data.SmartValue;
 import org.example.ui.elements.*;
 import org.example.ui.elements.Button;
@@ -57,10 +58,12 @@ public class WebElementsTest extends BaseTest {
     private static final String NUMBER_INPUT_PAGE_URL =
             "file:///" + FileSystemUtils.getCurrentFolderPath() +
                     HTML_PAGES_FOLDER + "/NumberInputPage.html";
-
     private static final String HIDDEN_INPUT_PAGE_URL =
             "file:///" + FileSystemUtils.getCurrentFolderPath() +
                     HTML_PAGES_FOLDER + "/HiddenInputPage.html";
+    private static final String TIME_INPUT_PAGE_URL =
+            "file:///" + FileSystemUtils.getCurrentFolderPath() +
+                    HTML_PAGES_FOLDER + "/TimeInputPage.html";
 
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -613,46 +616,46 @@ public class WebElementsTest extends BaseTest {
     public void testPickColorWithValidSmartValue() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        ColorPicker colorPicker = testPage.getColorPicker();
+        ColorInput colorInput = testPage.getColorInput();
         SmartValue smartColor = new SmartValue("#0088ff");
-        colorPicker.setValue(smartColor);
+        colorInput.setValue(smartColor);
 
-        Assert.assertEquals(colorPicker.getColor(), smartColor.toColor());
+        Assert.assertEquals(colorInput.getColor(), smartColor.toColor());
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testPickColorWithValidString() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        ColorPicker colorPicker = testPage.getColorPicker();
+        ColorInput colorInput = testPage.getColorInput();
         String colorString = "#ff5733";
-        colorPicker.setValue(colorString);
+        colorInput.setValue(colorString);
         Color expectedColor = ConvertUtils.stringToColor(colorString);
 
-        Assert.assertEquals(colorPicker.getValue().toColor(), expectedColor);
+        Assert.assertEquals(colorInput.getValue().toColor(), expectedColor);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testSetSmartValueWithValidString() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        ColorPicker colorPicker = testPage.getColorPicker();
+        ColorInput colorInput = testPage.getColorInput();
         String colorString = "#ff5733";
         SmartValue smartValue = new SmartValue(colorString);
-        colorPicker.setValue(smartValue);
+        colorInput.setValue(smartValue);
         Color expectedColor = smartValue.toColor();
 
-        Assert.assertEquals(colorPicker.getColor(), expectedColor);
+        Assert.assertEquals(colorInput.getColor(), expectedColor);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testPickColorSmartValueWithValidString() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        ColorPicker colorPicker = testPage.getColorPicker();
+        ColorInput colorInput = testPage.getColorInput();
         String colorString = "#ff5733";
-        colorPicker.setValue(colorString);
-        SmartValue actualSmartValue = colorPicker.getValue();
+        colorInput.setValue(colorString);
+        SmartValue actualSmartValue = colorInput.getValue();
         String actualColorSting = actualSmartValue.toString();
 
         Assert.assertEquals(actualColorSting, colorString);
@@ -662,56 +665,56 @@ public class WebElementsTest extends BaseTest {
     public void testGetColorWithValidColorValue() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        ColorPicker colorPicker = testPage.getColorPicker();
+        ColorInput colorInput = testPage.getColorInput();
         Color color = Color.GREEN;
-        colorPicker.setValue(color);
+        colorInput.setValue(color);
 
-        Assert.assertEquals(colorPicker.getColor(), color);
+        Assert.assertEquals(colorInput.getColor(), color);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class, expectedExceptions = SmartValidationException.class)
     public void testPickColorWithNullSmartValue() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        ColorPicker colorPicker = testPage.getColorPicker();
+        ColorInput colorInput = testPage.getColorInput();
         // Passing null SmartValue should throw an exception
-        colorPicker.setValue((SmartValue) null);
+        colorInput.setValue((SmartValue) null);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testPickColorWithInvalidStringFormat() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        ColorPicker colorPicker = testPage.getColorPicker();
+        ColorInput colorInput = testPage.getColorInput();
         // Passing an invalid color format string should throw an exception
-        colorPicker.setValue("invalidColor");
+        colorInput.setValue("invalidColor");
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testColorPickerSetValueWithNullValue() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        ColorPicker colorPicker = testPage.getColorPicker();
+        ColorInput colorInput = testPage.getColorInput();
         // Passing an invalid color format string should throw an exception
-        colorPicker.setValue(null);
+        colorInput.setValue(null);
     }
 
     @Test(expectedExceptions = SmartRuntimeException.class)
     public void testColorPickerSetSmartValueWithInvalidSmartValue() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        ColorPicker colorPicker = testPage.getColorPicker();
+        ColorInput colorInput = testPage.getColorInput();
         // Passing null should throw an exception
-        colorPicker.setValue(new SmartValue("invalidColor"));
+        colorInput.setValue(new SmartValue("invalidColor"));
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testColorPickerSetSmartValueWithNullValue() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        ColorPicker colorPicker = testPage.getColorPicker();
+        ColorInput colorInput = testPage.getColorInput();
         // Passing null string should throw an exception
-        colorPicker.setValue(null);
+        colorInput.setValue(null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -841,12 +844,12 @@ public class WebElementsTest extends BaseTest {
     public void testPickDateWithValidSmartValue() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         SmartValue smartValue = new SmartValue("12/25/2024");
-        datePicker.setValue(smartValue);
+        dateInput.setValue(smartValue);
 
         Assert.assertEquals(
-                datePicker.getValue().toLocalDate(),
+                dateInput.getValue().toLocalDate(),
                 smartValue.toLocalDate());
     }
 
@@ -854,59 +857,46 @@ public class WebElementsTest extends BaseTest {
     public void testPickDateWithValidString() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         String dateString = "01/01/2024";
-        datePicker.setValue(dateString);
+        dateInput.setValue(dateString);
 
-        Assert.assertEquals(datePicker.getValue().toString(), dateString);
+        Assert.assertEquals(dateInput.getValue().toString(), dateString);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testDatePickerGetValue() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         // Simulate picking a date
-        datePicker.setValue("05/10/2024");
+        dateInput.setValue("05/10/2024");
         LocalDate expectedLocalDate = LocalDate.parse("2024-05-10");
 
-        Assert.assertEquals(datePicker.getValue().toLocalDate(), expectedLocalDate);
-    }
-
-    @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void testDatePickerGetSmartValue() {
-        TestPage testPage = new TestPage();
-        testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
-        String dateString = "05/10/2024";
-        // Simulate picking a date
-        datePicker.setValue(dateString);
-        SmartValue expectedSmartValue = new SmartValue(dateString);
-
-        Assert.assertEquals(datePicker.getValue(), expectedSmartValue);
+        Assert.assertEquals(dateInput.getValue().toLocalDate(), expectedLocalDate);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testGetDatePickerLocalDate() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         // Simulate picking a date
-        datePicker.setValue("05/10/2024");
+        dateInput.setValue("05/10/2024");
         SmartLocalDate expectedSmartLocalDate = SmartLocalDate.fromString("2024-05-10");
 
-        Assert.assertEquals(datePicker.getDate(), expectedSmartLocalDate);
+        Assert.assertEquals(dateInput.getDate(), expectedSmartLocalDate);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testGetSmartValue() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         // Simulate picking a date
-        datePicker.setValue("12/25/2024");
+        dateInput.setValue("12/25/2024");
         LocalDate expectedLocalDate = LocalDate.of(2024, 12, 25);
-        SmartValue smartValue = datePicker.getValue();
+        SmartValue smartValue = dateInput.getValue();
 
         Assert.assertEquals(smartValue.toLocalDate(), expectedLocalDate);
     }
@@ -915,10 +905,10 @@ public class WebElementsTest extends BaseTest {
     public void testGetDatePickerSmartLocalDate() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         // Simulate picking a date
-        datePicker.setValue("12/25/2024");
-        SmartLocalDate smartLocalDate = datePicker.getDate();
+        dateInput.setValue("12/25/2024");
+        SmartLocalDate smartLocalDate = dateInput.getDate();
 
         Assert.assertEquals(smartLocalDate, SmartLocalDate.fromString("12/25/2024"));
     }
@@ -927,69 +917,65 @@ public class WebElementsTest extends BaseTest {
     public void testDatePickerSetValueWithLocalDate() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         SmartLocalDate smartLocalDate = SmartLocalDate.fromString("12/25/2024");
         // Simulate picking a date
-        datePicker.setValue(smartLocalDate);
+        dateInput.setValue(smartLocalDate);
 
-        Assert.assertEquals(datePicker.getValue().toSmartLocalDate(), smartLocalDate);
+        Assert.assertEquals(dateInput.getValue().toSmartLocalDate(), smartLocalDate);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testDatePickerSetValueWithSmartLocalDate() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         SmartLocalDate smartLocalDate = SmartLocalDate.fromString("12/25/2024");
         // Simulate picking a date
-        datePicker.setValue(smartLocalDate);
+        dateInput.setValue(smartLocalDate);
 
-        Assert.assertEquals(datePicker.getValue().toSmartLocalDate(), smartLocalDate);
+        Assert.assertEquals(dateInput.getValue().toSmartLocalDate(), smartLocalDate);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testDatePickerSetValueWithDate() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         Date date = ConvertUtils.stringToSmartDate("12/25/2024").toDate();
         // Simulate picking a date
-        datePicker.setValue(date);
+        dateInput.setValue(date);
 
-        Assert.assertEquals(datePicker.getValue().toDate(), date);
+        Assert.assertEquals(dateInput.getValue().toDate(), date);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
     public void testDatePickerSetValueWithSmartDate() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         SmartDate smartDate = ConvertUtils.stringToSmartDate("12/25/2024");
         // Simulate picking a date
-        datePicker.setValue(smartDate);
+        dateInput.setValue(smartDate);
 
-        Assert.assertEquals(datePicker.getValue().toSmartDate(), smartDate);
+        Assert.assertEquals(dateInput.getValue().toSmartDate(), smartDate);
     }
 
-    @Test
+    @Test(expectedExceptions = SmartRuntimeException.class)
     public void testDatePickerSetValueWithInvalidDateString() {
         TestPage testPage = new TestPage();
         testPage.open(WEB_PAGE_URL);
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         String invalidValue = "Invalid date";
-        LocalDate expectedLocalDate = LocalDate.now();
-        // Should not change default today's date
-        datePicker.setValue(invalidValue);
-
-        Assert.assertEquals(datePicker.getValue().toLocalDate(), expectedLocalDate);
+        dateInput.setValue(invalidValue);
     }
 
     @Test(expectedExceptions = SmartValidationException.class)
     public void testDatePickerSetValueWithNullValue() {
         TestPage testPage = new TestPage();
-        DatePicker datePicker = testPage.getDatePicker();
+        DateInput dateInput = testPage.getDateInput();
         // Should throw an exception
-        datePicker.setValue(null);
+        dateInput.setValue(null);
     }
 
     @Test(retryAnalyzer = RetryAnalyzer.class)
@@ -2185,6 +2171,69 @@ public class WebElementsTest extends BaseTest {
 
         Assert.assertNotNull(actualValue);
         Assert.assertEquals(actualValue, expectedValue);
+    }
+
+    @Test
+    public void testSetValueWithValidTimeString() {
+        TestPage testPage = new TestPage();
+        testPage.open(TIME_INPUT_PAGE_URL);
+        TimeInput timeInput = testPage.getTimeInput();
+        String validTime = "14:30";
+        timeInput.setValue(validTime);
+
+        Assert.assertEquals(timeInput.getValue().toString(), validTime);
+    }
+
+    @Test
+    public void testSetValueWithValidSmartLocalTime() {
+        TestPage testPage = new TestPage();
+        testPage.open(TIME_INPUT_PAGE_URL);
+        TimeInput timeInput = testPage.getTimeInput();
+        SmartLocalTime validSmartLocalTime = SmartLocalTime.fromString("14:30");
+        timeInput.setValue(validSmartLocalTime);
+
+        Assert.assertEquals(timeInput.getTime(), validSmartLocalTime);
+    }
+
+    @Test(expectedExceptions = SmartValidationException.class)
+    public void testSetValueWithNullValue() {
+        TestPage testPage = new TestPage();
+        testPage.open(TIME_INPUT_PAGE_URL);
+        TimeInput timeInput = testPage.getTimeInput();
+        timeInput.setValue(null);
+    }
+
+    @Test
+    public void testGetTimeWithValidTimeString() {
+        TestPage testPage = new TestPage();
+        testPage.open(TIME_INPUT_PAGE_URL);
+        TimeInput timeInput = testPage.getTimeInput();
+        String validTime = "14:30";
+        timeInput.setValue(validTime);
+        SmartLocalTime smartLocalTime = timeInput.getTime();
+
+        Assert.assertEquals(smartLocalTime.toString(), validTime);
+    }
+
+    @Test
+    public void testGetValueWithValidTimeString() {
+        TestPage testPage = new TestPage();
+        testPage.open(TIME_INPUT_PAGE_URL);
+        TimeInput timeInput = testPage.getTimeInput();
+        String validTime = "14:30";
+        timeInput.setValue(validTime);
+        SmartValue smartValue = timeInput.getValue();
+
+        Assert.assertEquals(smartValue.toString(), validTime);
+    }
+
+    @Test(expectedExceptions = SmartRuntimeException.class)
+    public void testGetValueWithInvalidTimeFormat() {
+        TestPage testPage = new TestPage();
+        testPage.open(TIME_INPUT_PAGE_URL);
+        TimeInput timeInput = testPage.getTimeInput();
+        String invalidTime = "invalid-time";
+        timeInput.setValue(invalidTime);
     }
 
 }

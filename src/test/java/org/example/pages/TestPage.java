@@ -14,9 +14,9 @@ public class TestPage extends SmartPage {
     private final Button button = new Button(SmartBy.keyword("Submit"));
     private final Button buttonByStrictKeyword = new Button(SmartBy.strictKeyword("Submit"));
     private final Checkbox checkbox = new Checkbox(By.id("my-check-2"));
-    private final ColorPicker colorPicker = new ColorPicker(By.name("my-colors"));
+    private final ColorInput colorInput = new ColorInput(By.name("my-colors"));
     private final DataList dataList = new DataList(By.name("my-datalist"));
-    private final DatePicker datePicker = new DatePicker(By.name("my-date"));
+    private final DateInput dateInput = new DateInput(By.name("my-date"));
     private final Dropdown dropdown = new Dropdown(By.name("my-select"));
     private final Field field = new Field(By.tagName("h1"));
     private final FileInput fileInput = new FileInput(SmartBy.name("my-file"));
@@ -33,4 +33,5 @@ public class TestPage extends SmartPage {
     private final SearchInput searchInput = new SearchInput(SmartBy.id("search"));
     private final NumberInput numberInput = new NumberInput(SmartBy.id("quantity"));
     private final HiddenInput hiddenInput = new HiddenInput(SmartBy.name("userId"));
+    private final TimeInput timeInput = new TimeInput(SmartBy.id("meeting-time"));
 }

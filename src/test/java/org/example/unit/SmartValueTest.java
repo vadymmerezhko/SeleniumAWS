@@ -2266,10 +2266,10 @@ public class SmartValueTest {
 
     @Test
     public void testToLocalDateTimeWithValidLong() {
-        SmartValue smartCurrency = new SmartValue();
+        SmartValue smartValue = new SmartValue();
         long epochMillis = 1726281600000L;  // Represents 2024-09-14T15:30:00 in milliseconds
-        smartCurrency.setValue(epochMillis);
-        LocalDateTime actualLocalDateTime = smartCurrency.toLocalDateTime();
+        smartValue.setValue(epochMillis);
+        LocalDateTime actualLocalDateTime = smartValue.toLocalDateTime();
 
         LocalDateTime expectedLocalDateTime = Instant.ofEpochMilli(epochMillis)
                 .atZone(ZoneId.systemDefault())
