@@ -1,50 +1,50 @@
 {
-    "date": {
-        "type": {"objectClass": "java.lang.String"},
-        "value": "11/07/#KEYWORD#"
-    },
-    "textInput": {
+    "productName": {
         "type": {"objectClass": "java.lang.String"},
         "value": "Text input"
     },
-    "checkbox1Value": {
+    "description": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "Textarea"
+    },
+    "brand": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "Two"
+    },
+    "model": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "Chicago"
+    },
+    "upload": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "src/test/java/org/example/unit/WebElementsTest.java"
+    },
+    "available": {
         "type": {"objectClass": "java.lang.Boolean"},
         "value": "false"
     },
-    "radiobutton1Value": {
+    "freeDelivery": {
+        "type": {"objectClass": "java.lang.Boolean"},
+        "value": "true"
+    },
+    "freeReturn": {
         "type": {"objectClass": "java.lang.Boolean"},
         "value": "false"
+    },
+    "paidReturn": {
+        "type": {"objectClass": "java.lang.Boolean"},
+        "value": "true"
     },
     "color": {
         "type": {"objectClass": "java.lang.String"},
         "value": "#ff8000"
     },
-    "checkbox2Value": {
-        "type": {"objectClass": "java.lang.Boolean"},
-        "value": "true"
-    },
-    "filePath": {
+    "deliveryDate": {
         "type": {"objectClass": "java.lang.String"},
-        "value": "src/test/java/org/example/unit/WebElementsTest.java"
+        "value": "11/07/#KEYWORD#"
     },
-    "textareaInput": {
-        "type": {"objectClass": "java.lang.String"},
-        "value": "Textarea"
-    },
-    "dataListSelectOption": {
-        "type": {"objectClass": "java.lang.String"},
-        "value": "Chicago"
-    },
-    "range": {
+    "weight": {
         "type": {"objectClass": "java.lang.Integer"},
         "value": "9"
-    },
-    "radiobutton2Value": {
-        "type": {"objectClass": "java.lang.Boolean"},
-        "value": "true"
-    },
-    "dropdownSelectedOption": {
-        "type": {"objectClass": "java.lang.String"},
-        "value": "Two"
     }
 }

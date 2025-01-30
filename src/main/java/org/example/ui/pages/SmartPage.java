@@ -6,8 +6,11 @@ import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.FieldAccessor;
 import org.example.configs.Config;
 import org.example.configs.TestConfig;
+import org.example.data.SmartData;
 import org.example.data.SmartObject;
 import org.example.data.SmartValue;
+import org.example.interfaces.ReadableObject;
+import org.example.interfaces.WritableObject;
 import org.example.ui.factories.WebDriverFactory;
 import org.example.ui.selectors.Selector;
 import org.example.ui.selectors.SelectorType;
@@ -216,6 +219,88 @@ public abstract class SmartPage extends SmartObject {
      */
     public void scrollToElement(WebElement element) {
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+    }
+
+    /**
+     * Sets all page input elements from input data values
+     * when input element and value have the same name
+     * in the order as it goes in the input data.
+     * @param inputData The input data.
+     */
+    public void setAllInputs(SmartData inputData) {
+
+        try {
+            Field[] inputFields = inputData.getClass().getDeclaredFields();
+            Field[] pageFields = getClass().getDeclaredFields();
+
+            for (Field iputField : inputFields) {
+                iputField.setAccessible(true);
+                Object inputValue = iputField.get(inputData);
+
+                if (!(inputValue instanceof SmartValue)) {
+                    continue;
+                }
+                for (Field pageField : pageFields) {
+                    pageField.setAccessible(true);
+                    Object pageElement = pageField.get(this);
+
+                    if (!(pageElement instanceof SmartElement) &&
+                        !(pageElement instanceof WritableObject)) {
+                        continue;
+                    }
+                    if (iputField.getName().equals(pageField.getName())) {
+                        ((WritableObject) pageElement).setValue(
+                                ((SmartValue)inputValue).getValue());
+                    }
+                }
+            }
+            log.debug("All {} page input elements are set", getClass().getSimpleName());
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot set all %s page input elements.",
+                    getClass().getSimpleName()), e);
+        }
+    }
+
+    /**
+     * Sets all page output data values from page elements
+     * when page element and value have the same name
+     * in the order as it goes in the output data.
+     * @param outputData The output data.
+     */
+    public void setAllOutputs(SmartData outputData) {
+
+        try {
+            Field[] outputFields = outputData.getClass().getFields();
+            Field[] pageFields = getClass().getFields();
+
+            for (Field outputField : outputFields) {
+                Object outputValue = outputField.get(outputData);
+
+                if (!(outputValue instanceof SmartValue)) {
+                    continue;
+                }
+                for (Field pageField : pageFields) {
+                    Object pageElement = pageField.get(this);
+
+                    if (!(pageElement instanceof SmartElement) &&
+                            !(pageElement instanceof ReadableObject)) {
+                        continue;
+                    }
+                    if (outputField.getName().equals(pageField.getName())) {
+                        ((SmartValue) outputValue).setValue(
+                                ((ReadableObject)pageElement).getValue());
+                    }
+                }
+            }
+            log.debug("All {} page output values are set", getClass().getSimpleName());
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot set all %s page output values.",
+                    getClass().getSimpleName()), e);
+        }
     }
 
     /**

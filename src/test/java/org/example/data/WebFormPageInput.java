@@ -11,16 +11,16 @@ import org.example.annotations.SmartValueField;
 @SmartValueField
 @Getter
 public class WebFormPageInput extends SmartData {
-    private SmartValue textInput;
-    private SmartValue textareaInput;
-    private SmartValue dropdownSelectedOption;
-    private SmartValue dataListSelectOption;
-    private SmartValue filePath;
-    private SmartValue checkbox1Value;
-    private SmartValue checkbox2Value;
-    private SmartValue radiobutton1Value;
-    private SmartValue radiobutton2Value;
+    private SmartValue productName;
+    private SmartValue description;
+    private SmartValue brand;
+    private SmartValue model;
+    private SmartValue upload;
+    private SmartValue available;
+    private SmartValue freeDelivery;
+    private SmartValue paidReturn;
+    private SmartValue freeReturn;
     private SmartValue color;
-    private SmartValue date;
-    private SmartValue range;
+    private SmartValue deliveryDate;
+    private SmartValue weight;
 }

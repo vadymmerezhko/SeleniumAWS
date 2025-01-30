@@ -30,7 +30,7 @@ public class CommonTest extends BaseTest {
         TestServiceInterface testServer = TestServiceManager.getTestServer();
         WebFormPageOutput actual = testServer.fillWebForm(input);
         WebFormPageOutput expected = new WebFormPageOutput();
-        expected.getDate().setKeyword(actual.getDate().getKeyword());
+        expected.getDeliveryDate().setKeyword(actual.getDeliveryDate().getKeyword());
 
         SmartAssert.assertData(expected, actual);
         Reporter.log("<b>fillWebForm test execution finished.</b>");

@@ -10,18 +10,18 @@ import org.example.ui.pages.SmartPage;
  */
 @Getter
 public class WebFormPage extends SmartPage {
-    private final TextInput textInput = new TextInput();
-    private final PasswordInput passwordInput = new PasswordInput();
-    private final Textarea textarea = new Textarea();
-    private final Dropdown dropdown = new Dropdown();
-    private final FileInput fileInput = new FileInput();
-    private final DataList dataList = new DataList();
-    private final Checkbox checkbox1 = new Checkbox();
-    private final Checkbox checkbox2 = new Checkbox();
-    private final Radiobutton radiobutton1 = new Radiobutton();
-    private final Radiobutton radiobutton2 = new Radiobutton();
-    private final ColorInput colorInput = new ColorInput();
-    private final DateInput dateInput = new DateInput();
-    private final RangeSlider rangeSlider = new RangeSlider();
-    private final Button submitButton = new Button();
+    private final TextInput productName = new TextInput();
+    private final PasswordInput password = new PasswordInput();
+    private final Textarea description = new Textarea();
+    private final Dropdown brand = new Dropdown();
+    private final DataList model = new DataList();
+    private final FileInput upload = new FileInput();
+    private final Checkbox available = new Checkbox();
+    private final Checkbox freeDelivery = new Checkbox();
+    private final Radiobutton freeReturn = new Radiobutton();
+    private final Radiobutton paidReturn = new Radiobutton();
+    private final ColorInput color = new ColorInput();
+    private final DateInput deliveryDate = new DateInput();
+    private final RangeSlider weightRangeSlider = new RangeSlider();
+    private final Button submit = new Button();
  }

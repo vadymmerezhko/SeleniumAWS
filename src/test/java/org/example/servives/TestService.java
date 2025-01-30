@@ -35,41 +35,21 @@ public class TestService implements TestServiceInterface {
     public WebFormPageOutput fillWebForm(WebFormPageInput input) {
         try {
             WebFormPage webFormPage = new WebFormPage();
-            WebFormPageOutput output = new WebFormPageOutput();
             int thisYear = LocalDate.now().getYear();
-            String textAreaKeyword = "my-textarea";
+            String descriptionKeyword = "my-textarea";
 
             webFormPage.open();
-            webFormPage.getTextInput().setValue(input.getTextInput());
-            webFormPage.getPasswordInput().enterText("Password123");
-            webFormPage.getTextarea().setKeyword(textAreaKeyword);
-            webFormPage.getTextarea().enterText(input.getTextareaInput());
-            webFormPage.getDropdown().setValue(input.getDropdownSelectedOption());
-            webFormPage.getDataList().setValue(input.getDataListSelectOption());
-            webFormPage.getCheckbox1().setValue(input.getCheckbox1Value());
-            webFormPage.getCheckbox2().setValue(input.getCheckbox2Value());
-            webFormPage.getFileInput().setValue(input.getFilePath());
-            webFormPage.getRadiobutton1().setValue(input.getRadiobutton1Value());
-            webFormPage.getRadiobutton2().setValue(input.getRadiobutton2Value());
-            webFormPage.getColorInput().setValue(input.getColor());
-            input.getDate().setKeyword(thisYear);
-            webFormPage.getDateInput().setValue(input.getDate());
-            webFormPage.getRangeSlider().setValue(input.getRange());
-            log.info("Page URL: {}", webFormPage.getCurrentUrl());
+            log.info("Web Form page URL: {}", webFormPage.getCurrentUrl());
 
-            output.getTextInput().setValue(webFormPage.getTextInput().getValue());
-            output.getTextareaInput().setValue(webFormPage.getTextarea().getValue());
-            output.getDropdownSelectedOption().setValue(webFormPage.getDropdown().getValueString());
-            output.getDataListSelectOption().setValue(webFormPage.getDataList().getValue());
-            output.getCheckbox1Value().setValue(webFormPage.getCheckbox1().getValue());
-            output.getCheckbox2Value().setValue(webFormPage.getCheckbox2().getValue());
-            output.getRadiobutton1Value().setValue(webFormPage.getRadiobutton1().isSelected());
-            output.getRadiobutton2Value().setValue(webFormPage.getRadiobutton2().isSelected());
-            output.getColor().setValue(webFormPage.getColorInput().getValue());
-            output.getDate().setKeyword(thisYear);
-            output.getDate().setValue(webFormPage.getDateInput().getValue());
-            output.getRange().setValue(webFormPage.getRangeSlider().getValue());
-            output.getFilePath().setValue(webFormPage.getFileInput().getValue());
+            webFormPage.getPassword().enterText("Password123");
+            webFormPage.getDescription().setKeyword(descriptionKeyword);
+            input.getDeliveryDate().setKeyword(thisYear);
+            webFormPage.setAllInputs(input);
+
+            WebFormPageOutput output = new WebFormPageOutput();
+            output.getDeliveryDate().setKeyword(thisYear);
+            webFormPage.setAllOutputs(output);
+
             log.debug("Web Form page output data is returned: {}", output);
             return output;
         }
@@ -85,13 +65,13 @@ public class TestService implements TestServiceInterface {
     @Override
     public TargetPageOutput submitWebForm() {
         WebFormPage webFormPage = new WebFormPage();
-        Button submitButton =  webFormPage.getSubmitButton();
+        Button submitButton =  webFormPage.getSubmit();
         submitButton.click();
 
         TargetPage targetPage = new TargetPage();
         TargetPageOutput output = new TargetPageOutput();
-        output.getHeader().setValue(targetPage.getHeader().getText());
-        output.getStatus().setValue(targetPage.getStatus().getText());
+        targetPage.setAllOutputs(output);
+
         log.debug("Target page output data is returned: {}", output);
         return output;
     }
