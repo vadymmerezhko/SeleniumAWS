@@ -22,6 +22,6 @@ public class WebFormPage extends SmartPage {
     private final Radiobutton paidReturn = new Radiobutton();
     private final ColorInput color = new ColorInput();
     private final DateInput deliveryDate = new DateInput();
-    private final RangeSlider weightRangeSlider = new RangeSlider();
+    private final RangeSlider weight = new RangeSlider();
     private final Button submit = new Button();
  }

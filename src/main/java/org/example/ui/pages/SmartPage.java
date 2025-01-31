@@ -272,16 +272,18 @@ public abstract class SmartPage extends SmartObject {
     public void setAllOutputs(SmartData outputData) {
 
         try {
-            Field[] outputFields = outputData.getClass().getFields();
-            Field[] pageFields = getClass().getFields();
+            Field[] outputFields = outputData.getClass().getDeclaredFields();
+            Field[] pageFields = getClass().getDeclaredFields();
 
             for (Field outputField : outputFields) {
+                outputField.setAccessible(true);
                 Object outputValue = outputField.get(outputData);
 
                 if (!(outputValue instanceof SmartValue)) {
                     continue;
                 }
                 for (Field pageField : pageFields) {
+                    pageField.setAccessible(true);
                     Object pageElement = pageField.get(this);
 
                     if (!(pageElement instanceof SmartElement) &&

@@ -39,6 +39,9 @@ public class Field extends SmartElement implements ReadableObject {
         catch (Exception e) {
             value = getText();
         }
+        if (value == null) {
+            value = getText();
+        }
         log.debug("{} field value or text is returned: {}", elementName, value);
         return value;
     }

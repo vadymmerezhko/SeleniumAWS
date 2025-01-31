@@ -1,11 +1,10 @@
 package org.example.ui.elements;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.ui.wrappers.SmartElement;
 import org.openqa.selenium.By;
 
 @Slf4j
-public class Label extends SmartElement {
+public class Label extends Field {
 
     /**
      * Label element constructor with auto selector.
