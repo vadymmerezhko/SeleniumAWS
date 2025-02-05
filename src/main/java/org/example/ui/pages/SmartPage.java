@@ -249,8 +249,7 @@ public abstract class SmartPage extends SmartObject {
                         continue;
                     }
                     if (iputField.getName().equals(pageField.getName())) {
-                        ((WritableObject) pageElement).setValue(
-                                ((SmartValue)inputValue).getValue());
+                        ((WritableObject) pageElement).setValue(inputValue);
                     }
                 }
             }
@@ -291,8 +290,12 @@ public abstract class SmartPage extends SmartObject {
                         continue;
                     }
                     if (outputField.getName().equals(pageField.getName())) {
-                        ((SmartValue) outputValue).setValue(
-                                ((ReadableObject)pageElement).getValue());
+                        SmartValue outputSmartValue = (SmartValue) outputValue;
+
+                        if (outputSmartValue.getValue() == null) {
+                            outputSmartValue.setValue(
+                                    ((ReadableObject) pageElement).getValue());
+                        }
                     }
                 }
             }
