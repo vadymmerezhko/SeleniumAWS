@@ -289,13 +289,10 @@ public abstract class SmartPage extends SmartObject {
                             !(pageElement instanceof ReadableObject)) {
                         continue;
                     }
-                    if (outputField.getName().equals(pageField.getName())) {
-                        SmartValue outputSmartValue = (SmartValue) outputValue;
 
-                        if (outputSmartValue.getValue() == null) {
-                            outputSmartValue.setValue(
-                                    ((ReadableObject) pageElement).getValue());
-                        }
+                    if (outputField.getName().equals(pageField.getName())) {
+                        SmartValue actualSmartValue = ((ReadableObject) pageElement).getValue();
+                        outputField.set(outputData, actualSmartValue);
                     }
                 }
             }
