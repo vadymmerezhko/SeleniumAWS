@@ -1,0 +1,5 @@
+{
+    "password": "css=#password",
+    "loginButton": "css=#login-button",
+    "userName": "css=#user-name"
+}

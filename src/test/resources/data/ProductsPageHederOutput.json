@@ -1,0 +1,10 @@
+{
+    "header": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "Swag Labs"
+    },
+    "productsField": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "Products"
+    }
+}

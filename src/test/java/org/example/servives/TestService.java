@@ -2,6 +2,8 @@ package org.example.servives;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.*;
+import org.example.pages.LoginPage;
+import org.example.pages.ProductsPage;
 import org.example.pages.TargetPage;
 import org.example.pages.WebFormPage;
 import org.example.utils.DataValidator;
@@ -48,5 +50,29 @@ public class TestService implements TestServiceInterface {
 
         TargetPage targetPage = new TargetPage();
         return  targetPage.getOutputData();
+    }
+
+    /**
+     * Fills login page form with input data.
+     * @param input Login form input data.
+     * @return Login form output data.
+     */
+    @Override
+    public LoginPageOutput fillLoginPage(LoginPageInput input) {
+        LoginPage loginPage = new LoginPage();
+        return loginPage.fillLoginForm(input);
+    }
+
+    /**
+     * Submits Login page form.
+     * @return The Product page header output data.
+     */
+    @Override
+    public ProductsPageHeaderOutput submitLoginPage() {
+        LoginPage loginPage = new LoginPage();
+        loginPage.submitLoginForm();
+
+        ProductsPage productsPage = new ProductsPage();
+        return productsPage.getHeaderOutputData();
     }
 }
