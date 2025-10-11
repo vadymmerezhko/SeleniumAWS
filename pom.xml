@@ -4,16 +4,16 @@
 
   <parent>
     <groupId>com.smarte2e</groupId>
-    <artifactId>CodelessTestFramework</artifactId>
-    <version>1.15.1</version>
+    <artifactId>codeless-test-framework</artifactId>
+    <version>1.15.2</version>
     <relativePath>./parent-pom.xml</relativePath>
   </parent>
 
-  <artifactId>CodelessTestTesstAutomation</artifactId>
-  <version>1.15.1</version>
+  <artifactId>codeless-test-automation</artifactId>
+  <version>1.15.2</version>
   <packaging>jar</packaging>
 
-  <name>SmartE2ECodelessTestFramework</name>
+  <name>codeless-test-automation</name>
   <url>http://maven.apache.org</url>
 
   <properties>

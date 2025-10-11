@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.smarte2e</groupId>
-  <artifactId>CodelessTestFramework</artifactId>
-  <version>1.15.1</version>
+  <artifactId>codeless-test-framework</artifactId>
+  <version>1.15.2</version>
   <packaging>pom</packaging>
 
-  <name>CodelessTestFrameworkLibrary</name>
+  <name>codeless-test-framework</name>
   <url>http://maven.apache.org</url>
 
   <properties>
