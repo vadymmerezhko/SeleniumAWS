@@ -6,7 +6,7 @@ import org.example.data.SmartValue;
 import org.example.interfaces.ReadableObject;
 import org.example.interfaces.WritableObject;
 import org.example.ui.wrappers.SmartElement;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -39,7 +39,7 @@ public abstract class BaseTextElement extends SmartElement implements WebElement
      */
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public void enterText(String text) {
-        DataValidationUtils.validateNotNull(text, "text");
+        DataValidator.notNull(text, "text");
         clear();
         sendKeys(text);
         synchro.waitForAttributeValue(getElement(),
@@ -54,7 +54,7 @@ public abstract class BaseTextElement extends SmartElement implements WebElement
      */
     @Override
     public <T> void setValue(T value) {
-        DataValidationUtils.validateNotNull(value, "text");
+        DataValidator.notNull(value, "text");
         SmartValue smartValue = new SmartValue(value);
         enterText(smartValue.toString());
         // Do not log hidden input value for security purpose.
@@ -101,7 +101,7 @@ public abstract class BaseTextElement extends SmartElement implements WebElement
     @Override
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public void sendKeys(CharSequence... keysToSend) {
-        DataValidationUtils.validateNotNull(keysToSend, "keysToSend");
+        DataValidator.notNull(keysToSend, "keysToSend");
         super.sendKeys(keysToSend);
         log.debug("Keyboard keys are sent to {} text element.", elementName);
     }

@@ -3,7 +3,7 @@ package org.example.ui.elements;
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.SmartValue;
 import org.example.interfaces.WritableObject;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 
 /**
@@ -31,7 +31,7 @@ public class Textarea extends TextInput implements WritableObject {
      * @param text The text to enter.
      */
     public void enterText(SmartValue text) {
-        DataValidationUtils.validateNotNull(text, "text");
+        DataValidator.notNull(text, "text");
         enterText(text.toString());
     }
 
@@ -40,7 +40,7 @@ public class Textarea extends TextInput implements WritableObject {
      * @param text The text to enter.
      */
     public void enterText(String text) {
-        DataValidationUtils.validateNotNull(text, "text");
+        DataValidator.notNull(text, "text");
 
         clear();
         sendKeys(text);

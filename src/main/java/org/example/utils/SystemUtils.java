@@ -89,7 +89,7 @@ public final class SystemUtils {
      * @return The output string.
      */
     public static String runCommandLine(String command) {
-        DataValidationUtils.validateNotBlank(command, "command");
+        DataValidator.notBlank(command, "command");
 
         StringBuilder output = new StringBuilder();
 

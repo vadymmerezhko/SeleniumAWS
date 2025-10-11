@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.example.utils.DataValidationUtils.VARIABLE_NAME_REGEX;
+import static org.example.utils.DataValidator.VARIABLE_NAME_REGEX;
 
 
 /**
@@ -54,7 +54,7 @@ public final class ClassUtils {
      * @param methodName The method name.
      */
     public static void throwMethodNotImplementedException(String methodName) {
-        DataValidationUtils.validateFullMethodName(methodName, "methodName");
+        DataValidator.fullMethodName(methodName, "methodName");
         throw new SmartRuntimeException(String.format("Method %s is not implemented.", methodName));
     }
 
@@ -65,8 +65,8 @@ public final class ClassUtils {
      * @return The field object or null.
      */
     public static String getObjectFieldName(Object parentObject, Object fieldObject) {
-        DataValidationUtils.validateNotNull(parentObject, "parentObject");
-        DataValidationUtils.validateNotNull(fieldObject, "fieldObject");
+        DataValidator.notNull(parentObject, "parentObject");
+        DataValidator.notNull(fieldObject, "fieldObject");
 
         try {
             Field[] fields = parentObject.getClass().getDeclaredFields();
@@ -128,7 +128,7 @@ public final class ClassUtils {
             String methodName,
             int waitMilliseconds,
             int waitTimeoutMilliseconds) {
-        DataValidationUtils.validateNotNull(parameter, "parameter");
+        DataValidator.notNull(parameter, "parameter");
         performMethod(action, parameter, null, fix, methodName,
                 waitMilliseconds, waitTimeoutMilliseconds);
     }
@@ -154,8 +154,8 @@ public final class ClassUtils {
             String methodName,
             int waitMilliseconds,
             int waitTimeoutMilliseconds) {
-        DataValidationUtils.validateNotNull(parameter1, "parameter1");
-        DataValidationUtils.validateNotNull(parameter2, "parameter2");
+        DataValidator.notNull(parameter1, "parameter1");
+        DataValidator.notNull(parameter2, "parameter2");
         performMethod(action, parameter1, parameter2, fix, methodName,
                 waitMilliseconds, waitTimeoutMilliseconds);
     }
@@ -200,7 +200,7 @@ public final class ClassUtils {
             String methodName,
             int waitMilliseconds,
             int waitTimeoutMilliseconds) {
-        DataValidationUtils.validateNotNull(parameter, "parameter");
+        DataValidator.notNull(parameter, "parameter");
         return performMethod(action, parameter, null, fix, methodName,
                 waitMilliseconds, waitTimeoutMilliseconds);
     }
@@ -239,7 +239,7 @@ public final class ClassUtils {
      * @return The full method name.
      */
     public static String getFullMethodNameFromStackTrace(int depthIndex) {
-        DataValidationUtils.validateMin(depthIndex, 0, "depthIndex");
+        DataValidator.min(depthIndex, 0, "depthIndex");
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
         // Adjust the depthIndex to account for the getStackTrace() call itself and this method
@@ -266,7 +266,7 @@ public final class ClassUtils {
      * or throws an exception if the class cannot be found.
      */
     public static Class<?> getClassFromFullMethodName(String fullMethodName) {
-        DataValidationUtils.validateFullMethodName(fullMethodName, "fullMethodName");
+        DataValidator.fullMethodName(fullMethodName, "fullMethodName");
 
         try {
             // Extract the class name
@@ -289,7 +289,7 @@ public final class ClassUtils {
      * @return The simple method name (e.g., "myMethod").
      */
     public static String getClassNameNameFromFullMethodName(String fullMethodName) {
-        DataValidationUtils.validateFullMethodName(fullMethodName, "fullMethodName");
+        DataValidator.fullMethodName(fullMethodName, "fullMethodName");
 
         // Find the last dot to isolate the method name
         int lastDotIndex = fullMethodName.lastIndexOf('.');
@@ -308,7 +308,7 @@ public final class ClassUtils {
      * @return The simple method name (e.g., "myMethod").
      */
     public static String getMethodNameFromFullMethodName(String methodFullName) {
-        DataValidationUtils.validateFullMethodName(methodFullName, "methodFullName");
+        DataValidator.fullMethodName(methodFullName, "methodFullName");
 
         // Find the last dot to isolate the method name
         int lastDotIndex = methodFullName.lastIndexOf('.');
@@ -333,9 +333,9 @@ public final class ClassUtils {
                                                 String parentFullMethodName,
                                                 String methodName,
                                                 int parameterIndex) {
-        DataValidationUtils.validateNotNull(clazz, "class");
-        DataValidationUtils.validateSimpleMethodName(methodName, "methodName");
-        DataValidationUtils.validateMin(parameterIndex, 0, "parameterIndex");
+        DataValidator.notNull(clazz, "class");
+        DataValidator.simpleMethodName(methodName, "methodName");
+        DataValidator.min(parameterIndex, 0, "parameterIndex");
 
         // Get parent method source code
         String sourceCode = getMethodSourceCode(clazz, parentFullMethodName);
@@ -390,8 +390,8 @@ public final class ClassUtils {
     public static String getSingleMethodParameterName(Class<?> clazz,
                                                       String methodName,
                                                       String parameterType) {
-        DataValidationUtils.validateNotNull(clazz, "class");
-        DataValidationUtils.validateFullMethodName(methodName, "methodName");
+        DataValidator.notNull(clazz, "class");
+        DataValidator.fullMethodName(methodName, "methodName");
 
         // Get the file path for the class
         String filePath = getJavaFilePathFromClass(clazz);
@@ -466,7 +466,7 @@ public final class ClassUtils {
      * @return The source code.
      */
     public static String getClassSourceCode(String fullClassName) {
-        DataValidationUtils.validateFullClassName(fullClassName, "fullClassName");
+        DataValidator.fullClassName(fullClassName, "fullClassName");
 
         try {
             String sourceCode;
@@ -503,8 +503,8 @@ public final class ClassUtils {
      * @return The source code.
      */
     public static String getMethodSourceCode(Class<?> targetClass, String fullMethodName) {
-        DataValidationUtils.validateNotNull(targetClass, "targetClass");
-        DataValidationUtils.validateFullMethodName(fullMethodName, "fullMethodName");
+        DataValidator.notNull(targetClass, "targetClass");
+        DataValidator.fullMethodName(fullMethodName, "fullMethodName");
 
         try {
             // Get the Java file path corresponding to the class
@@ -563,13 +563,13 @@ public final class ClassUtils {
      * @return The source code.
      */
     public static String getObjectNameFromSourceCode(String sourceCode, int lineNumber) {
-        DataValidationUtils.validateNotBlank(sourceCode, "sourceCode");
-        DataValidationUtils.validateMin(lineNumber, 1, "lineNumber");
+        DataValidator.notBlank(sourceCode, "sourceCode");
+        DataValidator.min(lineNumber, 1, "lineNumber");
 
         try {
             String[] lines = TextUtils.splitMultilineString(sourceCode);
             // Validate the line number is within the given source code
-            DataValidationUtils.validateMax(lineNumber, lines.length, "lineNumber");
+            DataValidator.max(lineNumber, lines.length, "lineNumber");
 
             // Start with the specified line
             String line = lines[lineNumber - 1].trim();
@@ -626,7 +626,7 @@ public final class ClassUtils {
      * @return The class name of the declaring class.
      */
     public static String getDeclaringClassName(String packageName) {
-        DataValidationUtils.validatePackageName(packageName, "packageName");
+        DataValidator.packageName(packageName, "packageName");
         // Get the current stack trace
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 
@@ -656,7 +656,7 @@ public final class ClassUtils {
      * @return The code line number.
      */
     public static int getInvocationCodeLineNumber(String declaringClassName) {
-        DataValidationUtils.validatePackageName(declaringClassName, "packageName");
+        DataValidator.packageName(declaringClassName, "packageName");
         // Get the current stack trace
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 
@@ -712,8 +712,8 @@ public final class ClassUtils {
      * @return The field name of the field object.
      */
     public static String getFieldInstanceName(String declaringClassName, Object fieldObject) {
-        DataValidationUtils.validateFullClassName(declaringClassName, "declaringClassName");
-        DataValidationUtils.validateNotNull(fieldObject, "fieldObject");
+        DataValidator.fullClassName(declaringClassName, "declaringClassName");
+        DataValidator.notNull(fieldObject, "fieldObject");
 
         try {
             // Check if this subclass name
@@ -757,7 +757,7 @@ public final class ClassUtils {
      * @return The simple class name (class name without the package).
      */
     public static String getSimpleClassName(String fullClassName) {
-        DataValidationUtils.validateFullClassName(fullClassName, "fullClassName");
+        DataValidator.fullClassName(fullClassName, "fullClassName");
 
         String simpleClassName = fullClassName;
         // Find the last occurrence of '.' to get the simple class name
@@ -787,10 +787,10 @@ public final class ClassUtils {
         if (parameter1 != null) {
             parameterMap.put(threadId, parameter1);
         }
-        DataValidationUtils.validateNotNull(action, "action");
-        DataValidationUtils.validateSimpleMethodName(methodName, "methodName");
-        DataValidationUtils.validateMin(waitMilliseconds, 0,  "waitMilliseconds");
-        DataValidationUtils.validateMin(waitTimeoutMilliseconds, 1, "waitTimeoutMilliseconds");
+        DataValidator.notNull(action, "action");
+        DataValidator.simpleMethodName(methodName, "methodName");
+        DataValidator.min(waitMilliseconds, 0,  "waitMilliseconds");
+        DataValidator.min(waitTimeoutMilliseconds, 1, "waitTimeoutMilliseconds");
 
         int retryCount = 0;
         long startMilliseconds = System.currentTimeMillis();

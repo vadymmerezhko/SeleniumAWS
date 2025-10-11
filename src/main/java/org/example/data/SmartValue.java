@@ -970,7 +970,7 @@ public class SmartValue extends SmartObject implements FormattedValue {
      * @return The POJO object.
      */
     public <T> T toPojoObject(SmartType targetType) {
-        DataValidationUtils.validateNotNull(targetType, "targetType");
+        DataValidator.notNull(targetType, "targetType");
         setUp();
         T classValue = ConvertUtils.objectToObject(targetType, value);
         log.debug("""

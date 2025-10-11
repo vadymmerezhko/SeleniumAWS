@@ -1,7 +1,7 @@
 package org.example.ui.wrappers;
 
 import org.example.ui.factories.WebDriverFactory;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -50,8 +50,8 @@ public class WebSynchronizer {
      * @return The web element to be clickable.
      */
     public WebElement waitForElementToBeClickableBy(By by, int timeoutSeconds) {
-        DataValidationUtils.validateNotNull(by, "by");
-        DataValidationUtils.validateMin(timeoutSeconds, 0, "timeoutInSeconds");
+        DataValidator.notNull(by, "by");
+        DataValidator.min(timeoutSeconds, 0, "timeoutInSeconds");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
         return wait.until(ExpectedConditions.elementToBeClickable(by));
@@ -66,8 +66,8 @@ public class WebSynchronizer {
      */
     // TODO: add unit tests
     public WebElement waitForElementPresenceBy(By by, int timeoutSeconds) {
-        DataValidationUtils.validateNotNull(by, "by");
-        DataValidationUtils.validateMin(timeoutSeconds, 0, "timeoutInSeconds");
+        DataValidator.notNull(by, "by");
+        DataValidator.min(timeoutSeconds, 0, "timeoutInSeconds");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
         return wait.until(ExpectedConditions.presenceOfElementLocated(by));
@@ -81,8 +81,8 @@ public class WebSynchronizer {
      * @return The web element to be visible.
      */
     public WebElement waitForElementVisibilityBy(By by, int timeoutSeconds) {
-        DataValidationUtils.validateNotNull(by, "by");
-        DataValidationUtils.validateMin(timeoutSeconds, 0, "timeoutInSeconds");
+        DataValidator.notNull(by, "by");
+        DataValidator.min(timeoutSeconds, 0, "timeoutInSeconds");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
         return wait.until(ExpectedConditions.visibilityOfElementLocated(by));
@@ -95,8 +95,8 @@ public class WebSynchronizer {
      * Throws runtime exception in case of timeout.
      */
     public void waitForElementInvisibility(By by, int timeoutSeconds) {
-        DataValidationUtils.validateNotNull(by, "by");
-        DataValidationUtils.validateMin(timeoutSeconds, 0, "timeoutInSeconds");
+        DataValidator.notNull(by, "by");
+        DataValidator.min(timeoutSeconds, 0, "timeoutInSeconds");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
         wait.until(ExpectedConditions.invisibilityOfElementLocated(by));
@@ -111,10 +111,10 @@ public class WebSynchronizer {
      * Throws runtime exception in case of timeout.
      */
     public void waitForAttributeValue(WebElement element, String attributeName, String attributeValue, long timeoutSeconds) {
-        DataValidationUtils.validateNotNull(element, "element");
-        DataValidationUtils.validateNotBlank(attributeName, "attributeName");
-        DataValidationUtils.validateNotNull(attributeValue, "attributeValue");
-        DataValidationUtils.validateMin(timeoutSeconds, 0, "timeoutInSeconds");
+        DataValidator.notNull(element, "element");
+        DataValidator.notBlank(attributeName, "attributeName");
+        DataValidator.notNull(attributeValue, "attributeValue");
+        DataValidator.min(timeoutSeconds, 0, "timeoutInSeconds");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 
@@ -139,8 +139,8 @@ public class WebSynchronizer {
      * @param timeoutSeconds The maximum time to wait in seconds.
      */
     public void waitForCheckboxOrRadioButton(WebElement element, boolean selected, int timeoutSeconds) {
-        DataValidationUtils.validateNotNull(element, "element");
-        DataValidationUtils.validateMin(timeoutSeconds, 0, "timeoutInSeconds");
+        DataValidator.notNull(element, "element");
+        DataValidator.min(timeoutSeconds, 0, "timeoutInSeconds");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 

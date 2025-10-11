@@ -5,7 +5,7 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.This;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import java.lang.reflect.Method;
 
@@ -39,7 +39,7 @@ public class RunAloneInterceptor {
      */
     @RuntimeType
     public Object intercept(@This Object proxy, @AllArguments Object[] args, @Origin Method method) throws Throwable {
-        DataValidationUtils.validateNotNull(method, "method");
+        DataValidator.notNull(method, "method");
 
         // Before method invocation logic
         beforeInvocation(method);
@@ -70,7 +70,7 @@ public class RunAloneInterceptor {
      * @param method The method.
      */
     private void beforeInvocation(Method method) {
-        DataValidationUtils.validateNotNull(method, "method");
+        DataValidator.notNull(method, "method");
 
         // Call logic to run before the method
         log.debug("Before SmartElement method: {}", method.getName());
@@ -78,7 +78,7 @@ public class RunAloneInterceptor {
     }
 
     private void afterInvocation(Method method) {
-        DataValidationUtils.validateNotNull(method, "method");
+        DataValidator.notNull(method, "method");
 
         // Call logic to run after the method
         log.debug("After SmartElement method: {}", method.getName());

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ConvertUtils;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -54,7 +54,7 @@ public final class SmartCurrency extends SmartObject implements FormattedValue {
      * @return The smart currency.
      */
     public static SmartCurrency fromString(String currencyString) {
-        DataValidationUtils.validateNotBlank(currencyString, "currencyString");
+        DataValidator.notBlank(currencyString, "currencyString");
 
         try {
             SmartCurrency smartCurrency = new SmartCurrency(currencyString, null);
@@ -105,8 +105,8 @@ public final class SmartCurrency extends SmartObject implements FormattedValue {
      * @return The smart currency.
      */
     public static SmartCurrency fromValue(Number currencyValue, ULocale locale) {
-        DataValidationUtils.validateNotNull(currencyValue, "currencyValue");
-        DataValidationUtils.validateNotNull(locale, "locale");
+        DataValidator.notNull(currencyValue, "currencyValue");
+        DataValidator.notNull(locale, "locale");
 
         try {
             String currencyString = ConvertUtils.objectToString(currencyValue);
@@ -171,9 +171,9 @@ public final class SmartCurrency extends SmartObject implements FormattedValue {
             Number currencyValue,
             String countryCode,
             String languageCode) {
-        DataValidationUtils.validateNotNull(currencyValue, "currencyValue");
-        DataValidationUtils.validateNotBlank(countryCode, "countryCode");
-        DataValidationUtils.validateNotBlank(languageCode, "languageCode");
+        DataValidator.notNull(currencyValue, "currencyValue");
+        DataValidator.notBlank(countryCode, "countryCode");
+        DataValidator.notBlank(languageCode, "languageCode");
 
         try {
             ULocale locale = new ULocale(languageCode, countryCode);
@@ -206,7 +206,7 @@ public final class SmartCurrency extends SmartObject implements FormattedValue {
 
             if (locale == null) {
                 // Validate code  or symbol is present.
-                DataValidationUtils.validateNotBlank(codeOrSymbol, "codeOrSymbol");
+                DataValidator.notBlank(codeOrSymbol, "codeOrSymbol");
             }
 
             String numberString = currencyString.replace(codeOrSymbol, "").trim();

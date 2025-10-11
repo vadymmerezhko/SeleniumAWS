@@ -6,7 +6,7 @@ import org.example.data.SmartValue;
 import org.example.interfaces.ReadableObject;
 import org.example.interfaces.WritableObject;
 import org.example.ui.wrappers.SmartElement;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 
 import static org.example.constants.Settings.*;
@@ -67,7 +67,7 @@ public class Checkbox extends SmartElement implements ReadableObject, WritableOb
      */
     @Override
     public <T> void setValue(T value) {
-        DataValidationUtils.validateNotNull(value, "value");
+        DataValidator.notNull(value, "value");
         SmartValue smartValue = new SmartValue(value);
 
         if (smartValue.toBoolean()) {

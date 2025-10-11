@@ -29,8 +29,8 @@ public final class CompareUtils {
      * @return The result.
      */
     public static boolean compareXmlNodes(Node expectedXml, Node actualXml, boolean strict) {
-        DataValidationUtils.validateNotNull(expectedXml, "expectedXml");
-        DataValidationUtils.validateNotNull(actualXml, "actualXml");
+        DataValidator.notNull(expectedXml, "expectedXml");
+        DataValidator.notNull(actualXml, "actualXml");
         boolean result = false;
 
         if (expectedXml == null && actualXml == null) {
@@ -41,8 +41,8 @@ public final class CompareUtils {
             log.debug("Actual XML nod and expected XML node are the same object.");
             return true;
         }
-        DataValidationUtils.validateNotNull(expectedXml, "expectedXml");
-        DataValidationUtils.validateNotNull(actualXml, "actualXml");
+        DataValidator.notNull(expectedXml, "expectedXml");
+        DataValidator.notNull(actualXml, "actualXml");
 
         try {
             JSONObject expectedJson = ConvertUtils.xmlNodeToJsonObject(expectedXml);
@@ -98,8 +98,8 @@ public final class CompareUtils {
                 return true;
             }
             else {
-                DataValidationUtils.validateNotNull(expected, "expectedJson");
-                DataValidationUtils.validateNotNull(actual, "actualJson");
+                DataValidator.notNull(expected, "expectedJson");
+                DataValidator.notNull(actual, "actualJson");
 
                 try {
                     JSONAssert.assertEquals(expected, actual, strictOrder);
@@ -159,8 +159,8 @@ public final class CompareUtils {
                 result = true;
 
             } else {
-                DataValidationUtils.validateNotNull(expected, "expected");
-                DataValidationUtils.validateNotNull(actual, "actual");
+                DataValidator.notNull(expected, "expected");
+                DataValidator.notNull(actual, "actual");
 
                 try {
                     JSONAssert.assertEquals(expected, actual, strictOrder);
@@ -214,13 +214,13 @@ public final class CompareUtils {
                 log.debug("Expected and actual objects are the same object.");
                 return true;
             }
-            DataValidationUtils.validateNotNull(expected, "expected");
+            DataValidator.notNull(expected, "expected");
             Class<?> expectedClass = expected.getClass();
             Class<?> actualClass = actual.getClass();
             SmartType expectedType = SmartType.fromClass(expectedClass);
 
             if (strictType) {
-                DataValidationUtils.validateTheSameType(expected, actual,
+                DataValidator.theSameType(expected, actual,
                         "expected", "actual");
             }
             else {

@@ -94,8 +94,8 @@ public final class TextUtils {
      * @return The number of keywords.
      */
     public static int getNumberOfKeywordsInString(String string, String keyword) {
-        DataValidationUtils.validateNotNull(string, "string");
-        DataValidationUtils.validateNotEmpty(keyword, "keyword");
+        DataValidator.notNull(string, "string");
+        DataValidator.notEmpty(keyword, "keyword");
 
         if (keyword == null || string == null || string.isEmpty()) {
             return 0;
@@ -116,7 +116,7 @@ public final class TextUtils {
      * @return The singular noun.
      */
     public static String pluralToSingular(String plural) {
-        DataValidationUtils.validateNotBlank(plural, "plural");
+        DataValidator.notBlank(plural, "plural");
 
         try {
             if (pipeline.get() == null) {
@@ -153,7 +153,7 @@ public final class TextUtils {
      */
     // TODO - add unit tests
     public static String singularToPlural(String singular) {
-        DataValidationUtils.validateNotBlank(singular, "singular");
+        DataValidator.notBlank(singular, "singular");
 
         try {
             String plural;
@@ -196,7 +196,7 @@ public final class TextUtils {
      * @return An array of strings, each representing a line, including empty or blank lines.
      */
     public static String[] splitMultilineString(String multilineString) {
-        DataValidationUtils.validateNotNull(multilineString, "multilineString");
+        DataValidator.notNull(multilineString, "multilineString");
 
         // Return the original string as a single-element array if it's empty
         if (multilineString.isEmpty()) {

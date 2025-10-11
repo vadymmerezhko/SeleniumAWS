@@ -5,7 +5,7 @@ import org.example.data.BaseConfig;
 import org.example.enums.BrowserName;
 import org.example.enums.TestMode;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import static org.example.constants.Settings.CONFIG_PROPERTIES_FILE_PATH;
 import static org.example.enums.TestMode.LOCAL;
@@ -70,7 +70,7 @@ public class Config extends BaseConfig {
     private Config(String filePath) {
         super(filePath);
         log.debug("{} file path: {}", getClass().getSimpleName(), filePath);
-        DataValidationUtils.validateFilePathFormat(filePath, "filePath");
+        DataValidator.filePath(filePath, "filePath");
     }
 
     /**

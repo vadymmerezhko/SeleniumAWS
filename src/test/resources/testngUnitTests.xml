@@ -7,7 +7,7 @@
         <classes>
             <class name="org.example.unit.ClassUtilsTest"/>
             <class name="org.example.unit.ConvertUtilsTest"/>
-            <class name="org.example.unit.DataValidationUtilsTest"/>
+            <class name="org.example.unit.DataValidatorTest"/>
             <class name="org.example.unit.ImageUtilsTest"/>
             <class name="org.example.unit.FileSystemUtilsTest"/>
             <class name="org.example.unit.SmartAssertTest"/>

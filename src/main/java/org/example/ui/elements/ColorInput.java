@@ -9,7 +9,7 @@ import org.example.ui.playwright.PlaywrightElement;
 import org.example.ui.wrappers.SmartWebElement;
 import org.example.ui.wrappers.SmartElement;
 import org.example.utils.ConvertUtils;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -45,7 +45,7 @@ public class ColorInput extends SmartElement implements ReadableObject, Writable
     @Override
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public <T> void setValue(T value) {
-        DataValidationUtils.validateNotNull(value, "value");
+        DataValidator.notNull(value, "value");
         SmartValue smartValue = new SmartValue(value);
 
         String colorString = smartValue.toString();

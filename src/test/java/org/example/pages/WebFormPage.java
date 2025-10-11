@@ -7,7 +7,7 @@ import org.example.data.WebFormPageOutput;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.ui.elements.*;
 import org.example.ui.pages.SmartPage;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import java.time.LocalDate;
 
@@ -33,7 +33,7 @@ public class WebFormPage extends SmartPage {
     private final Button submit = new Button();
 
     public WebFormPageOutput fillWebForm(WebFormPageInput input) {
-        DataValidationUtils.validateNotNull(input, "input");
+        DataValidator.notNull(input, "input");
 
         try {
             WebFormPage webFormPage = new WebFormPage();

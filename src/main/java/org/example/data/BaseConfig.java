@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.exceptions.SmartValidationException;
 import org.example.utils.ConvertUtils;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public abstract class BaseConfig {
     }
 
     protected String getStringProperty(String propertyName) {
-        DataValidationUtils.validateNotBlank(propertyName, "propertyName");
+        DataValidator.notBlank(propertyName, "propertyName");
         String propertyValue = System.getProperty(propertyName);
 
         if (propertyValue == null) {
@@ -61,7 +61,7 @@ public abstract class BaseConfig {
         }
         String percentageValue = propertyValue.substring(0, propertyValue.indexOf("%"));
         long longValue = Integer.parseInt(percentageValue);
-        DataValidationUtils.validateRange(longValue, 0, 100, "percentage");
+        DataValidator.range(longValue, 0, 100, "percentage");
         log.debug("Config percentage value: {}", longValue);
         return (int) longValue;
     }

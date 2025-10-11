@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import org.example.configs.Config;
 import org.example.ui.factories.WebDriverFactory;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.example.utils.WebUtils;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.testng.Assert;
@@ -76,9 +76,9 @@ public abstract class SmartAssert {
 
     private static void assertData(SmartData expected, SmartData actual,
                                    boolean strictType, boolean strictOrder) {
-        DataValidationUtils.validateNotNull(expected, "expected");
-        DataValidationUtils.validateNotNull(actual, "actual");
-        DataValidationUtils.validateNotTheSame(expected, actual, "expected", "actual");
+        DataValidator.notNull(expected, "expected");
+        DataValidator.notNull(actual, "actual");
+        DataValidator.notTheSame(expected, actual, "expected", "actual");
 
         Class<?> expectedClass = expected.getClass();
         Class<?> actualClass = actual.getClass();
@@ -104,7 +104,7 @@ public abstract class SmartAssert {
                 SmartType actualValueType = actualValue.getSmartType();
 
                 if (strictType) {
-                    DataValidationUtils.validateTheSameType(expectedValue, actualValue,
+                    DataValidator.theSameType(expectedValue, actualValue,
                             "expectedValue", "actualValue");
                 }
                 else {
@@ -171,9 +171,9 @@ public abstract class SmartAssert {
      * @param strict The strict compare - true.
      */
     public static void assertJsonObject(JSONObject expectedJson, JSONObject actualJson, boolean strict) {
-        DataValidationUtils.validateNotNull(expectedJson, "expectedJson");
-        DataValidationUtils.validateNotNull(actualJson, "actualJson");
-        DataValidationUtils.validateNotTheSame(expectedJson, actualJson, "expectedJson", "actualJson");
+        DataValidator.notNull(expectedJson, "expectedJson");
+        DataValidator.notNull(actualJson, "actualJson");
+        DataValidator.notTheSame(expectedJson, actualJson, "expectedJson", "actualJson");
 
         JSONAssert.assertEquals(expectedJson, actualJson, strict);
     }
@@ -185,9 +185,9 @@ public abstract class SmartAssert {
      * @param strict The strict compare - true.
      */
     public static void assertJsonArray(JSONArray expectedJson, JSONArray actualJson, boolean strict) {
-        DataValidationUtils.validateNotNull(expectedJson, "expectedJson");
-        DataValidationUtils.validateNotNull(actualJson, "actualJson");
-        DataValidationUtils.validateNotTheSame(expectedJson, actualJson, "expectedJson", "actualJson");
+        DataValidator.notNull(expectedJson, "expectedJson");
+        DataValidator.notNull(actualJson, "actualJson");
+        DataValidator.notTheSame(expectedJson, actualJson, "expectedJson", "actualJson");
 
         JSONAssert.assertEquals(expectedJson, actualJson, strict);
     }
@@ -199,9 +199,9 @@ public abstract class SmartAssert {
      * @param strict The strict assert flag.
      */
     public static void assertXmlNode(Node expectedXml, Node actualXml, boolean strict) {
-        DataValidationUtils.validateNotNull(expectedXml, "expectedXml");
-        DataValidationUtils.validateNotNull(actualXml, "actualXml");
-        DataValidationUtils.validateNotTheSame(expectedXml, actualXml, "expectedXml", "actualXml");
+        DataValidator.notNull(expectedXml, "expectedXml");
+        DataValidator.notNull(actualXml, "actualXml");
+        DataValidator.notTheSame(expectedXml, actualXml, "expectedXml", "actualXml");
 
         JSONObject expectedJson = ConvertUtils.xmlNodeToJsonObject(expectedXml);
         JSONObject actualJson = ConvertUtils.xmlNodeToJsonObject(actualXml);

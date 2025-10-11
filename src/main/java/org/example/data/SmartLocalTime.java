@@ -4,7 +4,7 @@ import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ConvertUtils;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import java.io.Serializable;
 import java.time.LocalTime;
@@ -45,8 +45,8 @@ public final class SmartLocalTime extends SmartObject implements SmartTemporal,
      * @param format The date format.
      */
     public SmartLocalTime(LocalTime localTime, String format) {
-        DataValidationUtils.validateNotNull(localTime, "localDate");
-        DataValidationUtils.validateNotBlank(format, "dateFormat");
+        DataValidator.notNull(localTime, "localDate");
+        DataValidator.notBlank(format, "dateFormat");
         this.localTime = localTime;
         this.format = format;
         log.debug("Smart local date time {} is created with date format '{}'.",

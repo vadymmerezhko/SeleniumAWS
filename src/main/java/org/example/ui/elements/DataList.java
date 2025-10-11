@@ -6,7 +6,7 @@ import org.example.data.SmartValue;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.interfaces.ReadableObject;
 import org.example.interfaces.WritableObject;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -36,7 +36,7 @@ public class DataList extends BaseTextElement implements ReadableObject, Writabl
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOption(String option) {
-        DataValidationUtils.validateNotBlank(option, "option");
+        DataValidator.notBlank(option, "option");
         enterText(option);
         log.debug("Data list {} option is selected: {}", elementName, option);
     }
@@ -49,7 +49,7 @@ public class DataList extends BaseTextElement implements ReadableObject, Writabl
     @Override
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public <T> void setValue(T value) {
-        DataValidationUtils.validateNotNull(value, "option");
+        DataValidator.notNull(value, "option");
         SmartValue smartValue = new SmartValue(value);
 
         if (smartValue.isNumeric()) {
@@ -74,7 +74,7 @@ public class DataList extends BaseTextElement implements ReadableObject, Writabl
      * @param index The data list option index.
      */
     public void selectOptionByIndex(SmartValue index) {
-        DataValidationUtils.validateNotNull(index, "index");
+        DataValidator.notNull(index, "index");
         selectOptionByIndex(index.toInteger());
     }
 

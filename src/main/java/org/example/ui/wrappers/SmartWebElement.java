@@ -5,7 +5,7 @@ import org.example.configs.Config;
 import org.example.ui.selectors.SmartByParser;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ClassUtils;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.example.utils.TimerUtils;
 import org.example.utils.WebUtils;
 import org.openqa.selenium.*;
@@ -557,7 +557,7 @@ public class SmartWebElement extends BaseSmartWebElement {
      * @param value The attribute value to set.
      */
     public void setAttributeValue(String name, String value) {
-        DataValidationUtils.validateNotNull(value, "value");
+        DataValidator.notNull(value, "value");
         ClassUtils.performBiConsumerMethod(
                 this::doSetAttributeValue,
                 name,

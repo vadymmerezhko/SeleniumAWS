@@ -7,7 +7,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ConvertUtils;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -34,7 +34,7 @@ public final class SmartNumber extends SmartObject implements FormattedValue {
      * @return The smart number.
      */
     public static SmartNumber fromString(String numberString) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
 
         try {
             SmartNumber smartNumber = new SmartNumber(numberString.trim());
@@ -66,8 +66,8 @@ public final class SmartNumber extends SmartObject implements FormattedValue {
      * @return The smart number.
      */
     public static SmartNumber fromStringByLocale(String numberString, ULocale locale) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
-        DataValidationUtils.validateNotNull(locale, "locale");
+        DataValidator.notBlank(numberString, "numberString");
+        DataValidator.notNull(locale, "locale");
 
         try {
             // Convert locale string to standard Java number string
@@ -103,7 +103,7 @@ public final class SmartNumber extends SmartObject implements FormattedValue {
      * @return The number or null.
      */
     public static Number toNumber(String numberString) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
 
         List<ULocale> failedLocales = new ArrayList<>();
         // Iterate over all available ULocales

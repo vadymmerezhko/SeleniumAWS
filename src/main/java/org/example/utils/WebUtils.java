@@ -946,7 +946,7 @@ public final class WebUtils {
      * @return The true/false flag.
      */
     public static boolean isXpath(String selector) {
-        DataValidationUtils.validateNotBlank(selector, "selector");
+        DataValidator.notBlank(selector, "selector");
         String[] prefixes = {"//", "(//", ".//", "./", "/"};
         boolean result = false;
         selector = selector.trim();
@@ -967,7 +967,7 @@ public final class WebUtils {
      * @return The true/false flag.
      */
     public static boolean isPngImageSelector(String selector) {
-        DataValidationUtils.validateNotBlank(selector, "selector");
+        DataValidator.notBlank(selector, "selector");
 
         boolean result = selector.trim().endsWith(".png");
         log.debug("Is element image selector {} : {}", selector, result);
@@ -980,7 +980,7 @@ public final class WebUtils {
      * @return The true/false flag.
      */
     public static boolean isUrl(String selector) {
-        DataValidationUtils.validateNotBlank(selector, "selector");
+        DataValidator.notBlank(selector, "selector");
         selector = selector.trim();
         boolean result = selector.trim().startsWith("http://") ||
                 selector.trim().startsWith("https://") ||
@@ -995,7 +995,7 @@ public final class WebUtils {
      * @return The true if format is valid or false otherwise.
      */
     public static boolean isValidElementSelectorFormat(String selector) {
-        DataValidationUtils.validateNotBlank(selector, "selector");
+        DataValidator.notBlank(selector, "selector");
         boolean result;
 
         try {
@@ -1175,8 +1175,8 @@ public final class WebUtils {
      * @return The selector.
      */
     public static String getWebElementSelectorByImage(WebElement element, String elementName) {
-        DataValidationUtils.validateNotNull(element, "element");
-        DataValidationUtils.validateNotBlank(elementName, "elementName");
+        DataValidator.notNull(element, "element");
+        DataValidator.notBlank(elementName, "elementName");
 
         try {
             String imageFilePath = String.format("%s/%s.png", IMAGE_FOLDER_PATH, elementName);

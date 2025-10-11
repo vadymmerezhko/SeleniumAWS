@@ -7,7 +7,7 @@ import org.example.exceptions.SmartRuntimeException;
 import org.example.interfaces.ReadableObject;
 import org.example.interfaces.WritableObject;
 import org.example.ui.wrappers.SmartElement;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.example.utils.FileSystemUtils;
 import org.openqa.selenium.By;
 
@@ -40,7 +40,7 @@ public class FileInput extends SmartElement implements ReadableObject, WritableO
      * @param filePath The file path.
      */
     public void enterFilePath(String filePath) {
-        DataValidationUtils.validateFilePathFormat(filePath, "filePath");
+        DataValidator.filePath(filePath, "filePath");
         enterFilePath(Path.of(filePath));
     }
 
@@ -49,7 +49,7 @@ public class FileInput extends SmartElement implements ReadableObject, WritableO
      * @param file The file object.
      */
     public void enterFilePath(File file) {
-        DataValidationUtils.validateNotNull(file, "file");
+        DataValidator.notNull(file, "file");
         enterFilePath(file.getPath());
     }
 
@@ -59,7 +59,7 @@ public class FileInput extends SmartElement implements ReadableObject, WritableO
      */
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public void enterFilePath(Path filePath) {
-        DataValidationUtils.validateNotNull(filePath, "filePath");
+        DataValidator.notNull(filePath, "filePath");
         // Normalize file path - replace Windows slashes with Unix slashes
         String filePathString = FileSystemUtils.normalizeFilePathString(filePath.toString());
         filePath = Path.of(filePathString);
@@ -84,7 +84,7 @@ public class FileInput extends SmartElement implements ReadableObject, WritableO
      */
     @Override
     public <T> void setValue(T value) {
-        DataValidationUtils.validateNotNull(value, "value");
+        DataValidator.notNull(value, "value");
         SmartValue smartValue = new SmartValue(value);
 
         enterFilePath(smartValue.toPath());

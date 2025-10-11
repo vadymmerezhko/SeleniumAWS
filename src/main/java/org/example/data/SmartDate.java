@@ -3,7 +3,7 @@ package org.example.data;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ConvertUtils;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import java.util.Date;
 import java.util.Objects;
@@ -49,8 +49,8 @@ public final class SmartDate extends Date implements SmartTemporal {
      */
     public SmartDate(Date date, String format) {
         super(date.getTime());
-        DataValidationUtils.validateNotNull(date, "date");
-        DataValidationUtils.validateNotBlank(format, "format");
+        DataValidator.notNull(date, "date");
+        DataValidator.notBlank(format, "format");
         this.format = format;
         log.debug("Smart date {} is created with date format '{}'.",
                 this, format);
@@ -63,8 +63,8 @@ public final class SmartDate extends Date implements SmartTemporal {
      */
     public SmartDate(long timeMilliseconds, String format) {
         super(timeMilliseconds);
-        DataValidationUtils.validateMin(timeMilliseconds, 0, "timeMilliseconds");
-        DataValidationUtils.validateNotBlank(format, "dateFormat");
+        DataValidator.min(timeMilliseconds, 0, "timeMilliseconds");
+        DataValidator.notBlank(format, "dateFormat");
         this.format = format;
         log.debug("Smart date {} created from {} milliseconds with date format '{}'.",
                 this, timeMilliseconds, format);

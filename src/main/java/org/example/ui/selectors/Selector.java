@@ -3,7 +3,7 @@ package org.example.ui.selectors;
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.SmartValue;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import static org.example.constants.Settings.SELECTOR_DELIMITER;
 
@@ -21,7 +21,7 @@ public class Selector {
      * @return The selector object.
      */
     public static Selector fromString(String selectorString) {
-        DataValidationUtils.validateNotBlank(selectorString, "selectorString");
+        DataValidator.notBlank(selectorString, "selectorString");
         return fromString(selectorString, null);
     }
 
@@ -32,7 +32,7 @@ public class Selector {
      * @return The selector object.
      */
     public static Selector fromString(String typeAndValue, Object keyword) {
-        DataValidationUtils.validateNotBlank(typeAndValue, "typeAndValue");
+        DataValidator.notBlank(typeAndValue, "typeAndValue");
 
         try {
             int delimiterIndex = typeAndValue.indexOf(SELECTOR_DELIMITER);
@@ -72,7 +72,7 @@ public class Selector {
      *
      */
     public Selector(SelectorType type, String value, Object keyword) {
-        DataValidationUtils.validateNotBlank(value, "value");
+        DataValidator.notBlank(value, "value");
         this.type = type;
         this.value.setValue(value);
         setKeyword(keyword);

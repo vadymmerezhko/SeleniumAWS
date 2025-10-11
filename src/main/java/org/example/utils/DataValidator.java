@@ -9,7 +9,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.nio.file.Paths;
 
-public final class DataValidationUtils {
+public final class DataValidator {
     protected static final String FULL_CLASS_NAME_REGEX =
             "^([a-zA-Z_][a-zA-Z0-9_]*)(\\.[a-zA-Z_][a-zA-Z0-9_]*)*\\.[A-Z][a-zA-Z0-9_$]*$";
     protected static final String CLASS_PACKAGE_NAME_REGEX =
@@ -21,14 +21,14 @@ public final class DataValidationUtils {
 
     protected static final String SIMPLE_METHOD_NAME_REGEX = "^[a-z_][a-zA-Z0-9_]*$";
 
-    private DataValidationUtils() {}
+    private DataValidator() {}
 
     /**
      * Validates that data value is not null.
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateNotNull(Object value, String valueName) {
+    public static void notNull(Object value, String valueName) {
         validateValueName(valueName);
 
         if (value == null || value == JSONObject.NULL) {
@@ -43,10 +43,10 @@ public final class DataValidationUtils {
      * @param expectedName The value 1 name.
      * @param actualName The value 2 name.
      */
-    public static void validateNotTheSame(Object expected, Object actual,
-                                          String expectedName, String actualName) {
-        validateNotBlank(expectedName, "expectedName");
-        validateNotBlank(actualName, "actualName");
+    public static void notTheSame(Object expected, Object actual,
+                                  String expectedName, String actualName) {
+        notBlank(expectedName, "expectedName");
+        notBlank(actualName, "actualName");
 
         if (expected == actual) {
             handleError(String.format("""
@@ -68,12 +68,12 @@ public final class DataValidationUtils {
      * @param expectedName The value name.
      * @param actualName The actual name.
      */
-    public static void validateTheSameType(Object expected, Object actual,
-                                           String expectedName, String actualName) {
-        validateNotBlank(expectedName, "expectedName");
-        validateNotBlank(actualName, "actualName");
-        validateNotNull(expected, expectedName);
-        validateNotNull(actual, actualName);
+    public static void theSameType(Object expected, Object actual,
+                                   String expectedName, String actualName) {
+        notBlank(expectedName, "expectedName");
+        notBlank(actualName, "actualName");
+        notNull(expected, expectedName);
+        notNull(actual, actualName);
 
         String actualClassName = actual.getClass().getName();
         String expectedClassName = expected.getClass().getName();
@@ -94,8 +94,8 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateNotEmpty(String value, String valueName) {
-        validateNotNull(value, valueName);
+    public static void notEmpty(String value, String valueName) {
+        notNull(value, valueName);
 
         if (value.isEmpty()) {
             handleError(String.format("%s is empty.", valueName));
@@ -108,8 +108,8 @@ public final class DataValidationUtils {
      * @param valueName The value name.
      */
     // TODO - add unit tests
-    public static void validateNotEmpty(SmartValue value, String valueName) {
-        validateNotEmpty(value.toString(), valueName);
+    public static void notEmpty(SmartValue value, String valueName) {
+        notEmpty(value.toString(), valueName);
     }
 
     /**
@@ -120,9 +120,9 @@ public final class DataValidationUtils {
      * @param valueName2 The second value name.
      */
     // TODO: add unit tests
-    public static void validateNotEqual(Object value1, Object value2, String valueName1, String valueName2) {
-        validateNotNull(value1, valueName1);
-        validateNotNull(value2, valueName2);
+    public static void notEqual(Object value1, Object value2, String valueName1, String valueName2) {
+        notNull(value1, valueName1);
+        notNull(value2, valueName2);
 
         if (value1.equals(value2)) {
             handleError(String.format("%s equals %s.", valueName1, value2));
@@ -134,8 +134,8 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateNotBlank(String value, String valueName) {
-        validateNotNull(value, valueName);
+    public static void notBlank(String value, String valueName) {
+        notNull(value, valueName);
 
         if (value.trim().isEmpty()) {
             handleError(String.format("%s has blank value: '%s'", valueName, value));
@@ -147,8 +147,8 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateNumberString(String value, String valueName) {
-        validateNotNull(value, valueName);
+    public static void numberString(String value, String valueName) {
+        notNull(value, valueName);
 
         try {
             ConvertUtils.stringToNumber(value);
@@ -163,8 +163,8 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateNotBlank(SmartValue value, String valueName) {
-        validateNotNull(value.toString(), valueName);
+    public static void notBlank(SmartValue value, String valueName) {
+        notNull(value.toString(), valueName);
     }
 
     /**
@@ -172,8 +172,8 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateNotMultiline(String value, String valueName) {
-        validateNotNull(value, valueName);
+    public static void notMultiline(String value, String valueName) {
+        notNull(value, valueName);
 
         if (value.contains("\n")) {
             handleError(String.format("%s has multiline value:\n'%s'", valueName, value));
@@ -185,8 +185,8 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateColorFormat(String value, String valueName) {
-        validateNotNull(value, valueName);
+    public static void colorFormat(String value, String valueName) {
+        notNull(value, valueName);
         if (!value.matches("^#(?:[0-9a-fA-F]{3}){1,2}$")) {
             handleError(String.format("%s has invalid color format: '%s'", valueName, value));
         }
@@ -197,8 +197,8 @@ public final class DataValidationUtils {
      * @param value The data value.
      * @param valueName The value name.
      */
-    public static void validateDateValue(String value, String valueName) {
-        validateNotNull(value, valueName);
+    public static void dateValue(String value, String valueName) {
+        notNull(value, valueName);
         if (!value.matches("([0-9]{2})/([0-9]{2})/([0-9]{4})")) {
             handleError(String.format("%s has invalid date format: '%s'", valueName, value));
         }
@@ -211,8 +211,8 @@ public final class DataValidationUtils {
      * @param to The range ending.
      * @param valueName The value name.
      */
-    public static void validateRange(long value, long from, long to, String valueName) {
-        validateNotBlank(valueName, valueName);
+    public static void range(long value, long from, long to, String valueName) {
+        notBlank(valueName, valueName);
 
         if (value < from || value > to) {
             handleError(String.format("%s has invalid [%d:%d] range value: %d",
@@ -227,7 +227,7 @@ public final class DataValidationUtils {
      * @param to The range ending.
      * @param dataName The data name.
      */
-    public static void validateRange(double value, double from, double to, String dataName) {
+    public static void range(double value, double from, double to, String dataName) {
         if (value < from || value > to) {
             handleError(String.format("%s has invalid [%f:%f] range value: %f",
                     dataName, from, to, value));
@@ -240,8 +240,8 @@ public final class DataValidationUtils {
      * @param min The MIN value.
      * @param valueName The value name.
      */
-    public static void validateMin(Number value, Number min, String valueName) {
-        validateNotBlank(valueName, valueName);
+    public static void min(Number value, Number min, String valueName) {
+        notBlank(valueName, valueName);
         BigDecimal number = new BigDecimal(String.valueOf(value));
         BigDecimal limit = new BigDecimal(String.valueOf(min));
 
@@ -257,8 +257,8 @@ public final class DataValidationUtils {
      * @param max The MAX value.
      * @param valueName The value name.
      */
-    public static void validateMax(Number value, Number max, String valueName) {
-        validateNotBlank(valueName, valueName);
+    public static void max(Number value, Number max, String valueName) {
+        notBlank(valueName, valueName);
 
         BigDecimal number = new BigDecimal(String.valueOf(value));
         BigDecimal limit = new BigDecimal(String.valueOf(max));
@@ -274,9 +274,9 @@ public final class DataValidationUtils {
      * Throws exception if path is invalid.
      * @param filePath Yhe file  path.
      */
-    public static void validateFilePathFormat(String filePath, String valueName) {
-        validateNotBlank(filePath, "filePath");
-        validateNotBlank(filePath, valueName);
+    public static void filePath(String filePath, String valueName) {
+        notBlank(filePath, "filePath");
+        notBlank(filePath, valueName);
 
         try {
             Paths.get(filePath);
@@ -291,9 +291,9 @@ public final class DataValidationUtils {
      * Throws exception if path is invalid.
      * @param folderPath Yhe file  path.
      */
-    public static void validateFolderPath(String folderPath, String valueName) {
-        validateNotBlank(folderPath, valueName);
-        validateNotBlank(valueName, "valueName");
+    public static void folderPath(String folderPath, String valueName) {
+        notBlank(folderPath, valueName);
+        notBlank(valueName, "valueName");
 
         try {
             Paths.get(folderPath);
@@ -310,10 +310,10 @@ public final class DataValidationUtils {
      * @param valueName The value name.
      */
     // TODO: add unit tests
-    public static void validateInstanceOf(Object value, Class<?> type, String valueName) {
-        validateNotNull(value, valueName);
-        validateNotNull(type, "type");
-        validateNotBlank(valueName, "valueName");
+    public static void instanceOf(Object value, Class<?> type, String valueName) {
+        notNull(value, valueName);
+        notNull(type, "type");
+        notBlank(valueName, "valueName");
 
         if (!type.isInstance(value)) {
             handleError(String.format("Value type %s is not instance of %s.",
@@ -326,8 +326,8 @@ public final class DataValidationUtils {
      * @param folderPath The folder path
      * @param valueName The value name.
      */
-    public static void validateFolder(String folderPath, String valueName) {
-        validateFilePathFormat(folderPath, valueName);
+    public static void folderPathExists(String folderPath, String valueName) {
+        filePath(folderPath, valueName);
         File folder = new File(folderPath);
 
         // Validate the folder path
@@ -344,8 +344,8 @@ public final class DataValidationUtils {
      * @param regex The regex.
      * @param valueName The value name.
      */
-    public static void validateMatches(String value, String regex, String valueName) {
-        validateNotNull(value, valueName);
+    public static void matches(String value, String regex, String valueName) {
+        notNull(value, valueName);
 
         // Validate the value matches the regex
         if (!value.matches(regex)) {
@@ -363,10 +363,10 @@ public final class DataValidationUtils {
      * @param valueName The value name.
      * @throws IllegalArgumentException if the class name is invalid.
      */
-    public static void validateFullClassName(String className, String valueName) {
-        validateNotBlank(valueName, "valueName");
-        validateNotBlank(className, valueName);
-        validateNotMultiline(className, valueName);
+    public static void fullClassName(String className, String valueName) {
+        notBlank(valueName, "valueName");
+        notBlank(className, valueName);
+        notMultiline(className, valueName);
 
         // match a valid full class name with regex
         if (!className.matches(FULL_CLASS_NAME_REGEX)) {
@@ -381,9 +381,9 @@ public final class DataValidationUtils {
      * @param packageName The package name to validate.
      * @param valueName The value name.
      */
-    public static void validatePackageName(String packageName, String valueName) {
-        validateNotBlank(packageName, valueName);
-        validateNotMultiline(packageName, valueName);
+    public static void packageName(String packageName, String valueName) {
+        notBlank(packageName, valueName);
+        notMultiline(packageName, valueName);
 
         // Match a valid package name with regex
         if (!packageName.matches(CLASS_PACKAGE_NAME_REGEX)) {
@@ -398,8 +398,8 @@ public final class DataValidationUtils {
      * @param className The class name to validate.
      * @param valueName The value name.
      */
-    public static void validatesSimpleClassName(String className, String valueName) {
-        validateNotBlank(className, valueName);
+    public static void simpleClassName(String className, String valueName) {
+        notBlank(className, valueName);
 
         // match a valid simple class name, including nested class names with $ sign
         if (!className.matches(SIMPLE_CLASS_NAME_REGEX)) {
@@ -418,8 +418,8 @@ public final class DataValidationUtils {
      * @param fullMethodName The full method name to validate.
      * @param valueName The value name.
      */
-    public static void validateFullMethodName(String fullMethodName, String valueName) {
-        validateNotBlank(fullMethodName, valueName);
+    public static void fullMethodName(String fullMethodName, String valueName) {
+        notBlank(fullMethodName, valueName);
 
         // Validate full method name with regex: package, class, and method
         if (!fullMethodName.matches(FULL_METHOD_NAME_REGEX)) {
@@ -435,9 +435,9 @@ public final class DataValidationUtils {
      * @param valueName The value name.
      * @throws IllegalArgumentException if the method name is invalid.
      */
-    public static void validateSimpleMethodName(String methodName, String valueName) {
-        DataValidationUtils.validateNotBlank(methodName, valueName);
-        DataValidationUtils.validateNotMultiline(methodName, valueName);
+    public static void simpleMethodName(String methodName, String valueName) {
+        DataValidator.notBlank(methodName, valueName);
+        DataValidator.notMultiline(methodName, valueName);
 
         // validate a simple method name with regex
         if (!methodName.matches(SIMPLE_METHOD_NAME_REGEX)) {

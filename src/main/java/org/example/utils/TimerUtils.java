@@ -17,7 +17,7 @@ public final class TimerUtils {
      * @param seconds The number of seconds to wait.
      */
     public static void waitSeconds(int seconds) {
-        DataValidationUtils.validateRange(seconds,0, 10 * 60, "milliSeconds");
+        DataValidator.range(seconds,0, 10 * 60, "milliSeconds");
         try {
             log.debug("Wait for {} seconds began.", seconds);
             Thread.sleep(seconds * 1000L);
@@ -34,7 +34,7 @@ public final class TimerUtils {
      * @param milliSeconds The number of milliseconds to wait.
      */
     public static void waitMilliSeconds(long milliSeconds) {
-        DataValidationUtils.validateRange(milliSeconds,0, 60 * 1000, "milliSeconds");
+        DataValidator.range(milliSeconds,0, 60 * 1000, "milliSeconds");
         try {
             Thread.sleep(milliSeconds);
             log.debug("Wait to {} milliseconds.", milliSeconds);

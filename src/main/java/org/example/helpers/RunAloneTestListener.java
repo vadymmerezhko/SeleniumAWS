@@ -1,7 +1,7 @@
 package org.example.helpers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.testng.IInvokedMethod;
 import org.testng.IInvokedMethodListener;
 import org.testng.ITestResult;
@@ -26,7 +26,7 @@ public class RunAloneTestListener implements IInvokedMethodListener {
      */
     @Override
     public void beforeInvocation(IInvokedMethod invokedMethod, ITestResult testResult) {
-        DataValidationUtils.validateNotNull(invokedMethod, "invokedMethod");
+        DataValidator.notNull(invokedMethod, "invokedMethod");
 
         Method method = invokedMethod.getTestMethod().getConstructorOrMethod().getMethod();
         log.debug("Before invocation of @Test {} method.", method.getName());
@@ -40,7 +40,7 @@ public class RunAloneTestListener implements IInvokedMethodListener {
      */
     @Override
     public void afterInvocation(IInvokedMethod invokedMethod, ITestResult testResult) {
-        DataValidationUtils.validateNotNull(invokedMethod, "invokedMethod");
+        DataValidator.notNull(invokedMethod, "invokedMethod");
 
         Method method = invokedMethod.getTestMethod().getConstructorOrMethod().getMethod();
         log.debug("After invocation of @Test {} method.", method.getName());

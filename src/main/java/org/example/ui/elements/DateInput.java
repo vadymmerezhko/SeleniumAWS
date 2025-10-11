@@ -8,7 +8,7 @@ import org.example.interfaces.ReadableObject;
 import org.example.interfaces.WritableObject;
 import org.example.ui.wrappers.SmartElement;
 import org.example.utils.ConvertUtils;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
@@ -41,7 +41,7 @@ public class DateInput extends SmartElement implements ReadableObject, WritableO
     @Override
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public <T> void setValue(T value) {
-        DataValidationUtils.validateNotNull(value, "value");
+        DataValidator.notNull(value, "value");
         SmartValue smartValue = new SmartValue(value);
         SmartLocalDate smartLocalDate = smartValue.toSmartLocalDate();
         String dateString = smartLocalDate.toString();

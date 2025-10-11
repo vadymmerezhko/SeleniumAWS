@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.annotations.RunAlone;
 import org.example.data.SmartValue;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
@@ -68,8 +68,8 @@ public class TextInput extends SingleLineTextInput {
                 to = length + to + 1;
             }
             // Validate 'from' and 'to' parameters
-            DataValidationUtils.validateMin(from, 0, "from");
-            DataValidationUtils.validateMax(to, length, "to");
+            DataValidator.min(from, 0, "from");
+            DataValidator.max(to, length, "to");
 
             // Set focus to element
             click();

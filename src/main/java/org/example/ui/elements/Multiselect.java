@@ -7,7 +7,7 @@ import org.example.exceptions.SmartRuntimeException;
 import org.example.interfaces.ReadableObject;
 import org.example.interfaces.WritableObject;
 import org.example.ui.wrappers.SmartElement;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -60,8 +60,8 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOption(String optionString) {
-        DataValidationUtils.validateNotBlank(optionString, "optionString");
-        DataValidationUtils.validateNotMultiline(optionString, "optionString");
+        DataValidator.notBlank(optionString, "optionString");
+        DataValidator.notMultiline(optionString, "optionString");
         getElement();
 
         try {
@@ -85,7 +85,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      * @param options The collection to select.
      */
     public void selectOptions(Collection<String> options) {
-        DataValidationUtils.validateNotNull(options, "options");
+        DataValidator.notNull(options, "options");
         getElement();
 
         try {
@@ -112,7 +112,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      * @param values The values.
      */
     public void selectOptionsByValue(Collection<String> values) {
-        DataValidationUtils.validateNotNull(values, "options");
+        DataValidator.notNull(values, "options");
         getElement();
 
         try {
@@ -139,7 +139,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      * @param indexes The indexes.
      */
     public void selectOptionsByIndexes(Collection<Integer> indexes) {
-        DataValidationUtils.validateNotNull(indexes, "indexes");
+        DataValidator.notNull(indexes, "indexes");
         getElement();
 
         try {
@@ -167,8 +167,8 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void deselectOption(String  optionString) {
-        DataValidationUtils.validateNotBlank(optionString, "optionString");
-        DataValidationUtils.validateNotMultiline(optionString, "optionString");
+        DataValidator.notBlank(optionString, "optionString");
+        DataValidator.notMultiline(optionString, "optionString");
         getElement();
 
         try {
@@ -192,7 +192,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void deselectOptions(Collection<String>  options) {
-        DataValidationUtils.validateNotNull(options, "options");
+        DataValidator.notNull(options, "options");
         getElement();
 
         try {
@@ -219,7 +219,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void deselectOptionsByValues(Collection<String>  values) {
-        DataValidationUtils.validateNotNull(values, "values");
+        DataValidator.notNull(values, "values");
         getElement();
 
         try {
@@ -246,7 +246,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void deselectOptionsByIndexes(Collection<Integer>  indexes) {
-        DataValidationUtils.validateNotNull(indexes, "indexes");
+        DataValidator.notNull(indexes, "indexes");
         getElement();
 
         try {
@@ -325,8 +325,8 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOptionByValue(String valueString) {
-        DataValidationUtils.validateNotBlank(valueString, "valueString");
-        DataValidationUtils.validateNotMultiline(valueString, "valueString");
+        DataValidator.notBlank(valueString, "valueString");
+        DataValidator.notMultiline(valueString, "valueString");
         getElement();
 
         try {
@@ -350,8 +350,8 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void deselectOptionByValue(String  valueString) {
-        DataValidationUtils.validateNotBlank(valueString, "value");
-        DataValidationUtils.validateNotMultiline(valueString, "valueString");
+        DataValidator.notBlank(valueString, "value");
+        DataValidator.notMultiline(valueString, "valueString");
         getElement();
         try {
             select.deselectByValue(valueString);
@@ -373,7 +373,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      * @param index The index of the option to select.
      */
     public void selectOptionByIndex(SmartValue index) {
-        DataValidationUtils.validateNotNull(index, "index");
+        DataValidator.notNull(index, "index");
         selectOptionByIndex(index.toInteger());
     }
 
@@ -383,7 +383,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOptionByIndex(int index) {
-        DataValidationUtils.validateMin(index, 0, "index");
+        DataValidator.min(index, 0, "index");
         getElement();
         try {
             select.selectByIndex(index);
@@ -405,7 +405,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void deselectOptionByIndex(int index) {
-        DataValidationUtils.validateMin(index, 0, "index");
+        DataValidator.min(index, 0, "index");
         getElement();
         try {
             select.deselectByIndex(index);
@@ -583,7 +583,7 @@ public class Multiselect extends SmartElement implements ReadableObject, Writabl
      */
     @Override
     public <T> void setValue(T value) {
-        DataValidationUtils.validateNotNull(value, "value");
+        DataValidator.notNull(value, "value");
         SmartValue smartValue = new SmartValue(value);
 
         if (smartValue.isCollectable()) {

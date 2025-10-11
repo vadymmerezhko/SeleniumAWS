@@ -2,7 +2,7 @@ package org.example.ui.selectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.example.utils.WebUtils;
 import org.openqa.selenium.By;
 
@@ -21,7 +21,7 @@ public class SmartByParser {
      * @return The smart By selector.
      */
     public static SmartBy fromBy(By nativeBy) {
-        DataValidationUtils.validateNotNull(nativeBy, "nativeBy");
+        DataValidator.notNull(nativeBy, "nativeBy");
         SmartBy smartBy;
 
         try {
@@ -64,7 +64,7 @@ public class SmartByParser {
      * @return The smart by;
      */
     public static SmartBy fromSelectorValue(String selectorValue) {
-        DataValidationUtils.validateNotBlank(selectorValue, "selectorValue");
+        DataValidator.notBlank(selectorValue, "selectorValue");
         selectorValue = selectorValue.trim();
         SmartBy smartBy;
 

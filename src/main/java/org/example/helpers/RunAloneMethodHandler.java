@@ -3,7 +3,7 @@ package org.example.helpers;
 import lombok.extern.slf4j.Slf4j;
 import org.example.annotations.RunAlone;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,7 +21,7 @@ public class RunAloneMethodHandler {
     private RunAloneMethodHandler() {}
 
     public static void beforeMethod(Method method) {
-        DataValidationUtils.validateNotNull(method, "method");
+        DataValidator.notNull(method, "method");
 
         synchronized (MethodExecutionTracker.class) {
 
@@ -68,7 +68,7 @@ public class RunAloneMethodHandler {
     }
 
     public static void afterMethod(Method method) {
-        DataValidationUtils.validateNotNull(method, "method");
+        DataValidator.notNull(method, "method");
 
         synchronized (MethodExecutionTracker.class) {
             // Increment run alone counter for every nested @RunAlone method in the same thread

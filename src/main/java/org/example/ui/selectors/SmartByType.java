@@ -1,7 +1,7 @@
 package org.example.ui.selectors;
 
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 /**
  * The By locator type names.
@@ -20,7 +20,7 @@ public enum SmartByType {
     AUTO("auto");
 
     SmartByType(String selectorTypeName) {
-        DataValidationUtils.validateNotBlank(selectorTypeName, "selectorTypeName");
+        DataValidator.notBlank(selectorTypeName, "selectorTypeName");
         name = selectorTypeName;
     }
 
@@ -32,7 +32,7 @@ public enum SmartByType {
     private final String name;
 
     public static SmartByType fromString(String selectorType) {
-        DataValidationUtils.validateNotBlank(selectorType, "selectorType");
+        DataValidator.notBlank(selectorType, "selectorType");
 
         for (SmartByType value : SmartByType.values()) {
             if (value.name.equalsIgnoreCase(selectorType)) {

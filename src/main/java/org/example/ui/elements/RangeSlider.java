@@ -9,7 +9,7 @@ import org.example.interfaces.WritableObject;
 import org.example.ui.playwright.PlaywrightElement;
 import org.example.ui.wrappers.SmartElement;
 import org.example.utils.ConvertUtils;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -42,7 +42,7 @@ public class RangeSlider extends SmartElement implements ReadableObject, Writabl
     @Override
     @RunAlone // Run this method when other methods wait to prevent interrupting by other thread
     public <T> void setValue(T value) {
-        DataValidationUtils.validateNotNull(value, "value");
+        DataValidator.notNull(value, "value");
         SmartValue smartValue = new SmartValue(value);
 
         if (!smartValue.isNumeric()) {
@@ -69,8 +69,8 @@ public class RangeSlider extends SmartElement implements ReadableObject, Writabl
         double min = minString != null && !minString.isEmpty() ? Double.parseDouble(minString) : 0.0;
         double max = maxString != null && !maxString.isEmpty() ? Double.parseDouble(maxString) : 100.0;
 
-        DataValidationUtils.validateMin(targetValue, min, "min");
-        DataValidationUtils.validateMax(targetValue, max, "max");
+        DataValidator.min(targetValue, min, "min");
+        DataValidator.max(targetValue, max, "max");
         Keys key =  dif > 0.0 ? Keys.RIGHT: Keys.LEFT;
 
         for (double i = currentValue.doubleValue();

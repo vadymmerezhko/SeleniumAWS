@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
 import static java.lang.Float.POSITIVE_INFINITY;
 import static org.apache.commons.lang3.ObjectUtils.isArray;
 import static org.example.constants.Settings.*;
-import static org.example.utils.DataValidationUtils.FULL_CLASS_NAME_REGEX;
+import static org.example.utils.DataValidator.FULL_CLASS_NAME_REGEX;
 
 /**
  * Convert utils class.
@@ -614,7 +614,7 @@ public final class ConvertUtils {
      * @return The escaped script.
      */
     public static String escapeJavaScript(String jsonString) {
-        DataValidationUtils.validateNotNull(jsonString, "jsonString");
+        DataValidator.notNull(jsonString, "jsonString");
         StringBuilder escapedString = new StringBuilder();
 
         for (char c : jsonString.toCharArray()) {
@@ -660,7 +660,7 @@ public final class ConvertUtils {
      * @return The escaped CSV field value.
      */
     public static String escapeCSVField(String string) {
-        DataValidationUtils.validateNotNull(string, "string");
+        DataValidator.notNull(string, "string");
         // Escape " with ""
         String csvFieldValue = string.replace("\"", ESCAPED_QUOTE);
         // Enclose the field in double quotes
@@ -684,7 +684,7 @@ public final class ConvertUtils {
      * @return The string without CSV escape.
      */
     public static String csvFieldValueToString(String csvString) {
-        DataValidationUtils.validateNotNull(csvString, "csvScript");
+        DataValidator.notNull(csvString, "csvScript");
         String string = csvString.replace(ESCAPED_QUOTE, "\"");
         string = trimQuotes(string);
         log.debug("""
@@ -703,7 +703,7 @@ public final class ConvertUtils {
      * @return The escaped XML string.
      */
     public static String escapeXmlString(String xmlString) {
-        DataValidationUtils.validateNotNull(xmlString, "xmlString");
+        DataValidator.notNull(xmlString, "xmlString");
 
         try {
             String result = HtmlUtils.htmlEscape(xmlString);
@@ -733,7 +733,7 @@ public final class ConvertUtils {
      * @return The escaped XML string.
      */
     public static String unescapeXmlString(String xmlString) {
-        DataValidationUtils.validateNotNull(xmlString, "xmlString");
+        DataValidator.notNull(xmlString, "xmlString");
 
         try {
             String result = HtmlUtils.htmlUnescape(xmlString);
@@ -763,7 +763,7 @@ public final class ConvertUtils {
      * @return The boolean value.
      */
     public static boolean stringToBoolean(String string) {
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notBlank(string, "string");
         boolean result;
 
         switch (string.trim()) {
@@ -782,7 +782,7 @@ public final class ConvertUtils {
      * @return The date value or null if cannot convert.
      */
     public static SmartDate stringToSmartDate(String dateString) {
-        DataValidationUtils.validateNotBlank(dateString, "dateString");
+        DataValidator.notBlank(dateString, "dateString");
 
         try {
             SmartDate smartDate;
@@ -879,7 +879,7 @@ public final class ConvertUtils {
      * @return The smart local date value.
      */
     public static SmartLocalDate stringToSmartLocalDate(String dateString) {
-        DataValidationUtils.validateNotBlank(dateString, "dateString");
+        DataValidator.notBlank(dateString, "dateString");
 
         try {
             SmartDate smartDate = stringToSmartDate(dateString);
@@ -969,7 +969,7 @@ public final class ConvertUtils {
      * @return The JSON object value.
      */
     public static JSONObject stringToJsonObject(String string) {
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notBlank(string, "string");
 
         try {
             JSONObject jsonObject;
@@ -995,7 +995,7 @@ public final class ConvertUtils {
      * @return The JSON array value.
      */
     public static JSONArray stringToJsonArray(String string) {
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notBlank(string, "string");
 
         try {
             JSONArray jsonArray;
@@ -1028,7 +1028,7 @@ public final class ConvertUtils {
      * @return The XML document value.
      */
     public static Document stringToXmlDocument(String string) {
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notBlank(string, "string");
 
         try {
             Document document;
@@ -1058,7 +1058,7 @@ public final class ConvertUtils {
      * @return The file;
      */
     public static File stringToFile(String filePath) {
-        DataValidationUtils.validateFilePathFormat(filePath, "filePath");
+        DataValidator.filePath(filePath, "filePath");
 
         try {
             File file = new File(filePath);
@@ -1083,7 +1083,7 @@ public final class ConvertUtils {
      * @return The URL object;
      */
     public static URL stringToURL(String urlString) {
-        DataValidationUtils.validateNotBlank(urlString, "urlString");
+        DataValidator.notBlank(urlString, "urlString");
 
         try {
             URL url = new URL(urlString);
@@ -1109,7 +1109,7 @@ public final class ConvertUtils {
      * @return The URI object;
      */
     public static URI stringToURI(String uriString) {
-        DataValidationUtils.validateNotBlank(uriString, "urlString");
+        DataValidator.notBlank(uriString, "urlString");
 
         try {
             URI uri;
@@ -1145,7 +1145,7 @@ public final class ConvertUtils {
      * @return The file;
      */
     public static Path stringToPath(String filePath) {
-        DataValidationUtils.validateFilePathFormat(filePath, "filePath");
+        DataValidator.filePath(filePath, "filePath");
 
         try {
             Path path = Paths.get(filePath);
@@ -1165,7 +1165,7 @@ public final class ConvertUtils {
      * @return The XML node value.
      */
     public static Node stringToXmlNode(String string) {
-        DataValidationUtils.validateNotBlank(string, "xmlString");
+        DataValidator.notBlank(string, "xmlString");
 
         try {
             Node node;
@@ -1196,7 +1196,7 @@ public final class ConvertUtils {
      * @return The local date.
      */
     public static LocalDate dateToLocalDate(Date date) {
-        DataValidationUtils.validateNotNull(date, "date");
+        DataValidator.notNull(date, "date");
 
         try {
             LocalDate localDate = date.toInstant()
@@ -1218,7 +1218,7 @@ public final class ConvertUtils {
      * @return The local date time.
      */
     public static LocalDateTime dateToLocalDateTime(Date date) {
-        DataValidationUtils.validateNotNull(date, "date");
+        DataValidator.notNull(date, "date");
 
         try {
             LocalDateTime localDateTime = LocalDateTime.ofInstant(
@@ -1239,7 +1239,7 @@ public final class ConvertUtils {
      * @return The local time.
      */
     public static LocalTime dateToLocalTime(Date date) {
-        DataValidationUtils.validateNotNull(date, "date");
+        DataValidator.notNull(date, "date");
 
         try {
             Instant instant = date.toInstant();
@@ -1261,7 +1261,7 @@ public final class ConvertUtils {
      * @return The date.
      */
     public static Date localDateToDate(LocalDate localDate) {
-        DataValidationUtils.validateNotNull(localDate, "localDate");
+        DataValidator.notNull(localDate, "localDate");
 
         try {
             Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -1282,7 +1282,7 @@ public final class ConvertUtils {
      * @return The date.
      */
     public static Date localDateTimeToDate(LocalDateTime localDateTime) {
-        DataValidationUtils.validateNotNull(localDateTime, "LocalDateTime");
+        DataValidator.notNull(localDateTime, "LocalDateTime");
 
         try {
             Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
@@ -1304,7 +1304,7 @@ public final class ConvertUtils {
      * @return The date.
      */
     public static Date localTimeToDate(LocalTime localTime) {
-        DataValidationUtils.validateNotNull(localTime, "localTime");
+        DataValidator.notNull(localTime, "localTime");
 
         try {
             LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), localTime);
@@ -1328,8 +1328,8 @@ public final class ConvertUtils {
      * @return The date string.
      */
     public static String localDateToString(LocalDate localDate, String dateFormat) {
-        DataValidationUtils.validateNotNull(localDate, "localDate");
-        DataValidationUtils.validateNotBlank(dateFormat, dateFormat);
+        DataValidator.notNull(localDate, "localDate");
+        DataValidator.notBlank(dateFormat, dateFormat);
 
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
@@ -1352,8 +1352,8 @@ public final class ConvertUtils {
      * @return The date time string.
      */
     public static String localDateTimeToString(LocalDateTime localDateTime, String dateTimeFormat) {
-        DataValidationUtils.validateNotNull(localDateTime, "localDate");
-        DataValidationUtils.validateNotBlank(dateTimeFormat, dateTimeFormat);
+        DataValidator.notNull(localDateTime, "localDate");
+        DataValidator.notBlank(dateTimeFormat, dateTimeFormat);
 
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateTimeFormat);
@@ -1376,8 +1376,8 @@ public final class ConvertUtils {
      * @return The time string.
      */
     public static String localTimeToString(LocalTime localTime, String timeFormat) {
-        DataValidationUtils.validateNotNull(localTime, "localTime");
-        DataValidationUtils.validateNotBlank(timeFormat, timeFormat);
+        DataValidator.notNull(localTime, "localTime");
+        DataValidator.notBlank(timeFormat, timeFormat);
 
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(timeFormat);
@@ -1400,8 +1400,8 @@ public final class ConvertUtils {
      * @return The date string.
      */
     public static String dateToString(Date date, String dateFormat) {
-        DataValidationUtils.validateNotNull(date, "date");
-        DataValidationUtils.validateNotBlank(dateFormat, "dateFormat");
+        DataValidator.notNull(date, "date");
+        DataValidator.notBlank(dateFormat, "dateFormat");
 
         try {
             SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
@@ -1423,7 +1423,7 @@ public final class ConvertUtils {
      * @return The XML string.
      */
     public static String xmlNodeToString(Node xmlNode) {
-        DataValidationUtils.validateNotNull(xmlNode, "xml");
+        DataValidator.notNull(xmlNode, "xml");
 
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -1457,7 +1457,7 @@ public final class ConvertUtils {
      * @return The XML string.
      */
     public static String xmlDocumentToString(Document document) {
-        DataValidationUtils.validateNotNull(document, "document");
+        DataValidator.notNull(document, "document");
 
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -1492,7 +1492,7 @@ public final class ConvertUtils {
      * @return The JSON array string.
      */
     public static String jsonObjectToString(JSONObject jsonObject) {
-        DataValidationUtils.validateNotNull(jsonObject, "jsonObject");
+        DataValidator.notNull(jsonObject, "jsonObject");
 
         try {
             String jsonString = jsonObject.toString(JSON_LAYOUT_SPACES);
@@ -1512,7 +1512,7 @@ public final class ConvertUtils {
      * @return The JSON array string.
      */
     public static String jsonArrayToString(JSONArray jsonArray) {
-        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
+        DataValidator.notNull(jsonArray, "jsonArray");
 
         try {
             return jsonArray.toString(JSON_LAYOUT_SPACES);
@@ -1642,8 +1642,8 @@ public final class ConvertUtils {
      * @param <T> The enum type.
      */
     public static <T extends Enum<T>> T stringToEnumValue(SmartType type, String string) {
-        DataValidationUtils.validateNotNull(type, "type");
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notNull(type, "type");
+        DataValidator.notBlank(string, "string");
 
         try {
             T enumValue;
@@ -1687,8 +1687,8 @@ public final class ConvertUtils {
      * @param <T> The enum type.
      */
     public static <T extends Enum<T>> T indexToEnumValue(SmartType type, int index) {
-        DataValidationUtils.validateNotNull(type, "type");
-        DataValidationUtils.validateMin(index, 0, "index");
+        DataValidator.notNull(type, "type");
+        DataValidator.min(index, 0, "index");
 
         try {
             Class<?> enumClass = type.getObjectClass();
@@ -1721,7 +1721,7 @@ public final class ConvertUtils {
      * @return the map.
      */
     public static Map<String,Object> pojoObjectToMap(Object pojObject) {
-        DataValidationUtils.validateNotNull(pojObject, "pojObject");
+        DataValidator.notNull(pojObject, "pojObject");
 
         try {
             Map<String,Object> map = new HashMap<>();
@@ -1759,7 +1759,7 @@ public final class ConvertUtils {
      * @return the JSON object.
      */
     public static JSONObject pojoObjectToJsonObject(Object pojObject) {
-        DataValidationUtils.validateNotNull(pojObject, "pojObject");
+        DataValidator.notNull(pojObject, "pojObject");
 
         try {
             JSONObject jsonObject = new JSONObject();
@@ -1816,7 +1816,7 @@ public final class ConvertUtils {
      * @return The result object.
      */
     public static <T> T objectToObject(SmartType targetType, Object sourceObject) {
-        DataValidationUtils.validateNotNull(targetType, "targetType");
+        DataValidator.notNull(targetType, "targetType");
 
         try {
             T targetObject;
@@ -1914,8 +1914,8 @@ public final class ConvertUtils {
      * @param <T> The collection type.
      */
     public static <T> Object collectionToObject(SmartType targetType, Collection<T> collection) {
-        DataValidationUtils.validateNotNull(targetType, "targetType");
-        DataValidationUtils.validateNotNull(collection, "collection");
+        DataValidator.notNull(targetType, "targetType");
+        DataValidator.notNull(collection, "collection");
 
         try {
             Object targetobject;
@@ -1997,8 +1997,8 @@ public final class ConvertUtils {
      * @param <V> The map value type.
      */
     public static <K,V> Object mapToObject(SmartType targetType, Map<K,V> map) {
-        DataValidationUtils.validateNotNull(targetType, "targetType");
-        DataValidationUtils.validateNotNull(map, "collection");
+        DataValidator.notNull(targetType, "targetType");
+        DataValidator.notNull(map, "collection");
 
         try {
             Class<?> targetObjectClass = targetType.getObjectClass();
@@ -2086,8 +2086,8 @@ public final class ConvertUtils {
      * @param <T> The array type.
      */
     public static <T> T[] collectionToArray(SmartType valueType, Collection<?> collection) {
-        DataValidationUtils.validateNotNull(valueType, "valueType");
-        DataValidationUtils.validateNotNull(collection, "collection");
+        DataValidator.notNull(valueType, "valueType");
+        DataValidator.notNull(collection, "collection");
 
         try {
             Class<?> valueClass = valueType.getObjectClass();
@@ -2194,8 +2194,8 @@ public final class ConvertUtils {
      * @return The Java POJO class object.
      */
     public static <T> T stringToPojoObject(SmartType type, String string) {
-        DataValidationUtils.validateNotNull(type, "type");
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notNull(type, "type");
+        DataValidator.notBlank(string, "string");
         String className = type.getObjectClass().getName();
 
         try {
@@ -2307,7 +2307,7 @@ public final class ConvertUtils {
      * @return The object.
      */
     public static Object csvStringToObject(String csvString) {
-        DataValidationUtils.validateNotNull(csvString, "csvString");
+        DataValidator.notNull(csvString, "csvString");
 
         try {
             JSONArray jsonArray = csvStringToJsonArray(csvString);
@@ -2339,8 +2339,8 @@ public final class ConvertUtils {
      * @return The smart value.
      */
     public static SmartValue stringToSmartValue(SmartType type, String string) {
-        DataValidationUtils.validateNotNull(type, "type");
-        DataValidationUtils.validateNotNull(string, "string");
+        DataValidator.notNull(type, "type");
+        DataValidator.notNull(string, "string");
 
         try {
             Object object = stringToObject(type, string);
@@ -2371,7 +2371,7 @@ public final class ConvertUtils {
      * @return The smart value.
      */
     public static String objectToCsvString(Object object) {
-        DataValidationUtils.validateNotNull(object, "object");
+        DataValidator.notNull(object, "object");
 
         try {
             JSONArray jsonRows = objectToJsonArray(object);
@@ -2446,8 +2446,8 @@ public final class ConvertUtils {
      * @return The object.
      */
     public static <T> T stringToObject(SmartType type, String string) {
-        DataValidationUtils.validateNotNull(type, "type");
-        DataValidationUtils.validateNotBlank(string, "value");
+        DataValidator.notNull(type, "type");
+        DataValidator.notBlank(string, "value");
 
         try {
             T object;
@@ -2597,7 +2597,7 @@ public final class ConvertUtils {
                             string, type));
                 }
             }
-            DataValidationUtils.validateNotNull(object, "object");
+            DataValidator.notNull(object, "object");
             log.debug("""
                     String converted to object.
                     String:
@@ -2628,7 +2628,7 @@ public final class ConvertUtils {
      * @return The string buffer.
      */
     public static StringBuffer stringToStringBuffer(String string) {
-        DataValidationUtils.validateNotEmpty(string, "string");
+        DataValidator.notEmpty(string, "string");
         return new StringBuffer(string);
     }
 
@@ -2638,7 +2638,7 @@ public final class ConvertUtils {
      * @return The string buffer.
      */
     public static JSONArray csvStringToJsonArray(String csvString) {
-        DataValidationUtils.validateNotEmpty(csvString, "csvString");
+        DataValidator.notEmpty(csvString, "csvString");
 
         try {
             JSONArray jsonArray = new JSONArray();
@@ -2737,8 +2737,8 @@ public final class ConvertUtils {
      * @return The char.
      */
     public static char stringToCharacter(String charString) {
-        DataValidationUtils.validateNotEmpty(charString, "charString");
-        DataValidationUtils.validateMax(charString.length(), 1, "charString");
+        DataValidator.notEmpty(charString, "charString");
+        DataValidator.max(charString.length(), 1, "charString");
         return charString.charAt(0);
     }
 
@@ -2748,7 +2748,7 @@ public final class ConvertUtils {
      * @return The JSON array.
      */
     public static <T> JSONArray collectionToJsonArray(Collection<T> collection) {
-        DataValidationUtils.validateNotNull(collection, "collection");
+        DataValidator.notNull(collection, "collection");
 
         try {
             JSONArray jsonArray = new JSONArray(collection);
@@ -2774,7 +2774,7 @@ public final class ConvertUtils {
      * @return The JSON object.
      */
     public static <K, V> JSONObject mapToJasonObject(Map<K, V> map) {
-        DataValidationUtils.validateNotNull(map, "map");
+        DataValidator.notNull(map, "map");
 
         try {
             JSONObject jsonObject = new JSONObject(map);
@@ -2800,7 +2800,7 @@ public final class ConvertUtils {
      * @return The XML document.
      */
     public static <K,V> Document mapToXmlDocument(Map<K,V> map) {
-        DataValidationUtils.validateNotNull(map, "map");
+        DataValidator.notNull(map, "map");
 
         try {
             String rootName = getParameterName(0);
@@ -2829,7 +2829,7 @@ public final class ConvertUtils {
      * @return The XML node.
      */
     public static <K,V> Node mapToXmlNode(Map<K,V> map) {
-        DataValidationUtils.validateNotNull(map, "map");
+        DataValidator.notNull(map, "map");
 
         String rootName = getParameterName(0);
         Document xml = mapToXmlDocument(map);
@@ -2852,7 +2852,7 @@ public final class ConvertUtils {
      * @return The XML document.
      */
     public static Document recordToXmlDocument(Record record) {
-        DataValidationUtils.validateNotNull(record, "record");
+        DataValidator.notNull(record, "record");
 
         try {
             String rootName = getParameterName(0);
@@ -2881,7 +2881,7 @@ public final class ConvertUtils {
      * @return The XML node.
      */
     public static Node recordToXmlNode(Record record) {
-        DataValidationUtils.validateNotNull(record, "record");
+        DataValidator.notNull(record, "record");
 
         String rootName = getParameterName(0);
         Document xml = recordToXmlDocument(record);
@@ -2904,7 +2904,7 @@ public final class ConvertUtils {
      * @return The XML document.
      */
     public static Document pojoObjectToXmlDocument(Object pojo) {
-        DataValidationUtils.validateNotNull(pojo, "pojo");
+        DataValidator.notNull(pojo, "pojo");
 
         try {
             String rootName = getParameterName(0);
@@ -2933,7 +2933,7 @@ public final class ConvertUtils {
      * @return The XML node.
      */
     public static Node pojoObjectToXmlNode(Object pojo) {
-        DataValidationUtils.validateNotNull(pojo, "pojo");
+        DataValidator.notNull(pojo, "pojo");
 
         String rootName = getParameterName(0);
         JSONObject jsonObject = pojoObjectToJsonObject(pojo);
@@ -2958,7 +2958,7 @@ public final class ConvertUtils {
      * @return The array.
      */
     public static <T> T[] xmlArrayNodeToArray(Node xmlNode) {
-        DataValidationUtils.validateNotNull(xmlNode, "xmlNode");
+        DataValidator.notNull(xmlNode, "xmlNode");
 
         try {
             String xmlString = xmlNodeToString(xmlNode);
@@ -2999,7 +2999,7 @@ public final class ConvertUtils {
      * @return The array.
      */
     public static <T> T[] jsonArrayToArray(JSONArray jsonArray) {
-        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
+        DataValidator.notNull(jsonArray, "jsonArray");
 
         try {
             SmartType valueType = SmartType.getJsonArrayValueSmartType(jsonArray);
@@ -3076,7 +3076,7 @@ public final class ConvertUtils {
      * @return The JSON array.
      */
     public static <T> JSONArray arrayToJsonArray(T[] array) {
-        DataValidationUtils.validateNotNull(array, "array");
+        DataValidator.notNull(array, "array");
 
         try {
             JSONArray jsonArray = new JSONArray();
@@ -3147,7 +3147,7 @@ public final class ConvertUtils {
      * @param <T> The collection element type.
      */
     public static <T> JSONArray objectToJsonArray(Object object) {
-        DataValidationUtils.validateNotNull(object, "object");
+        DataValidator.notNull(object, "object");
         JSONArray jsonArray;
 
         try {
@@ -3213,7 +3213,7 @@ public final class ConvertUtils {
      * @return The JSON array.
      */
     public static JSONObject objectToJsonObject(Object object) {
-        DataValidationUtils.validateNotNull(object, "object");
+        DataValidator.notNull(object, "object");
         JSONObject jsonObject;
 
         try {
@@ -3254,7 +3254,7 @@ public final class ConvertUtils {
      * @return The XML node object.
      */
     public static Node objectToXmlNode(Object object) {
-        DataValidationUtils.validateNotNull(object, "object");
+        DataValidator.notNull(object, "object");
         Node xmlNode;
 
         try {
@@ -3315,7 +3315,7 @@ public final class ConvertUtils {
      * @return The XML document containing the given node as the root.
      */
     public static Document xmlNodeToXmlDocument(Node node) {
-        DataValidationUtils.validateNotNull(node, "node");
+        DataValidator.notNull(node, "node");
 
         try {
             // Create a new DocumentBuilder
@@ -3353,8 +3353,8 @@ public final class ConvertUtils {
      * @return The Java Record object.
      */
     public static <T> T stringToRecord(Class<?> recordClass, String string) {
-        DataValidationUtils.validateNotNull(recordClass, "recordClass");
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notNull(recordClass, "recordClass");
+        DataValidator.notBlank(string, "string");
 
         if (!recordClass.isRecord()) {
             throw new SmartRuntimeException(String.format(
@@ -3398,7 +3398,7 @@ public final class ConvertUtils {
      * @return The JSON object.
      */
     public static JSONObject recordToJsonObject(Record record) {
-        DataValidationUtils.validateNotNull(record, "record");
+        DataValidator.notNull(record, "record");
 
         try {
             JSONObject jsonObject = new JSONObject();
@@ -3439,7 +3439,7 @@ public final class ConvertUtils {
      * @return The map.
      */
     public static Map<String, Object> recordToMap(Record record) {
-        DataValidationUtils.validateNotNull(record, "record");
+        DataValidator.notNull(record, "record");
 
         try {
             Map<String, Object> map = new HashMap<>();
@@ -3480,7 +3480,7 @@ public final class ConvertUtils {
      * @return The string.
      */
     public static String recordToString(Record record) {
-        DataValidationUtils.validateNotNull(record, "record");
+        DataValidator.notNull(record, "record");
 
         try {
             JSONObject jsonObject = recordToJsonObject(record);
@@ -3516,8 +3516,8 @@ public final class ConvertUtils {
      * @return The enum value..
      */
     public static <T extends Enum<T>> T objectToEnumValue(SmartType type, Object object) {
-        DataValidationUtils.validateNotNull(type, "enumClassNme");
-        DataValidationUtils.validateNotNull(object, "object");
+        DataValidator.notNull(type, "enumClassNme");
+        DataValidator.notNull(object, "object");
         T enumValue;
 
         try {
@@ -3553,7 +3553,7 @@ public final class ConvertUtils {
      * @return The array string.
      */
     public static <T> String arrayToString(T[] array) {
-        DataValidationUtils.validateNotNull(array, "array");
+        DataValidator.notNull(array, "array");
 
         try {
             JSONArray jsonArray = arrayToJsonArray(array);
@@ -3575,8 +3575,8 @@ public final class ConvertUtils {
      * @return The array.
      */
     public static <T> T[] stringToArray(SmartType valueType, String string) {
-        DataValidationUtils.validateNotNull(valueType, "valueType");
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notNull(valueType, "valueType");
+        DataValidator.notBlank(string, "string");
 
         try {
             JSONArray jsonArray;
@@ -3657,8 +3657,8 @@ public final class ConvertUtils {
      * @return The list.
      */
     public static <T> List<T> stringToList(SmartType valueType, String string) {
-        DataValidationUtils.validateNotNull(valueType, "type");
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notNull(valueType, "type");
+        DataValidator.notBlank(string, "string");
 
         try {
             List<T> list;
@@ -3718,8 +3718,8 @@ public final class ConvertUtils {
      * @return The set.
      */
     public static <T> Set<T> stringToSet(SmartType valueType, String string) {
-        DataValidationUtils.validateNotNull(valueType, "valueType");
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notNull(valueType, "valueType");
+        DataValidator.notBlank(string, "string");
 
         try {
             List<T> list = stringToList(valueType, string);
@@ -3753,8 +3753,8 @@ public final class ConvertUtils {
      * @return The queue.
      */
     public static <T> Queue<T> stringToQueue(SmartType valueType, String string) {
-        DataValidationUtils.validateNotNull(valueType, "valueType");
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notNull(valueType, "valueType");
+        DataValidator.notBlank(string, "string");
 
         try {
             List<T> list = stringToList(valueType, string);
@@ -3787,8 +3787,8 @@ public final class ConvertUtils {
      * @return The vector.
      */
     public static <T> Vector<T> stringToVector(SmartType valueType, String string) {
-        DataValidationUtils.validateNotNull(valueType, "valueType");
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notNull(valueType, "valueType");
+        DataValidator.notBlank(string, "string");
 
         try {
             List<T> list = stringToList(valueType, string);
@@ -3822,8 +3822,8 @@ public final class ConvertUtils {
      * @return The map.
      */
     public static <K,V> Map<K,V> stringToMap(SmartType type, String string) {
-        DataValidationUtils.validateNotNull(type, "type");
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notNull(type, "type");
+        DataValidator.notBlank(string, "string");
 
         try {
             JSONObject jsonObject;
@@ -3868,8 +3868,8 @@ public final class ConvertUtils {
      * @return The map.
      */
     public static <K,V> Map<K,V> jsonObjectToMap(SmartType type, JSONObject jsonObject) {
-        DataValidationUtils.validateNotNull(type, "type");
-        DataValidationUtils.validateNotNull(jsonObject, "jsonObject");
+        DataValidator.notNull(type, "type");
+        DataValidator.notNull(jsonObject, "jsonObject");
 
         try {
             Class<K> keyClass = (Class<K>) type.getKeyClass();
@@ -3910,7 +3910,7 @@ public final class ConvertUtils {
      * @return The JSON object.
      */
     public static JSONObject xmlStringToJsonObject(String xmlString) {
-        DataValidationUtils.validateNotBlank(xmlString, "xmlString");
+        DataValidator.notBlank(xmlString, "xmlString");
 
         try {
             xmlString = escapeXmlString(xmlString);
@@ -3957,7 +3957,7 @@ public final class ConvertUtils {
      * @return The JSON object.
      */
     public static JSONArray xmlStringToJsonArray(String xmlString) {
-        DataValidationUtils.validateNotBlank(xmlString, "xmlString");
+        DataValidator.notBlank(xmlString, "xmlString");
 
         try {
             if (ConvertUtils.isXmlArrayString(xmlString)) {
@@ -4020,7 +4020,7 @@ public final class ConvertUtils {
      * @return The JSON object.
      */
     public static JSONObject xmlNodeToJsonObject(Node xmlNode) {
-        DataValidationUtils.validateNotNull(xmlNode, "xmlNode");
+        DataValidator.notNull(xmlNode, "xmlNode");
 
         try {
             String xmlString = xmlNodeToString(xmlNode);
@@ -4054,7 +4054,7 @@ public final class ConvertUtils {
      * @return A normalized number string.
      */
     private static String normalizeNumberString(String numberString, ULocale locale) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
         StringBuilder normalized = new StringBuilder();
         List<ULocale> arabicIndianLocales = Arrays.asList(ARABIC_INDIAN_LOCALES);
         String normalizedNumberString = numberString;
@@ -4113,7 +4113,7 @@ public final class ConvertUtils {
      * @throws RuntimeException if the number cannot be parsed.
      */
     public static String localeNumberStringToJavaNumberString(String numberString) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
         String javaNumberString = null;
         numberString = numberString.trim();
 
@@ -4200,7 +4200,7 @@ public final class ConvertUtils {
      * (e.g., "1234567.89").
      */
     public static String languageNumberStringToJavaNumberString(String numberString) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
         String javaNumberString;
 
         // Check if the input is already an English number string
@@ -4289,7 +4289,7 @@ public final class ConvertUtils {
      * @return The number.
      */
     public static Number localeNumbStringToNumber(String numberString) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
 
         try {
             Number number;
@@ -4360,7 +4360,7 @@ public final class ConvertUtils {
      * @return The standardized number string according to the provided Locale.
      */
     public static String localeStringToNumberString(String numberString, ULocale locale) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
 
         try {
             // Create a number format based on the locale using ICU4J
@@ -4397,7 +4397,7 @@ public final class ConvertUtils {
      * and the "-" sign are replaced with "#".
      */
     public static String localeNumberStringToFormat(String numberString, ULocale uLocale) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
         StringBuilder formatBuilder = new StringBuilder();
 
         // Iterate through each character in the number string
@@ -4425,7 +4425,7 @@ public final class ConvertUtils {
      * @return The number.
      */
     public static Number stringToNumber(String numberString) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
         Number number = stringToNumberValue(numberString);
 
         if (number == null) {
@@ -4449,7 +4449,7 @@ public final class ConvertUtils {
      * @return The number.
      */
     public static Number stringToNumberValue(String numberString) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
 
         try {
             Number number = localeNumbStringToNumber(numberString);
@@ -4473,7 +4473,7 @@ public final class ConvertUtils {
      * or throws an exception if number has more than 2 numbers after decimal point.
      */
     public static BigDecimal currencyNumberStringToBigDecimal(String numberString) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
 
         try {
             // Remove comas from number string and trim it
@@ -4495,7 +4495,7 @@ public final class ConvertUtils {
      * @return The XML document.
      */
     public static Document jsonObjectToXmlDocument(JSONObject jsonObject) {
-        DataValidationUtils.validateNotNull(jsonObject, "jsonObject");
+        DataValidator.notNull(jsonObject, "jsonObject");
 
         try {
             // Use parameter name as XML root name.
@@ -4534,7 +4534,7 @@ public final class ConvertUtils {
      * @return The JSON document.
      */
     public static Document jsonArrayToXmlDocument(JSONArray jsonArray) {
-        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
+        DataValidator.notNull(jsonArray, "jsonArray");
 
         try {
             // Use parameter name as XML root name.
@@ -4575,7 +4575,7 @@ public final class ConvertUtils {
      * @return The XML node.
      */
     public static Node jsonObjectToXmlNode(JSONObject jsonObject) {
-        DataValidationUtils.validateNotNull(jsonObject, "jsonObject");
+        DataValidator.notNull(jsonObject, "jsonObject");
 
         try {
             String rootName = getParameterName(0);
@@ -4611,9 +4611,9 @@ public final class ConvertUtils {
      * @return The XML node.
      */
     public static Node jsonArrayToXmlNode(JSONArray jsonArray, String rootName, String itemName) {
-        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
-        DataValidationUtils.validateNotBlank(rootName, "rootName");
-        DataValidationUtils.validateNotBlank(itemName, "itemName");
+        DataValidator.notNull(jsonArray, "jsonArray");
+        DataValidator.notBlank(rootName, "rootName");
+        DataValidator.notBlank(itemName, "itemName");
 
         try {
             Node xmlNode = jsonArrayToXmlDocument(jsonArray).getDocumentElement();
@@ -4644,7 +4644,7 @@ public final class ConvertUtils {
      * @return The XML node.
      */
     public static Node jsonArrayToXmlNode(JSONArray jsonArray) {
-        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
+        DataValidator.notNull(jsonArray, "jsonArray");
 
         return jsonArrayToXmlNode(jsonArray, DEFAULT_XML_ROOT_NAME, DEFAULT_XML_ITEM_NAME);
     }
@@ -4655,13 +4655,13 @@ public final class ConvertUtils {
      * @return The normalized string.
      */
     public static String normalizeLineSeparators(String string) {
-        DataValidationUtils.validateNotNull(string, "string");
+        DataValidator.notNull(string, "string");
 
         return string.replace("\r\n", "\n");
     }
 
     public static String normalizeStringEncoding(String string) {
-        DataValidationUtils.validateNotNull(string, "string");
+        DataValidator.notNull(string, "string");
 
         byte[] encoded = string.getBytes();
         String normalizedString = new String(encoded, StandardCharsets.UTF_8);
@@ -4711,7 +4711,7 @@ public final class ConvertUtils {
      * @return The format of the number string.
      */
     public static String numberStringToFormat(String numberString) {
-        DataValidationUtils.validateNotBlank(numberString, "numberString");
+        DataValidator.notBlank(numberString, "numberString");
 
         try {
             String formatString = null;
@@ -4760,8 +4760,8 @@ public final class ConvertUtils {
      * @return The formatted number string.
      */
     public static String numberToLocaleString(Number number, ULocale uLocale) {
-        DataValidationUtils.validateNotNull(number, "number");
-        DataValidationUtils.validateNotNull(uLocale, "uLocale");
+        DataValidator.notNull(number, "number");
+        DataValidator.notNull(uLocale, "uLocale");
 
         // Get the ICU4J NumberFormat for the specified ULocale
         NumberFormat numberFormat = NumberFormat.getInstance(uLocale);
@@ -4780,8 +4780,8 @@ public final class ConvertUtils {
      * @return The formatted number string.
      */
     public static String numberToFormattedString(Number number, String format) {
-        DataValidationUtils.validateNotNull(number, "number");
-        DataValidationUtils.validateNotBlank(format, "format");
+        DataValidator.notNull(number, "number");
+        DataValidator.notBlank(format, "format");
 
         try {
             // Create a DecimalFormat instance with the provided format pattern
@@ -4794,11 +4794,11 @@ public final class ConvertUtils {
             if (!code.isEmpty()) {
                 // Remove currency code or symbol to validate the number
                 String currencyNumberString = numberString.replace(code, "");
-                DataValidationUtils.validateNumberString(currencyNumberString, "currencyNumberString");
+                DataValidator.numberString(currencyNumberString, "currencyNumberString");
             }
             else {
                 // Validate number string
-                DataValidationUtils.validateNumberString(numberString, "numberString");
+                DataValidator.numberString(numberString, "numberString");
             }
             log.debug("""
                     Number converted to formatted number string.
@@ -4823,7 +4823,7 @@ public final class ConvertUtils {
      * @return The currency symbol or code.
      */
     public static String currencyStringToCodeOrSymbol(String currencyString) {
-        DataValidationUtils.validateNotBlank(currencyString, "currencyString");
+        DataValidator.notBlank(currencyString, "currencyString");
 
         // Pattern to match any characters before the first numeric digit
         Pattern prefixPattern = Pattern.compile("^[^0-9]+");
@@ -4868,8 +4868,8 @@ public final class ConvertUtils {
      * (e.g., "US$", "CA$"), or empty string if not found.
      */
     public static String currencyCodeToRegionalSymbol(String currencyCode) {
-        DataValidationUtils.validateNotBlank(currencyCode, "currencyCode");
-        DataValidationUtils.validateMax(currencyCode.length(), 3, "currencyCodeLength");
+        DataValidator.notBlank(currencyCode, "currencyCode");
+        DataValidator.max(currencyCode.length(), 3, "currencyCodeLength");
 
         try {
             String regionalSymbol = "";
@@ -4916,8 +4916,8 @@ public final class ConvertUtils {
      * (e.g., "$", "€") or throws an exception.
      */
     public static String currencyCodeToSymbol(String currencyCode) {
-        DataValidationUtils.validateNotBlank(currencyCode, "currencyCode");
-        DataValidationUtils.validateMax(currencyCode.length(), 3, "currencyCodeLength");
+        DataValidator.notBlank(currencyCode, "currencyCode");
+        DataValidator.max(currencyCode.length(), 3, "currencyCodeLength");
 
         try {
             currencyCode = currencyCode.trim();
@@ -4966,8 +4966,8 @@ public final class ConvertUtils {
      * (e.g., "USD", "EUR") or returns empty string.
      */
     public static String currencyRegionalSymbolToCode(String currencyRegionalSymbol) {
-        DataValidationUtils.validateNotBlank(currencyRegionalSymbol, "currencyRegionalSymbol");
-        DataValidationUtils.validateMax(currencyRegionalSymbol.length(), 3,
+        DataValidator.notBlank(currencyRegionalSymbol, "currencyRegionalSymbol");
+        DataValidator.max(currencyRegionalSymbol.length(), 3,
                 "currencyRegionalSymbolLength");
 
         try {
@@ -5019,7 +5019,7 @@ public final class ConvertUtils {
      * or just number format if currency code or symbol is not present.
      */
     public static String currencyStringToFormat(String currencyString) {
-        DataValidationUtils.validateNotBlank(currencyString, "currencyString");
+        DataValidator.notBlank(currencyString, "currencyString");
 
         try {
             String format;
@@ -5027,7 +5027,7 @@ public final class ConvertUtils {
             String codeOrSymbol = currencyStringToCodeOrSymbol(currencyString);
 
             // Validate maximum code or symbol length - 3
-            DataValidationUtils.validateMax(codeOrSymbol.length(), 3, "codeOrSymbolLenght");
+            DataValidator.max(codeOrSymbol.length(), 3, "codeOrSymbolLenght");
 
             String numberFormat = numberStringToFormat(currencyString.replace(codeOrSymbol, ""));
             String numberString = currencyString.replace(codeOrSymbol, "").trim();
@@ -5079,9 +5079,9 @@ public final class ConvertUtils {
      * (e.g., "$1,234.56", "USD 1,234.56", "1,234.56€" or "1,234.56").
      */
     public static String currencyValueToFormatedString(Number value, String code, String format) {
-        DataValidationUtils.validateNotNull(value, "money");
-        DataValidationUtils.validateNotBlank(code, "code");
-        DataValidationUtils.validateNotBlank(format, "format");
+        DataValidator.notNull(value, "money");
+        DataValidator.notBlank(code, "code");
+        DataValidator.notBlank(format, "format");
 
         try {
             // Determine if the code is a symbol or currency code
@@ -5130,7 +5130,7 @@ public final class ConvertUtils {
      * @return The phone number format pattern.
      */
     public static String phoneNumberToFormat(String phoneNumber) {
-        DataValidationUtils.validateNotBlank(phoneNumber, "phoneNumber");
+        DataValidator.notBlank(phoneNumber, "phoneNumber");
 
         try {
             // Validate input
@@ -5174,7 +5174,7 @@ public final class ConvertUtils {
      * @return The phone number.
      */
     public static Number phoneNumberStingToNumber(String phoneNumberString) {
-        DataValidationUtils.validateNotBlank(phoneNumberString, "phoneNumberString");
+        DataValidator.notBlank(phoneNumberString, "phoneNumberString");
 
         // Convert letters to digits and remove all non-numeric characters
         StringBuilder cleanedPhoneNumber = new StringBuilder();
@@ -5189,15 +5189,15 @@ public final class ConvertUtils {
         }
         // Validate the cleaned phone number
         String finalPhoneNumber = cleanedPhoneNumber.toString();
-        DataValidationUtils.validateNotBlank(finalPhoneNumber, "cleanedPhoneNumber");
-        DataValidationUtils.validateNumberString(finalPhoneNumber, "cleanedPhoneNumber");
+        DataValidator.notBlank(finalPhoneNumber, "cleanedPhoneNumber");
+        DataValidator.numberString(finalPhoneNumber, "cleanedPhoneNumber");
 
         // Convert to BigInteger for long phone numbers
         Number phoneNumber = new BigInteger(finalPhoneNumber);
 
         // Validate phone length including extension number is between 8 and 21 digits
-        DataValidationUtils.validateMin(phoneNumber, MIN_PHONE_NUMBER, "phoneNumber");
-        DataValidationUtils.validateMax(phoneNumber, MAX_PHONE_NUMBER, "phoneNumber");
+        DataValidator.min(phoneNumber, MIN_PHONE_NUMBER, "phoneNumber");
+        DataValidator.max(phoneNumber, MAX_PHONE_NUMBER, "phoneNumber");
         log.debug("""
                 Phone number string converted to number.
                 String: {}
@@ -5217,10 +5217,10 @@ public final class ConvertUtils {
      * @return The formatted phone number string.
      */
     public static String phoneNumberFormattedString(Number number, String format) {
-        DataValidationUtils.validateNotNull(number, "number");
-        DataValidationUtils.validateMin(number, MIN_PHONE_NUMBER, "number");
-        DataValidationUtils.validateMax(number, MAX_PHONE_NUMBER, "number");
-        DataValidationUtils.validateNotBlank(format, "format");
+        DataValidator.notNull(number, "number");
+        DataValidator.min(number, MIN_PHONE_NUMBER, "number");
+        DataValidator.max(number, MAX_PHONE_NUMBER, "number");
+        DataValidator.notBlank(format, "format");
 
         String numberString = number.toString();
         StringBuilder phoneNumberString = new StringBuilder();
@@ -5262,7 +5262,7 @@ public final class ConvertUtils {
      * @return The list.
      */
     public static <T> List<T> arrayToList(Object[] array) {
-        DataValidationUtils.validateNotNull(array, "array");
+        DataValidator.notNull(array, "array");
 
         try {
             List<T> list = new ArrayList<>();
@@ -5326,7 +5326,7 @@ public final class ConvertUtils {
      * @return The list.
      */
     public static  <T> T[] objectToArray(Object object) {
-        DataValidationUtils.validateNotNull(object, "object");
+        DataValidator.notNull(object, "object");
 
         try {
             T[] array;
@@ -5415,7 +5415,7 @@ public final class ConvertUtils {
      * @return The list.
      */
      public static  <T> List<T> objectToList(Object object) {
-            DataValidationUtils.validateNotNull(object, "object");
+            DataValidator.notNull(object, "object");
 
         try {
             List<T> list;
@@ -5500,7 +5500,7 @@ public final class ConvertUtils {
      * @return The list.
      */
     public static  <K,V> Map<K,V> objectToMap(Object object) {
-        DataValidationUtils.validateNotNull(object, "object");
+        DataValidator.notNull(object, "object");
 
         try {
             Map<K,V> map;
@@ -5594,7 +5594,7 @@ public final class ConvertUtils {
      * @return The file.
      */
     public static File objectToFile(Object object) {
-        DataValidationUtils.validateNotNull(object, "object");
+        DataValidator.notNull(object, "object");
 
         try {
             File file;
@@ -5612,7 +5612,7 @@ public final class ConvertUtils {
                 file = new File(url.toURI());
             }
             else if (object instanceof String string) {
-                DataValidationUtils.validateFilePathFormat(string, "filePath");
+                DataValidator.filePath(string, "filePath");
                 file = new File(string);
             }
             else {
@@ -5652,7 +5652,7 @@ public final class ConvertUtils {
      * @return The path.
      */
     public static Path objectToPath(Object object) {
-        DataValidationUtils.validateNotNull(object, "object");
+        DataValidator.notNull(object, "object");
 
         try {
             Path path = objectToFile(object).toPath();
@@ -5684,7 +5684,7 @@ public final class ConvertUtils {
      * @return The URI.
      */
     public static URI objectToURI(Object object) {
-        DataValidationUtils.validateNotNull(object, "object");
+        DataValidator.notNull(object, "object");
 
         try {
             URI uri;
@@ -5741,7 +5741,7 @@ public final class ConvertUtils {
      * @return The URL.
      */
     public static URL objectToURL(Object object) {
-        DataValidationUtils.validateNotNull(object, "object");
+        DataValidator.notNull(object, "object");
 
         try {
             URL url = objectToURI(object).toURL();
@@ -5773,8 +5773,8 @@ public final class ConvertUtils {
      * @return The class package name.
      */
     public static String fullClassNameToPackageName(String fullClassName) {
-        DataValidationUtils.validateNotBlank(fullClassName, "fullClassName");
-        DataValidationUtils.validateMatches(fullClassName, FULL_CLASS_NAME_REGEX, "fullClassName");
+        DataValidator.notBlank(fullClassName, "fullClassName");
+        DataValidator.matches(fullClassName, FULL_CLASS_NAME_REGEX, "fullClassName");
 
         String simpleClassName;
         // Extract the simple class name by finding the last '.' in the full class name
@@ -5800,7 +5800,7 @@ public final class ConvertUtils {
      * @return A hex color string in the format "#RRGGBB".
      */
     public static String colorToString(Color color) {
-        DataValidationUtils.validateNotNull(color, "color");
+        DataValidator.notNull(color, "color");
 
         String colorString = String.format(
                 "#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue())
@@ -5821,7 +5821,7 @@ public final class ConvertUtils {
      * @throws IllegalArgumentException if the input string is not a valid hex color.
      */
     public static Color stringToColor(String colorString) {
-        DataValidationUtils.validateColorFormat(colorString, "colorString");
+        DataValidator.colorFormat(colorString, "colorString");
 
         try {
             int red = Integer.parseInt(colorString.substring(1, 3), 16);
@@ -5923,7 +5923,7 @@ public final class ConvertUtils {
      * @return true/false flag.
      */
     public static boolean isXmlArrayString(String string) {
-        DataValidationUtils.validateNotBlank(string, "string");
+        DataValidator.notBlank(string, "string");
         boolean result;
 
         try {
@@ -6087,7 +6087,7 @@ public final class ConvertUtils {
     }
 
     private static <T> Collection<T> jsonArrayToCollection(SmartType type, JSONArray jsonArray) {
-        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
+        DataValidator.notNull(jsonArray, "jsonArray");
 
         try {
             Collection<T> collection;
@@ -6176,7 +6176,7 @@ public final class ConvertUtils {
     }
 
     private static List<String> parseCsvRowString(String csvRow) {
-        DataValidationUtils.validateNotNull(csvRow, "csvRow");
+        DataValidator.notNull(csvRow, "csvRow");
 
         char[] delimiters = {',', ';', '|', ':', '\t'};
         List<String> values = new ArrayList<>();

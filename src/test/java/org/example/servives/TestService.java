@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.data.*;
 import org.example.pages.TargetPage;
 import org.example.pages.WebFormPage;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -31,7 +31,7 @@ public class TestService implements TestServiceInterface {
      */
     @Override
     public WebFormPageOutput fillWebForm(WebFormPageInput input) {
-        DataValidationUtils.validateNotNull(input, "input");
+        DataValidator.notNull(input, "input");
 
         WebFormPage webFormPage = new WebFormPage();
         return webFormPage.fillWebForm(input);

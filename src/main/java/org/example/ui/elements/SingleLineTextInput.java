@@ -1,7 +1,7 @@
 package org.example.ui.elements;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 
 /**
@@ -29,7 +29,7 @@ public abstract class SingleLineTextInput extends BaseTextElement {
      * @param text The text to enter.
      */
     public void enterText(String text) {
-        DataValidationUtils.validateNotMultiline(text, "text");
+        DataValidator.notMultiline(text, "text");
         super.enterText(text);
         // Do not log input text for security purpose
         log.debug("Single line text input {} value is set to", elementName);

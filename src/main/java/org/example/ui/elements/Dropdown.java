@@ -8,7 +8,7 @@ import org.example.interfaces.ReadableObject;
 import org.example.interfaces.WritableObject;
 import org.example.ui.playwright.PlaywrightElement;
 import org.example.ui.wrappers.SmartElement;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -42,7 +42,7 @@ public class Dropdown extends SmartElement implements ReadableObject, WritableOb
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public <T> void setValue(T value) {
-        DataValidationUtils.validateNotNull(value, "value");
+        DataValidator.notNull(value, "value");
         SmartValue smartValue = new SmartValue(value);
 
         try {
@@ -80,8 +80,8 @@ public class Dropdown extends SmartElement implements ReadableObject, WritableOb
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOption(String optionString) {
-        DataValidationUtils.validateNotBlank(optionString, "optionString");
-        DataValidationUtils.validateNotMultiline(optionString, "optionString");
+        DataValidator.notBlank(optionString, "optionString");
+        DataValidator.notMultiline(optionString, "optionString");
         WebElement dropdown = getElement();
 
         try {
@@ -109,8 +109,8 @@ public class Dropdown extends SmartElement implements ReadableObject, WritableOb
      */
     @RunAlone // Run this method when other methods wait to prevent dropdown closing by other thread
     public void selectOptionByValue(String valueString) {
-        DataValidationUtils.validateNotBlank(valueString, "valueString");
-        DataValidationUtils.validateNotMultiline(valueString, "valueString");
+        DataValidator.notBlank(valueString, "valueString");
+        DataValidator.notMultiline(valueString, "valueString");
         WebElement dropdown = getElement();
 
         try {

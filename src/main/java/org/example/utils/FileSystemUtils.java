@@ -28,9 +28,9 @@ public final class FileSystemUtils {
      */
     public static synchronized void createFile(String folderPath, String fileName, String fileContent) {
         try {
-            DataValidationUtils.validateFolderPath(folderPath, "folderPath");
-            DataValidationUtils.validateFilePathFormat(fileName, "fileName");
-            DataValidationUtils.validateNotNull(fileContent, "fileContent");
+            DataValidator.folderPath(folderPath, "folderPath");
+            DataValidator.filePath(fileName, "fileName");
+            DataValidator.notNull(fileContent, "fileContent");
 
             Writer fileWriter = new FileWriter(String.format("%s/%s", folderPath, fileName), false);
             BufferedWriter br = new BufferedWriter(fileWriter);
@@ -50,8 +50,8 @@ public final class FileSystemUtils {
      * @param fileContent The file content.
      */
     public static synchronized void createFile(String filePath, String fileContent) {
-        DataValidationUtils.validateFilePathFormat(filePath, "filePath");
-        DataValidationUtils.validateNotNull(fileContent, "fileContent");
+        DataValidator.filePath(filePath, "filePath");
+        DataValidator.notNull(fileContent, "fileContent");
 
         try {
             File file = new File(filePath);
@@ -69,7 +69,7 @@ public final class FileSystemUtils {
      * @param folderPath The target folder path.
      */
     public static synchronized void createFolder(String folderPath) {
-        DataValidationUtils.validateFolderPath(folderPath, "folderPath");
+        DataValidator.folderPath(folderPath, "folderPath");
 
         try {
             File folder = new File(folderPath);
@@ -93,7 +93,7 @@ public final class FileSystemUtils {
      * @return The file content.
      */
     public static synchronized String readFile(String filePath) {
-        DataValidationUtils.validateFilePathFormat(filePath, "filePath");
+        DataValidator.filePath(filePath, "filePath");
 
         try {
             String fileContent = Files.readString(Paths.get(filePath));
@@ -111,7 +111,7 @@ public final class FileSystemUtils {
      * @param filePath The file path.
      */
     public static synchronized void deleteFile(String filePath) {
-        DataValidationUtils.validateFilePathFormat(filePath, "filePath");
+        DataValidator.filePath(filePath, "filePath");
         try {
             // Validate file path.
             Paths.get(filePath);
@@ -136,7 +136,7 @@ public final class FileSystemUtils {
      * @param folderPath The directory path.
      */
     public static synchronized void deleteFolder(String folderPath) {
-        DataValidationUtils.validateFolderPath(folderPath, "folderPath");
+        DataValidator.folderPath(folderPath, "folderPath");
 
         File directory = new File(folderPath);
         try {
@@ -155,8 +155,8 @@ public final class FileSystemUtils {
      * @param toPath The target path.
      */
     public static synchronized void moveFile(String fromPath, String toPath) {
-        DataValidationUtils.validateFilePathFormat(fromPath, "fromPath");
-        DataValidationUtils.validateFilePathFormat(toPath, "toPath");
+        DataValidator.filePath(fromPath, "fromPath");
+        DataValidator.filePath(toPath, "toPath");
 
         try {
             FileUtils.moveFile(FileUtils.getFile(fromPath), FileUtils.getFile(toPath));
@@ -175,7 +175,7 @@ public final class FileSystemUtils {
      * @return The true/false flag.
      */
     public static boolean fileExists(String filePath) {
-        DataValidationUtils.validateFolderPath(filePath, "filePath");
+        DataValidator.folderPath(filePath, "filePath");
 
         boolean exists = new File(filePath).exists();
         log.debug("File: {} exists: {}", filePath, exists);
@@ -188,7 +188,7 @@ public final class FileSystemUtils {
      * @return The set of file names.
      */
     public static Set<String> getFileNamesInFolder(String folderPath) {
-        DataValidationUtils.validateFolderPath(folderPath, "folderPath");
+        DataValidator.folderPath(folderPath, "folderPath");
         Set<String> fileNames = new HashSet<>();
 
         try {
@@ -227,7 +227,7 @@ public final class FileSystemUtils {
      * @return The file extension, or an empty string if no extension found.
      */
     public static String getFileExtension(String fileName) {
-        DataValidationUtils.validateFilePathFormat(fileName, "fileName");
+        DataValidator.filePath(fileName, "fileName");
 
         String extension = "";
         try {
@@ -254,7 +254,7 @@ public final class FileSystemUtils {
      * @return The file name without extension.
      */
     public static String getFileNameWithoutExtension(String fileName) {
-        DataValidationUtils.validateFilePathFormat(fileName, "fileName");
+        DataValidator.filePath(fileName, "fileName");
 
         try {
             // Check file name format.
@@ -284,7 +284,7 @@ public final class FileSystemUtils {
      * or null otherwise.
      */
     private static String recursivelyFindFileInFolder(String folderPath, String fileName) {
-        DataValidationUtils.validateFolder(folderPath, "folderPath");
+        DataValidator.folderPathExists(folderPath, "folderPath");
         File folder = new File(folderPath);
         File[] files = folder.listFiles();
         String filePath = null;
@@ -340,7 +340,7 @@ public final class FileSystemUtils {
      * @return The normalized file path.
      */
     public static String normalizeFilePathString(String filePath) {
-        DataValidationUtils.validateNotNull(filePath, "filePath");
+        DataValidator.notNull(filePath, "filePath");
 
         // Recursively searches for the file in the current folder
         // if file path contains "fakepath" substring - workaround for RemoteWebDriver

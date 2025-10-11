@@ -37,7 +37,7 @@ public final class ImageUtils {
      * @return The buffered image.
      */
     public static BufferedImage readBufferImageFromFile(String imageFilePath) {
-        DataValidationUtils.validateFilePathFormat(imageFilePath, "imageFilePath");
+        DataValidator.filePath(imageFilePath, "imageFilePath");
         BufferedImage image = null;
 
         try {
@@ -63,7 +63,7 @@ public final class ImageUtils {
      * @return The buffed image.
      */
     public static BufferedImage getWebElementBufferedImage(WebElement element) {
-        DataValidationUtils.validateNotNull(element, "element");
+        DataValidator.notNull(element, "element");
 
         try {
             // Capture the screenshot of the WebElement as a byte array
@@ -100,11 +100,11 @@ public final class ImageUtils {
             int colorsThreshold,
             int pixelsThreshold,
             int sizeThresholdPixels) {
-        DataValidationUtils.validateRange(colorsThreshold,
+        DataValidator.range(colorsThreshold,
                 MIN_COLOURS_THRESHOLD_PERCENTAGE, 100, "colorsThreshold");
-        DataValidationUtils.validateRange(pixelsThreshold,
+        DataValidator.range(pixelsThreshold,
                 MIN_PIXELS_THRESHOLD_PERCENTAGE, 100, "pixelsThreshold");
-        DataValidationUtils.validateRange(sizeThresholdPixels,
+        DataValidator.range(sizeThresholdPixels,
                 0, MAX_SIZE_THRESHOLD_PIXELS, "sizeThresholdPixels");
 
         WebDriver driver = WebDriverFactory.getDriver();
@@ -165,8 +165,8 @@ public final class ImageUtils {
      */
     public static BufferedImage createDummyImage(int width, int height) {
         try {
-            DataValidationUtils.validateRange(width, 0, 1000, "width");
-            DataValidationUtils.validateRange(height, 0, 1000, "height");
+            DataValidator.range(width, 0, 1000, "width");
+            DataValidator.range(height, 0, 1000, "height");
 
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = image.createGraphics();
@@ -206,11 +206,11 @@ public final class ImageUtils {
     public static boolean compareImages(BufferedImage expectedImage, BufferedImage actualImage,
                                         int colorsThreshold, int pointsThreshold) {
 
-        DataValidationUtils.validateNotNull(expectedImage, "expectedImage");
-        DataValidationUtils.validateNotNull(actualImage, "actualImage");
-        DataValidationUtils.validateRange(colorsThreshold,
+        DataValidator.notNull(expectedImage, "expectedImage");
+        DataValidator.notNull(actualImage, "actualImage");
+        DataValidator.range(colorsThreshold,
                 MIN_COLOURS_THRESHOLD_PERCENTAGE, 100, "colorsThreshold");
-        DataValidationUtils.validateRange(pointsThreshold,
+        DataValidator.range(pointsThreshold,
                 MIN_PIXELS_THRESHOLD_PERCENTAGE, 100, "pointsThreshold");
 
         if (expectedImage.getWidth() != actualImage.getWidth() ||
@@ -265,9 +265,9 @@ public final class ImageUtils {
      * @return The target buffered image.
      */
     public static BufferedImage scaleImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
-        DataValidationUtils.validateNotNull(originalImage, "originalImage");
-        DataValidationUtils.validateRange(targetWidth, 0, MAX_SCREEN_WIDTH, "targetWidth");
-        DataValidationUtils.validateRange(targetHeight, 0, MAX_SCREEN_HEIGHT, "targetHeight");
+        DataValidator.notNull(originalImage, "originalImage");
+        DataValidator.range(targetWidth, 0, MAX_SCREEN_WIDTH, "targetWidth");
+        DataValidator.range(targetHeight, 0, MAX_SCREEN_HEIGHT, "targetHeight");
 
         if (originalImage.getHeight() == targetHeight && originalImage.getWidth() == targetWidth) {
             return originalImage;
@@ -296,8 +296,8 @@ public final class ImageUtils {
      * @param imageFilePath The image file path.
      */
     public static void saveBufferedImageToPngFile(BufferedImage bufferedImage, String imageFilePath) {
-        DataValidationUtils.validateNotNull(bufferedImage, "bufferedImage");
-        DataValidationUtils.validateFilePathFormat(imageFilePath, "imageFilePath");
+        DataValidator.notNull(bufferedImage, "bufferedImage");
+        DataValidator.filePath(imageFilePath, "imageFilePath");
 
         try {
             File imageFile = new File(imageFilePath);

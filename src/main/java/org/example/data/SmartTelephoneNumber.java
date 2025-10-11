@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.CompareUtils;
 import org.example.utils.ConvertUtils;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 
 import java.util.Objects;
 
@@ -29,7 +29,7 @@ public final class SmartTelephoneNumber extends SmartObject implements Formatted
      * @return The smart number.
      */
     public static SmartTelephoneNumber fromString(String phoneNumberString) {
-        DataValidationUtils.validateNotBlank(phoneNumberString, "phoneNumberString");
+        DataValidator.notBlank(phoneNumberString, "phoneNumberString");
 
         try {
             Number phoneNumber = ConvertUtils.phoneNumberStingToNumber(phoneNumberString);
@@ -60,11 +60,11 @@ public final class SmartTelephoneNumber extends SmartObject implements Formatted
      * @return The smart number.
      */
     public static SmartTelephoneNumber fromNumber(Number phoneNumber) {
-        DataValidationUtils.validateNotNull(phoneNumber, "phoneNumber");
+        DataValidator.notNull(phoneNumber, "phoneNumber");
         // The minimal 6 digits phone number
-        DataValidationUtils.validateMin(phoneNumber, MIN_PHONE_NUMBER, "phoneNumber");
+        DataValidator.min(phoneNumber, MIN_PHONE_NUMBER, "phoneNumber");
         // The maximal 15 digits phone number with extension to 5 digits
-        DataValidationUtils.validateMax(phoneNumber, MAX_PHONE_NUMBER, "phoneNumber");
+        DataValidator.max(phoneNumber, MAX_PHONE_NUMBER, "phoneNumber");
 
         try {
             String numberString = String.valueOf(phoneNumber);

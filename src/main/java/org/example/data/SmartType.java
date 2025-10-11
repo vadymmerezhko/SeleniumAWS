@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.utils.ConvertUtils;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -60,7 +60,7 @@ public final class SmartType extends SmartObject {
      * @param <T> The object type.
      */
     public static <T> SmartType fromClass(Class<T> objectClass) {
-        DataValidationUtils.validateNotNull(objectClass, "objectClass");
+        DataValidator.notNull(objectClass, "objectClass");
 
         SmartType smartType = new SmartType(objectClass);
         log.debug("""
@@ -81,8 +81,8 @@ public final class SmartType extends SmartObject {
      * @param <T> The object type.
      */
     public static <T> SmartType fromCollectionClass(Class<T> collectionClass, SmartType valueSmartType) {
-        DataValidationUtils.validateNotNull(collectionClass, "collectionClass");
-        DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
+        DataValidator.notNull(collectionClass, "collectionClass");
+        DataValidator.notNull(valueSmartType, "valueSmartType");
 
         SmartType smartType = new SmartType(collectionClass, valueSmartType);
         log.debug("""
@@ -107,8 +107,8 @@ public final class SmartType extends SmartObject {
      * @param <T> The object type.
      */
     public static <T,K> SmartType fromMapClass(Class<T> mapClass, Class<K> keyClass, SmartType valueSmartType) {
-        DataValidationUtils.validateNotNull(mapClass, "collectionClass");
-        DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
+        DataValidator.notNull(mapClass, "collectionClass");
+        DataValidator.notNull(valueSmartType, "valueSmartType");
 
         SmartType smartType = new SmartType(mapClass, keyClass, valueSmartType);
         log.debug("""
@@ -130,7 +130,7 @@ public final class SmartType extends SmartObject {
      * @return The smart type.
      */
     public static SmartType fromArrayValueSmartType(SmartType valueSmartType) {
-        DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
+        DataValidator.notNull(valueSmartType, "valueSmartType");
 
         SmartType smartType = new SmartType(Object.class, valueSmartType);
         smartType.isArray = true;
@@ -152,8 +152,8 @@ public final class SmartType extends SmartObject {
      * @param <T> The object type.
      */
     public static <T> SmartType fromPojoClass(Class<T> pojoClass, Map<String, SmartType> fieldsMap) {
-        DataValidationUtils.validateNotNull(pojoClass, "pojoClass");
-        DataValidationUtils.validateNotNull(fieldsMap, "fieldsMap");
+        DataValidator.notNull(pojoClass, "pojoClass");
+        DataValidator.notNull(fieldsMap, "fieldsMap");
 
         SmartType smartType = new SmartType(pojoClass, fieldsMap);
         log.debug("""
@@ -176,7 +176,7 @@ public final class SmartType extends SmartObject {
      * @param <T> The object type.
      */
     public static <T> SmartType fromEnumClass(Class<T> enumClass) {
-        DataValidationUtils.validateNotNull(enumClass, "enumClass");
+        DataValidator.notNull(enumClass, "enumClass");
 
         SmartType smartType = new SmartType(enumClass);
         log.debug("""
@@ -303,7 +303,7 @@ public final class SmartType extends SmartObject {
      * @param objectClass The object type.
      */
     private SmartType(Class<?> objectClass) {
-        DataValidationUtils.validateNotNull(objectClass, "objectClass");
+        DataValidator.notNull(objectClass, "objectClass");
 
         if (objectClass == JSONObject.NULL.getClass()) {
             objectClass = Null.class;
@@ -323,8 +323,8 @@ public final class SmartType extends SmartObject {
      * @param valueSmartType The value type.
      */
     private SmartType(Class<?> objectClass, SmartType valueSmartType) {
-        DataValidationUtils.validateNotNull(objectClass, "objectClass");
-        DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
+        DataValidator.notNull(objectClass, "objectClass");
+        DataValidator.notNull(valueSmartType, "valueSmartType");
 
         this.objectClass = objectClass;
         this.valueSmartType = valueSmartType;
@@ -344,9 +344,9 @@ public final class SmartType extends SmartObject {
      * @param valueSmartType The value type.
      */
    private SmartType(Class<?> objectClass, Class<?> keyClass, SmartType valueSmartType) {
-       DataValidationUtils.validateNotNull(objectClass, "objectClass");
-       DataValidationUtils.validateNotNull(keyClass, "keyClass");
-       DataValidationUtils.validateNotNull(valueSmartType, "valueSmartType");
+       DataValidator.notNull(objectClass, "objectClass");
+       DataValidator.notNull(keyClass, "keyClass");
+       DataValidator.notNull(valueSmartType, "valueSmartType");
 
         this.objectClass = objectClass;
         this.keyClass = keyClass;
@@ -367,8 +367,8 @@ public final class SmartType extends SmartObject {
      * @param fieldTypesMap The field types.
      */
     private SmartType(Class<?> pojoClass, Map<String, SmartType> fieldTypesMap) {
-        DataValidationUtils.validateNotNull(pojoClass, "pojoClass");
-        DataValidationUtils.validateNotNull(fieldTypesMap, "fieldTypesMap");
+        DataValidator.notNull(pojoClass, "pojoClass");
+        DataValidator.notNull(fieldTypesMap, "fieldTypesMap");
 
         this.objectClass = pojoClass;
         this.fieldTypesMap = fieldTypesMap;
@@ -393,7 +393,7 @@ public final class SmartType extends SmartObject {
     }
 
     private static <T> SmartType fromCollection(Collection<T> collection) {
-        DataValidationUtils.validateNotNull(collection, "collection");
+        DataValidator.notNull(collection, "collection");
 
         SmartType valueSmartType = getCollectionValueSmartType(collection);
         SmartType collectionSmartType = fromCollectionClass(collection.getClass(), valueSmartType);
@@ -408,7 +408,7 @@ public final class SmartType extends SmartObject {
     }
 
     private static <K,V> SmartType fromMap(Map<K, V> map) {
-        DataValidationUtils.validateNotNull(map, "map");
+        DataValidator.notNull(map, "map");
 
         Class<?> objectClass = map.getClass();
         Class<K> keyClass = getMapKeyClass(map);
@@ -425,7 +425,7 @@ public final class SmartType extends SmartObject {
     }
 
     private static <T> SmartType fromArray(T[] array) {
-        DataValidationUtils.validateNotNull(array, "array");
+        DataValidator.notNull(array, "array");
 
         SmartType valueSmartType = getArrayValueSmartType(array);
         SmartType arraySmartType = fromArrayValueSmartType(valueSmartType);
@@ -551,7 +551,7 @@ public final class SmartType extends SmartObject {
      * @param <T> The value type.
      */
     public static <T,K> SmartType getCollectionValueSmartType(Collection<T> collection) {
-        DataValidationUtils.validateNotNull(collection, "collection");
+        DataValidator.notNull(collection, "collection");
         SmartType valueType = null;
         List<T> list = new ArrayList<>(collection);
         Object element;
@@ -610,7 +610,7 @@ public final class SmartType extends SmartObject {
      * @return The smart type.
      */
     public static SmartType getJsonArrayValueSmartType(JSONArray jsonArray) {
-        DataValidationUtils.validateNotNull(jsonArray, "jsonArray");
+        DataValidator.notNull(jsonArray, "jsonArray");
         SmartType valueType = null;
         Object element;
 
@@ -670,7 +670,7 @@ public final class SmartType extends SmartObject {
      * @param <T> The arrays type.
      */
     public static <T> SmartType getArrayValueSmartType(T[] array) {
-        DataValidationUtils.validateNotNull(array, "array");
+        DataValidator.notNull(array, "array");
         List<T> list = Arrays.asList(array);
         SmartType valueType = getCollectionValueSmartType(list);
         log.debug("""
@@ -692,7 +692,7 @@ public final class SmartType extends SmartObject {
      * @param <V> The value type.
      */
     public static <K,V>  Class<K> getMapKeyClass(Map<K,V> map) {
-        DataValidationUtils.validateNotNull(map, "map");
+        DataValidator.notNull(map, "map");
         SmartType keyType = getCollectionValueSmartType(map.keySet());
         Class<K> keyClass = (Class<K>) keyType.getObjectClass();
         log.debug("""
@@ -715,7 +715,7 @@ public final class SmartType extends SmartObject {
      * @param <V> The value type.
      */
     public static <K,V> SmartType getMapValueSmartType(Map<K,V> map) {
-        DataValidationUtils.validateNotNull(map, "map");
+        DataValidator.notNull(map, "map");
 
         SmartType valueType = getCollectionValueSmartType(map.values());
         log.debug("""
@@ -738,7 +738,7 @@ public final class SmartType extends SmartObject {
      * @param <V> The value type.
      */
     public static <V> SmartType getJsonObjectValueSmartType(JSONObject jsonObject) {
-        DataValidationUtils.validateNotNull(jsonObject, "jsonObject");
+        DataValidator.notNull(jsonObject, "jsonObject");
 
         Map<String, V> map = ConvertUtils.objectToMap(jsonObject);
         SmartType valueType = getCollectionValueSmartType(map.values());

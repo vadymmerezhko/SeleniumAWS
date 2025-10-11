@@ -3,7 +3,7 @@ package org.example.ui.selectors;
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.SmartValue;
 import org.example.exceptions.SmartRuntimeException;
-import org.example.utils.DataValidationUtils;
+import org.example.utils.DataValidator;
 import org.example.utils.WebUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
@@ -43,7 +43,7 @@ public class SmartBy extends By {
      * @return The smart By selector.
      */
     public static SmartBy selector(By nativeBy) {
-        DataValidationUtils.validateNotNull(nativeBy, "nativeBy");
+        DataValidator.notNull(nativeBy, "nativeBy");
 
         SmartBy smartBy = new SmartBy(nativeBy);
         log.debug("Smart By selector is created by native selector By:\n{}", smartBy);
@@ -57,7 +57,7 @@ public class SmartBy extends By {
      * @return The smart By selector.
      */
     public static SmartBy keyword(Object keyword) {
-        DataValidationUtils.validateNotNull(keyword, "keyword");
+        DataValidator.notNull(keyword, "keyword");
 
         String selctorString = String.format("//*[contains(text(),'%s')]", keyword);
         SmartBy smartBy = new SmartBy(By.xpath(selctorString));
@@ -73,7 +73,7 @@ public class SmartBy extends By {
      * @return The smart By selector.
      */
     public static SmartBy strictKeyword(Object keyword) {
-        DataValidationUtils.validateNotNull(keyword, "keyword");
+        DataValidator.notNull(keyword, "keyword");
 
         String selctorString = String.format("//*[text()='%s']", keyword);
         SmartBy smartBy = new SmartBy(By.xpath(selctorString));
@@ -98,7 +98,7 @@ public class SmartBy extends By {
      * @return The selector.
      */
     public static SmartBy image(String imageFilePath) {
-        DataValidationUtils.validateFilePathFormat(imageFilePath, "imageFilePath");
+        DataValidator.filePath(imageFilePath, "imageFilePath");
 
         // Use selector by link text for PNG image files
         SmartBy smartBy = new SmartBy(By.linkText(imageFilePath));
@@ -121,7 +121,7 @@ public class SmartBy extends By {
      */
     SmartBy(SmartByType type, By by) {
         super();
-        DataValidationUtils.validateNotNull(type, "smartByType");
+        DataValidator.notNull(type, "smartByType");
         this.type = type;
         setBy(by);
         log.debug("Smart By selector is created by native By selector: {}", by);
@@ -161,7 +161,7 @@ public class SmartBy extends By {
      * @param by The By selector.
      */
     public void setBy(By by) {
-        DataValidationUtils.validateNotNull(by, "nativeBy");
+        DataValidator.notNull(by, "nativeBy");
         this.by = by;
         log.debug("Smart By native By selector is set: {}", by);
     }
@@ -273,7 +273,7 @@ public class SmartBy extends By {
     @Override
     public List<WebElement> findElements(SearchContext context) {
         setUp();
-        DataValidationUtils.validateNotNull(by, "nativeBy");
+        DataValidator.notNull(by, "nativeBy");
         List<WebElement> elements =  by.findElements(context);
         log.debug("Web elements found by smart By selector:\n{}", elements);
         return elements;
