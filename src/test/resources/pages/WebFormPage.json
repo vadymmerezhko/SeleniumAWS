@@ -13,5 +13,5 @@
     "color": "css=input[name='my-colors']",
     "deliveryDate": "css=input[name='my-date']",
     "weight": "css=input[name='my-range']",
-    "submit": "image=src/test/resources/images/WebFormPage.submitButton.png"
+    "submitButton": "image=src/test/resources/images/WebFormPage.submitButton.png"
 }

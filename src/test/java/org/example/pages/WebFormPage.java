@@ -1,6 +1,5 @@
 package org.example.pages;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.WebFormPageInput;
 import org.example.data.WebFormPageOutput;
@@ -15,7 +14,8 @@ import java.time.LocalDate;
 /**
  * Web form class.
  */
-@Getter @Slf4j
+@Slf4j
+@SuppressWarnings("unused")
 public class WebFormPage extends SmartPage {
     private final TextInput productName = new TextInput();
     private final PasswordInput password = new PasswordInput();
@@ -30,28 +30,26 @@ public class WebFormPage extends SmartPage {
     private final ColorInput color = new ColorInput();
     private final DateInput deliveryDate = new DateInput();
     private final RangeSlider weight = new RangeSlider();
-    private final Button submit = new Button();
+    private final Button submitButton = new Button();
 
     public WebFormPageOutput fillWebForm(WebFormPageInput input) {
         DataValidator.notNull(input, "input");
 
         try {
-            WebFormPage webFormPage = new WebFormPage();
             int thisYear = LocalDate.now().getYear();
             String descriptionKeyword = "my-textarea";
 
-            webFormPage.open();
-            log.info("Web Form page URL: {}", webFormPage.getCurrentUrl());
+            open();
+            log.info("Web Form page URL: {}", getCurrentUrl());
 
-            webFormPage.getPassword().enterText("Password123");
-            webFormPage.getDescription().setKeyword(descriptionKeyword);
+            password.enterText("Password123");
+            description.setKeyword(descriptionKeyword);
             input.getDeliveryDate().setKeyword(thisYear);
-            webFormPage.setAllInputs(input);
+            setAllInputs(input);
 
             WebFormPageOutput output = new WebFormPageOutput();
             output.getDeliveryDate().setKeyword(thisYear);
-            webFormPage.setAllOutputs(output);
-
+            setAllOutputs(output);
             log.debug("Web Form page output data is returned: {}", output);
             return output;
         }
@@ -62,10 +60,7 @@ public class WebFormPage extends SmartPage {
 
     public void submitWebForm() {
         try {
-            WebFormPage webFormPage = new WebFormPage();
-            Button submitButton =  webFormPage.getSubmit();
             submitButton.click();
-
             log.debug("Web Form page is submitted");
         }
         catch (Exception e) {

@@ -1,13 +1,13 @@
 package org.example.pages;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.TargetPageOutput;
 import org.example.exceptions.SmartRuntimeException;
 import org.example.ui.elements.Field;
 import org.example.ui.pages.SmartPage;
 
-@Getter @Slf4j
+@Slf4j
+@SuppressWarnings("unused")
 public class TargetPage extends SmartPage {
 
     private final Field header = new Field();
@@ -15,9 +15,8 @@ public class TargetPage extends SmartPage {
 
     public TargetPageOutput getOutputData() {
         try {
-            TargetPage targetPage = new TargetPage();
             TargetPageOutput output = new TargetPageOutput();
-            targetPage.setAllOutputs(output);
+            setAllOutputs(output);
 
             log.debug("Target page output data is returned: {}", output);
             return output;
