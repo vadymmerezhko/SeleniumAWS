@@ -2,12 +2,10 @@ package org.example.servives;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.data.*;
-import org.example.ui.elements.Button;
-import org.example.exceptions.SmartRuntimeException;
 import org.example.pages.TargetPage;
 import org.example.pages.WebFormPage;
+import org.example.utils.DataValidationUtils;
 
-import java.time.LocalDate;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -33,29 +31,10 @@ public class TestService implements TestServiceInterface {
      */
     @Override
     public WebFormPageOutput fillWebForm(WebFormPageInput input) {
-        try {
-            WebFormPage webFormPage = new WebFormPage();
-            int thisYear = LocalDate.now().getYear();
-            String descriptionKeyword = "my-textarea";
+        DataValidationUtils.validateNotNull(input, "input");
 
-            webFormPage.open();
-            log.info("Web Form page URL: {}", webFormPage.getCurrentUrl());
-
-            webFormPage.getPassword().enterText("Password123");
-            webFormPage.getDescription().setKeyword(descriptionKeyword);
-            input.getDeliveryDate().setKeyword(thisYear);
-            webFormPage.setAllInputs(input);
-
-            WebFormPageOutput output = new WebFormPageOutput();
-            output.getDeliveryDate().setKeyword(thisYear);
-            webFormPage.setAllOutputs(output);
-
-            log.debug("Web Form page output data is returned: {}", output);
-            return output;
-        }
-        catch (Exception e) {
-            throw new SmartRuntimeException("Filling the Web Form failed.", e);
-        }
+        WebFormPage webFormPage = new WebFormPage();
+        return webFormPage.fillWebForm(input);
     }
 
     /**
@@ -65,14 +44,9 @@ public class TestService implements TestServiceInterface {
     @Override
     public TargetPageOutput submitWebForm() {
         WebFormPage webFormPage = new WebFormPage();
-        Button submitButton =  webFormPage.getSubmit();
-        submitButton.click();
+        webFormPage.submitWebForm();
 
         TargetPage targetPage = new TargetPage();
-        TargetPageOutput output = new TargetPageOutput();
-        targetPage.setAllOutputs(output);
-
-        log.debug("Target page output data is returned: {}", output);
-        return output;
+        return  targetPage.getOutputData();
     }
 }
