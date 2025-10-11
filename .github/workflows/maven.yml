@@ -56,10 +56,6 @@ jobs:
       #- name: Test - AWS Local Docker - Chrome latest
       #  run: mvn -f aws-local-pom.xml clean compile exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
 
-      - name: Login Test - Local Docker - Linux Chrome latest
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngStandardUserLogin.xml"
-        continue-on-error: false
-
       - name: Web Form Test - Local Docker - Linux Chrome latest
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml"
         continue-on-error: true
@@ -67,6 +63,10 @@ jobs:
       - name: Web Form Test (failed to record video and get screenshot)
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" " "-Dhighlight=true" "-DdebugFail=true" "-DscreenshotOnFail=true" "-DvideoOnFail=true"
         continue-on-error: true
+
+      - name: Login Test - Local Docker - Linux Chrome latest
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngStandardUserLogin.xml"
+        continue-on-error: false
 
       - name: Upload Test Report - Local Docker - Linux Chrome latest
         uses: actions/upload-artifact@v4
