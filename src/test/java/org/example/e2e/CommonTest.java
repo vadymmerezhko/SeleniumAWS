@@ -27,8 +27,8 @@ public class CommonTest extends BaseTest {
     private void fillWebForm(WebFormPageInput input) {
         Reporter.log("<b>fillWebForm test execution started.</b>");
 
-        TestServiceInterface testServer = TestServiceManager.getTestServer();
-        WebFormPageOutput actual = testServer.fillWebForm(input);
+        TestServiceInterface testService = TestServiceManager.getService();
+        WebFormPageOutput actual = testService.fillWebForm(input);
         WebFormPageOutput expected = new WebFormPageOutput();
         expected.getDeliveryDate().setKeyword(input.getDeliveryDate().getKeyword());
 
@@ -39,8 +39,8 @@ public class CommonTest extends BaseTest {
     protected void submitWebForm() {
         Reporter.log("<b>submitWebForm test execution started.</b>");
 
-        TestServiceInterface testServer = TestServiceManager.getTestServer();
-        TargetPageOutput actual = testServer.submitWebForm();
+        TestServiceInterface testService = TestServiceManager.getService();
+        TargetPageOutput actual = testService.submitWebForm();
         TargetPageOutput expected = new TargetPageOutput();
 
         SmartAssert.assertData(expected, actual);

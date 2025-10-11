@@ -11,7 +11,7 @@ public class TestServiceManager {
      * Test server specific is defined in the Config file.
      * @return Test server instance.
      */
-    public static synchronized TestServiceInterface getTestServer() {
+    public static synchronized TestServiceInterface getService() {
         return new TestService();
     }
 }
