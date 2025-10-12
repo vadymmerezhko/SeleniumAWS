@@ -4,8 +4,6 @@ import com.amazonaws.regions.Regions;
 import com.smarte2e.configs.Config;
 import com.smarte2e.utils.FileSystemUtils;
 
-import java.awt.*;
-
 
 /**
  * The setting constants.
@@ -20,8 +18,8 @@ public class Settings {
     public static final int MIN_COLOURS_THRESHOLD_PERCENTAGE = 70;
     public static final int MIN_PIXELS_THRESHOLD_PERCENTAGE = 70;
     public static final int MAX_SIZE_THRESHOLD_PIXELS = 3;
-    public static final int MAX_SCREEN_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width;
-    public static final int MAX_SCREEN_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height;
+    public static final int MAX_SCREEN_WIDTH = Config.getInstance().getBrowseWidth();
+    public static final int MAX_SCREEN_HEIGHT = Config.getInstance().getBrowseHeight();
     public static final int RETRY_WAIT_MILLISECONDS = Config.getInstance().getRetryWaitMSec();
     public static final int RETRY_TIMEOUT_MILLISECONDS = Config.getInstance().getRetryTimeoutSec();
     public static final int WAIT_ELEMENT_CHANGING_MILLISECONDS = 20;
