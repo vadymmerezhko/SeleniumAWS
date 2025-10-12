@@ -46,12 +46,17 @@ public class Config extends BaseConfig {
     private static final String PIXELS_THRESHOLD = "pointsThreshold";
     private static final String SIZE_THRESHOLD = "sizeThreshold";
 
+    private static Config config;
+
     /**
      * Creates config instance.
      * @return The test config instance.
      */
     public static Config getInstance() {
-        return new Config(CONFIG_PROPERTIES_FILE_PATH);
+        if (config == null) {
+            config = new  Config(CONFIG_PROPERTIES_FILE_PATH);
+        }
+        return config;
     }
 
     /**

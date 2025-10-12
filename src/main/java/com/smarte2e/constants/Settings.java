@@ -80,7 +80,7 @@ public class Settings {
     public static final String AWS_DEVICE_FARM_BROWSERS_ARM =
             "arn:aws:devicefarm:us-west-2:535905549021:testgrid-project:4b3efa9e-934a-4530-ad16-73ea5a12e7df";
     public static final String TEST_REPORTS_AWS_BUCKET_NAME = "selenium-aws-test-bucket";
-    public static final String CONFIG_PROPERTIES_FILE_PATH = "config.properties";
+    public static final String CONFIG_PROPERTIES_FILE_PATH = "./config.properties";
     static public final String TEST_REPORT_ZIP_FILE_NAME_TEMPLATE = "test_report_%s.zip";
     static public final String TEST_REPORT_LOG_FILE_NAME_TEMPLATE = "test_output_%s.log";
     static public final String NO_FAILURES = "Failures: 0, Errors: 0";
