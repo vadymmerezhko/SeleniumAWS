@@ -42,15 +42,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # TODO: Fix web element tests on GitHub
-      #- name: Unit Tests
-      #  run: mvn test "-DtestSuite=./src/test/resources/testngUnitTests.xml"
-      #  continue-on-error: false
+      - name: Unit Tests
+        run: mvn test "-DtestSuite=./src/test/resources/testngUnitTests.xml"
 
       # TODO: Fix web element tests
       #- name: Web Element Unit Tests
       #  run: mvn test "-DtestSuite=./src/test/resources/testngWebElementSUnitTests.xml"
-      #  continue-on-error: false
 
       # TODO: Uncomment when Maven exec plugin vulnerability is fixed.
       #- name: Test - AWS Local Docker - Chrome latest
@@ -59,7 +56,6 @@ jobs:
       # TODO: Uncomment when Login test is fixed in GitHub Actions CI.
       # - name: Login Test - Local Docker - Linux Chrome latest
       #  run: mvn clean test "-DtestSuite=./src/test/resources/testngStandardUserLogin.xml" "-Dheadless=true"
-      #  continue-on-error: false
 
       - name: Web Form Test - Local Docker - Linux Chrome latest
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-Dheadless=true"
