@@ -135,7 +135,7 @@ public abstract class SmartAssert {
                     assertXmlNode(expectedNode, (Node) actualValueObject, strictOrder);
                 }
                 else {
-                    Assert.assertEquals(expectedValue, actualValue, expectedName);
+                    Assert.assertEquals(actualValue, expectedValue, expectedName);
                     log.debug("""
                             Smart assert of the expected and actual smart types passed OK.
                             Strict type: {}

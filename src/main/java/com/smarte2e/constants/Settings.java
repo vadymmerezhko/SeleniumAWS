@@ -11,7 +11,7 @@ import com.smarte2e.utils.FileSystemUtils;
 public class Settings {
     public static final Regions AWS_REGION = Regions.US_WEST_1;
     public static final int SELENIUM_SERVERS_COUNT = 1;
-    public static int TEST_RETRY_LIMIT = 3;
+    public static int TEST_RETRY_LIMIT = 2;
     public static final int AWS_URL_EXPIRES_SECONDS = 60 * 15;
     public static final int REMOTE_WEB_DRIVER_PORT = 4444;
     public static final int SERVER_WAIT_TIMEOUT_SECONDS = 120;
