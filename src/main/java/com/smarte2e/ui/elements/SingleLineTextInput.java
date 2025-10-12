@@ -8,7 +8,7 @@ import org.openqa.selenium.By;
  * The single line text input element class.
  */
 @Slf4j
-public abstract class SingleLineTextInput extends BaseTextElement {
+public abstract class SingleLineTextInput extends BaseInputElement {
 
     /**
      * The single line text input constructor with auto selector.

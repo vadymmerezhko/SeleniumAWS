@@ -31,15 +31,15 @@ public class Field extends SmartElement implements ReadableObject {
      * @return The value or text.
      */
     public String getStringValue() {
-        String value;
+        String value = null;
 
         try {
             value = getValueDomProperty();
         }
         catch (Exception e) {
-            value = getText();
+            // Ignore exception
         }
-        if (value == null) {
+        if (value == null || value.equals("null")) {
             value = getText();
         }
         log.debug("{} field value or text is returned: {}", elementName, value);

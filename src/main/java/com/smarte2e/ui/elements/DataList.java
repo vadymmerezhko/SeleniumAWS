@@ -14,7 +14,7 @@ import org.openqa.selenium.WebElement;
  * The data list element class.
  */
 @Slf4j
-public class DataList extends BaseTextElement implements ReadableObject, WritableObject {
+public class DataList extends BaseInputElement implements ReadableObject, WritableObject {
 
     /**
      * The data list element constructor with auto selector.

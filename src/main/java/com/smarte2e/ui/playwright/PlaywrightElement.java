@@ -180,7 +180,16 @@ public class PlaywrightElement extends BaseSmartWebElement {
      */
     @Override
     public String getText() {
-        String text = locator.innerText();
+        String text = null;
+        try {
+            text = locator.innerText();
+        }
+        catch (Exception e) {
+            // Ignore exception.
+        }
+        if (text == null || text.equals("")) {
+            text = locator.textContent();
+        }
         log.debug("{} getText(): {}", locator, text);
         return text;
     }

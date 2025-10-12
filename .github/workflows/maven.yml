@@ -63,7 +63,6 @@ jobs:
 
       - name: Web Form Test - Local Docker - Linux Chrome latest
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-Dheadless=true"
-        continue-on-error: true
 
       - name: Web Form Test (failed to record video and get screenshot)
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" " "-Dheadless=true" "-Dhighlight=true" "-DdebugFail=true" "-DscreenshotOnFail=true" "-DvideoOnFail=true"
@@ -87,9 +86,8 @@ jobs:
       #- name: Test - Local Auto - Linux Chrome
       #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_auto" "-Dbrowser=chrome:stable"
 
-      # TODO: Fix local Playwright Firefox.
-      #- name: Test - Local Playwright - Linux Firefox
-      #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_playwright" "-Dbrowser=firefox"
+      - name: Test - Local Playwright - Linux Firefox
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DtestMode=local_playwright" "-Dbrowser=firefox"
 
       # TODO: Fix AWS Device Farm Windows Edge.
       #- name: Test - AWS Device Farm - Windows Edge
@@ -99,6 +97,5 @@ jobs:
       #- name: Test - AWS Remote Docker - Linux Chrome
       #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
 
-      # TODO: Fix Local Playwright Accessibility Test
-      #- name: Test - Local Playwright Accessibility Test - Chromium
-      #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_accessibility"
+      - name: Test - Local Playwright Accessibility Test - Chromium
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_accessibility"

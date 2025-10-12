@@ -17,19 +17,19 @@ import static com.smarte2e.constants.Settings.WAIT_ELEMENT_TIMEOUT_SECONDS;
  * Base text element class.
  */
 @Slf4j
-public abstract class BaseTextElement extends SmartElement implements WebElement, ReadableObject, WritableObject {
+public abstract class BaseInputElement extends SmartElement implements WebElement, ReadableObject, WritableObject {
 
     /**
      * Base text element constructor.
      */
-    public BaseTextElement() {
+    public BaseInputElement() {
     }
 
     /**
      * Base text element constructor by its selector.
      * @param by The element selector.
      */
-    public BaseTextElement(By by) {
+    public BaseInputElement(By by) {
         super(by);
     }
 
