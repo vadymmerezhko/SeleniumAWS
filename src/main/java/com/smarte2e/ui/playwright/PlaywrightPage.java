@@ -243,6 +243,11 @@ public class PlaywrightPage implements Page {
         page.offWorker(handler);
     }
 
+    @Override
+    public Clock clock() {
+        return page.clock();
+    }
+
 
     @Override
     public void addInitScript(String script) {
@@ -465,6 +470,11 @@ public class PlaywrightPage implements Page {
     }
 
     @Override
+    public void requestGC() {
+        page.requestGC();
+    }
+
+    @Override
     public Response navigate(String url, NavigateOptions options) {
         return page.navigate(url, options);
     }
@@ -580,6 +590,16 @@ public class PlaywrightPage implements Page {
     }
 
     @Override
+    public void addLocatorHandler(Locator locator, Consumer<Locator> handler, AddLocatorHandlerOptions options) {
+        page.addLocatorHandler(locator, handler, options);
+    }
+
+    @Override
+    public void removeLocatorHandler(Locator locator) {
+        page.removeLocatorHandler(locator);
+    }
+
+    @Override
     public Response reload(ReloadOptions options) {
         return page.reload(options);
     }
@@ -607,6 +627,21 @@ public class PlaywrightPage implements Page {
     @Override
     public void routeFromHAR(Path har, RouteFromHAROptions options) {
         page.routeFromHAR(har, options);
+    }
+
+    @Override
+    public void routeWebSocket(String url, Consumer<WebSocketRoute> handler) {
+        page.routeWebSocket(url, handler);
+    }
+
+    @Override
+    public void routeWebSocket(Pattern url, Consumer<WebSocketRoute> handler) {
+        page.routeWebSocket(url, handler);
+    }
+
+    @Override
+    public void routeWebSocket(Predicate<String> url, Consumer<WebSocketRoute> handler) {
+        page.routeWebSocket(url, handler);
     }
 
     @Override
@@ -722,6 +757,11 @@ public class PlaywrightPage implements Page {
     @Override
     public void uncheck(String selector, UncheckOptions options) {
         page.uncheck(selector, options);
+    }
+
+    @Override
+    public void unrouteAll() {
+        page.unrouteAll();
     }
 
     @Override

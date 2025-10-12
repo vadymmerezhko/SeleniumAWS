@@ -5,12 +5,12 @@
   <parent>
     <groupId>com.smarte2e</groupId>
     <artifactId>codeless-test-framework</artifactId>
-    <version>1.7.0</version>
+    <version>1.7.1</version>
     <relativePath>./parent-pom.xml</relativePath>
   </parent>
 
   <artifactId>codeless-test-automation</artifactId>
-  <version>1.7.0</version>
+  <version>1.7.1</version>
   <packaging>jar</packaging>
 
   <name>codeless-test-automation</name>
@@ -19,13 +19,20 @@
   <properties>
     <threadCount>1</threadCount>
   </properties>
+  <dependencies>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>4.12.0</version>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.5</version>
+        <version>3.5.4</version>
         <configuration>
           <!--suppress UnresolvedMavenProperty -->
           <threadCount>${threadCount}</threadCount>

@@ -1,7 +1,7 @@
 package com.smarte2e.utils;
 
-import okhttp3.*;
 import com.smarte2e.exceptions.SmartRuntimeException;
+import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
