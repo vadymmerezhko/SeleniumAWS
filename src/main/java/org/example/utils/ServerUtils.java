@@ -55,8 +55,9 @@ public final class ServerUtils {
      * Terminates all Selenium servers.
      */
     public static void terminateAllSeleniumServers() {
-        AmazonEC2 ec2Client = AwsUtils.getEC2Client();
-        loadBalancer.getAllServersEC2Ids().forEach(ec2Id -> AwsUtils.terminateEC2(ec2Client, ec2Id));
+        // TODO: Fix when AWS is not available
+        // AmazonEC2 ec2Client = AwsUtils.getEC2Client();
+        // loadBalancer.getAllServersEC2Ids().forEach(ec2Id -> AwsUtils.terminateEC2(ec2Client, ec2Id));
     }
 
     /**

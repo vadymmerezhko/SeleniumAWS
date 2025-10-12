@@ -1,6 +1,5 @@
 package org.example.e2e;
 
-import org.example.annotations.RunAlone;
 import org.example.data.LoginPageInput;
 import org.example.data.LoginPageOutput;
 import org.example.data.ProductsPageHeaderOutput;
@@ -13,7 +12,6 @@ import org.testng.annotations.Test;
 
 public class LoginTest extends CommonTest {
 
-    @RunAlone
     @Test(description = "This method validates the Login form functionality", retryAnalyzer = RetryAnalyzer.class)
     public void testStandardUserLogin() {
         LoginPageInput loginPageInput = new LoginPageInput();
