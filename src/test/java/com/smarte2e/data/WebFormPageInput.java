@@ -15,7 +15,8 @@ public class WebFormPageInput extends SmartData {
     private SmartValue description;
     private SmartValue brand;
     private SmartValue model;
-    private SmartValue upload;
+    // TODO: Uncomment when fixed
+    //private SmartValue upload;
     private SmartValue available;
     private SmartValue freeDelivery;
     private SmartValue paidReturn;

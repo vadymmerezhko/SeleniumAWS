@@ -1,8 +1,6 @@
 {
-    "submitButton": "image=src/test/resources/images/WebFormPage.submitButton.png",
     "color": "css=input[name='my-colors']",
-    "submit": "css=button[type='submit']",
-    "upload": "css=input[name='my-file']",
+    "submitButton": "css=button[type='submit']",
     "freeReturn": "css=input[id='my-radio-1']",
     "available": "css=input[id='my-check-1']",
     "freeDelivery": "css=input[id='my-check-2']",

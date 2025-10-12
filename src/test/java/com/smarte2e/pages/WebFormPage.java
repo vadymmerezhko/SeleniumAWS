@@ -11,7 +11,6 @@ import com.smarte2e.ui.elements.ColorInput;
 import com.smarte2e.ui.elements.DataList;
 import com.smarte2e.ui.elements.DateInput;
 import com.smarte2e.ui.elements.Dropdown;
-import com.smarte2e.ui.elements.FileInput;
 import com.smarte2e.ui.elements.PasswordInput;
 import com.smarte2e.ui.elements.Radiobutton;
 import com.smarte2e.ui.elements.RangeSlider;
@@ -33,7 +32,8 @@ public class WebFormPage extends SmartPage {
     private final Textarea description = new Textarea();
     private final Dropdown brand = new Dropdown();
     private final DataList model = new DataList();
-    private final FileInput upload = new FileInput();
+    // TODO: Uncomment when fixed
+    //private final FileInput upload = new FileInput();
     private final Checkbox available = new Checkbox();
     private final Checkbox freeDelivery = new Checkbox();
     private final Radiobutton freeReturn = new Radiobutton();
@@ -41,28 +41,27 @@ public class WebFormPage extends SmartPage {
     private final ColorInput color = new ColorInput();
     private final DateInput deliveryDate = new DateInput();
     private final RangeSlider weight = new RangeSlider();
-    private final Button submit = new Button();
+    private final Button submitButton = new Button();
 
     public WebFormPageOutput fillWebForm(WebFormPageInput input) {
         DataValidator.notNull(input, "input");
 
         try {
-            WebFormPage webFormPage = new WebFormPage();
             int thisYear = LocalDate.now().getYear();
             String descriptionKeyword = "my-textarea";
 
-            webFormPage.open();
-            log.info("Web Form page URL: {}", webFormPage.getCurrentUrl());
+            open();
+            log.info("Web Form page URL: {}", getCurrentUrl());
 
-            webFormPage.getPassword().enterText("Password123");
-            webFormPage.getDescription().setKeyword(descriptionKeyword);
+            password.enterText("Password123");
+            description.setKeyword(descriptionKeyword);
             input.getDeliveryDate().setKeyword(thisYear);
-            webFormPage.setAllInputs(input);
+            setAllInputs(input);
             log.debug("Web Form page is filled with input data: {}", input);
 
             WebFormPageOutput output = new WebFormPageOutput();
             output.getDeliveryDate().setKeyword(thisYear);
-            webFormPage.setAllOutputs(output);
+            setAllOutputs(output);
 
             log.debug("Web Form page output data is returned: {}", output);
             return output;
@@ -74,8 +73,6 @@ public class WebFormPage extends SmartPage {
 
     public void submitWebForm() {
         try {
-            WebFormPage webFormPage = new WebFormPage();
-            Button submitButton =  webFormPage.getSubmit();
             submitButton.click();
 
             log.debug("Web Form page is submitted");
