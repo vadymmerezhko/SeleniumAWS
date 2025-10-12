@@ -28,8 +28,8 @@ public final class FileSystemUtils {
      */
     public static synchronized void createFile(String folderPath, String fileName, String fileContent) {
         try {
-            DataValidator.folderPath(folderPath, "folderPath");
-            DataValidator.filePath(fileName, "fileName");
+            DataValidator.folderPathFormat(folderPath, "folderPath");
+            DataValidator.filePathFormat(fileName, "fileName");
             DataValidator.notNull(fileContent, "fileContent");
 
             Writer fileWriter = new FileWriter(String.format("%s/%s", folderPath, fileName), false);
@@ -50,7 +50,7 @@ public final class FileSystemUtils {
      * @param fileContent The file content.
      */
     public static synchronized void createFile(String filePath, String fileContent) {
-        DataValidator.filePath(filePath, "filePath");
+        DataValidator.filePathFormat(filePath, "filePath");
         DataValidator.notNull(fileContent, "fileContent");
 
         try {
@@ -69,7 +69,7 @@ public final class FileSystemUtils {
      * @param folderPath The target folder path.
      */
     public static synchronized void createFolder(String folderPath) {
-        DataValidator.folderPath(folderPath, "folderPath");
+        DataValidator.folderPathFormat(folderPath, "folderPath");
 
         try {
             File folder = new File(folderPath);
@@ -93,7 +93,7 @@ public final class FileSystemUtils {
      * @return The file content.
      */
     public static synchronized String readFile(String filePath) {
-        DataValidator.filePath(filePath, "filePath");
+        DataValidator.filePathFormat(filePath, "filePath");
 
         try {
             String fileContent = Files.readString(Paths.get(filePath));
@@ -111,7 +111,7 @@ public final class FileSystemUtils {
      * @param filePath The file path.
      */
     public static synchronized void deleteFile(String filePath) {
-        DataValidator.filePath(filePath, "filePath");
+        DataValidator.filePathFormat(filePath, "filePath");
         try {
             // Validate file path.
             Paths.get(filePath);
@@ -136,7 +136,7 @@ public final class FileSystemUtils {
      * @param folderPath The directory path.
      */
     public static synchronized void deleteFolder(String folderPath) {
-        DataValidator.folderPath(folderPath, "folderPath");
+        DataValidator.folderPathFormat(folderPath, "folderPath");
 
         File directory = new File(folderPath);
         try {
@@ -155,8 +155,8 @@ public final class FileSystemUtils {
      * @param toPath The target path.
      */
     public static synchronized void moveFile(String fromPath, String toPath) {
-        DataValidator.filePath(fromPath, "fromPath");
-        DataValidator.filePath(toPath, "toPath");
+        DataValidator.filePathFormat(fromPath, "fromPath");
+        DataValidator.filePathFormat(toPath, "toPath");
 
         try {
             FileUtils.moveFile(FileUtils.getFile(fromPath), FileUtils.getFile(toPath));
@@ -175,7 +175,7 @@ public final class FileSystemUtils {
      * @return The true/false flag.
      */
     public static boolean fileExists(String filePath) {
-        DataValidator.folderPath(filePath, "filePath");
+        DataValidator.folderPathFormat(filePath, "filePath");
 
         boolean exists = new File(filePath).exists();
         log.debug("File: {} exists: {}", filePath, exists);
@@ -188,7 +188,7 @@ public final class FileSystemUtils {
      * @return The set of file names.
      */
     public static Set<String> getFileNamesInFolder(String folderPath) {
-        DataValidator.folderPath(folderPath, "folderPath");
+        DataValidator.folderPathFormat(folderPath, "folderPath");
         Set<String> fileNames = new HashSet<>();
 
         try {
@@ -227,7 +227,7 @@ public final class FileSystemUtils {
      * @return The file extension, or an empty string if no extension found.
      */
     public static String getFileExtension(String fileName) {
-        DataValidator.filePath(fileName, "fileName");
+        DataValidator.filePathFormat(fileName, "fileName");
 
         String extension = "";
         try {
@@ -254,7 +254,7 @@ public final class FileSystemUtils {
      * @return The file name without extension.
      */
     public static String getFileNameWithoutExtension(String fileName) {
-        DataValidator.filePath(fileName, "fileName");
+        DataValidator.filePathFormat(fileName, "fileName");
 
         try {
             // Check file name format.

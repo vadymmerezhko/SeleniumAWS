@@ -1058,7 +1058,7 @@ public final class ConvertUtils {
      * @return The file;
      */
     public static File stringToFile(String filePath) {
-        DataValidator.filePath(filePath, "filePath");
+        DataValidator.filePathFormat(filePath, "filePath");
 
         try {
             File file = new File(filePath);
@@ -1145,7 +1145,7 @@ public final class ConvertUtils {
      * @return The file;
      */
     public static Path stringToPath(String filePath) {
-        DataValidator.filePath(filePath, "filePath");
+        DataValidator.filePathFormat(filePath, "filePath");
 
         try {
             Path path = Paths.get(filePath);
@@ -5612,7 +5612,7 @@ public final class ConvertUtils {
                 file = new File(url.toURI());
             }
             else if (object instanceof String string) {
-                DataValidator.filePath(string, "filePath");
+                DataValidator.filePathFormat(string, "filePath");
                 file = new File(string);
             }
             else {

@@ -274,7 +274,7 @@ public final class DataValidator {
      * Throws exception if path is invalid.
      * @param filePath Yhe file  path.
      */
-    public static void filePath(String filePath, String valueName) {
+    public static void filePathFormat(String filePath, String valueName) {
         notBlank(filePath, "filePath");
         notBlank(filePath, valueName);
 
@@ -291,7 +291,7 @@ public final class DataValidator {
      * Throws exception if path is invalid.
      * @param folderPath Yhe file  path.
      */
-    public static void folderPath(String folderPath, String valueName) {
+    public static void folderPathFormat(String folderPath, String valueName) {
         notBlank(folderPath, valueName);
         notBlank(valueName, "valueName");
 
@@ -327,7 +327,7 @@ public final class DataValidator {
      * @param valueName The value name.
      */
     public static void folderPathExists(String folderPath, String valueName) {
-        filePath(folderPath, valueName);
+        filePathFormat(folderPath, valueName);
         File folder = new File(folderPath);
 
         // Validate the folder path

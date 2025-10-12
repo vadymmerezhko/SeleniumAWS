@@ -40,7 +40,7 @@ public class FileInput extends SmartElement implements ReadableObject, WritableO
      * @param filePath The file path.
      */
     public void enterFilePath(String filePath) {
-        DataValidator.filePath(filePath, "filePath");
+        DataValidator.filePathFormat(filePath, "filePath");
         enterFilePath(Path.of(filePath));
     }
 

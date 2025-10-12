@@ -98,7 +98,7 @@ public class SmartBy extends By {
      * @return The selector.
      */
     public static SmartBy image(String imageFilePath) {
-        DataValidator.filePath(imageFilePath, "imageFilePath");
+        DataValidator.filePathFormat(imageFilePath, "imageFilePath");
 
         // Use selector by link text for PNG image files
         SmartBy smartBy = new SmartBy(By.linkText(imageFilePath));
