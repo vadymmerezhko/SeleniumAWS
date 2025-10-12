@@ -43,7 +43,7 @@ jobs:
           cache: maven
 
       - name: Unit Tests
-        run: mvn test "-DtestSuite=./src/test/resources/testngUnitTests.xml" "-Dsurefire.reportNameSuffix=unit"
+        run: mvn test "-DtestSuite=./src/test/resources/testngUnitTests.xml" "-Dsurefire.reportNameSuffix=unit_tests_report"
 
       # TODO: Fix web element tests
       #- name: Web Element Unit Tests
@@ -58,10 +58,10 @@ jobs:
       #  run: mvn clean test "-DtestSuite=./src/test/resources/testngStandardUserLogin.xml" "-Dheadless=true"
 
       - name: Web Form Test - Local Docker - Linux Chrome latest
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-Dheadless=true" -Dsurefire.reportNameSuffix=local_docker
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-Dheadless=true" "-Dsurefire.reportNameSuffix=local_docker_report"
 
       - name: Web Form Test (failed to record video and get screenshot)
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" " "-Dheadless=true" "-Dhighlight=true" "-DdebugFail=true" "-DscreenshotOnFail=true" "-DvideoOnFail=true" -Dsurefire.reportNameSuffix=failed_test
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" " "-Dheadless=true" "-Dhighlight=true" "-DdebugFail=true" "-DscreenshotOnFail=true" "-DvideoOnFail=true" "-Dsurefire.reportNameSuffix=failed_test_report"
         continue-on-error: true
 
       # TODO: Fix local Docker auto Safari latest.
@@ -77,7 +77,7 @@ jobs:
       #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_auto" "-Dbrowser=chrome:stable"
 
       - name: Test - Local Playwright - Linux Firefox
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DtestMode=local_playwright" "-Dbrowser=firefox" "-Dsurefire.reportNameSuffix=local_playwright"
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DtestMode=local_playwright" "-Dbrowser=firefox" "-Dsurefire.reportNameSuffix=local_playwright_report"
 
       # TODO: Fix AWS Device Farm Windows Edge.
       #- name: Test - AWS Device Farm - Windows Edge
@@ -88,21 +88,44 @@ jobs:
       #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
 
       - name: Test - Local Playwright Accessibility Test - Chromium
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_accessibility" "-Dsurefire.reportNameSuffix=accessibility_test"
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_accessibility" "-Dsurefire.reportNameSuffix=accessibility_test_report"
 
-      # ✅ Upload raw reports as downloadable artifact
+      # Upload failed on purpose test reports as downloadable artifact
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
-          path: target/surefire-reports
+          path: target/unit_tests_report
 
-      # ✅ Publish into GitHub Checks tab
-      - name: Publish Test Report
-        uses: dorny/test-reporter@v1
+      # Upload failed on purpose test reports as downloadable artifact
+      - name: Upload test reports
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: Maven Tests
-          path: target/surefire-reports/*.xml
-          reporter: java-junit
+          name: test-reports
+          path: target/local_docker_report
+
+      # Upload failed on purpose test reports as downloadable artifact
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: target/failed_test_report
+
+      # Upload local Playwright reports as downloadable artifact
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: target/local_playwright_report
+
+      # Upload accessibility reports as downloadable artifact
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: target/accessibility_test_report
