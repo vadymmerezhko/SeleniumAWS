@@ -64,12 +64,6 @@ jobs:
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" " "-Dheadless=true" "-Dhighlight=true" "-DdebugFail=true" "-DscreenshotOnFail=true" "-DvideoOnFail=true"
         continue-on-error: true
 
-      - name: Upload Test Report - Local Docker - Linux Chrome latest
-        uses: actions/upload-artifact@v4
-        with:
-          name: Test Report - Local Docker - Linux Chrome latest
-          path: target/surefire-reports/
-
       # TODO: Fix local Docker auto Safari latest.
       #- name: Test - Local Docker Auto - Linux Safari latest
       #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_docker_auto" "-Dbrowser=safari:latest"
@@ -96,6 +90,15 @@ jobs:
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_accessibility"
 
+      # ✅ Upload raw reports as downloadable artifact
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: target/surefire-reports
+
+      # ✅ Publish into GitHub Checks tab
       - name: Publish Test Report
         uses: dorny/test-reporter@v1
         if: always()
