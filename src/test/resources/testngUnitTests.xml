@@ -1,26 +1,26 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Suite" parallel="methods">
     <listeners>
-        <listener class-name="org.example.helpers.RunAloneTestListener" />
+        <listener class-name="com.smarte2e.helpers.RunAloneTestListener" />
     </listeners>
     <test name="Test">
         <classes>
-            <class name="org.example.unit.ClassUtilsTest"/>
-            <class name="org.example.unit.ConvertUtilsTest"/>
-            <class name="org.example.unit.DataValidatorTest"/>
-            <!--FIX <class name="org.example.unit.ImageUtilsTest"/>-->
-            <class name="org.example.unit.FileSystemUtilsTest"/>
-            <class name="org.example.unit.SmartAssertTest"/>
-            <class name="org.example.unit.SmartCurrencyTest"/>
-            <class name="org.example.unit.SmartNumberTest"/>
-            <class name="org.example.unit.SmartTelephoneNumberTest"/>
-            <class name="org.example.unit.SmartTypeTest"/>
-            <class name="org.example.unit.SmartValueTest"/>
-            <class name="org.example.unit.SystemUtilsTest"/>
-            <class name="org.example.unit.TimeOutTest"/>
-            <!--FIX <class name="org.example.unit.TestConfigTest"/>-->
-            <class name="org.example.unit.TimerUtilsTest"/>
-            <class name="org.example.unit.ZipFileUtilsTest"/>
+            <class name="com.smarte2e.unit.ClassUtilsTest"/>
+            <class name="com.smarte2e.unit.ConvertUtilsTest"/>
+            <class name="com.smarte2e.unit.DataValidatorTest"/>
+            <!--FIX <class name="unit.com.smarte2e.ImageUtilsTest"/>-->
+            <class name="com.smarte2e.unit.FileSystemUtilsTest"/>
+            <class name="com.smarte2e.unit.SmartAssertTest"/>
+            <class name="com.smarte2e.unit.SmartCurrencyTest"/>
+            <class name="com.smarte2e.unit.SmartNumberTest"/>
+            <class name="com.smarte2e.unit.SmartTelephoneNumberTest"/>
+            <class name="com.smarte2e.unit.SmartTypeTest"/>
+            <class name="com.smarte2e.unit.SmartValueTest"/>
+            <class name="com.smarte2e.unit.SystemUtilsTest"/>
+            <class name="com.smarte2e.unit.TimeOutTest"/>
+            <!--FIX <class name="unit.com.smarte2e.TestConfigTest"/>-->
+            <class name="com.smarte2e.unit.TimerUtilsTest"/>
+            <class name="com.smarte2e.unit.ZipFileUtilsTest"/>
         </classes>
     </test> <!-- Test -->
 </suite> <!-- Suite -->

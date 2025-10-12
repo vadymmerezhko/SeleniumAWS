@@ -1,0 +1,34 @@
+package com.smarte2e.enums;
+
+import com.smarte2e.exceptions.SmartRuntimeException;
+
+public enum BrowserName {
+
+    CHROME("chrome"),
+    CHROMIUM("chromium"),
+    EDGE("edge"),
+    FIREFOX("firefox"),
+    SAFARI("safari"),
+    WEBKIT("webkit");
+
+    private final String name;
+
+    BrowserName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    public static BrowserName fromString(String name) {
+        for (BrowserName value : BrowserName.values()) {
+            if (value.name.equalsIgnoreCase(name)) {
+                return value;
+            }
+        }
+        throw new SmartRuntimeException(String.format(
+                "Cannot convert '%s' to BrowserName enum item.", name));
+    }
+}

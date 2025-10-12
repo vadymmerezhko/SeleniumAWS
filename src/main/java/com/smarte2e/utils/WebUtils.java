@@ -1,0 +1,1671 @@
+package com.smarte2e.utils;
+
+import lombok.extern.slf4j.Slf4j;
+import com.smarte2e.configs.Config;
+import com.smarte2e.ui.wrappers.SmartElement;
+import com.smarte2e.ui.factories.WebDriverFactory;
+import com.smarte2e.ui.playwright.PlaywrightElement;
+import com.smarte2e.ui.selectors.SmartByType;
+import com.smarte2e.exceptions.SmartRuntimeException;
+import com.smarte2e.helpers.GlobalKeyboardListener;
+import com.smarte2e.helpers.TimeOut;
+import org.openqa.selenium.*;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.Rectangle;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.time.Duration;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static com.smarte2e.constants.Settings.*;
+
+@Slf4j
+public final class WebUtils {
+    static private final AtomicReference<GlobalKeyboardListener> keyboardListener = new AtomicReference<>();
+    static private final int SELECT_ELEMENT_TIMEOUT_SECONDS = 10 * 60;
+    static private final int SHOW_POPUP_TIMEOUT_SECONDS = 10 * 60;
+    static private final int MAX_OPEN_AI_REQUEST_REPEATS = 10;
+    private static final int COLORS_THRESHOLD_PERCENTS = Config.getInstance().getColorsThreshold();
+    private static final int PIXELS_THRESHOLD_PERCENTS = Config.getInstance().getPixelsThreshold();
+    private static final int SIZE_THRESHOLD_PIXELS = Config.getInstance().getSizeThreshold();
+    static private final String KEYWORD_PLACEHOLDER = "#KEYWORD#";
+    private static final String HIGHLIGHT_BORDER_STYLE = "3px solid red";
+    private static final List<String> reliableAttributes = Arrays.asList(
+            "id", "name", "type", "class", "alt", "placeholder", "title",
+            "accesskey", "tabindex", "value", "myprop", "list", "label",
+            "aria-label", "aria-labelledby", "aria-describedby", "aria-owns");
+    private static final List<String> textAttributes = Arrays.asList(
+            "alt", "placeholder", "title", "value", "label", "aria-label",
+            "aria-labelledby", "aria-describedby", "aria-owns");
+    static private final String OPEN_AI_REQUEST_FORMAT =
+            "{\"model\": \"gpt-3.5-turbo\"," +
+            "\"messages\": [{" +
+            "\"role\": \"user\"," +
+            "\"content\": \"%s\"}]}";
+    static private final String ELEMENT_CSS_SELECTOR_AI_PROMPT_FORMAT = """
+               You are a web automation assistant. Given the following HTML page source and
+               an HTML element snippet, extract either a CSS selector or an XPath selector for
+               he specified element.
+               1. **Selector Restrictions**:
+                  - Exclude these selectors: %s.
+                  - Do not use element style attributes.
+               2. **Allowed Attributes**:
+                  - Use only these attributes: `id`, `name`, `type`, `class`, `alt`,
+                   `placeholder`, `title`, `accesskey`, `tabindex`, `value`, `myprop`,
+                   `list`, `label`.
+               3. **Validation**:
+                  - Ensure that the selector uniquely identifies the provided element
+                    and is valid.
+               4. **Output**:
+                  - If no valid selector is found, return an empty string.
+                  - Do not include any additional text or description; return only
+                    the selector or an empty string.
+               HTML page source:
+               %s.
+               HTML element snippet:
+               %s.
+            """.stripIndent();
+
+    static private final String ELEMENT_XPATH_SELECTOR_AI_PROMPT_FORMAT = """
+            You are a web automation assistant. Given the following HTML page source and
+            an HTML element snippet, extract an XPath selector for
+            the specified element.
+            1. **Text Matching**:
+               - The following attribute values may exactly match or contain the unique text:
+                 `text()`, `.`, `alt`, `placeholder`, `title`, `value`, `label`.
+            2. **Text Matching**:
+               - Prioritize an exact text match in the following attributes:
+                `text()`, `alt`, `placeholder`, `title`, `value`, `label`.
+               - If an exact match is not found, use `contains()` for a partial
+                 match in these attributes.
+            3. **Selector Restrictions**:
+               - Exclude selectors matching these patterns: %s.
+               - Do not use element style attributes.
+            4. **Allowed Attributes**:
+               - Only use these attributes for constructing the XPath:
+                 `id`, `name`, `type`, `class`, `alt`, `placeholder`, `title`,
+                 `accesskey`, `tabindex`, `value`, `myprop`, `list`, `label`.
+               - These attributes values may equal unique text or contain the text:
+                 `text()`, `.`, `alt`, `placeholder`, `title`, `value`, `label`.
+            5. **Validation**:
+               - Ensure the XPath is as short as possible.
+               - Ensure the XPath selector is valid, uniquely identifies the element,
+                 but not its child or sibling.
+               - Ensure the XPath selector is valid, uniquely identifies the
+                 provided element, and does not include unwanted patterns.
+            6. **Output**:
+               - Return only the XPath selector or an empty string if no valid selector is found.
+               - Do not include additional text or descriptions.
+            HTML page source:
+            %s
+            HTML element snippet:
+            %s
+            Unique text: '%s'
+            """.stripIndent();
+    private static final int MAX_ELEMENT_NESTING = 10;
+    private static final ConcurrentMap<Long, Boolean> listenerSetupMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Long, WebElement> highlightedElementMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Long, String> prevElementStyleMap = new ConcurrentHashMap<>();
+
+    private WebUtils(){}
+
+    /**
+     * Returns mouse point or null if cant get it.
+     * @return The mouse point.
+     */
+    public static Point getMousePoint() {
+        long threadId = Thread.currentThread().threadId();
+
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) WebDriverFactory.getDriver();
+
+            if (!listenerSetupMap.containsKey(threadId)) {
+                js.executeScript(
+                        "document.addEventListener('mousemove', function(event) { " +
+                                "   window.mouseX = event.clientX; " +
+                                "   window.mouseY = event.clientY; " +
+                                "});"
+                );
+                listenerSetupMap.put(threadId, true);
+            }
+            Long x = (Long) js.executeScript("return window.mouseX;");
+            Long y = (Long) js.executeScript("return window.mouseY;");
+
+            if (x == null || y == null) {
+                return null;
+            }
+            else {
+                return new Point(x.intValue(), y.intValue());
+            }
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the current web element under the mouse cursor
+     * or null if element not found.
+     * @return The web element or null.
+     */
+    public static WebElement getWebElementUnderMouse() {
+        Point mousePoint = getMousePoint();
+
+        if (mousePoint == null) {
+            return null;
+        }
+        return getWebElementAtPoint(mousePoint);
+    }
+
+    /**
+     * Returns the current web element under the mouse cursor
+     * or NULL if element not found.
+     * @return The web element or NULL.
+     */
+    public static WebElement getWebElementAtPoint(Point point) {
+        WebDriver driver = WebDriverFactory.getDriver();
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+
+        try {
+            WebElement element = (WebElement) js.executeScript(
+                    "return document.elementFromPoint(arguments[0], arguments[1]);",
+                    point.getX(), point.getY());
+            log.debug("Web element at point {} is {}.", point, element);
+            return element;
+        }
+        catch (Exception e) {
+            // Ignore exception and return null.
+            return null;
+        }
+    }
+
+    /**
+     * Returns web element style value by property name.
+     * @param element The web element.
+     * @param propertyName The property value.
+     * @return The style value.
+     */
+    public static String getElementStyle(WebElement element, String propertyName) {
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) WebDriverFactory.getDriver();
+            String scriptFormat = element instanceof PlaywrightElement ?
+                    "element => getComputedStyle(element).%s":
+                    "return window.getComputedStyle(arguments[0]).%s;";
+            String style = (String) js.executeScript(String.format(scriptFormat, propertyName), element);
+            log.debug("{} element property {} style: {}", element, propertyName, style);
+            return style;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(String.format(
+                    "Cannot get web element style '%s'.",
+                    propertyName), e);
+        }
+    }
+
+    /**
+     * Sets web element style value by its property name.
+     * @param element The web element.
+     * @param propertyName The property name.
+     * @param propertyValue The property value.
+     */
+    public static void setElementStyle(WebElement element, String propertyName, String propertyValue) {
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) WebDriverFactory.getDriver();
+            String scriptFormat = element instanceof PlaywrightElement ?
+                    "element => element.style.%s='%s'" :
+                    "arguments[0].style.%s='%s';";
+            js.executeScript(String.format(scriptFormat, propertyName, propertyValue), element);
+            log.debug("{} element style property {}:{} is set up.",
+                    element, propertyName, propertyValue);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(String.format(
+                    "Cannot set web element %s style property %s value '%s'.",
+                    element, propertyName, propertyValue), e);
+        }
+    }
+
+    /**
+     * Highlights web element.
+     * @param element The web element.
+     */
+    public static void highlightElement(WebElement element) {
+        long threadId = Thread.currentThread().threadId();
+
+        try {
+            if (highlightedElementMap.containsKey(threadId) &&
+                    prevElementStyleMap.get(threadId) != null) {
+                // Restore element style.
+                unhighlightElement();
+            }
+            // Save the current element style.
+            String style;
+            try {
+                style = getElementStyle(element, "border");
+            }
+            catch (Exception e) {
+                // Ignore exception if style is not available.
+                style = "";
+            }
+            prevElementStyleMap.put(threadId, style);
+            // Change current element border style.
+            try {
+                setElementStyle(element, "border", HIGHLIGHT_BORDER_STYLE);
+                highlightedElementMap.put(threadId, element);
+                log.debug("{} element is highlighted.", element);
+            }
+            catch (Exception e) {
+                // Ignore exception is previous element is not available.
+            }
+        }
+        catch (Exception e) {
+            log.debug("Cannot highlight web element {}.", element);
+        }
+    }
+
+    /**
+     * Unhighlights web element.
+     */
+    public static void unhighlightElement() {
+        long threadId = Thread.currentThread().threadId();
+        WebElement element = null;
+
+        try {
+            element = highlightedElementMap.get(threadId);
+            String style = prevElementStyleMap.get(threadId);
+            setElementStyle(element, "border", style);
+            log.debug("{} element is unhighlighted.", element);
+        } catch (Throwable e) {
+            // Ignore exception if not possible to restore style.
+            log.debug("Exception {} when {} element is unhighlighted.",
+                    e.getMessage(), element);
+        }
+    }
+
+    /**
+     * Shows alert pop-up with text.
+     * @param text The text.
+     */
+    public static void showAlert(String text) {
+        try {
+            WebDriver driver = WebDriverFactory.getDriver();
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript(String.format("alert('%s');",
+                    ConvertUtils.escapeJavaScript(text)));
+
+            WebDriverWait wait = new WebDriverWait(driver,
+                    Duration.ofSeconds(SHOW_POPUP_TIMEOUT_SECONDS));
+            // Wait for alert to be present.
+            wait.until(ExpectedConditions.alertIsPresent());
+            log.debug("Alert pop-up is open with text: {}", text);
+            // Wait for no alert.
+            wait.until(alertIsNotPresent());
+            log.debug("Alert pop-up is closed with text: {}", text);
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot open alert popup with text: %s", text), e);
+        }
+    }
+
+    /**
+     * Shows confirm popup with text.
+     * @param text The text.
+     * @return true if user clicks Yes or false otherwise.
+     */
+    public static boolean showConfirm(String text) {
+        try {
+            WebDriver driver = WebDriverFactory.getDriver();
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(SHOW_POPUP_TIMEOUT_SECONDS));
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+
+            // Define a script to track confirm dialog result and restore original confirm function
+            String script = "window.originalConfirm = window.confirm;" +
+                    "window.userClickedOnConfirm = '';" +
+                    "window.confirm = function(message) {" +
+                    "    var result = originalConfirm(message);" +
+                    "    window.userClickedOnConfirm = result ? 'OK' : 'Cancel';" +
+                    "    return result;" +
+                    "};";
+            // Inject the script to override the confirm function
+            js.executeScript(script);
+            // Trigger the confirm dialog
+            js.executeScript(String.format("window.confirm('%s');", ConvertUtils.escapeJavaScript(text)));
+            log.debug("Confirm popup is open with text: {}", text);
+
+            // Wait for the confirm popup to be handled
+            wait.until(ExpectedConditions.not(ExpectedConditions.alertIsPresent()));
+
+            // Retrieve the result from the custom confirm function
+            String userChoice = (String) js.executeScript("return window.userClickedOnConfirm;");
+
+            // Restore the original confirm function
+            js.executeScript("window.confirm = window.originalConfirm;");
+            // Cleanup any additional data if necessary
+            js.executeScript("delete window.originalConfirm; delete window.userClickedOnConfirm;");
+
+            if (userChoice.equals("OK")) {
+                log.debug("User clicked 'OK' button on confirm popup.");
+                return true;
+            }
+            else {
+                log.debug("User clicked 'CANCEL' button on confirm popup.");
+                return false;
+            }
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot open confirm popup with text: %s", text), e);
+        }
+    }
+
+    /**
+     * Shows JS prompt popup with text and optional default value on it
+     * and returns input string.
+     * @param text The text.
+     * @param defaultValue The default value (can be null).
+     * @return The input string.
+     */
+    public static String showPrompt(String text, String defaultValue) {
+        WebDriver driver = WebDriverFactory.getDriver();
+
+        try {
+            if (defaultValue == null) {
+                defaultValue = "";
+            }
+            // Inject a hidden input field to store the prompt result
+            String injectScript = "var input = document.createElement('input');" +
+                    "input.setAttribute('type', 'hidden');" +
+                    "input.setAttribute('id', 'prompt-result');" +
+                    "document.body.appendChild(input);";
+            JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+            jsExecutor.executeScript(injectScript);
+
+            // Execute the prompt and store the result in the hidden input field
+            String script = String.format(
+                    "var result = prompt('%s:', '%s');" +
+                            "document.getElementById('prompt-result').value = result;",
+                    ConvertUtils.escapeJavaScript(text),
+                    ConvertUtils.escapeJavaScript(defaultValue));
+            jsExecutor.executeScript(script);
+
+            // Wait for the alert (prompt) to be present
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(SHOW_POPUP_TIMEOUT_SECONDS));
+            wait.until(ExpectedConditions.alertIsPresent());
+            log.debug("Prompt pop-up is open with text '{}' and default value '{}'", text, defaultValue);
+
+            // Wait until the alert (prompt) is no longer present
+            wait.until(alertIsNotPresent());
+
+            // Retrieve the input value from the hidden input field
+            String userInput = (String) jsExecutor.executeScript(
+                    "return document.getElementById('prompt-result').value;");
+
+            // Cleanup the hidden input field
+            jsExecutor.executeScript("var input = document.getElementById('prompt-result');" +
+                    "if (input) {" +
+                    "    input.parentNode.removeChild(input);" +
+                    "}");
+
+            log.debug("Prompt pop-up is open with text '{}' and user input: '{}'", text, userInput);
+            return userInput;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot open prompt popup with text: %s", text), e);
+        }
+    }
+
+    /**
+     * Returns web element attributes name:value map.
+     * @param element The element.
+     * @return The attributes name:value map.
+     */
+    public static Map<String, String> getAllAttributes(WebElement element) {
+        WebDriver driver = WebDriverFactory.getDriver();
+        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+        Map<String, Object> attributes = (Map<String, Object>) jsExecutor.executeScript("""
+                var items = {};
+                for (index = 0; index < arguments[0].attributes.length; ++index) {
+                    items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value
+                };
+                return items;
+                """.stripIndent(),
+                element);
+        // Convert Object values to String
+        Map<String, String> stringAttributes = new HashMap<>();
+        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+            stringAttributes.put(entry.getKey(), entry.getValue().toString());
+        }
+        log.debug("Element {} attributes are returned {}", element, stringAttributes);
+        return stringAttributes;
+    }
+
+    /**
+     * User selects web element and returns its selector by all means:
+     * by algorithm;
+     * or by OpenAI request;
+     * or by manual input.
+     * @param elementName The element name.
+     * @param keyword The keyword (optional - can eb null).
+     * @param selectorType The selector type.
+     * @return The element selector or null.
+     */
+    public static String selectElementAndGetSelector(
+            String elementName, Object keyword, SmartByType selectorType, String selectorValue) {
+
+        try {
+            if (!WebUtils.showConfirm(String.format("""
+                ELEMENT
+                
+                %s element is not found.
+                
+                Selector type: %s
+                Selector value: %s
+                
+                Click OK to select element and then press CTRL.
+                Or click CANCEL to exit test.
+                """.stripIndent(),
+                elementName, selectorType, selectorValue))) {
+                WebDriverFactory.hardSystemExit();
+            }
+            WebElement element = WebUtils.selectWebElement(elementName);
+            selectorValue = WebUtils.getElementSelector(element, keyword, elementName, selectorType);
+            String format = null;
+            String errorLog = """
+                   \n////////////////////////////////////////////////////////////
+                   User made hard system exit on element selector prompt popup.
+                   ///////////////////////////////////////////////////////////
+                   """.stripIndent();
+            log.debug("Element {} selector with keyword {} is detected by algorithm: {}",
+                    element, keyword, selectorValue);
+
+            if (selectorValue == null) {
+                selectorValue = WebUtils.getSelectorWithAI(element, keyword);
+                log.debug("Element {} selector with text '{}' is detected by OpenAI: {}",
+                        element, keyword, selectorValue);
+            }
+            if (selectorValue == null) {
+                selectorValue = WebUtils.showPrompt(String.format("""
+                        ELEMENT
+                        
+                        Please enter '%s' element selector.
+                        
+                        Click OK to save selector.
+                        """.stripIndent(),
+                        elementName),
+                        null);
+            }
+            String formatFormat = """
+                    ELEMENT
+                    
+                    %s
+                    
+                    Enter the element selector and click OK.
+                    Or just click OK to select the element.
+                    """.stripIndent();
+
+            while (true) {
+                if (WebUtils.isSelectorValidAndUnique(element, keyword, selectorValue)) {
+                    selectorValue = selectorValue.trim();
+                    selectorValue = showPrompt(String.format("""
+                           ELEMENT
+                            
+                           Valid %s element selector.
+                            
+                           Click OK to accept it or update it.
+                           OR click CANCEL to exit the test.
+                           """.stripIndent(),
+                            elementName), selectorValue);
+
+                    if (selectorValue.isEmpty()) {
+                        log.error(errorLog);
+                        WebDriverFactory.hardSystemExit();
+                    }
+                }
+                if (WebUtils.isSelectorValidAndUnique(element, keyword, selectorValue)) {
+                    log.debug("Valid element {} selector with text '{}' is: {}",
+                            element, keyword, selectorValue);
+                    return selectorValue;
+                }
+                else if (!WebUtils.isValidElementSelectorFormat(selectorValue)) {
+                    format = String.format(formatFormat,
+                            "Invalid '%s' element selector format.");
+                }
+                else if (WebUtils.numberOfElementsFoundBySelector(selectorValue, keyword) > 1) {
+                    format = String.format(formatFormat,
+                            "More than one '%s' element is found by selector.");
+                }
+                else if (WebUtils.numberOfElementsFoundBySelector(selectorValue, keyword) == 1) {
+                    format = String.format(formatFormat,
+                            "Wrong '%s' element is found by selector.");
+                }
+                else if (WebUtils.numberOfElementsFoundBySelector(selectorValue, keyword) == 0) {
+                    format = String.format(formatFormat,
+                            "No '%s' element is found by selector.");
+                }
+                String previousSelector = selectorValue;
+                selectorValue = showPrompt(String.format(format, elementName), selectorValue);
+
+                if (selectorValue.isEmpty()) {
+                    log.error(errorLog);
+                    WebDriverFactory.hardSystemExit();
+                }
+                if (selectorValue.equals(previousSelector)) {
+
+                    if (!WebUtils.showConfirm(String.format("""
+                        ELEMENT
+                        
+                        % element is not found.
+                        
+                        Selector: %s
+                        Keyword: %s
+                        
+                        Click OK, select the element and press CTRL.
+                        Or click CANCEL to exit test.
+                        """.stripIndent(),
+                        elementName, selectorValue, keyword))) {
+                        WebDriverFactory.hardSystemExit();
+                    }
+                    element = WebUtils.selectWebElement(elementName);
+                    selectorValue = WebUtils.getElementSelector(element, keyword, elementName, selectorType);
+                }
+            }
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot get '%s' element selector by all means.",
+                    elementName), e);
+        }
+    }
+
+    /**
+     * Detects web element CSS selector or Xpath selector by keyword.
+     * @param element The element.
+     * @param keyword The keyword.
+     * @param elementName The element name.
+     * @return The element CSS selector or Xpath selector.
+     */
+    public static String getElementSelector(
+            WebElement element,
+            Object keyword,
+            String elementName,
+            SmartByType selectorType) {
+
+        if (selectorType == SmartByType.IMAGE) {
+            String selectorByImage = getWebElementSelectorByImage(element, elementName);
+            log.debug("Element {} selector by image is: {}", element, selectorByImage);
+            return selectorByImage;
+        }
+
+        if (keyword == null) {
+            String cssSelector = getCssOrXpathElementSelector(element, true, true);
+
+            if (cssSelector == null) {
+                cssSelector = getElementCssSelectorByParent(element);
+            }
+            if (cssSelector == null) {
+                cssSelector = getElementCssSelectorBySibling(element);
+            }
+            if (cssSelector == null) {
+                cssSelector = getElementCssSelectorByChild(element);
+            }
+            log.debug("Element {} CSS selector with text '{}' is: {}", element, keyword, cssSelector);
+            return cssSelector;
+        }
+        String xpathSelector = getElementXpathSelectorByKeyword(element, keyword, false);
+
+        if (xpathSelector == null) {
+            xpathSelector = getElementXpathSelectorByKeyword(element, keyword, true);
+        }
+        if (xpathSelector == null) {
+            xpathSelector = getElementXpathSelectorByParentKeyword(element, keyword, false);
+        }
+        if (xpathSelector == null) {
+            xpathSelector = getElementXpathSelectorByParentKeyword(element, keyword, true);
+        }
+        if (xpathSelector == null) {
+            xpathSelector = getElementXpathSelectorBySiblingKeyword(element, keyword, false);
+        }
+        if (xpathSelector == null) {
+            xpathSelector = getElementXpathSelectorBySiblingKeyword(element, keyword, true);
+        }
+        if (xpathSelector == null) {
+            xpathSelector = getElementXpathSelectorByChildKeyword(element, keyword, false);
+        }
+        if (xpathSelector == null) {
+            xpathSelector = getElementXpathSelectorByChildKeyword(element, keyword, true);
+        }
+        if (xpathSelector == null) {
+            xpathSelector = getElementXpathSelectorByIndex(element);
+        }
+        if (xpathSelector != null) {
+            log.debug("Element {} Xpath selector with text '{}' is: {}", element, keyword, xpathSelector);
+            return xpathSelector;
+        }
+        String selectorByImage = getWebElementSelectorByImage(element, elementName);
+        log.debug("Element {} selector by image is: {}", element, selectorByImage);
+        return selectorByImage;
+    }
+
+    public static WebElement getElementBySelector(String selector, Object keyword) {
+        By by = convertSelectorTemplateToBy(selector, keyword);
+        List<WebElement> elements = WebDriverFactory.getDriver().findElements(by);
+        int size = elements.size();
+
+        if (size == 0) {
+            throw new SmartRuntimeException(String.format(
+                    "No element found by selector %s.", selector));
+        } else if (size > 1) {
+            throw new SmartRuntimeException(String.format(
+                    "More than one element found by selector %s: %d", selector, size));
+        }
+        log.debug("Element {} found by its selector {}.", elements.get(0), selector);
+        return elements.get(0);
+    }
+
+    /**
+     * Gets web element CSS selector or XPath selector by text with AI
+     * or null if unique selector is not detected.
+     * @param element The element.
+     * @param keyword The keyword for Xpath selector.
+     * @return The element selector or selector.
+     */
+    public static String getSelectorWithAI(WebElement element, Object keyword) {
+        WebDriver driver = WebDriverFactory.getDriver();
+        String pageHTML = driver.getPageSource();
+        String elementHTML = element.getAttribute("outerHTML");
+        String selector;
+        StringBuilder wrongSelectors = new StringBuilder();
+        int repeatCount = MAX_OPEN_AI_REQUEST_REPEATS;
+        String keywordString = null;
+
+        if (keyword != null) {
+            keywordString = ConvertUtils.objectToString(keyword);
+        }
+
+        do {
+            String prompt = keywordString == null ?
+                    String.format(ELEMENT_CSS_SELECTOR_AI_PROMPT_FORMAT,
+                            wrongSelectors, pageHTML, elementHTML) :
+                    String.format(ELEMENT_XPATH_SELECTOR_AI_PROMPT_FORMAT,
+                            wrongSelectors, pageHTML, elementHTML, keywordString);
+
+            selector = HttpUtils.sendHttpRequest(
+                    OPEN_AI_API_URL,
+                    String.format(OPEN_AI_REQUEST_FORMAT,
+                            ConvertUtils.escapeJavaScript(prompt)),
+                    System.getenv(OPEN_AI_API_KEY_NAME));
+
+            if (selector == null || selector.trim().isEmpty()) {
+                break;
+            }
+            if (--repeatCount == 0) {
+                break;
+            }
+            if (!wrongSelectors.isEmpty()) {
+                wrongSelectors.append(", ");
+            }
+            wrongSelectors.append(selector);
+        }
+        while (!isSelectorValidAndUnique(element, keyword, selector));
+
+        log.debug("OpenAI detedted element {} selector with text '{}' is: {}",
+                element, keyword, selector);
+        return selector;
+    }
+
+    /**
+     * Converts string web element selector to selector template
+     * by replacing keyword with keyword placeholder.
+     * @param selector The selector string.
+     * @param keyword The keyword.
+     * @return The selector template.
+     */
+    // TODO: add unit tests
+    public static String getSelectorTemplate(String selector, Object keyword) {
+        String template = selector.replace(String.format("'%s'", keyword), KEYWORD_PLACEHOLDER)
+                .replace(String.format("\"%s\"", keyword), KEYWORD_PLACEHOLDER);
+        log.debug("Element selector {} with keyword '{}' template is: {}",
+                selector, keyword, template);
+        return template;
+    }
+
+    /**
+     * Converts xpath or css selector template that may contain keyword.
+     * @param selector The selector template (may contain keyword placeholder).
+     * @param keyword The keyword (can be null).
+     * @return The By selector.
+     */
+     public static By convertSelectorTemplateToBy(String selector, Object keyword) {
+        if (keyword != null) {
+            // Replace text placeholder with actual text (if any).
+            String keywordString = ConvertUtils.objectToString(keyword);
+            String jsKeyword =  ConvertUtils.escapeJavaScript(keywordString);
+            selector = selector.replace(KEYWORD_PLACEHOLDER, String.format("'%s'", jsKeyword));
+        }
+        if (isXpath(selector)) {
+            By by = By.xpath(selector);
+            log.debug("Element XPATH selector {} with keyword '{}' converted to By {}",
+                    selector, keyword, by);
+            return by;
+        }
+        else if (isPngImageSelector(selector)) {
+            By by = By.linkText(selector);
+            log.debug("Element image selector {} with text '{}' converted to By {}.",
+                    selector, keyword, by);
+            return by;
+         }
+        else {
+            By by = By.cssSelector(selector);
+            log.debug("Element CSS selector {} with keyword '{}' converted to By {}",
+                    selector, keyword, by);
+            return by;
+        }
+    }
+
+    /**
+     * Returns number elements found by selector with keyword.
+     * @param selector The selector.
+     * @param keyword The keyword (optional - can be null).
+     * @return The tru/false flag.
+     */
+    public static int numberOfElementsFoundBySelector(String selector, Object keyword) {
+         By by = convertSelectorTemplateToBy(selector, keyword);
+         int size = WebDriverFactory.getDriver().findElements(by).size();
+         log.debug("{} element(s) found by selector {} with text '{}'.",
+                size, selector, keyword);
+         return size;
+    }
+
+    /**
+     * Returns parent web element for web element.
+     * @param element The web element.
+     * @return The parent element.
+     */
+    public static WebElement getParentElement(WebElement element) {
+        if (element == null || element.getTagName().equals("body")) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot get parent element of element '%s'", element));
+        }
+        WebElement parent = element.findElement(By.xpath(".."));
+        log.debug("Parent element {} is found for element {}.", parent, element);
+        return parent;
+    }
+
+    /**
+     * Returns sibling elements for web element.
+     * @param element The element.
+     * @return The list of sibling elements.
+     */
+    public static List<WebElement> getSiblingElements(WebElement element) {
+        WebElement parent = getParentElement(element);
+        List<WebElement> siblings = parent.findElements(By.xpath("/*"));
+        siblings.remove(element);
+        log.debug("Sibling elements of the element {}: {}.", element, siblings);
+        return siblings;
+    }
+
+    /**
+     * Returns all child elements for web element.
+     * @param element The element.
+     * @return The list of child elements.
+     */
+    public static List<WebElement> getAllChildElements(WebElement element) {
+        List<WebElement> childElements = element.findElements(By.xpath("//*"));
+        log.debug("Parent element {} is found for element {}.", childElements, element);
+        return childElements;
+    }
+
+    /**
+     * Selects web element when user hovers mouse over it
+     * and presses CTRL key.
+     * Or returns null if cannot select it.
+     * @param elementName The element name.
+     * @return The web element.
+     */
+    public static WebElement selectWebElement(String elementName) {
+        TimeOut timeOut = new TimeOut("Select element", SELECT_ELEMENT_TIMEOUT_SECONDS);
+        WebElement prevElement = null;
+        log.debug("Element {} selection by user started.", elementName);
+
+        try {
+            initializeKeyBoardListener();
+            WebElement element = null;
+
+            while (!timeOut.getExpired()) {
+                try {
+                    element = WebUtils.getWebElementUnderMouse();
+
+                    if (element == null) {
+                        continue;
+                    }
+                }
+                catch (Exception e) {
+                    // Continue if element is stale or not visible.
+                    continue;
+                }
+                Rectangle elementRect;
+                Rectangle prevElementRect = null;
+
+                try {
+                    elementRect = element.getRect();
+                    if (prevElement != null) {
+                        prevElementRect = prevElement.getRect();
+                    }
+                }
+                catch (StaleElementReferenceException e) {
+                    // Workaround for stale element;
+                    prevElement = null;
+                    continue;
+                }
+                if (prevElement == null || !prevElementRect.equals(elementRect)) {
+                    prevElement = element;
+                    WebUtils.highlightElement(element);
+                }
+                // Detect Ctrl key press
+                if (GlobalKeyboardListener.ctrlKeyPressed.get()) {
+                    log.debug("CTRL kry is pressed to stop element selection.");
+                    break;
+                }
+            }
+            if (element == null) {
+                throw new SmartRuntimeException("Web element is not found.");
+            }
+            WebUtils.unhighlightElement();
+            log.debug("We element {} is selected by user.", element);
+            return element;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot select element %s.", elementName), e);
+        }
+    }
+
+    /**
+     * Returns if selector is unique and points the target web element by keyword.
+     * @param element The element.
+     * @param keyword The keyword.
+     * @param selector The selector.
+     * @return The true/false flag.
+     */
+    public static boolean isSelectorValidAndUnique(WebElement element, Object keyword, String selector) {
+        try {
+            WebDriver driver = WebDriverFactory.getDriver();
+            By by = convertSelectorTemplateToBy(selector, keyword);
+            List<WebElement> elements = driver.findElements(by);
+            boolean result = false;
+
+            if (elements.size() == 1) {
+                result = compareWebElements(element, elements.get(0));
+            }
+            log.debug("Element {} selector {} is valid and unique: {}.",
+                    element, selector, result);
+            return result;
+        }
+        catch (Exception e) {
+            log.debug("Seems element {} selector has invalid format: {}.",
+                    element, selector);
+            return false;
+        }
+    }
+
+    /**
+     * Returns true if two elements have the same tags, size and location.
+     * @param element1 The element 1.
+     * @param element2 The element 2.
+     * @return The true if equals or false otherwise.
+     */
+    public static boolean compareWebElements(WebElement element1, WebElement element2) {
+        boolean result;
+
+        if (element1 == element2) {
+            result = true;
+        } else {
+            result = element1.getTagName().equals(element2.getTagName()) &&
+                    element1.getRect().equals(element2.getRect());
+        }
+        log.debug("Element 1 {} and element 2 {} comparison is: {}",
+                element1, element1, result);
+        return result;
+    }
+
+    /**
+     * Returns true for XPATH format or false otherwise.
+     * @param selector The element selector.
+     * @return The true/false flag.
+     */
+    public static boolean isXpath(String selector) {
+        DataValidator.notBlank(selector, "selector");
+        String[] prefixes = {"//", "(//", ".//", "./", "/"};
+        boolean result = false;
+        selector = selector.trim();
+
+        for (String prefix : prefixes) {
+            selector = selector.trim();
+            result = selector.startsWith(prefix);
+
+            if (result) break;
+        }
+        log.debug("Is element selector {} XPATH: {}", selector, result);
+        return result;
+    }
+
+    /**
+     * Returns true for PNG image selector.
+     * @param selector The element selector.
+     * @return The true/false flag.
+     */
+    public static boolean isPngImageSelector(String selector) {
+        DataValidator.notBlank(selector, "selector");
+
+        boolean result = selector.trim().endsWith(".png");
+        log.debug("Is element image selector {} : {}", selector, result);
+        return result;
+    }
+
+    /**
+     * Returns true for URD string.
+     * @param selector The URL string.
+     * @return The true/false flag.
+     */
+    public static boolean isUrl(String selector) {
+        DataValidator.notBlank(selector, "selector");
+        selector = selector.trim();
+        boolean result = selector.trim().startsWith("http://") ||
+                selector.trim().startsWith("https://") ||
+                selector.startsWith(SITE_HOST_PLACEHOLDER);
+        log.debug("Is URL selector {} : {}", selector, result);
+        return result;
+    }
+
+    /**
+     * Validates the XPATH or CSS selector format.
+     * @param selector The element selector.
+     * @return The true if format is valid or false otherwise.
+     */
+    public static boolean isValidElementSelectorFormat(String selector) {
+        DataValidator.notBlank(selector, "selector");
+        boolean result;
+
+        try {
+            By by = convertSelectorTemplateToBy(selector, null);
+            WebDriverFactory.getDriver().findElements(by);
+            result = true;
+        }
+        catch (Exception e) {
+            result = false;
+        }
+        log.debug("Element selector {} format is valid: {}.",
+                selector, result);
+        return result;
+    }
+
+    /**
+     * Waits till element is not moving.
+     * @param element The element.
+     */
+    public static void waitForElementNotMoving(WebElement element) {
+        TimeOut timeOut = new TimeOut("Wait for element not moving", WAIT_ELEMENT_TIMEOUT_SECONDS);
+
+        if (element instanceof SmartElement) {
+            WebElement nativeElement = ((SmartElement) element).getNativeElement();
+            org.openqa.selenium.Point previousPoint = nativeElement.getLocation();
+
+            while (!timeOut.getExpired()) {
+                TimerUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
+                org.openqa.selenium.Point currentPoint = nativeElement.getLocation();
+
+                if (currentPoint.equals(previousPoint)) {
+                    log.debug("Element {} is not moving", element);
+                    break;
+                }
+                previousPoint = currentPoint;
+            }
+        }
+    }
+
+    /**
+     * Waits till element style is not changing.
+     * @param element The element.
+     */
+    public static void waitForElementStableStyle(WebElement element) {
+        TimeOut timeOut = new TimeOut("Wait for element stable style", WAIT_ELEMENT_TIMEOUT_SECONDS);
+
+        if (element instanceof SmartElement) {
+            Map<String, Object> previousStyles = getElementStyles(element);
+
+            while (!timeOut.getExpired()) {
+                TimerUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
+                Map<String, Object> currentStyles = getElementStyles(element);
+
+                if (currentStyles.equals(previousStyles)) {
+                    log.debug("Element {} is not moving", element);
+                    break;
+                }
+                previousStyles = currentStyles;
+            }
+        }
+    }
+
+    /**
+     * Waits till element is not sizing.
+     * @param element The element.
+     */
+    public static void waitForElementNotSizing(WebElement element) {
+        TimeOut timeOut = new TimeOut("Wait for element not moving", WAIT_ELEMENT_TIMEOUT_SECONDS);
+
+        if (element instanceof SmartElement) {
+            WebElement nativeElement = ((SmartElement) element).getNativeElement();
+            Dimension previousSize = nativeElement.getSize();
+
+            while (!timeOut.getExpired()) {
+                TimerUtils.waitMilliSeconds(WAIT_ELEMENT_CHANGING_MILLISECONDS);
+                Dimension currentSize = element.getSize();
+
+                if (currentSize.equals(previousSize)) {
+                    log.debug("Element {} is not moving", element);
+                    break;
+                }
+                previousSize = currentSize;
+            }
+        }
+    }
+
+    public static Map<String, Object> getElementStyles(WebElement element) {
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) WebDriverFactory.getDriver();
+            String script = """
+                    var styles = window.getComputedStyle(arguments[0]);
+                    var styleMap = {}
+                    for (var i = 0; i < styles.length; i++) {
+                        var prop = styles[i];
+                        styleMap[prop] = styles.getPropertyValue(prop);
+                    }
+                    return styleMap;
+                     """.stripIndent();
+            Map<String, Object> styles = (Map<String, Object>) js.executeScript(script, element);
+            log.debug("{} web element styles: {}", element, styles);
+            return styles;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot get %s web element styles.", element), e);
+        }
+    }
+
+    /**
+     * Returns element value or text.
+     * @param element The element.
+     * @return The element value or text.
+     */
+    public static Object getElementValueOrText(WebElement element) {
+        try {
+            String elementTag = element.getTagName();
+            Object elementValue = null;
+
+            // Get input value
+            if (elementTag.equals("input")) {
+                String type = element.getAttribute("type");
+                String value = element.getDomProperty("value");
+
+                elementValue = switch (type) {
+                    // Get boolean value for checkbox or radio button
+                    case "checkbox", "radio" -> element.isSelected();
+                    // Get file value
+                    case "url" -> ConvertUtils.stringToFile(value);
+                    // Gets number value
+                    case "number", "range" -> ConvertUtils.stringToNumber(value);
+                    // Get local date value
+                    case "date", "week", "month" -> ConvertUtils.stringToSmartLocalDate(value);
+                    // Get local date time value
+                    case "datetime-local" -> ConvertUtils.stringToSmartLocalDateTime(value);
+                    // Get local time value
+                    case "time" -> ConvertUtils.stringToSmartLocalTime(value);
+                    case "file" -> FileSystemUtils.normalizeFilePathString(value);
+                    case "color" -> ConvertUtils.stringToColor(value);
+                    default ->
+                        // Get input text value
+                        value;
+                };
+            }
+            // Get text value from select
+            else if (elementTag.equals("select")) {
+                Select select = new Select(element);
+                elementValue = select.getFirstSelectedOption().getText();
+            }
+            // Get element text if not empty
+            if (elementValue == null && !element.getText().isEmpty()) {
+                elementValue = element.getText();
+            }
+            // Get text value from text attributes
+            if (elementValue == null) {
+                for (String textAttribute : textAttributes) {
+                    String attributeValue = element.getAttribute(textAttribute);
+
+                    if (attributeValue != null && !attributeValue.isEmpty()) {
+                        elementValue = attributeValue;
+                        break;
+                    }
+                }
+            }
+            log.debug("Element value or text returned: {}", elementValue);
+            return elementValue;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot get element %s smart value.", element));
+        }
+    }
+
+    /**
+     * Gets web element selector by its image.
+     * @param element The web element.
+     * @param elementName The element name.
+     * @return The selector.
+     */
+    public static String getWebElementSelectorByImage(WebElement element, String elementName) {
+        DataValidator.notNull(element, "element");
+        DataValidator.notBlank(elementName, "elementName");
+
+        try {
+            String imageFilePath = String.format("%s/%s.png", IMAGE_FOLDER_PATH, elementName);
+
+            FileSystemUtils.deleteFile(imageFilePath);
+
+            // Remove mouse from web element and wait for element readiness.
+            java.awt.Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+            Robot robot = new Robot();
+            robot.mouseMove(0, 0);
+            TimerUtils.waitSeconds(1);
+            waitForElementNotSizing(element);
+            waitForElementNotMoving(element);
+            waitForElementStableStyle(element);
+
+            BufferedImage bufferedImage = ImageUtils.getWebElementBufferedImage(element);
+            int elementWidth = element.getSize().width;
+            int elementHeight = element.getSize().height;
+
+            BufferedImage scaledImage = ImageUtils.scaleImage(bufferedImage, elementWidth, elementHeight);
+            ImageUtils.saveBufferedImageToPngFile(scaledImage, imageFilePath);
+            robot.mouseMove(mouseLocation.x, mouseLocation.y);
+            return imageFilePath;
+        }
+        catch (Exception e) {
+            throw new SmartRuntimeException(String.format(
+                    "Cannot get %s web element selector by Image.", elementName), e);
+        }
+    }
+
+    /**
+     * Finds web element by its image,
+     * @param imageFilePath The image file path.
+     * @return The web element.
+     */
+    public static List<WebElement> findWebElementsByImage(String imageFilePath, WebElement parent) {
+        BufferedImage elementImage;
+
+        if (FileSystemUtils.fileExists(imageFilePath)) {
+            elementImage = ImageUtils.readBufferImageFromFile(imageFilePath);
+        }
+        else {
+            String elementName = FileSystemUtils.getFileNameWithoutExtension(imageFilePath);
+
+           if (Config.getInstance().getDebugMode()) {
+                log.debug("Element {} image file {} not found.", elementName, imageFilePath);
+                return new ArrayList<>();
+            }
+            else {
+                throw new SmartRuntimeException(String.format(
+                        "%s web element image file %s not found.", elementName, imageFilePath));
+            }
+        }
+        return ImageUtils.findWebElementsByBufferedImage(elementImage, parent,
+                COLORS_THRESHOLD_PERCENTS, PIXELS_THRESHOLD_PERCENTS, SIZE_THRESHOLD_PIXELS);
+    }
+
+
+    private static synchronized void initializeKeyBoardListener() {
+        if (keyboardListener.get() == null) {
+            keyboardListener.set(new GlobalKeyboardListener());
+            keyboardListener.get().initialize();
+            log.debug("Keyboard listener is initialized.");
+        }
+    }
+
+    private static String getCssOrXpathElementSelector(WebElement element, boolean isCss, boolean unique) {
+        Map<String, String> attributes = getAllAttributes(element);
+        String elementSelector = null;
+
+        for (String attributeName : reliableAttributes) {
+            if (attributes.containsKey(attributeName)) {
+                String attributeValue = attributes.get(attributeName);
+
+                if (isCss) {
+                    if (attributeName.equals("id") && !attributeValue.contains(" ")) {
+                        elementSelector = String.format("#%s", attributeValue);
+                    } else if (attributeName.equals("class") && !attributeValue.contains(" ")) {
+                        elementSelector = String.format(".%s", attributeValue);
+                    } else {
+                        elementSelector = String.format("%s[%s='%s']",
+                                element.getTagName(), attributeName, attributeValue);
+                    }
+                } else {
+                    elementSelector = String.format("//%s[@%s='%s']",
+                            element.getTagName(), attributeName, attributeValue);
+                }
+                if (isSelectorValidAndUnique(element, null, elementSelector)) {
+                    break;
+                }
+            }
+        }
+        if (elementSelector == null) {
+            elementSelector = getCombinedElementSelector(element, true, unique);
+        }
+        log.debug("Element {} unique={} CSS selector detected: {}.",
+                element, unique, elementSelector);
+        return elementSelector;
+    }
+
+    private static String getCombinedElementSelector(WebElement element, boolean isCss, boolean isUnique) {
+        String tagName = element.getTagName();
+        StringBuilder selector = isCss ?
+                new StringBuilder(tagName) :
+                new StringBuilder(String.format("//%s[", tagName));
+        Map<String, String> attributes = getAllAttributes(element);
+        String attributeFormat = isCss ? "[%s='%s']" : "@%s='%s'";
+        String strSelector = null;
+
+        for (String attributeName : reliableAttributes) {
+            if (attributes.containsKey(attributeName)) {
+                String attributeValue = attributes.get(attributeName);
+
+                if (!isCss && selector.toString().contains("='")) {
+                    selector.append(" and ");
+                }
+                selector.append(String.format(attributeFormat, attributeName, attributeValue));
+                strSelector = selector.toString();
+
+                if (!isCss) {
+                    strSelector += "]";
+                }
+                if (isSelectorValidAndUnique(element, null, strSelector)) {
+                    break;
+                }
+            }
+        }
+        String combinedCss = isUnique ? null : strSelector;
+        log.debug("Element {} isCSS={} isUnique={} combined selector detected: {}.",
+                element, isCss, isUnique, combinedCss);
+        return combinedCss;
+    }
+
+    private static String getElementCssSelectorByParent(WebElement element) {
+        WebElement parent = getParentElement(element);
+        String tagName = element.getTagName();
+        String combinedCss = getCombinedElementSelector(element, true, false);
+        String elementCss = null;
+
+        for (int i = 0; i < MAX_ELEMENT_NESTING; i ++) {
+            if (parent.getTagName().equals("body")) {
+                log.debug("body element was reached while looking element {} " +
+                        "CSS selector by parent", element);
+                return null;
+            }
+            String parentCss = getCssOrXpathElementSelector(parent, true, true);
+
+            if (parentCss != null) {
+                elementCss = String.format("%s %s",
+                        parentCss, tagName);
+
+                if (isSelectorValidAndUnique(element, null, elementCss)) {
+                    break;
+                }
+                elementCss = String.format("%s %s",
+                        parentCss, combinedCss);
+
+                if (isSelectorValidAndUnique(element, null, elementCss)) {
+                    break;
+                }
+            }
+        }
+        log.debug("Element {} CSS selector {} is detected by its parent {}.",
+                element, elementCss, parent);
+        return null;
+    }
+
+    private static String getElementCssSelectorBySibling(WebElement element) {
+        List<WebElement> siblings = getSiblingElements(element);
+        String tagName = element.getTagName();
+        String combinedCss = getCombinedElementSelector(element, true, false);
+        String elementCss = null;
+        String siblingCss = null;
+
+        for (WebElement sibling : siblings) {
+            siblingCss = getCssOrXpathElementSelector(sibling, true, true);
+
+            if (siblingCss != null) {
+                elementCss = String.format("%s ~ %s", siblingCss, tagName);
+
+                if (isSelectorValidAndUnique(element, null, elementCss)) {
+                    break;
+                }
+                elementCss = String.format("%s ~ %s", siblingCss, combinedCss);
+
+                if (isSelectorValidAndUnique(element, null, elementCss)) {
+                    break;
+                }
+            }
+        }
+        log.debug("Element {} CSS selector {} is detected by sibling CSS {}.",
+                element, elementCss, siblingCss);
+        return elementCss;
+    }
+
+    private static String getElementCssSelectorByChild(WebElement element) {
+        List<WebElement> childElements = getAllChildElements(element);
+        String tagName = element.getTagName();
+        String combinedCss = getCombinedElementSelector(element, true, false);
+        String elementCss = null;
+        String childElementCss = null;
+
+        for (WebElement childElement : childElements) {
+            childElementCss = getCssOrXpathElementSelector(childElement, true, true);
+
+            if (childElementCss != null) {
+                elementCss = String.format("%s:has(%s)",
+                        tagName, childElementCss);
+                if (isSelectorValidAndUnique(element, null, elementCss)) {
+                    break;
+                }
+                elementCss = String.format("%s:has(%s)",
+                        combinedCss, childElementCss);
+
+                if (isSelectorValidAndUnique(element, null, elementCss)) {
+                    break;
+                }
+            }
+        }
+        log.debug("Element {} CSS selector {} is detected by sibling CSS {}.",
+                element, elementCss, childElementCss);
+        return elementCss;
+    }
+
+    private static WebElement getElementByText(String text, boolean contains) {
+        WebDriver driver = WebDriverFactory.getDriver();
+        String format = contains ? "//*[contains(text(),'%s')]" : "//*[text()='%s']";
+        String xpath = String.format(format, text);
+        List<WebElement> elements = driver.findElements(By.xpath(xpath));
+        WebElement elementByText = null;
+
+        if (elements.size() == 1) {
+            elementByText = elements.get(0);
+        }
+        else {
+            for (String textAttribute : textAttributes) {
+                format = contains ? "//*[contains(@%s,'%s')]" : "//*[@%s='%s']";
+                xpath = String.format(format, textAttribute, text);
+                elements = driver.findElements(By.xpath(xpath));
+
+                if (elements.size() == 1) {
+                    elementByText = elements.get(0);
+                    break;
+                }
+            }
+        }
+        log.debug("Element {} is found by its text contains={}.",
+                elementByText, contains);
+        return elementByText;
+    }
+
+    private static String getElementXpathSelectorByKeyword(String keywordString, boolean contains) {
+        String format = contains ? "//%s[contains(text(),'%s')]" : "//%s[text()='%s']";
+        WebElement element = getElementByText(keywordString, contains);
+        String elementXpath = null;
+
+        if (element != null) {
+            elementXpath = String.format(format, element.getTagName(), keywordString);
+
+            if (!isSelectorValidAndUnique(element, keywordString, elementXpath)) {
+                format = contains ? "//%s[contains(@%s,'%s')]" : "//%s[@%s='%s']";
+
+                for (String textAttribute : textAttributes) {
+                    elementXpath = String.format(format, element.getTagName(), textAttribute, keywordString);
+
+                    if (isSelectorValidAndUnique(element, keywordString, elementXpath)) {
+                        break;
+                    }
+                }
+            }
+        }
+        log.debug("Element {} XPATH selector {} by text '{}' contains={} is detected.",
+                element, elementXpath, keywordString, contains);
+        return elementXpath;
+    }
+
+    private static String getElementXpathSelectorByKeyword(WebElement element, Object keyword, boolean contains) {
+        String format = contains ? "//%s[contains(.,'%s')]": "//%s[text()='%s']";
+        String combinedFormat = contains ? "%s and contains(.,'%s')]": "%s and text()='%s']";
+        String elementXpath = String.format(format, element.getTagName(), keyword);
+        String xpathByText = null;
+
+        if (isSelectorValidAndUnique(element, keyword, elementXpath)) {
+            xpathByText = elementXpath;
+        }
+        else {
+            String combinedXpath = getCombinedElementSelector(element, false, false);
+            elementXpath = String.format(combinedFormat,
+                    trimSelectorLastBracket(combinedXpath), keyword);
+
+            if (isSelectorValidAndUnique(element, keyword, elementXpath)) {
+                xpathByText = elementXpath;
+            }
+            else {
+                Map<String, String> attributes = getAllAttributes(element);
+                format = contains ? "//%s[contains(@%s,'%s')]" : "//%s[@%s='%s']";
+
+                for (String textAttribute : textAttributes) {
+                    if (attributes.containsKey(textAttribute)) {
+                        elementXpath = String.format(format, element.getTagName(), textAttribute, keyword);
+
+                        if (isSelectorValidAndUnique(element, keyword, elementXpath)) {
+                            xpathByText = elementXpath;
+                            break;
+                        }
+                    }
+                }
+
+                for (String attributeName : attributes.keySet()) {
+                    if (attributeName.startsWith("data-")) {
+                        elementXpath = String.format(format, element.getTagName(), attributeName, keyword);
+
+                        if (isSelectorValidAndUnique(element, keyword, elementXpath)) {
+                            xpathByText = elementXpath;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        log.debug("Element {} XPATH selector {} by text '{}' contains={} is detected.",
+                element, xpathByText, keyword, contains);
+        return xpathByText;
+    }
+
+    private static String getElementXpathSelectorByParentKeyword(WebElement element, Object keyword, boolean contains) {
+        String keywordString = ConvertUtils.objectToString(keyword);
+        String parentXpath = getElementXpathSelectorByKeyword(keywordString, contains);
+
+        if (parentXpath == null) {
+            log.debug("Element {} XPATH selector by parent text '{}' contains={} is null.",
+                    element, keyword, contains);
+            return null;
+        }
+        String elementXpath = String.format("%s//%s", parentXpath, element.getTagName());
+        String xpathByParentText = null;
+
+        if (isSelectorValidAndUnique(element, keyword, elementXpath)) {
+            log.debug("Element {} XPATH selector {} by parent text '{}' contains={} is detected.",
+                    element, keyword, contains, elementXpath);
+            xpathByParentText = elementXpath;
+        }
+        else {
+            String combinedXpath = getCombinedElementSelector(element, false, false);
+            elementXpath = String.format("%s%s", parentXpath, combinedXpath);
+
+            if (isSelectorValidAndUnique(element, keyword, elementXpath)) {
+                xpathByParentText = elementXpath;
+            }
+        }
+        log.debug("Element {} XPATH selector {} by parent text '{}' contains={} is detected.",
+                element, xpathByParentText, keyword, contains);
+        return xpathByParentText;
+    }
+
+    private static String getElementXpathSelectorBySiblingKeyword(
+            WebElement element, Object keyword, boolean contains) {
+        String keywordString = ConvertUtils.objectToString(keyword);
+        String siblingXpath = getElementXpathSelectorByKeyword(keywordString, contains);
+
+        if (siblingXpath == null) {
+            log.debug("Element {} XPATH selector by sibling text '{}' contains={} is null.",
+                    element, keywordString, contains);
+            return null;
+        }
+        String elementTag = element.getTagName();
+        String elementCombinedXpath = getCombinedElementSelector(element, false, false);
+        WebElement parent = getParentElement(element);
+        String elementXpath = null;
+
+        for (int i = 0; i < MAX_ELEMENT_NESTING; i++) {
+            if (parent.getTagName().equals("body")) {
+                break;
+            }
+            String parentXpath = getCssOrXpathElementSelector(parent, false, true);
+            if (parentXpath != null) {
+                elementXpath = String.format("%s[%s]//%s",
+                        parentXpath, trimXpathRootSlashes(siblingXpath), elementTag);
+
+                if (isSelectorValidAndUnique(element, keywordString, elementXpath)) {
+                    break;
+                }
+                elementXpath = String.format("%s[%s]%s",
+                        parentXpath, trimXpathRootSlashes(siblingXpath), elementCombinedXpath);
+
+                if (isSelectorValidAndUnique(element, keywordString, elementXpath)) {
+                    break;
+                }
+            }
+            parent = getParentElement(parent);
+        }
+        log.debug("Element {} XPATH selector {} by sibling text '{}' contains={} is detected.",
+                element, elementXpath, keywordString, contains);
+        return null;
+    }
+
+    private static String getElementXpathSelectorByChildKeyword(WebElement element, Object keyword, boolean contains) {
+        String keywordString = ConvertUtils.objectToString(keyword);
+        String childXpath = getElementXpathSelectorByKeyword(keywordString, contains);
+        String xpathByChildText = null;
+
+        if (childXpath == null) {
+            log.debug("Element {} XPATH selector by child text '{}' contains={} is null.",
+                    element, keyword, contains);
+            return null;
+        }
+        String elementXpath = String.format("//%s[%s]", element.getTagName(), trimXpathRootSlashes(childXpath));
+
+        if (isSelectorValidAndUnique(element, keyword, elementXpath)) {
+            xpathByChildText = elementXpath;
+        }
+        else {
+            String combineXpath = getCombinedElementSelector(element, false, false);
+            elementXpath = String.format("%s[%s]", combineXpath, trimXpathRootSlashes(childXpath));
+
+            if (isSelectorValidAndUnique(element, keyword, elementXpath)) {
+                xpathByChildText = elementXpath;
+            }
+        }
+        log.debug("Element {} XPATH selector {} by child text '{}' " +
+                "contains={} is detected.", element, xpathByChildText, keyword, contains);
+        return xpathByChildText;
+    }
+
+    private static String getElementXpathSelectorByIndex(WebElement element) {
+        WebDriver driver = WebDriverFactory.getDriver();
+        String combinedSelector = getCombinedElementSelector(element, false, false);
+        String selectorByIndex = combinedSelector;
+
+        if (!isSelectorValidAndUnique(element, null, combinedSelector)) {
+            By by = convertSelectorTemplateToBy(combinedSelector, null);
+            List<WebElement> foundElements = driver.findElements(by);
+            int size = foundElements.size();
+
+            for (int i = 1; i <= size; i++) {
+                selectorByIndex = String.format("(%s)[%d]", combinedSelector, i);
+                by = convertSelectorTemplateToBy(selectorByIndex, null);
+                foundElements = driver.findElements(by);
+
+                if (foundElements.size() == 1) {
+                    if (compareWebElements(element, foundElements.get(0))) {
+                        break;
+                    }
+                }
+            }
+        }
+        log.debug("Element {} XPATH selector {} by id is detected.",
+                element, selectorByIndex);
+        return selectorByIndex;
+    }
+
+    private static String trimXpathRootSlashes(String selector) {
+        if (selector == null) {
+            return null;
+        }
+        selector = selector.trim();
+        if (isXpath(selector)) {
+            String trimmedSelector = selector.substring(2);
+            log.debug("XPATH {} without leading // is returned: {}.",
+                    selector, trimmedSelector);
+            return trimmedSelector;
+        }
+        return selector;
+    }
+
+    private static String trimSelectorLastBracket(String selector) {
+        if (selector == null) {
+            return null;
+        }
+        selector = selector.trim();
+        if (!selector.isEmpty()) {
+            String trimmedSelector =  selector.substring(0, selector.length() - 1);
+            log.debug("Selector {} without ending ] is returned: {}",
+                    selector, trimmedSelector);
+        }
+        return selector;
+    }
+
+    private static ExpectedCondition<Boolean> alertIsNotPresent() {
+        return new ExpectedCondition<Boolean>() {
+            @Override
+            public Boolean apply(WebDriver driver) {
+                try {
+                    driver.switchTo().alert();
+                    return false; // Alert is still present
+                } catch (NoAlertPresentException e) {
+                    return true; // Alert is not present
+                }
+            }
+        };
+    }
+}

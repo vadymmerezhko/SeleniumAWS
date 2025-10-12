@@ -1,22 +1,22 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Suite" parallel="methods">
     <listeners>
-        <listener class-name="org.example.helpers.RunAloneTestListener" />
+        <listener class-name="com.smarte2e.helpers.RunAloneTestListener" />
     </listeners>
     <test name="Test">
         <classes>
-            <class name="org.example.e2e.Selenium1Test"/>
-            <class name="org.example.e2e.Selenium2Test"/>
-            <class name="org.example.e2e.Selenium3Test"/>
-            <class name="org.example.e2e.Selenium4Test"/>
-            <class name="org.example.e2e.Selenium5Test"/>
-            <class name="org.example.e2e.Selenium6Test"/>
-            <class name="org.example.e2e.Selenium7Test"/>
-            <class name="org.example.e2e.Selenium8Test"/>
-            <class name="org.example.e2e.Selenium9Test"/>
-            <class name="org.example.e2e.Selenium10Test"/>
-            <class name="org.example.e2e.Selenium11Test"/>
-            <class name="org.example.e2e.Selenium12Test"/>
+            <class name="com.smarte2e.e2e.Selenium1Test"/>
+            <class name="com.smarte2e.e2e.Selenium2Test"/>
+            <class name="com.smarte2e.e2e.Selenium3Test"/>
+            <class name="com.smarte2e.e2e.Selenium4Test"/>
+            <class name="com.smarte2e.e2e.Selenium5Test"/>
+            <class name="com.smarte2e.e2e.Selenium6Test"/>
+            <class name="com.smarte2e.e2e.Selenium7Test"/>
+            <class name="com.smarte2e.e2e.Selenium8Test"/>
+            <class name="com.smarte2e.e2e.Selenium9Test"/>
+            <class name="com.smarte2e.e2e.Selenium10Test"/>
+            <class name="com.smarte2e.e2e.Selenium11Test"/>
+            <class name="com.smarte2e.e2e.Selenium12Test"/>
         </classes>
     </test> <!-- Test -->
 </suite> <!-- Suite -->
