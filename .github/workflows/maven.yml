@@ -45,87 +45,88 @@ jobs:
       - name: Unit Tests
         run: |
           mvn test \
-            "-DtestSuite=./src/test/resources/testngUnitTests.xml" \
-            "-Dsurefire.reportNameSuffix=unit-tests"
+            -DtestSuite=./src/test/resources/testngUnitTests.xml \
+            -Dsurefire.reportNameSuffix=unit-tests
 
       - name: Web Form Test - Local Docker - Linux Chrome latest
         run: |
           mvn clean test \
-            "-DtestSuite=./src/test/resources/testngMethod.xml" \
-            "-Dheadless=true" \
-            "-Dsurefire.reportNameSuffix=local-docker"
+            -DtestSuite=./src/test/resources/testngMethod.xml \
+            -Dheadless=true" \
+            -Dsurefire.reportNameSuffix=local-docker
 
       - name: Web Form Test (failed to record video and get screenshot)
         run: |
           mvn clean test \
-            "-DtestSuite=./src/test/resources/testngMethod.xml" \
-            "-Dheadless=true" \
-            "-Dhighlight=true" \
-            "-DdebugFail=true" \
-            "-DscreenshotOnFail=true" \
-            "-DvideoOnFail=true" \
-            "-Dsurefire.reportNameSuffix=failed-test"
+            -DtestSuite=./src/test/resources/testngMethod.xml \
+            -Dheadless=true \
+            -Dhighlight=true \
+            -DdebugFail=true \
+            -DscreenshotOnFail=true \
+            -DvideoOnFail=true \
+            -Dsurefire.reportNameSuffix=failed-test
         continue-on-error: true
 
       - name: Web Form Test - Local Docker Auto - Linux Firefox latest
         run: |
           mvn clean test \
-            "-DtestSuite=./src/test/resources/testngMethod.xml" \
-            "-DtestMode=local_docker_auto" \
-            "-Dbrowser:firefox:latest" \
-            "-Dheadless=true" \
-            "-Dsurefire.reportNameSuffix=local-docker-auto"
+            -DtestSuite=./src/test/resources/testngMethod.xml \
+            -DtestMode=local_docker_auto \
+            -Dbrowser=firefox:latest \
+            -Dheadless=true \
+            -Dsurefire.reportNameSuffix=local-docker-auto
 
       - name: Test - Local Playwright - Linux Firefox
         run: |
           mvn clean test \
-            "-DtestSuite=./src/test/resources/testngMethod.xml" \
-            "-DtestMode=local_playwright" \
-            "-Dbrowser=firefox" \
-            "-Dsurefire.reportNameSuffix=local-playwright"
+            -DtestSuite=./src/test/resources/testngMethod.xml \
+            -DtestMode=local_playwright \
+            -Dbrowser=firefox \
+            -Dsurefire.reportNameSuffix=local-playwright
 
       # TODO: Uncomment when web element tests are fixed
       #- name: Web Element Unit Tests
       #  run: |
       #   mvn test \
-      #     "-DtestSuite=./src/test/resources/testngWebElementSUnitTests.xml" \
-      #     "-Dsurefire.reportNameSuffix=target/surefire-reports-unit_tests"
-      #      "-Dsurefire.reportNameSuffix=web-element-tests"
+      #     -DtestSuite=./src/test/resources/testngWebElementSUnitTests.xml \
+      #     -Dsurefire.reportNameSuffix=web-element-tests
 
       # TODO: Uncomment when Maven exec plugin vulnerability is fixed.
       #- name: Test - AWS Local Docker - Chrome latest
       #  run: |
       #   mvn -f aws-local-pom.xml clean compile exec:java \
-      #     "-DthreadCount=4" "-DtestMode=local_docker" \
-      #     "-Dbrowser=chrome:latest" \
-      #     "-DtestngFile=testngMethod.xml"
-      #     "-Dsurefire.reportNameSuffix=aws-local-docker"
+      #     -DthreadCount=4 \
+      #     -DtestMode=local_docker \
+      #     -Dbrowser=chrome:latest \
+      #     -DtestngFile=testngMethod.xml \
+      #     -Dsurefire.reportNameSuffix=aws-local-docker
 
       # TODO: Fix AWS Device Farm Windows Edge.
       #- name: Test - AWS Device Farm - Windows Edge
       #  run: |
       #    mvn clean test \
-      #      "-DtestSuite=./src/test/resources/testngMethod.xml" \
-      #      "-DthreadCount=5" \
-      #      "-DtestMode=aws_device_farm" "-Dbrowser=edge:latest"
-      #      "-Dsurefire.reportNameSuffix=device-farm"
+      #      -DtestSuite=./src/test/resources/testngMethod.xml \
+      #      -DthreadCount=5 \
+      #      -DtestMode=aws_device_farm \
+      #      -Dbrowser=edge:latest
+      #      -Dsurefire.reportNameSuffix=device-farm
 
       # TODO: Fix AWS Docker Chrome.
       #- name: Test - AWS Remote Docker - Linux Chrome
       #  run: |
       #    mvn clean test \
-      #      "-DtestSuite=./src/test/resources/testngMethod.xml" \
-      #      "-DthreadCount=8" \
-      #      "-DtestMode=aws_docker" \
-      #      "-Dbrowser=chrome:latest"
-      #      "-Dsurefire.reportNameSuffix=aws-docker"
+      #      -DtestSuite=./src/test/resources/testngMethod.xml \
+      #      -DthreadCount=8 \
+      #      -DtestMode=aws_docker \
+      #      -Dbrowser=chrome:latest \
+      #      -Dsurefire.reportNameSuffix=aws-docker
 
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: | 
           mvn clean test \
-            "-DtestSuite=./src/test/resources/testngMethod.xml" \
-            "-DthreadCount=2" "-DtestMode=local_accessibility" \
-            "-Dsurefire.reportNameSuffix=accessibility-test"
+            -DtestSuite=./src/test/resources/testngMethod.xml \
+            -DthreadCount=2" "-DtestMode=local_accessibility \
+            -Dsurefire.reportNameSuffix=accessibility-test
 
       # Upload all reports as separate artifacts
       - name: Upload Surefire Reports
