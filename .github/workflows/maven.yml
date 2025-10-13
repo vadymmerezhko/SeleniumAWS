@@ -50,14 +50,14 @@ jobs:
 
       - name: Web Form Test - Local Docker - Linux Chrome latest
         run: |
-          mvn clean test \
+          mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -Dheadless=true \
             -Dsurefire.reportNameSuffix=local-docker
 
       - name: Web Form Test (failed to record video and get screenshot)
         run: |
-          mvn clean test \
+          mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -Dheadless=true \
             -Dhighlight=true \
@@ -69,7 +69,7 @@ jobs:
 
       - name: Web Form Test - Local Docker Auto - Linux Firefox latest
         run: |
-          mvn clean test \
+          mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DtestMode=local_docker_auto \
             -Dbrowser=firefox:latest \
@@ -78,7 +78,7 @@ jobs:
 
       - name: Test - Local Playwright - Linux Firefox
         run: |
-          mvn clean test \
+          mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DtestMode=local_playwright \
             -Dbrowser=firefox \
@@ -104,7 +104,7 @@ jobs:
       # TODO: Fix AWS Device Farm Windows Edge.
       #- name: Test - AWS Device Farm - Windows Edge
       #  run: |
-      #    mvn clean test \
+      #    mvn test \
       #      -DtestSuite=./src/test/resources/testngMethod.xml \
       #      -DthreadCount=5 \
       #      -DtestMode=aws_device_farm \
@@ -114,7 +114,7 @@ jobs:
       # TODO: Fix AWS Docker Chrome.
       #- name: Test - AWS Remote Docker - Linux Chrome
       #  run: |
-      #    mvn clean test \
+      #    mvn test \
       #      -DtestSuite=./src/test/resources/testngMethod.xml \
       #      -DthreadCount=8 \
       #      -DtestMode=aws_docker \
@@ -123,7 +123,7 @@ jobs:
 
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: | 
-          mvn clean test \
+          mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DthreadCount=2 \
             -DtestMode=local_accessibility \
