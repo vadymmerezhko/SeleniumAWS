@@ -129,7 +129,9 @@ jobs:
             -DtestMode=local_accessibility \
             -Dsurefire.reportNameSuffix=accessibility-test
 
-      # Upload all reports as separate artifacts
+      - name: Generate Surefire HTML Report
+        run: mvn surefire-report:report
+
       - name: Upload Surefire Reports
         if: always()
         uses: actions/upload-artifact@v4

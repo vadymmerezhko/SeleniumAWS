@@ -5,12 +5,12 @@
   <parent>
     <groupId>com.smarte2e</groupId>
     <artifactId>codeless-test-framework</artifactId>
-    <version>1.7.26</version>
+    <version>1.7.27</version>
     <relativePath>./parent-pom.xml</relativePath>
   </parent>
 
   <artifactId>codeless-test-automation</artifactId>
-  <version>1.7.26</version>
+  <version>1.7.27</version>
   <packaging>jar</packaging>
 
   <name>codeless-test-automation</name>
@@ -31,7 +31,7 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
+        <artifactId>maven-surefire-plugin</artifactId>
         <version>3.5.4</version>
         <configuration>
           <!--suppress UnresolvedMavenProperty -->
@@ -43,6 +43,20 @@
           <!--<useSystemClassLoader>false</useSystemClassLoader>-->
           <argLine>-Xmx4g</argLine>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>3.5.4</version>
+        <executions>
+          <execution>
+            <id>generate-surefire-report</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report-only</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
