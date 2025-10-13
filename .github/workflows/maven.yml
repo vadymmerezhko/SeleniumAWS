@@ -1,3 +1,11 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
 name: Java CI with Maven
 
 on:
@@ -34,8 +42,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Unit Tests
-        run: mvn test "-DtestSuite=./src/test/resources/testngUnitTests.xml" "-Dsurefire.reportsDirectory=target/surefire-reports-unit"
+      - name: Web Element Unit Tests
+        run: mvn test "-DtestSuite=./src/test/resources/testngWebElementSUnitTests.xml" "-Dsurefire.reportsDirectory=target/surefire-reports-unit_tests"
+        continue-on-error: false
+
+      # TODO: Uncomment when Maven exec plugin vulnerability is fixed.
+      #- name: Test - AWS Local Docker - Chrome latest
+      #  run: mvn -f aws-local-pom.xml clean compile exec:java "-DthreadCount=4" "-DtestMode=local_docker" "-Dbrowser=chrome:latest" "-DtestngFile=testngMethod.xml"
 
       - name: Web Form Test - Local Docker - Linux Chrome latest
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-Dheadless=true" "-Dsurefire.reportsDirectory=target/surefire-reports-local-docker"
@@ -44,8 +57,19 @@ jobs:
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-Dheadless=true" "-Dhighlight=true" "-DdebugFail=true" "-DscreenshotOnFail=true" "-DvideoOnFail=true" "-Dsurefire.reportsDirectory=target/surefire-reports-failed"
         continue-on-error: true
 
+      - name: Web Form Test - Local Docker Auto - Linux Firefox latest
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DtestMode=local_docker_auto" "-Dbrowser:firefox:latest" "-Dheadless=true" "-Dsurefire.reportsDirectory=target/surefire-reports-local-docker"
+
       - name: Test - Local Playwright - Linux Firefox
-        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DtestMode=local_playwright" "-Dbrowser=firefox" "-Dsurefire.reportsDirectory=target/surefire-reports-playwright"
+        run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DtestMode=local_playwright" "-Dbrowser=firefox"
+
+      # TODO: Fix AWS Device Farm Windows Edge.
+      #- name: Test - AWS Device Farm - Windows Edge
+      #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=5" "-DtestMode=aws_device_farm" "-Dbrowser=edge:latest"
+
+      # TODO: Fix AWS Docker Chrome.
+      #- name: Test - AWS Remote Docker - Linux Chrome
+      #  run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=8" "-DtestMode=aws_docker" "-Dbrowser=chrome:latest"
 
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: mvn clean test "-DtestSuite=./src/test/resources/testngMethod.xml" "-DthreadCount=2" "-DtestMode=local_accessibility" "-Dsurefire.reportsDirectory=target/surefire-reports-accessibility"
@@ -56,32 +80,32 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-unit
-          path: target/surefire-reports-unit
+          path: target/surefire-reports-unit-tests/
 
       - name: Upload Local Docker Test Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-local-docker
-          path: target/surefire-reports-local-docker
+          path: target/surefire-reports-local-docker/
 
       - name: Upload Failed Test Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-failed
-          path: target/surefire-reports-failed
+          path: target/surefire-reports-failed/
 
       - name: Upload Playwright Test Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-playwright
-          path: target/surefire-reports-playwright
+          path: target/surefire-reports-playwright/
 
       - name: Upload Accessibility Test Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-accessibility
-          path: target/surefire-reports-accessibility
+          path: target/surefire-reports-accessibility/
