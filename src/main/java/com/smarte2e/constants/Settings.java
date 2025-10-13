@@ -45,6 +45,7 @@ public class Settings {
     public static final String PAGE_OBJECTS_FOLDER_PATH = Config.getInstance().getPagesFolderPath();
     public static final String DATA_OBJECTS_FOLDER_PATH = Config.getInstance().getDataFolderPath();
     public static final String IMAGE_FOLDER_PATH = Config.getInstance().getImagesFolderPath();
+    static public final String SUREFIRE_REPORT_FOLDER_NAME = Config.getInstance().getSurefireReportFolderName();
     public static final String TEST_WEBSITE_URL = "https://www.selenium.dev/selenium/web/web-form.html";
     public static final String TEST_CONFIG_FILE_PATH = "test-config.properties";
     public static final String KEYWORD_PLACEHOLDER = "#KEYWORD#";

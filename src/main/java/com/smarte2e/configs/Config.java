@@ -29,6 +29,7 @@ public class Config extends BaseConfig {
     private static final String START_DATE = "startDate";
     private static final String SCREENSHOT_ON_FAIL = "screenshotOnFail";
     private static final String VIDEO_ON_FAIL = "videoOnFail";
+    private static final String SUREFIRE_REPORT_DIRECTORY = "surefireReportDirectory";
     private static final String DEBUG_MODE = "debugMode";
     private static final String HIGHLIGHT = "highlight";
     private static final String STEP_DELAY = "stepDelay";
@@ -267,6 +268,14 @@ public class Config extends BaseConfig {
      */
     synchronized public boolean getVideoOnFail() {
         return getBooleanProperty(VIDEO_ON_FAIL);
+    }
+
+    /**
+     * Returns relative Surefire report folder path.
+     * @return The relative folder path.
+     */
+    synchronized public String getSurefireReportFolderName() {
+        return getStringProperty(SUREFIRE_REPORT_DIRECTORY);
     }
 
     /**

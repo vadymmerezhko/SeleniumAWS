@@ -19,12 +19,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.smarte2e.constants.Settings.BLANK_PAGE_URL;
+import static com.smarte2e.constants.Settings.SUREFIRE_REPORT_FOLDER_NAME;
 
 @Slf4j
 @Listeners(RunAloneTestListener.class)
 public abstract class BaseTest {
-    static private final String SCREENSHOTS_FOLDER_PATH = "./target/surefire-reports/screenshots";
-    static private final String VIDEOS_FOLDER_PATH = "./target/surefire-reports/videos";
+    static private final String SCREENSHOTS_FOLDER_PATH = "./target/" + SUREFIRE_REPORT_FOLDER_NAME + "/screenshots";
+    static private final String VIDEOS_FOLDER_PATH = "./target/" + SUREFIRE_REPORT_FOLDER_NAME + "/videos";
+
     static private final String DEFAULT_BROWSER_VERSION = "default";
     static private final Config config = Config.getInstance();
 

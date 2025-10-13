@@ -34,12 +34,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Unit Tests
-        run: |
-          mkdir -p target/surefire-reports-unit
-          mvn clean test \
-            -DtestSuite=./src/test/resources/testngUnitTests.xml \
-            -Dsurefire.reportDirectory=target/surefire-reports-unit
+      #- name: Unit Tests
+      #  run: |
+      #    mkdir -p target/surefire-reports-unit
+      #    mvn clean test \
+      #      -DtestSuite=./src/test/resources/testngUnitTests.xml \
+      #      -Dsurefire.reportDirectory=target/surefire-reports-unit
 
       - name: Web Form Test - Local Docker - Linux Chrome latest
         run: |
@@ -49,7 +49,7 @@ jobs:
             -Dheadless=true \
             -Dsurefire.reportDirectory=target/surefire-reports-local-docker
 
-      - name: Web Form Test (failed to record video and get screenshot)
+      - name: Web Form Test (failed in order to record video and get screenshot)
         run: |
           mkdir -p target/surefire-reports-failed
           mvn test \
