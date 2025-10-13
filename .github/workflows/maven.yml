@@ -46,14 +46,15 @@ jobs:
         run: |
           mvn test \
             "-DtestSuite=./src/test/resources/testngUnitTests.xml" \
-            "-Dsurefire.reportsDirectory=target/target/surefire-reports-unit-tests/"
+            "-Dsurefire.reportNameSuffix=target/target/unit-tests"
 
       # TODO: Uncomment when web element tests are fixed
       #- name: Web Element Unit Tests
       #  run: |
       #   mvn test \
       #     "-DtestSuite=./src/test/resources/testngWebElementSUnitTests.xml" \
-      #     "-Dsurefire.reportsDirectory=target/surefire-reports-unit_tests"
+      #     "-Dsurefire.reportNameSuffix=target/surefire-reports-unit_tests"
+      #      "-Dsurefire.reportNameSuffix=target/target/web-element-tests"
 
       # TODO: Uncomment when Maven exec plugin vulnerability is fixed.
       #- name: Test - AWS Local Docker - Chrome latest
@@ -62,13 +63,14 @@ jobs:
       #     "-DthreadCount=4" "-DtestMode=local_docker" \
       #     "-Dbrowser=chrome:latest" \
       #     "-DtestngFile=testngMethod.xml"
+      #     "-Dsurefire.reportNameSuffix=target/target/aws-local-docker"
 
       - name: Web Form Test - Local Docker - Linux Chrome latest
         run: |
           mvn clean test \
             "-DtestSuite=./src/test/resources/testngMethod.xml" \
             "-Dheadless=true" \
-            "-Dsurefire.reportsDirectory=target/surefire-reports-local-docker/"
+            "-Dsurefire.reportNameSuffix=target/local-docker"
 
       - name: Web Form Test (failed to record video and get screenshot)
         run: |
@@ -79,7 +81,7 @@ jobs:
             "-DdebugFail=true" \
             "-DscreenshotOnFail=true" \
             "-DvideoOnFail=true" \
-            "-Dsurefire.reportsDirectory=target/surefire-reports-failed/"
+            "-Dsurefire.reportNameSuffix=target/failed-test"
         continue-on-error: true
 
       - name: Web Form Test - Local Docker Auto - Linux Firefox latest
@@ -89,7 +91,7 @@ jobs:
             "-DtestMode=local_docker_auto" \
             "-Dbrowser:firefox:latest" \
             "-Dheadless=true" \
-            "-Dsurefire.reportsDirectory=target/surefire-reports-local-docker-auto/"
+            "-Dsurefire.reportNameSuffix=target/local-docker-auto"
 
       - name: Test - Local Playwright - Linux Firefox
         run: |
@@ -97,7 +99,7 @@ jobs:
             "-DtestSuite=./src/test/resources/testngMethod.xml" \
             "-DtestMode=local_playwright" \
             "-Dbrowser=firefox" \
-            "-Dsurefire.reportsDirectory=target/surefire-reports-local-playwright/"
+            "-Dsurefire.reportNameSuffix=target/local-playwright"
 
       # TODO: Fix AWS Device Farm Windows Edge.
       #- name: Test - AWS Device Farm - Windows Edge
@@ -106,6 +108,7 @@ jobs:
       #      "-DtestSuite=./src/test/resources/testngMethod.xml" \
       #      "-DthreadCount=5" \
       #      "-DtestMode=aws_device_farm" "-Dbrowser=edge:latest"
+      #      "-Dsurefire.reportNameSuffix=target/target/device-farm"
 
       # TODO: Fix AWS Docker Chrome.
       #- name: Test - AWS Remote Docker - Linux Chrome
@@ -115,53 +118,20 @@ jobs:
       #      "-DthreadCount=8" \
       #      "-DtestMode=aws_docker" \
       #      "-Dbrowser=chrome:latest"
+      #      "-Dsurefire.reportNameSuffix=target/target/aws-docker"
 
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: | 
           mvn clean test \
             "-DtestSuite=./src/test/resources/testngMethod.xml" \
             "-DthreadCount=2" "-DtestMode=local_accessibility" \
-            "-Dsurefire.reportsDirectory=target/surefire-reports-accessibility/"
+            "-Dsurefire.reportNameSuffix=target/surefire-reports-accessibility/"
 
-      # Upload reports as separate artifacts
-      - name: Upload Unit Test Reports
+      # Upload all reports as separate artifacts
+      - name: Upload Surefire Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports-unit
-          path: target/surefire-reports-unit-tests/
+          name: test-reports
+          path: target/surefire-reports
 
-      - name: Upload Local Docker Test Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports-local-docker
-          path: target/surefire-reports-local-docker/
-
-      - name: Upload Failed Test Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports-failed
-          path: target/surefire-reports-failed/
-
-      - name: Upload Local Docker Auto Test Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports-local-docker-auto
-          path: target/surefire-reports-local-docker-auto/
-
-      - name: Upload Local Playwright Test Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports-playwright
-          path: target/surefire-reports-playwright/
-
-      - name: Upload Accessibility Test Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports-accessibility
-          path: target/surefire-reports-accessibility/
