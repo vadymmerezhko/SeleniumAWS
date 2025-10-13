@@ -5,12 +5,12 @@
   <parent>
     <groupId>com.smarte2e</groupId>
     <artifactId>codeless-test-framework</artifactId>
-    <version>1.7.34</version>
+    <version>1.7.35</version>
     <relativePath>./parent-pom.xml</relativePath>
   </parent>
 
   <artifactId>codeless-test-automation</artifactId>
-  <version>1.7.34</version>
+  <version>1.7.35</version>
   <packaging>jar</packaging>
 
   <name>codeless-test-automation</name>
@@ -18,7 +18,9 @@
 
   <properties>
     <threadCount>1</threadCount>
+    <surefire.reportDirectory>target/surefire-reports</surefire.reportDirectory>
   </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
@@ -42,6 +44,7 @@
           </suiteXmlFiles>
           <!--<useSystemClassLoader>false</useSystemClassLoader>-->
           <argLine>-Xmx4g</argLine>
+          <reportsDirectory>${surefire.reportDirectory}</reportsDirectory>
         </configuration>
       </plugin>
     </plugins>

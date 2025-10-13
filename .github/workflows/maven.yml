@@ -1,12 +1,4 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Java CI with Maven
+name: SmartE2E Codeless Framework Java CI with Maven
 
 on:
   push:
@@ -44,8 +36,8 @@ jobs:
 
       - name: Unit Tests
         run: |
-          mkdir -p target/urefire-reports-unit
-          mvn test \
+          mkdir -p target/surefire-reports-unit
+          mvn clean test \
             -DtestSuite=./src/test/resources/testngUnitTests.xml \
             -Dsurefire.reportDirectory=target/surefire-reports-unit
 
@@ -133,7 +125,7 @@ jobs:
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: |
           mkdir -p target/surefire-reports-accessibility
-          mvn test \ target/surefire-reports-accessibility
+          mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DthreadCount=2 \
             -DtestMode=local_accessibility \
@@ -144,39 +136,39 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: surefire-reports-unit
-          path: target/surefire-reports-unit
+          path: target/surefire-reports-unit/**
 
       - name: Upload Local Docker Chrome Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: surefire-reports-local-docker
-          path: target/surefire-reports-local-docker
+          path: target/surefire-reports-local-docker/**
 
       - name: Upload Failed Debug Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: surefire-reports-failed
-          path: target/surefire-reports-failed
+          path: target/surefire-reports-failed/**
 
       - name: Upload Local Docker Auto Firefox Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: surefire-reports-local-docker-auto
-          path: target/surefire-reports-local-docker-auto
+          path: target/surefire-reports-local-docker-auto/**
 
       - name: Upload Local Playwright Firefox Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: surefire-reports-local-playwright
-          path: target/surefire-reports-local-playwright
+          path: target/surefire-reports-local-playwright/**
 
       - name: Upload Accessibility Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: surefire-reports-accessibility
-          path: target/surefire-reports-accessibility
+          path: target/surefire-reports-accessibility/**
