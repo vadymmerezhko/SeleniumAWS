@@ -5,12 +5,12 @@
   <parent>
     <groupId>com.smarte2e</groupId>
     <artifactId>codeless-test-framework</artifactId>
-    <version>1.7.18</version>
+    <version>1.7.19</version>
     <relativePath>./parent-pom.xml</relativePath>
   </parent>
 
   <artifactId>codeless-test-automation</artifactId>
-  <version>1.7.18</version>
+  <version>1.7.19</version>
   <packaging>jar</packaging>
 
   <name>codeless-test-automation</name>
