@@ -44,7 +44,7 @@ jobs:
 
       - name: Unit Tests
         run: |
-          mvn test \
+          mvn clean test \
             -DtestSuite=./src/test/resources/testngUnitTests.xml \
             -Dsurefire.reportsDirectory=target/surefire-reports-unit
 
