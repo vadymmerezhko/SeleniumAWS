@@ -52,7 +52,7 @@ jobs:
         run: |
           mvn clean test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
-            -Dheadless=true" \
+            -Dheadless=true \
             -Dsurefire.reportNameSuffix=local-docker
 
       - name: Web Form Test (failed to record video and get screenshot)
@@ -125,7 +125,8 @@ jobs:
         run: | 
           mvn clean test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
-            -DthreadCount=2" "-DtestMode=local_accessibility \
+            -DthreadCount=2 \
+            -DtestMode=local_accessibility \
             -Dsurefire.reportNameSuffix=accessibility-test
 
       # Upload all reports as separate artifacts
