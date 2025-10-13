@@ -34,12 +34,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      #- name: Unit Tests
-      #  run: |
-      #    mkdir -p target/surefire-reports-unit
-      #    mvn clean test \
-      #      -DtestSuite=./src/test/resources/testngUnitTests.xml \
-      #      -DsurefireReportDirectory=target/surefire-reports-unit
+      - name: Unit Tests
+        run: |
+          mkdir -p target/surefire-reports-unit
+          mvn clean test \
+            -DtestSuite=./src/test/resources/testngUnitTests.xml \
+            -DsurefireReportDirectory=target/surefire-reports-unit
 
       - name: Web Form Test - Local Docker - Linux Chrome latest
         run: |
