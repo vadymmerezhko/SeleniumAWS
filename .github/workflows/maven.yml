@@ -36,14 +36,12 @@ jobs:
 
       - name: Unit Tests
         run: |
-          mkdir -p target/surefire-reports-unit
           mvn clean test \
             -DtestSuite=./src/test/resources/testngUnitTests.xml \
             -DsurefireReportDirectory=target/surefire-reports-unit
 
       - name: Web Form Test - Local Docker - Linux Chrome latest
         run: |
-          mkdir -p target/surefire-reports-local-docker
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -Dheadless=true \
@@ -51,7 +49,6 @@ jobs:
 
       - name: Login Test - Local Docker - Linux Firefox latest
         run: |
-          mkdir -p target/surefire-reports-login-test
           mvn test \
             -DtestSuite=./src/test/resources/testngStandardUserLogin \
             -Dheadless=true \
@@ -59,7 +56,6 @@ jobs:
 
       - name: Web Form Test (failed in order to record video and get screenshot)
         run: |
-          mkdir -p target/surefire-reports-failed
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -Dheadless=true \
@@ -72,7 +68,6 @@ jobs:
 
       - name: Web Form Test - Local Docker Auto - Linux Firefox latest
         run: |
-          mkdir -p target/surefire-reports-local-docker-auto
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DtestMode=local_docker_auto \
@@ -82,7 +77,6 @@ jobs:
 
       - name: Test - Local Playwright - Linux Firefox
         run: |
-          mkdir -p target/surefire-reports-local-playwright
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DtestMode=local_playwright \
@@ -91,7 +85,6 @@ jobs:
 
       - name: Test - Local Playwright - Linux Chromium - Retain Browser
         run: |
-          mkdir -p target/surefire-reports-retain-browser
           mvn test \
             -DtestSuite=./src/test/resources/testng1.xml \
             -DtestMode=local_playwright \
@@ -103,7 +96,6 @@ jobs:
       # TODO: Uncomment when web element tests are fixed
       #- name: Web Element Unit Tests
       #  run: |
-      #   mkdir -p target/surefire-reports-web-element-tests
       #   mvn test \
       #     -DtestSuite=./src/test/resources/testngWebElementSUnitTests.xml \
       #     -DsurefireReportDirectory=target/surefire-reports-web-element-tests
@@ -111,7 +103,6 @@ jobs:
       # TODO: Uncomment when Maven exec plugin vulnerability is fixed.
       #- name: Test - AWS Local Docker - Chrome latest
       #  run: |
-      #   mkdir -p target/surefire-reports-aws-local-docker
       #   mvn -f aws-local-pom.xml clean compile exec:java \
       #     -DthreadCount=4 \
       #     -DtestMode=local_docker \
@@ -122,7 +113,6 @@ jobs:
       # TODO: Fix AWS Device Farm Windows Edge.
       #- name: Test - AWS Device Farm - Windows Edge
       #  run: |
-      #    mkdir -p target/surefire-reports-device-farm
       #    mvn test \
       #      -DtestSuite=./src/test/resources/testngMethod.xml \
       #      -DthreadCount=5 \
@@ -133,7 +123,6 @@ jobs:
       # TODO: Fix AWS Docker Chrome.
       #- name: Test - AWS Remote Docker - Linux Chrome
       #  run: |
-      #    mkdir -p target/surefire-reports-aws-docker
       #    mvn test \
       #      -DtestSuite=./src/test/resources/testngMethod.xml \
       #      -DthreadCount=8 \
@@ -143,7 +132,6 @@ jobs:
 
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: |
-          mkdir -p target/surefire-reports-accessibility
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DthreadCount=2 \
