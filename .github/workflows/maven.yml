@@ -80,14 +80,14 @@ jobs:
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DtestMode=local_playwright \
-            -Dbrowser=firefox \
+            -Dbrowser=edge:latest \
             -DsurefireReportDirectory=target/surefire-reports-local-playwright
 
       - name: Test - Local Playwright - Linux Chromium - Retain Browser
         run: |
           mvn test \
             -DtestSuite=./src/test/resources/testng1.xml \
-            -DtestMode=local_playwright \
+            -DtestMode=local_docker_auto \
             -Dbrowser=chromium \
             -DthreadCount=4 \
             -DretainBrowser=true \
