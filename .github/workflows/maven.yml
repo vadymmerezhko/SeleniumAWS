@@ -46,6 +46,7 @@ jobs:
           mkdir -p target/surefire-reports-local-docker
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
+            -Dbrowser=chrome:latest \
             -Dheadless=true \
             -DsurefireReportDirectory=target/surefire-reports-local-docker
 
@@ -62,13 +63,13 @@ jobs:
             -DsurefireReportDirectory=target/surefire-reports-failed
         continue-on-error: true
 
-      - name: Web Form Test - Local Docker Auto - Linux Firefox latest
+      - name: Web Form Test - Local Docker Auto - Edge latest
         run: |
           mkdir -p target/surefire-reports-local-docker-auto
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DtestMode=local_docker_auto \
-            -Dbrowser=firefox:latest \
+            -Dbrowser=edge:latest \
             -Dheadless=true \
             -DsurefireReportDirectory=target/surefire-reports-local-docker-auto
 
@@ -78,16 +79,16 @@ jobs:
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DtestMode=local_playwright \
-            -Dbrowser=firefox \
+            -Dbrowser=chromium \
             -DsurefireReportDirectory=target/surefire-reports-local-playwright
 
-      - name: Test - Local Playwright - Linux Chromium - Retain Browser
+      - name: Test - Local Docker Auto - Linux Chrome - Retain Browser
         run: |
-          mkdir -p target/surefire-reports-local-playwright
+          mkdir -p target/surefire-reports-retain-browser
           mvn test \
             -DtestSuite=./src/test/resources/testng1.xml \
-            -DtestMode=local_playwright \
-            -Dbrowser=chromium \
+            -DtestMode=local_docker_auto \
+            -Dbrowser=chrome:latest \
             -DthreadCount=4 \
             -DretainBrowser=true \
             -DsurefireReportDirectory=target/surefire-reports-retain-browser
@@ -95,7 +96,6 @@ jobs:
       # TODO: Uncomment when web element tests are fixed
       #- name: Web Element Unit Tests
       #  run: |
-      #   mkdir -p target/surefire-reports-web-element-tests
       #   mvn test \
       #     -DtestSuite=./src/test/resources/testngWebElementSUnitTests.xml \
       #     -DsurefireReportDirectory=target/surefire-reports-web-element-tests
@@ -103,7 +103,6 @@ jobs:
       # TODO: Uncomment when Maven exec plugin vulnerability is fixed.
       #- name: Test - AWS Local Docker - Chrome latest
       #  run: |
-      #   mkdir -p target/surefire-reports-aws-local-docker
       #   mvn -f aws-local-pom.xml clean compile exec:java \
       #     -DthreadCount=4 \
       #     -DtestMode=local_docker \
@@ -114,7 +113,6 @@ jobs:
       # TODO: Fix AWS Device Farm Windows Edge.
       #- name: Test - AWS Device Farm - Windows Edge
       #  run: |
-      #    mkdir -p target/surefire-reports-device-farm
       #    mvn test \
       #      -DtestSuite=./src/test/resources/testngMethod.xml \
       #      -DthreadCount=5 \
@@ -125,7 +123,6 @@ jobs:
       # TODO: Fix AWS Docker Chrome.
       #- name: Test - AWS Remote Docker - Linux Chrome
       #  run: |
-      #    mkdir -p target/surefire-reports-aws-docker
       #    mvn test \
       #      -DtestSuite=./src/test/resources/testngMethod.xml \
       #      -DthreadCount=8 \
