@@ -177,6 +177,13 @@ jobs:
           name: surefire-reports-local-playwright
           path: target/surefire-reports-local-playwright/**
 
+      - name: Upload Local Playwright Chromium Retain Browser Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports-local-playwright
+          path: target/surefire-reports-retain-browser/**
+
       - name: Upload Accessibility Reports
         if: always()
         uses: actions/upload-artifact@v4
