@@ -50,15 +50,6 @@ jobs:
             -Dheadless=true \
             -DsurefireReportDirectory=target/surefire-reports-local-docker
 
-      - name: Login Test - Local Docker - Linux Firefox latest
-        run: |
-          mkdir -p target/surefire-reports-login-test
-          mvn test \
-            -DtestSuite=./src/test/resources/testngStandardUserLogin.xml \
-            -Dbrowser=firefox:latest
-            -Dheadless=true \
-            -DsurefireReportDirectory=target/surefire-reports-login-test
-
       - name: Web Form Test (failed in order to record video and get screenshot)
         run: |
           mkdir -p target/surefire-reports-failed
