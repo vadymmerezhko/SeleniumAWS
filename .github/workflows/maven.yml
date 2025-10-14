@@ -73,15 +73,6 @@ jobs:
             -Dheadless=true \
             -DsurefireReportDirectory=target/surefire-reports-local-docker-auto
 
-      - name: Test - Local Playwright - Linux Firefox
-        run: |
-          mkdir -p target/surefire-reports-local-playwright
-          mvn test \
-            -DtestSuite=./src/test/resources/testngMethod.xml \
-            -DtestMode=local_playwright \
-            -Dbrowser=chromium \
-            -DsurefireReportDirectory=target/surefire-reports-local-playwright
-
       - name: Test - Local Docker Auto - Linux Chrome - Retain Browser
         run: |
           mkdir -p target/surefire-reports-retain-browser
@@ -92,6 +83,27 @@ jobs:
             -DthreadCount=4 \
             -DretainBrowser=true \
             -DsurefireReportDirectory=target/surefire-reports-retain-browser
+
+      - name: Install Playwright dependencies
+        run: npx playwright install-deps
+
+      - name: Test - Local Playwright - Linux Firefox
+        run: |
+          mkdir -p target/surefire-reports-local-playwright
+          mvn test \
+            -DtestSuite=./src/test/resources/testngMethod.xml \
+            -DtestMode=local_playwright \
+            -Dbrowser=chromium \
+            -DsurefireReportDirectory=target/surefire-reports-local-playwright     
+
+      - name: Test - Local Playwright Accessibility Test - Chromium
+        run: |
+          mkdir -p target/surefire-reports-accessibility
+          mvn test \
+            -DtestSuite=./src/test/resources/testngMethod.xml \
+            -DthreadCount=2 \
+            -DtestMode=local_accessibility \
+            -DsurefireReportDirectory=target/surefire-reports-accessibility
 
       # TODO: Uncomment when web element tests are fixed
       #- name: Web Element Unit Tests
@@ -129,18 +141,6 @@ jobs:
       #      -DtestMode=aws_docker \
       #      -Dbrowser=chrome:latest \
       #      -DsurefireReportDirectory=target/surefire-reports-aws-docker
-
-      - name: Install Playwright dependencies
-        run: npx playwright install-deps
-
-      - name: Test - Local Playwright Accessibility Test - Chromium
-        run: |
-          mkdir -p target/surefire-reports-accessibility
-          mvn test \
-            -DtestSuite=./src/test/resources/testngMethod.xml \
-            -DthreadCount=2 \
-            -DtestMode=local_accessibility \
-            -DsurefireReportDirectory=target/surefire-reports-accessibility
 
       - name: Upload Unit Test Reports
         if: always()
