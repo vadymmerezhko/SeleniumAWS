@@ -34,9 +34,6 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Install Playwright dependencies
-        run: npx playwright install-deps
-
       - name: Unit Tests
         run: |
           mkdir -p target/surefire-reports-unit
@@ -135,6 +132,9 @@ jobs:
       #      -DtestMode=aws_docker \
       #      -Dbrowser=chrome:latest \
       #      -DsurefireReportDirectory=target/surefire-reports-aws-docker
+
+      - name: Install Playwright dependencies
+        run: npx playwright install-deps
 
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: |

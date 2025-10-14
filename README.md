@@ -1,4 +1,4 @@
-## SmartE2E Codeless Test Framework 1.7.48
+## SmartE2E Codeless Test Framework 1.7.52
 ### Command line parameters
 #### -DsiteHost
 AUT site host to switch between DEV, QA and PROD environments:
