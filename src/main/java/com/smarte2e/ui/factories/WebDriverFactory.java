@@ -43,9 +43,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -225,15 +223,10 @@ public class WebDriverFactory {
      * Quites all web drivers in parallel.
      */
     public static void quitAllDrivers() {
-        Set<Thread> threadSet = new HashSet<>();
 
         try {
             for (Long threadId : driverMap.keySet()) {
-                threadSet.add(quitDriverInParallel(threadId));
-            }
-            // Wait for closing all drivers.
-            for (Thread thread : threadSet) {
-                thread.join();
+                quitDriver(threadId);
             }
         }
         catch (Exception e) {
@@ -641,12 +634,6 @@ public class WebDriverFactory {
             driverMap.get(threadId).quit();
             driverMap.remove(threadId);
         }
-    }
-
-    synchronized private static Thread quitDriverInParallel(long threadId) {
-        Thread thread = new Thread(() -> WebDriverFactory.quitDriver(threadId));
-        thread.start();
-        return thread;
     }
 
     synchronized private static void runSeleniumGridOnDocker(

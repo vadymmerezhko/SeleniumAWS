@@ -31,8 +31,6 @@ public abstract class BaseTest {
 
     @BeforeSuite()
     public void beforeSuite() {
-/*        FileSystemUtils.deleteFolder(VIDEOS_FOLDER_PATH);
-        FileSystemUtils.deleteFolder(SCREENSHOTS_FOLDER_PATH);*/
     }
 
     @AfterSuite()
