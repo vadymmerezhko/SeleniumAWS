@@ -81,6 +81,17 @@ jobs:
             -Dbrowser=firefox \
             -DsurefireReportDirectory=target/surefire-reports-local-playwright
 
+      - name: Test - Local Playwright - Linux Chromium - Retain Browser
+        run: |
+          mkdir -p target/surefire-reports-local-playwright
+          mvn test \
+            -DtestSuite=./src/test/resources/testng1.xml \
+            -DtestMode=local_playwright \
+            -Dbrowser=chromium \
+            -DthreadCount=4 \
+            -DretainBrowser=true \
+            -DsurefireReportDirectory=target/surefire-reports-retain-browser
+
       # TODO: Uncomment when web element tests are fixed
       #- name: Web Element Unit Tests
       #  run: |
