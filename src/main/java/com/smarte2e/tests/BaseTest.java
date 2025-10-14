@@ -24,16 +24,15 @@ import static com.smarte2e.constants.Settings.SUREFIRE_REPORT_FOLDER_NAME;
 @Slf4j
 @Listeners(RunAloneTestListener.class)
 public abstract class BaseTest {
-    static private final String SCREENSHOTS_FOLDER_PATH = "./target/" + SUREFIRE_REPORT_FOLDER_NAME + "/screenshots";
-    static private final String VIDEOS_FOLDER_PATH = "./target/" + SUREFIRE_REPORT_FOLDER_NAME + "/videos";
-
+    static private final String SCREENSHOTS_FOLDER_PATH = "./" + SUREFIRE_REPORT_FOLDER_NAME;
+    static private final String VIDEOS_FOLDER_PATH = "./" + SUREFIRE_REPORT_FOLDER_NAME;
     static private final String DEFAULT_BROWSER_VERSION = "default";
     static private final Config config = Config.getInstance();
 
     @BeforeSuite()
     public void beforeSuite() {
-        FileSystemUtils.deleteFolder(VIDEOS_FOLDER_PATH);
-        FileSystemUtils.deleteFolder(SCREENSHOTS_FOLDER_PATH);
+/*        FileSystemUtils.deleteFolder(VIDEOS_FOLDER_PATH);
+        FileSystemUtils.deleteFolder(SCREENSHOTS_FOLDER_PATH);*/
     }
 
     @AfterSuite()
@@ -130,7 +129,7 @@ public abstract class BaseTest {
 
         WebDriverFactory.takeScreenshot(filePath);
         File file = new File(filePath);
-        String relativePath = String.format("./screenshots/%s", file.getName());
+        String relativePath = String.format("./%s", file.getName());
         Reporter.log(String.format("<br/><a href='%s'>Screenshot: %s</a>", relativePath, file.getName()));
         Reporter.log(String.format("<br/><img src='%s' width='600', height='400'/>", relativePath));
     }
@@ -151,7 +150,7 @@ public abstract class BaseTest {
     private void addVideoLinkToTestReport() {
         String filePath = WebDriverFactory.getVideoFilePath();
         File file = new File(filePath);
-        String relativePath = String.format("./videos/%s", file.getName());
+        String relativePath = String.format("./%s", file.getName());
         Reporter.log(String.format("<br/><a href='%s'>Video: %s</a>", relativePath, file.getName()));
         Reporter.log(String.format("<br/><video width='600' height='400' controls>" +
                 "<source src='%s' type='video/mp4'></video>", relativePath));
