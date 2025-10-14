@@ -85,6 +85,7 @@ jobs:
 
       - name: Test - Local Playwright - Linux Chromium - Retain Browser
         run: |
+          mkdir -p target/surefire-reports-local-playwright
           mvn test \
             -DtestSuite=./src/test/resources/testng1.xml \
             -DtestMode=local_docker_auto \
