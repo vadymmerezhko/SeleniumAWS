@@ -1844,8 +1844,9 @@ public class SmartValue extends com.smarte2e.data.SmartObject implements com.sma
         String filePath = String.format("%s/%s", DATA_OBJECTS_FOLDER_PATH, fileName);
 
         if (!FileSystemUtils.fileExists(filePath)) {
-            log.debug("Data object file does not exist: {}", filePath);
-            return;
+            // Create empty JSON file
+            FileSystemUtils.createFile(filePath, "{}");
+            log.debug("Empty data object JSON file created: {}", filePath);
         }
         String parentName = FileSystemUtils.getFileNameWithoutExtension(fileName);
         String fileContent = FileSystemUtils.readFile(filePath);
