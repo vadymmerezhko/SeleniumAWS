@@ -44,21 +44,18 @@ jobs:
         run: |
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
-            -Dheadless=true \
             -DsurefireReportDirectory=target/surefire-reports-local-docker
 
       - name: Login Test - Local Docker - Linux Firefox latest
         run: |
           mvn test \
             -DtestSuite=./src/test/resources/testngStandardUserLogin.xml \
-            -Dheadless=true \
             -DsurefireReportDirectory=target/surefire-reports-login-test
 
       - name: Web Form Test (failed in order to record video and get screenshot)
         run: |
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
-            -Dheadless=true \
             -Dhighlight=true \
             -DdebugFail=true \
             -DscreenshotOnFail=true \
@@ -72,7 +69,6 @@ jobs:
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DtestMode=local_docker_auto \
             -Dbrowser=firefox:latest \
-            -Dheadless=true \
             -DsurefireReportDirectory=target/surefire-reports-local-docker-auto
 
       - name: Test - Local Playwright - Linux Firefox
