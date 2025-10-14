@@ -49,6 +49,14 @@ jobs:
             -Dheadless=true \
             -DsurefireReportDirectory=target/surefire-reports-local-docker
 
+      - name: Login Test - Local Docker - Linux Firefox latest
+        run: |
+          mkdir -p target/surefire-reports-login-test
+          mvn test \
+            -DtestSuite=./src/test/resources/testngStandardUserLogin \
+            -Dheadless=true \
+            -DsurefireReportDirectory=target/surefire-reports-login-test
+
       - name: Web Form Test (failed in order to record video and get screenshot)
         run: |
           mkdir -p target/surefire-reports-failed
@@ -83,7 +91,7 @@ jobs:
 
       - name: Test - Local Playwright - Linux Chromium - Retain Browser
         run: |
-          mkdir -p target/surefire-reports-local-playwright
+          mkdir -p target/surefire-reports-retain-browser
           mvn test \
             -DtestSuite=./src/test/resources/testng1.xml \
             -DtestMode=local_playwright \
@@ -155,6 +163,13 @@ jobs:
         with:
           name: surefire-reports-local-docker
           path: target/surefire-reports-local-docker/**
+
+      - name: Upload Login Test Local Docker Firefox Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports-login-test
+          path: target/surefire-reports-login-test/**
 
       - name: Upload Failed Debug Reports
         if: always()
