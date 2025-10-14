@@ -153,13 +153,6 @@ jobs:
           name: surefire-reports-local-docker
           path: target/surefire-reports-local-docker/**
 
-      - name: Upload Login Test Local Docker Firefox Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: surefire-reports-login-test
-          path: target/surefire-reports-login-test/**
-
       - name: Upload Failed Debug Reports
         if: always()
         uses: actions/upload-artifact@v4
