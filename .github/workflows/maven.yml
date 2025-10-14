@@ -34,6 +34,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Install Playwright dependencies
+        run: npx playwright install-deps
+
       - name: Unit Tests
         run: |
           mkdir -p target/surefire-reports-unit
