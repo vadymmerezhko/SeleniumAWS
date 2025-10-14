@@ -36,26 +36,23 @@ jobs:
 
       - name: Unit Tests
         run: |
+          mkdir -p target/surefire-reports-unit
           mvn clean test \
             -DtestSuite=./src/test/resources/testngUnitTests.xml \
             -DsurefireReportDirectory=target/surefire-reports-unit
 
       - name: Web Form Test - Local Docker - Linux Chrome latest
         run: |
+          mkdir -p target/surefire-reports-local-docker
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
+            -Dbrowser=chrome:latest \
             -Dheadless=true \
             -DsurefireReportDirectory=target/surefire-reports-local-docker
 
-      - name: Login Test - Local Docker - Linux Firefox latest
-        run: |
-          mvn test \
-            -DtestSuite=./src/test/resources/testngStandardUserLogin.xml \
-            -Dheadless=true \
-            -DsurefireReportDirectory=target/surefire-reports-login-test
-
       - name: Web Form Test (failed in order to record video and get screenshot)
         run: |
+          mkdir -p target/surefire-reports-failed
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -Dheadless=true \
@@ -66,29 +63,32 @@ jobs:
             -DsurefireReportDirectory=target/surefire-reports-failed
         continue-on-error: true
 
-      - name: Web Form Test - Local Docker Auto - Linux Firefox latest
+      - name: Web Form Test - Local Docker Auto - Edge latest
         run: |
+          mkdir -p target/surefire-reports-local-docker-auto
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DtestMode=local_docker_auto \
-            -Dbrowser=firefox:latest \
+            -Dbrowser=edge:latest \
             -Dheadless=true \
             -DsurefireReportDirectory=target/surefire-reports-local-docker-auto
 
       - name: Test - Local Playwright - Linux Firefox
         run: |
+          mkdir -p target/surefire-reports-local-playwright
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DtestMode=local_playwright \
-            -Dbrowser=edge:latest \
+            -Dbrowser=chromium \
             -DsurefireReportDirectory=target/surefire-reports-local-playwright
 
-      - name: Test - Local Playwright - Linux Chromium - Retain Browser
+      - name: Test - Local Docker Auto - Linux Chrome - Retain Browser
         run: |
+          mkdir -p target/surefire-reports-retain-browser
           mvn test \
             -DtestSuite=./src/test/resources/testng1.xml \
             -DtestMode=local_docker_auto \
-            -Dbrowser=chromium \
+            -Dbrowser=chrome:latest \
             -DthreadCount=4 \
             -DretainBrowser=true \
             -DsurefireReportDirectory=target/surefire-reports-retain-browser
@@ -132,6 +132,7 @@ jobs:
 
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: |
+          mkdir -p target/surefire-reports-accessibility
           mvn test \
             -DtestSuite=./src/test/resources/testngMethod.xml \
             -DthreadCount=2 \
