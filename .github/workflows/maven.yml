@@ -50,7 +50,7 @@ jobs:
       - name: Login Test - Local Docker - Linux Firefox latest
         run: |
           mvn test \
-            -DtestSuite=./src/test/resources/testngStandardUserLogin \
+            -DtestSuite=./src/test/resources/testngStandardUserLogin.xml \
             -Dheadless=true \
             -DsurefireReportDirectory=target/surefire-reports-login-test
 
