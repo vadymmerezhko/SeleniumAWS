@@ -95,12 +95,12 @@ jobs:
 
       - name: User Login Test - Local Playwright - Linux Chromium
         run: |
-          mkdir -p target/surefire-reports-local-playwright
+          mkdir -p target/surefire-reports-user-login
           mvn test \
-            -DtestSuite=./src/test/resources/testngUserLoginTests.xml \
+            -DtestSuite=./src/test/resources/testngUserLogin.xml \
             -DtestMode=local_playwright \
             -Dbrowser=chromium \
-            -DsurefireReportDirectory=target/surefire-reports-local-playwright   
+            -DsurefireReportDirectory=target/surefire-reports-user-login 
 
       - name: Test - Local Playwright Accessibility Test - Chromium
         run: |
@@ -188,6 +188,13 @@ jobs:
         with:
           name: surefire-reports-retain-browser
           path: target/surefire-reports-retain-browser/**
+
+      - name: Upload User Login Local Playwright Chromium Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports-retain-browser
+          path: target/surefire-reports-user-login/**
 
       - name: Upload Accessibility Reports
         if: always()
