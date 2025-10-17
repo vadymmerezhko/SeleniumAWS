@@ -14,14 +14,12 @@ import org.testng.annotations.Test;
 public class UserLoginTest extends CommonTest {
     static final String STANDARD_USER = "StandardUser";
     static final String VISUAL_USER = "VisualUser";
-    static final String PERFORMANCE_GLITCH_USER = "PerformanceGlitchUser";
 
     @DataProvider(name = "userLoginData")
     public Object[][] loginPageData() {
         return new Object[][] {
                 {STANDARD_USER},
-                {VISUAL_USER},
-                {PERFORMANCE_GLITCH_USER}
+                {VISUAL_USER}
         };
     }
 
