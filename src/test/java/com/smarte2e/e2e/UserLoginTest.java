@@ -11,12 +11,12 @@ import org.testng.Reporter;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class LoginTest extends CommonTest {
+public class UserLoginTest extends CommonTest {
     static final String STANDARD_USER = "StandardUser";
     static final String VISUAL_USER = "VisualUser";
     static final String PERFORMANCE_GLITCH_USER = "PerformanceGlitchUser";
 
-    @DataProvider(name = "loginPageData")
+    @DataProvider(name = "userLoginData")
     public Object[][] loginPageData() {
         return new Object[][] {
                 {STANDARD_USER},
@@ -27,8 +27,8 @@ public class LoginTest extends CommonTest {
 
     @Test(description = "This method validates the Login form functionality",
             retryAnalyzer = RetryAnalyzer.class,
-            dataProvider = "loginPageData")
-    public void testStandardUserLogin(String dataSetName) {
+            dataProvider = "userLoginData")
+    public void testUserLogin(String dataSetName) {
         LoginPageInput loginInput = new LoginPageInput();
         LoginPageOutput loginExpectedOutput = new LoginPageOutput();
         loginInput.setDataSetName(dataSetName);

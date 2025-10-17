@@ -5,9 +5,9 @@
     </listeners>
     <test name="Test">
         <classes>
-            <class name="com.smarte2e.e2e.LoginTest">
+            <class name="com.smarte2e.e2e.UserLoginTest">
                 <methods>
-                    <include name="testStandardUserLogin"/>
+                    <include name="testUserLogin"/>
                 </methods>
             </class>
         </classes>
