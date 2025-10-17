@@ -1,0 +1,10 @@
+{
+    "password": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "secret_sauce"
+    },
+    "userName": {
+        "type": {"objectClass": "java.lang.String"},
+        "value": "visual_user"
+    }
+}

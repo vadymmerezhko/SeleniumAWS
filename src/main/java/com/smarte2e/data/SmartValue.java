@@ -1376,7 +1376,12 @@ public class SmartValue extends com.smarte2e.data.SmartObject implements com.sma
         if (name == null && !createdFromTemplate) {
             if (parent != null) {
                 validateParent();
-                parentName = parent.getClass().getSimpleName();
+
+                if (parent instanceof SmartData smartData) {
+                    parentName = smartData.getName();
+                } else {
+                    parentName = parent.getClass().getSimpleName();
+                }
                 fieldName = ClassUtils.getObjectFieldName(parent, this);
                 name = String.format("%s.%s", parentName, fieldName);
 

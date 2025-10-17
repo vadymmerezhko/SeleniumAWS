@@ -11,21 +11,43 @@ import java.util.Objects;
  */
 @Slf4j
 public abstract class SmartData extends SmartObject {
-    private final String name = getClass().getSimpleName();
+    private String name = getClass().getSimpleName();
+    protected String dataSetName;
 
     /**
-     * Constructs data object.
+     * Constructs data object without data set name.
      */
     SmartData() {
+        dataSetName = "";
         SmartDataInitializer.initialize(this);
+        log.debug("Smart data object without set name is created: {}", name);
     }
 
     /**
-     * Gets data object name.
+     * Gets data object name without data set name.
      * @return The name.
      */
     public String getName() {
+        log.debug("SmartData name is returned: {}", name);
         return name;
+    }
+
+    /**
+     * Gets data set name.
+     * @return The data set name.
+     */
+    public String getDataSetName() {
+        log.debug("SmartData data set name is returned: {}", dataSetName);
+        return dataSetName;
+    }
+
+    /**
+     * Sets data set name.
+     */
+    public void setDataSetName(String dataSetName) {
+        this.dataSetName = dataSetName;
+        name = dataSetName + getName();
+        log.debug("SmartData data set name is set: {}", dataSetName);
     }
 
     @Override

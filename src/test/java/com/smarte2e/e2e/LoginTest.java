@@ -8,18 +8,35 @@ import com.smarte2e.servives.TestServiceInterface;
 import com.smarte2e.servives.TestServiceManager;
 import com.smarte2e.testng.RetryAnalyzer;
 import org.testng.Reporter;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class LoginTest extends CommonTest {
+    static final String STANDARD_USER = "StandardUser";
+    static final String VISUAL_USER = "VisualUser";
+    static final String PERFORMANCE_GLITCH_USER = "PerformanceGlitchUser";
 
-    @Test(description = "This method validates the Login form functionality", retryAnalyzer = RetryAnalyzer.class)
-    public void testStandardUserLogin() {
-        LoginPageInput loginPageInput = new LoginPageInput();
+    @DataProvider(name = "loginPageData")
+    public Object[][] loginPageData() {
+        return new Object[][] {
+                {STANDARD_USER},
+                {VISUAL_USER},
+                {PERFORMANCE_GLITCH_USER}
+        };
+    }
+
+    @Test(description = "This method validates the Login form functionality",
+            retryAnalyzer = RetryAnalyzer.class,
+            dataProvider = "loginPageData")
+    public void testStandardUserLogin(String dataSetName) {
+        LoginPageInput loginInput = new LoginPageInput();
+        LoginPageOutput loginExpectedOutput = new LoginPageOutput();
+        loginInput.setDataSetName(dataSetName);
+        loginExpectedOutput.setDataSetName(dataSetName);
+
         TestServiceInterface testService = TestServiceManager.getService();
-        LoginPageOutput loginActual = testService.fillLoginPage(loginPageInput);
-        LoginPageOutput loginExpected = new LoginPageOutput();
-
-        SmartAssert.assertData(loginExpected, loginActual);
+        LoginPageOutput loginActualOutput = testService.fillLoginPage(loginInput);
+        SmartAssert.assertData(loginExpectedOutput, loginActualOutput);
 
         ProductsPageHeaderOutput productsHeaderActual = testService.submitLoginPage();
         ProductsPageHeaderOutput productsHeaderExpected = new ProductsPageHeaderOutput();
