@@ -381,7 +381,7 @@ public class Config extends BaseConfig {
      * @return The size threshold.
      */
     synchronized public int getSizeThreshold() {
-        return (int) getLongProperty(SIZE_THRESHOLD);
+        return getPercentageProperty(SIZE_THRESHOLD);
     }
 
     private void validateDebugModeProperty() {

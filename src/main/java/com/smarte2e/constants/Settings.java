@@ -17,7 +17,7 @@ public class Settings {
     public static final int SERVER_WAIT_TIMEOUT_SECONDS = 120;
     public static final int MIN_COLOURS_THRESHOLD_PERCENTAGE = 70;
     public static final int MIN_PIXELS_THRESHOLD_PERCENTAGE = 70;
-    public static final int MAX_SIZE_THRESHOLD_PIXELS = 3;
+    public static final int MIN_SIZE_THRESHOLD_PIXELS = 50;
     public static final int MAX_SCREEN_WIDTH = Config.getInstance().getBrowseWidth();
     public static final int MAX_SCREEN_HEIGHT = Config.getInstance().getBrowseHeight();
     public static final int RETRY_WAIT_MILLISECONDS = Config.getInstance().getRetryWaitMSec();

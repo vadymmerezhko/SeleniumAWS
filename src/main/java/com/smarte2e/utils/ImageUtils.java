@@ -99,13 +99,13 @@ public final class ImageUtils {
             WebElement parent,
             int colorsThreshold,
             int pixelsThreshold,
-            int sizeThresholdPixels) {
+            int sizeThreshold) {
         DataValidator.range(colorsThreshold,
                 MIN_COLOURS_THRESHOLD_PERCENTAGE, 100, "colorsThreshold");
         DataValidator.range(pixelsThreshold,
                 MIN_PIXELS_THRESHOLD_PERCENTAGE, 100, "pixelsThreshold");
-        DataValidator.range(sizeThresholdPixels,
-                0, MAX_SIZE_THRESHOLD_PIXELS, "sizeThresholdPixels");
+        DataValidator.range(sizeThreshold,
+                MIN_SIZE_THRESHOLD_PIXELS, 100, "sizeThreshold");
 
         WebDriver driver = WebDriverFactory.getDriver();
         List<WebElement> foundElements = new ArrayList<>();
@@ -130,7 +130,7 @@ public final class ImageUtils {
                 for (WebElement childElement : childElements) {
                     Dimension childElementSize = childElement.getSize();
 
-                    if (compareSizes(elementSize, childElementSize, sizeThresholdPixels)) {
+                    if (compareSizes(elementSize, childElementSize, sizeThreshold)) {
                         targetSizeElements.add(childElement);
                     }
                 }
@@ -333,10 +333,12 @@ public final class ImageUtils {
         return !(deviation > maxDeviation);
     }
 
-    private static boolean compareSizes(Dimension expectedSize, Dimension actualSize, int threshold) {
+    private static boolean compareSizes(Dimension expectedSize, Dimension actualSize, int sizeThreshold) {
         int xDiff = Math.abs(expectedSize.width - actualSize.width);
         int yDiff = Math.abs(expectedSize.height - actualSize.height);
+        int xPercentageDiff = ((expectedSize.width - xDiff) * 100) / expectedSize.width;
+        int yPercentageDiff = ((expectedSize.height - yDiff) * 100) / expectedSize.height;
 
-        return  (xDiff <= 2 && yDiff <= threshold);
+        return  (xPercentageDiff <= sizeThreshold && yPercentageDiff <= sizeThreshold);
     }
 }

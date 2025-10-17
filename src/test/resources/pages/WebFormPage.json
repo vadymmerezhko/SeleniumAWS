@@ -1,6 +1,5 @@
 {
     "color": "css=input[name='my-colors']",
-    "submitButton": "css=button[type='submit']",
     "freeReturn": "css=input[id='my-radio-1']",
     "available": "css=input[id='my-check-1']",
     "freeDelivery": "css=input[id='my-check-2']",

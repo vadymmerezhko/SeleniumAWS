@@ -37,7 +37,7 @@ public final class WebUtils {
     static private final int MAX_OPEN_AI_REQUEST_REPEATS = 10;
     private static final int COLORS_THRESHOLD_PERCENTS = Config.getInstance().getColorsThreshold();
     private static final int PIXELS_THRESHOLD_PERCENTS = Config.getInstance().getPixelsThreshold();
-    private static final int SIZE_THRESHOLD_PIXELS = Config.getInstance().getSizeThreshold();
+    private static final int SIZE_THRESHOLD_PERCENTS = Config.getInstance().getSizeThreshold();
     static private final String KEYWORD_PLACEHOLDER = "#KEYWORD#";
     private static final String HIGHLIGHT_BORDER_STYLE = "3px solid red";
     private static final List<String> reliableAttributes = Arrays.asList(
@@ -1231,9 +1231,8 @@ public final class WebUtils {
             }
         }
         return ImageUtils.findWebElementsByBufferedImage(elementImage, parent,
-                COLORS_THRESHOLD_PERCENTS, PIXELS_THRESHOLD_PERCENTS, SIZE_THRESHOLD_PIXELS);
+                COLORS_THRESHOLD_PERCENTS, PIXELS_THRESHOLD_PERCENTS, SIZE_THRESHOLD_PERCENTS);
     }
-
 
     private static synchronized void initializeKeyBoardListener() {
         if (keyboardListener.get() == null) {

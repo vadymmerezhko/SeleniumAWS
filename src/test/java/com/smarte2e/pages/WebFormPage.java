@@ -1,5 +1,6 @@
 package com.smarte2e.pages;
 
+import com.smarte2e.ui.selectors.SmartBy;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import com.smarte2e.data.WebFormPageInput;
@@ -41,7 +42,7 @@ public class WebFormPage extends SmartPage {
     private final ColorInput color = new ColorInput();
     private final DateInput deliveryDate = new DateInput();
     private final RangeSlider weight = new RangeSlider();
-    private final Button submitButton = new Button();
+    private final Button submitButton = new Button(SmartBy.image());
 
     public WebFormPageOutput fillWebForm(WebFormPageInput input) {
         DataValidator.notNull(input, "input");
